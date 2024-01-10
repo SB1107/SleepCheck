@@ -52,4 +52,131 @@
     <string name="privacy_consent_list2">\t 앱 개선에 데이터 활용 동의</string>
     <string name="privacy_agree">동의하기</string>
 
+
+    <string name="app_yes">예</string>
+    <string name="app_no">아니오</string>
+    <string name="app_confirm">확인</string>
+    <string name="app_cancel">취소</string>
+    <string name="app_error">오류</string>
+    <string name="app_finish_message">한 번 더 뒤로가기를 누르면 종료합니다.</string>
+    <string name="app_network_failed">네트워크 오류</string>
+    <string name="app_reauthorize">사용자 인증이 만료되어 인증화면으로 돌아갑니다.</string>
+    <string name="app_require_update">업데이트 후에 앱을 사용해 주세요.</string>
+    <string name="app_require_update_cancel">앱 종료</string>
+    <string name="app_update_confirm">업데이트</string>
+    <string name="app_recommend_update">업데이트 버전이 나왔습니다.</string>
+    <string name="app_recommend_update_cancel">다음에</string>
+
+    <string name="login_start">시작하기</string>
+    <string name="login_failed">인증 정보가 없습니다.</string>
+
+    <string name="permission_confirm">권한 허용</string>
+    <string name="permission_rationale_msg">숨이랑을 사용하기 위해서는 권한설정을 허용해야만 합니다. 권한 설정 화면으로 이동하시겠습니까?</string>
+
+    <string name="splash_network_err">네트워크 오류\n잠시 후 다시 실행해 주세요.</string>
+    <string name="main_start_network_err">모바일 데이터 / 와이파이를 연결하세요.</string>
+
+    <string name="certification_name">이름</string>
+    <string name="certification_telecom">통신사</string>
+    <string name="certification_telecom_skt">SKT</string>
+    <string name="certification_telecom_kt">KT</string>
+    <string name="certification_telecom_lgt">LGT</string>
+    <string name="certification_telecom_skt_mvno">SKT 알뜰폰</string>
+    <string name="certification_telecom_kt_mvno">KT 알뜰폰</string>
+    <string name="certification_telecom_lgt_mvno">LGT 알뜰폰</string>
+    <string name="certification_phone_number">전화번호</string>
+    <string name="certification_birth">생년월일 Ex)20010101</string>
+    <string name="certification_male">남</string>
+    <string name="certification_female">여</string>
+    <string name="certification_native">내국인</string>
+    <string name="certification_foreigner">외국인</string>
+    <string name="certification_send">인증번호 발송</string>
+
+    <string name="certificate_confirm_message">문자로 전송된 인증번호\n6자리를 입력해주세요</string>
+    <string name="certificate_confirm_number">인증번호</string>
+    <string name="certificate_confirm_resend">재발송</string>
+    <string name="certificate_confirm_user_key_not_found">사용자 인증중 오류가 발생했습니다.\n다시 시도해 주세요.</string>
+    <string name="certificate_exist_login">중복 로그인</string>
+    <string name="certificate_exist_login_information">이미 다른 기기에서 사용중인 계정입니다. 다른 기기에서 접속을 끊고, 이 기기에서 사용을 원하십니까?</string>
+
+    <string name="main_realtime_graph">호흡 그래프</string>
+    <string name="main_apnea_graph">측정 결과</string>
+    <string name="main_require_register_device">기기 등록 필요</string>
+    <string name="main_bluetooth_disconnected">기기 연결하기</string>
+    <string name="main_bluetooth_try_connect">숨이랑 기기와 연결하시겠습니까?</string>
+    <string name="main_bluetooth_try_connecting">연결중</string>
+    <string name="main_bluetooth_connecting">기기와 연결중입니다. 잠시 기다려주세요.</string>
+    <string name="main_measure_start">측정 시작</string>
+    <string name="main_confirm_measure_start">숨이랑 기기 측정을\n시작하시겠습니까?</string>
+    <string name="main_confirm_force_measure_start">현재 측정중인 기록이 있습니다.\n해당 기록을 종료하고 숨이랑 기기 측정을 시작하시겠습니까?</string>
+    <string name="main_measure_stop">측정 종료</string>
+    <string name="main_measure_end">측정 완료</string>
+    <string name="main_confirm_measure_stop">숨이랑 기기 측정을 종료하시겠습니까?</string>
+    <string name="main_bluetooth_disabled">블루투스 활성화 필요</string>
+    <string name="main_bluetooth_try_reconnecting">재연결 시도중</string>
+    <string name="main_bluetooth_try_reconnected">재연결 처리중</string>
+    <string name="main_bluetooth_cancel_reconnect">현재 기기와의 연결이 의도치않게 종료되어 재연결 시도중에 있습니다. 재연결 시도를 취소하고 연결을 끊으시겠습니까?\n(측정중인 데이터가 모두 사라질 수 있습니다)</string>
+    <string name="main_measuring">측정중</string>
+    <string name="main_measure_require">최소 1회 이상\n측정이 필요합니다</string>
+    <string name="main_measure_level_good">좋음</string>
+    <string name="main_measure_level_normal">보통</string>
+    <string name="main_measure_level_bad">나쁨</string>
+
+    <string name="setting_general_title">설정</string>
+    <string name="setting_general_vibrator">진동</string>
+    <string name="setting_general_bluetooth">숨이랑 기기 설정</string>
+    <string name="setting_general_logout">로그아웃</string>
+    <string name="setting_general_logout_message">로그아웃하시겠습니까?</string>
+    <string name="setting_general_logout_error_message">측정 종료 후 로그아웃을 시도해 주세요.</string>
+    <string name="setting_general_withdraw">회원탈퇴</string>
+    <string name="setting_general_withdraw_message">저장된 데이터가 전부 삭제됩니다. 그래도 정말로 탈퇴하시겠습니까?</string>
+    <string name="setting_general_withdraw_error_message">측정 종료 후 회원탈퇴를 시도해 주세요</string>
+    <string name="setting_general_withdraw_finish">탈퇴 완료되었습니다.\n다시 돌아오길 기다릴게요!</string>
+
+    <string name="setting_bluetooth_title">블루투스 설정</string>
+    <string name="setting_bluetooth_subtitle">등록된 기기</string>
+    <string name="setting_bluetooth_require_register">기기등록이 필요합니다.</string>
+    <string name="setting_unregister">등록해제</string>
+    <string name="setting_bluetooth_register">기기등록</string>
+    <string name="setting_bluetooth_registered">등록됨</string>
+    <string name="setting_bluetooth_unregister">등록해제</string>
+    <string name="setting_bluetooth_connect">연결하기</string>
+    <string name="setting_bluetooth_connected">연결됨</string>
+    <string name="setting_bluetooth_disconnected">기기 연결하기</string>
+    <string name="setting_bluetooth_connecting">연결중</string>
+    <string name="setting_bluetooth_reconnecting">재연결중</string>
+    <string name="setting_bluetooth_measuring">측정중</string>
+    <string name="setting_bluetooth_measure_stop_first">현재 기기가 데이터 측정중입니다.\n측정을 종료한 뒤에 연결을 해제해주세요.</string>
+    <string name="setting_bluetooth_try_connect">기기를 연결하시겠습니까?</string>
+    <string name="setting_bluetooth_try_disconnect">기기 연결을 해제하시겠습니까?</string>
+    <string name="setting_bluetooth_try_unregister">기기 등록을 해제하시겠습니까?</string>
+    <string name="setting_bluetooth_disabled_toast">블루투스 기능이 비활성화 되어있습니다. 블루투스 기능을 먼저 활성화 해주세요.</string>
+    <string name="setting_bluetooth_disabled">비활성화</string>
+    <string name="setting_bluetooth_cancel_reconnect">현재 기기와의 연결이 의도치않게 종료되어 재연결 시도중에 있습니다. 재연결 시도를 취소하고\n연결을 끊으시겠습니까?\n(측정중인 데이터가 \n모두 사라질 수 있습니다)</string>
+
+    <string name="setting_bluetooth_search_empty">검색 결과가 없습니다</string>
+    <string name="setting_bluetooth_now_scanning">블루투스 스캔중입니다.\n스캔이 종료된 후에 다시 시도해 주세요.</string>
+    <string name="setting_initialize_explain">숨이랑 센서 또는 앱 동작에\n문제가 발생했을 경우 시도하세요</string>
+    <string name="setting_initialize_title">복구 솔루션을 실행하시겠습니까?</string>
+
+    <string name="scan_ble_key_not_found">블루투스 검색에 오류가 있습니다. 관리자에게 문의하세요.</string>
+    <string name="scan_bluetooth_title_sb_sensor">숨이랑 기기 등록</string>
+    <string name="scan_bluetooth_title_spo2_sensor">산포도 기기 등록</string>
+    <string name="scan_bluetooth_title_eeg_sensor">뇌파 기기 등록</string>
+    <string name="scan_bluetooth_register_success">기기 등록을 완료하였습니다.</string>
+    <string name="scan_bluetooth_register_failed">기기 등록을 실패하였습니다.\n다시 시도해 주세요.</string>
+    <string name="scan_bluetooth_search_device">기기 검색</string>
+    <string name="scan_bluetooth_refresh">새로고침</string>
+    <string name="scan_bluetooth_scanning">검색중..</string>
+    <string name="scan_bluetooth_search_init">새로고침을 눌러주세요</string>
+
+    <string name="service_title">숨이랑 기기 측정중입니다.</string>
+
+    <string name="notification_channel_id">withsoom chanel id</string>
+    <string name="channel_name">withsoom channel name fcm</string>
+
+    <string name="device_power_off_title">숨이랑 기기가 측정중 종료되었습니다</string>
+    <string name="device_power_off_battery_low">숨이랑 기기 배터리 잔량이 부족합니다. 충전 후 다시 측정해주세요.</string>
+    <string name="device_power_off_force_off">숨이랑 기기 스위치가 꺼졌습니다. 전원을 다시 켜고 측정해주세요.</string>
+    <string name="device_measure_timeout">숨이랑 기기 측정 시간이 12시간을 초과하여, 자동으로 측정을 종료합니다.</string>
 </resources>
