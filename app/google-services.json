@@ -1,0 +1,258 @@
+{
+  "project_info": {
+    "project_number": "1062852226027",
+    "project_id": "soom-e54df",
+    "storage_bucket": "soom-e54df.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062852226027:android:9cd1d55594b157a29587ae",
+        "android_client_info": {
+          "package_name": "kr.co.sbsolutions.newsoomirang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLwiXrw-fgClrkbJYir-JXKkk2ERkmBR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rocateer.sumirang"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062852226027:android:e1983b511cacfd699587ae",
+        "android_client_info": {
+          "package_name": "kr.co.sbsolutions.soomirang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062852226027-2b8t27i3baea0c4sn959pjpisih2o347.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.soomirang",
+            "certificate_hash": "ba8858186fb9c673d571a46e48e5c59ead104151"
+          }
+        },
+        {
+          "client_id": "1062852226027-2ci7j4424nsirvhi0roflqf6u4bfqmq2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.soomirang",
+            "certificate_hash": "5c0ecf064bd4bd2c00b6c374d1792f7523ca28d5"
+          }
+        },
+        {
+          "client_id": "1062852226027-5phjm6f7okb41upcbdtqoldb2dvsjrld.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.soomirang",
+            "certificate_hash": "967efa6d7b2a1cc4b254812e59dab0ff823aa128"
+          }
+        },
+        {
+          "client_id": "1062852226027-7u1ijfa14o0dakv0ibdqg6fnitsvobv8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.soomirang",
+            "certificate_hash": "c6e130c3dc74eb926924e8c14766cad861040c62"
+          }
+        },
+        {
+          "client_id": "1062852226027-abcstfjsscj5bff4fah9jshsggt58rs6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.soomirang",
+            "certificate_hash": "820fcbb02e837caade87aa9588231e45be3b876f"
+          }
+        },
+        {
+          "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLwiXrw-fgClrkbJYir-JXKkk2ERkmBR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rocateer.sumirang"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062852226027:android:d68faf5913d355af9587ae",
+        "android_client_info": {
+          "package_name": "kr.co.sbsolutions.withsoom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062852226027-09801ve33nnup1jbg42o1u06t7kb3rtj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.withsoom",
+            "certificate_hash": "ba8858186fb9c673d571a46e48e5c59ead104151"
+          }
+        },
+        {
+          "client_id": "1062852226027-h6pb1g2e47o1f2itro145ooarn6mrch2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.withsoom",
+            "certificate_hash": "5c0ecf064bd4bd2c00b6c374d1792f7523ca28d5"
+          }
+        },
+        {
+          "client_id": "1062852226027-m6j9g54h5f4atn2tm42k0ho1md6g5t0i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.withsoom",
+            "certificate_hash": "967efa6d7b2a1cc4b254812e59dab0ff823aa128"
+          }
+        },
+        {
+          "client_id": "1062852226027-ofc5pir5d84gqghbanqaumn4sin5s4gf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.withsoom",
+            "certificate_hash": "820fcbb02e837caade87aa9588231e45be3b876f"
+          }
+        },
+        {
+          "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLwiXrw-fgClrkbJYir-JXKkk2ERkmBR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rocateer.sumirang"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062852226027:android:e15320b7f3fce1ba9587ae",
+        "android_client_info": {
+          "package_name": "rocateer.sumirang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062852226027-8d8416q79956tp9om473d1sfbbabgv2j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rocateer.sumirang",
+            "certificate_hash": "820fcbb02e837caade87aa9588231e45be3b876f"
+          }
+        },
+        {
+          "client_id": "1062852226027-ahkmiles3hh03opgat7ophhmt6fvfugi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rocateer.sumirang",
+            "certificate_hash": "967efa6d7b2a1cc4b254812e59dab0ff823aa128"
+          }
+        },
+        {
+          "client_id": "1062852226027-d2qokp802jhub3qgfmo1i49sa83n0a2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rocateer.sumirang",
+            "certificate_hash": "9de6674c911e2b8f364d059c74a147bcf2feac20"
+          }
+        },
+        {
+          "client_id": "1062852226027-mrdo9s7f1nhk6avdkrae4ru49ps6pv32.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rocateer.sumirang",
+            "certificate_hash": "7598b59b2f1c777beb9a99dfbb0696f4ea82b403"
+          }
+        },
+        {
+          "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLwiXrw-fgClrkbJYir-JXKkk2ERkmBR4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rocateer.sumirang"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
