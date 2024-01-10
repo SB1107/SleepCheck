@@ -75,7 +75,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-config-ktx")
 
     //주입
-    val hiltVersion = "2.48"
+    val hiltVersion = "2.50"
     implementation("com.google.dagger:hilt-android:$hiltVersion")
 //    ksp ("com.google.dagger:dagger-compiler:$hiltVersion") // Dager
     ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
@@ -85,7 +85,7 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:$retrofitVersion")
     implementation ("com.squareup.retrofit2:converter-gson:$retrofitVersion")
 
-    val okhttpVersion = "4.10.0"
+    val okhttpVersion = "4.12.0"
     implementation ("com.squareup.okhttp3:okhttp:$okhttpVersion")
     implementation ("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
     //차트
@@ -93,7 +93,7 @@ dependencies {
     implementation ("com.github.PhilJay:MPAndroidChart:$mpAndroidChartVersion")
 
     //이미지
-    val glideVersion = "4.15.1"
+    val glideVersion = "4.16.0"
     implementation ("com.github.bumptech.glide:glide:$glideVersion")
 
     //DB
@@ -104,7 +104,7 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     //CSV
-    val openCsvVersion = "4.4"
+    val openCsvVersion = "5.9"
     implementation ("com.opencsv:opencsv:$openCsvVersion")
 
 
