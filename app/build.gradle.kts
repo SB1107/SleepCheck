@@ -76,7 +76,9 @@ dependencies {
     implementation ("com.google.firebase:firebase-messaging-ktx:23.4.0")
     implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-core:21.1.1")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
     implementation ("com.google.firebase:firebase-config-ktx")
+    implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
 
     //주입
     val hiltVersion = "2.50"

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1062852226027-8u2e1n3a9qjfdl5ub96o6dqmv50o3cp0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.newsoomirang",
+            "certificate_hash": "ba8858186fb9c673d571a46e48e5c59ead104151"
+          }
+        },
+        {
           "client_id": "1062852226027-avqealcab78te9h6gedrd6j891tlmv5i.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -31,10 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_id": "1062852226027-3ig9b1nad5liak2ubkoct2lfd1b5icot.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.rocateer.sumirang"
+                "bundle_id": "com.sbsolutions.apneaproh"
               }
             }
           ]
@@ -107,10 +115,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_id": "1062852226027-3ig9b1nad5liak2ubkoct2lfd1b5icot.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.rocateer.sumirang"
+                "bundle_id": "com.sbsolutions.apneaproh"
               }
             }
           ]
@@ -175,10 +183,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_id": "1062852226027-3ig9b1nad5liak2ubkoct2lfd1b5icot.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.rocateer.sumirang"
+                "bundle_id": "com.sbsolutions.apneaproh"
               }
             }
           ]
@@ -243,10 +251,10 @@
               "client_type": 3
             },
             {
-              "client_id": "1062852226027-a78qsiu6hi14fsp3t4rp373ism8qdnqm.apps.googleusercontent.com",
+              "client_id": "1062852226027-3ig9b1nad5liak2ubkoct2lfd1b5icot.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.rocateer.sumirang"
+                "bundle_id": "com.sbsolutions.apneaproh"
               }
             }
           ]

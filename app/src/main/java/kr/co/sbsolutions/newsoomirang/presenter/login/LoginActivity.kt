@@ -13,106 +13,110 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdToken
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.PasswordRequestOptions
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
+    companion object {
+        private const val RC_SIGN_IN = 1234
+    }
+
     private val viewModel: LoginViewModel by viewModels()
     private val binding: ActivityLoginBinding by lazy {
         ActivityLoginBinding.inflate(layoutInflater)
     }
-    private lateinit var oneTapClient: SignInClient
-    private lateinit var signInRequest: BeginSignInRequest
-    private lateinit var idToken: String
-    private val oneTapClientResult =
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                try {
-                    // 인텐트로 부터 로그인 자격 정보를 가져옴
-                    val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                    // 가져온 자격 증명에서 Google ID 토큰을 추출
-                    val googleIdToken = credential.googleIdToken
-                    if (googleIdToken != null) {
-                        // Google ID 토큰을 사용해 Firebase 인증 자격 증명을 생성
-                        val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
-                        // 생성된 Firebase 인증 자격 증명을 사용하여 Firebase 에 로그인을 시도
-                        Firebase.auth.signInWithCredential(firebaseCredential).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Firebase.auth.currentUser?.getIdToken(true)?.addOnCompleteListener { idTokenTask ->
-                                    if (idTokenTask.isSuccessful) {
-                                        idTokenTask.result?.token?.let { token ->
-                                            idToken = token
-//                                            viewModel.login(idToken)
-                                            Log.e(TAG , "idToken")
-                                        } ?: Log.e(TAG, "FirebaseIdToken is null.")
-                                    }
-                                }
-                            } else {
-//                                Timber.e(task.exception)
-                            }
-                        }
-                    } else {
-                        Log.e(TAG, "GoogleIdToken is null.")
-                    }
-                } catch (exception: ApiException) {
-                    Log.e(TAG, exception.localizedMessage)
-                }
-            }
-        }
+    private var mAuth = FirebaseAuth.getInstance()
+
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private lateinit var gso: GoogleSignInOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        initGoogleLogin()
-        binding.btGoogle.setOnClickListener {
-            oneTapClient
-                .beginSignIn(signInRequest)
-                .addOnSuccessListener(this) { result ->
-                    try {
-                        oneTapClientResult.launch(IntentSenderRequest.Builder(result.pendingIntent.intentSender).build())
-                    } catch (exception: IntentSender.SendIntentException) {
-                        Log.e(TAG,"Couldn't start One Tap UI: ${exception.localizedMessage}")
-                    }
-                }
-                .addOnFailureListener(this) { exception ->
-                    Log.e(TAG,exception.localizedMessage)
-                }
+
+        setGoogle()
+        bindView()
+    }
+
+    private fun bindView(){
+        binding.apply {
+            btGoogle.setOnClickListener {
+                val signInIntent = googleSignInClient.signInIntent
+                startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
         }
     }
 
-    private fun initGoogleLogin() {
-        oneTapClient = Identity.getSignInClient(this)
-        val passwordRequestOptions = PasswordRequestOptions.builder()
-            .setSupported(true)
+    private fun setGoogle() {
+        if (mAuth.currentUser != null) {
+            // 로그인된 사용자입니다.
+            val uid = mAuth.currentUser?.uid
+            Log.d(TAG, "[GOOGLE_ UID]: $uid")
+            if (uid == null) {
+                Log.d(TAG, "[GOOGLE_ UID_NULL]: $uid")
+            }
+        } else {
+            // 로그인되지 않은 사용자입니다.
+        }
+        gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
             .build()
-
-        val googleIdTokenRequestOptions = GoogleIdTokenRequestOptions.builder()
-            .setSupported(true)
-            .setServerClientId(getString(R.string.default_web_client_id))
-            .setFilterByAuthorizedAccounts(false)
-            .build()
-
-        signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    // Google Id Token 기반 로그인을 지원하도록 설정
-                    .setSupported(true)
-                    // 서버의 클라이언트 ID 를 설정
-//                    .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
-                    // 기존에 인증된 계정만을 필터링하지 않도록 설정
-                    .setFilterByAuthorizedAccounts(false)
-                    .build(),
-            )
-            // 이전에 선택 했던 계정을 기억
-            .setAutoSelectEnabled(true)
-            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+
+        if (requestCode == RC_SIGN_IN) {
+            // Google Sign In 결과를 처리합니다.
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                // Google Sign In에 성공했습니다.
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account.idToken
+                Log.d(TAG, "[LOGIN] GoogleToken1: $idToken")
+//                Log.d(TAG, "[LOGIN] FCM_TOKEN: $fcmToken")
+//                Log.d(TAG, "[LOGIN] FIREBASE_UID: ${firebaseAuth.uid}")
+
+                // Firebase Auth에 사용자를 등록합니다.
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                mAuth.signInWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // 로그인에 성공했습니다.
+                            val user = task.result?.user
+
+                            //로그인 API
+//                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
+                            Log.d("DODO", "user: ${user?.uid}")
+
+                        } else {
+                            // 로그인에 실패했습니다.
+                            task.exception?.let {
+                                Log.e("MyApp", "로그인 실패: ${it.message}")
+                            }
+                        }
+                    }
+            } catch (e: ApiException) {
+                // Google Sign In에 실패했습니다.
+                Log.e("MyApp", "Google Sign In 실패: ${e.message}")
+            }
+        }
+    }
+
 }
