@@ -113,7 +113,13 @@ fun  Context.showAlertDialogWithToolTip(){
     dialog.show()
 }
 
+fun Boolean.booleanToInt(): Int {
+    return if (this) 1 else 0
+}
 
+fun Int.toBoolean(): Boolean {
+    return this == 1
+}
 fun ContextWrapper.isIgnoringBatteryOptimizations() = (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)
 // 배터리 최적화 이슈로 인해 현재 처리하지 않음
 //fun ContextWrapper.isIgnoringBatteryOptimizations() = true

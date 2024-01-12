@@ -11,12 +11,10 @@ import kotlinx.coroutines.flow.map
 class DataManager(private val context: Context) {
     companion object {
         private val KEY_IS_FIRST_EXECUTE = booleanPreferencesKey("is_first_execute")
-
         private val KEY_DATA_ID = intPreferencesKey("data_id")
-
         private val APP_UPDATE_CHECK = stringPreferencesKey("app_update_check")
-
         private val USER_NAME = stringPreferencesKey("user_name")
+        private val SNS_TYPE = stringPreferencesKey("sns_type")
 
         private const val ADDRESS = "_address"
         private const val NAME = "_name"

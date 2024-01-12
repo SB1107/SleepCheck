@@ -26,6 +26,12 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
+            android:name=".presenter.webview.WebViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presenter.policy.PolicyActivity"
+            android:exported="false" />
+        <activity
             android:name=".presenter.login.LoginActivity"
             android:exported="false" />
         <activity
