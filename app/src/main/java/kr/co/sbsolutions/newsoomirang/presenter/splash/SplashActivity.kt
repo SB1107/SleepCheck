@@ -15,6 +15,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.PERMISSION_REQUEST_CODE
@@ -22,6 +24,7 @@ import kr.co.sbsolutions.newsoomirang.common.getPermissionResult
 import kr.co.sbsolutions.newsoomirang.common.isIgnoringBatteryOptimizations
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySplashBinding
+import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -40,11 +43,27 @@ class SplashActivity : AppCompatActivity() {
 
 
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.nextProcess.collect {
-                    refreshPermissionViews()
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.nextProcess.collect {
+                        refreshPermissionViews()
+                    }
                 }
             }
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.whereActivity.collectLatest {
+                        when (it) {
+                            WHERE.None -> {}
+                            WHERE.Login -> {
+                                startActivity(Intent(this@SplashActivity , LoginActivity::class.java))
+                            }
+                            WHERE.Main -> {}
+                        }
+                    }
+                }
+            }
+
         }
     }
         private fun refreshPermissionViews() {
@@ -59,6 +78,7 @@ class SplashActivity : AppCompatActivity() {
             } else if(!isIgnoringBatteryOptimizations()) {
                     checkBatteryOptimization()
             } else {
+                viewModel.whereLocation()
             }
         }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -84,12 +104,13 @@ class SplashActivity : AppCompatActivity() {
                     if(!isIgnoringBatteryOptimizations()) {
                         checkBatteryOptimization()
                     }else {
-//                        processAccessToken()
+                        viewModel.whereLocation()
                     }
                 }
             }
         }
     }
+
     @SuppressLint("BatteryLife")
     private fun checkBatteryOptimization(){
         val intent = Intent().apply {

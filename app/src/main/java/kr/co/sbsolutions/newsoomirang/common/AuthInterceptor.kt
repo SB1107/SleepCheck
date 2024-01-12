@@ -1,0 +1,19 @@
+package kr.co.sbsolutions.newsoomirang.common
+
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kr.co.sbsolutions.withsoom.utils.TokenManager
+import okhttp3.Interceptor
+import okhttp3.Response
+import javax.inject.Inject
+
+class AuthInterceptor @Inject constructor(private val tokenManager: TokenManager): Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val token = runBlocking {
+            tokenManager.getToken().first()
+        }
+        val request = chain.request().newBuilder()
+        request.addHeader("Authorization", "$token")
+        return chain.proceed(request.build())
+    }
+}
