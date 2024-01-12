@@ -1,28 +1,17 @@
 package kr.co.sbsolutions.newsoomirang.presenter.login
 
-import android.app.Activity
-import android.content.IntentSender
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
-import com.google.android.gms.auth.api.identity.BeginSignInRequest.PasswordRequestOptions
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
@@ -103,20 +92,20 @@ class LoginActivity : AppCompatActivity() {
 
                             //로그인 API
 //                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
-                            Log.d("DODO", "user: ${user?.uid}")
+                            viewModel.login("G", user?.uid.toString(),)
+                            Log.d(TAG, "user: ${user?.uid}")
 
                         } else {
                             // 로그인에 실패했습니다.
                             task.exception?.let {
-                                Log.e("MyApp", "로그인 실패: ${it.message}")
+                                Log.e(TAG, "로그인 실패: ${it}")
                             }
                         }
                     }
             } catch (e: ApiException) {
                 // Google Sign In에 실패했습니다.
-                Log.e("MyApp", "Google Sign In 실패: ${e.message}")
+                Log.e(TAG, "Google Sign In 실패: ${e.message}")
             }
         }
     }
-
 }

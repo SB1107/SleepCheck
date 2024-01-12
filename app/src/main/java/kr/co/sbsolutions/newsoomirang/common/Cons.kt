@@ -4,7 +4,7 @@ import android.Manifest.permission.*
 import android.os.Build
 
 object Cons {
-    const val TAG = "Soomirang"
+    const val TAG = "HoHo"
 
     const val PERMISSION_REQUEST_CODE = 1107
 
