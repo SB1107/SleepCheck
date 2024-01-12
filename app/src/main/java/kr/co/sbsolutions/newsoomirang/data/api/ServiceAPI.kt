@@ -5,7 +5,8 @@ import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
 import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
 import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
-import kr.co.sbsolutions.newsoomirang.data.model.UserModel
+import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
+import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -21,17 +22,17 @@ interface ServiceAPI {
     //* 회원 > SNS 회원 로그인
     @FormUrlEncoded
     @POST
-    suspend fun postLogin(@Body userModel : UserModel): Response<UserModel>
+    suspend fun postLogin(@Body loginModel : SnsLoginModel): Response<UserEntity>
 
     //로그 아웃
     @FormUrlEncoded
     @POST
-    suspend fun postLogOut(): Response<UserModel>
+    suspend fun postLogOut(): Response<UserEntity>
 
     //회원 탈퇴
     @FormUrlEncoded
     @POST
-    suspend fun postLeave(@Body userModel : UserModel): Response<UserModel>
+    suspend fun postLeave(@Body userModel : UserEntity): Response<UserEntity>
 
     //수면 데이터 결과
     @GET("sleepdata/result")
