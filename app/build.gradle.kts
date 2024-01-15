@@ -51,7 +51,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
 
     //라이프 사이클
     val lifecycle_version = "2.6.2"
@@ -69,16 +69,25 @@ dependencies {
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 
     //파이어베이스
-    implementation ("com.google.firebase:firebase-crashlytics:18.6.0")
-    implementation ("com.google.firebase:firebase-analytics:21.5.0")
+    /*implementation ("com.google.firebase:firebase-crashlytics:18.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    implementation ("com.google.firebase:firebase-analytics-ktx:21.5.0")
+    implementation ("com.google.firebase:firebase-analytics-ktx")
     implementation ("com.google.firebase:firebase-messaging-ktx:23.4.0")
-    implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-core:21.1.1")
+    implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
-    implementation ("com.google.firebase:firebase-config-ktx")
-    implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation ("com.google.firebase:firebase-config-ktx")*/
+
+    implementation("com.google.firebase:firebase-crashlytics:18.3.2")
+    implementation("com.google.firebase:firebase-analytics:21.2.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.7.1")
+    implementation(platform("com.google.firebase:firebase-bom:31.1.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.1.2")
+    implementation("com.google.firebase:firebase-core:21.1.1")
+    implementation("com.google.firebase:firebase-config-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     //주입
     val hiltVersion = "2.50"

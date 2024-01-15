@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.data.api
 
+import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
 import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
@@ -20,8 +21,7 @@ import retrofit2.http.QueryMap
 interface ServiceAPI {
 
     //* 회원 > SNS 회원 로그인
-    @FormUrlEncoded
-    @POST
+    @POST("sns")
     suspend fun postLogin(@Body loginModel : SnsLoginModel): Response<UserEntity>
 
 }

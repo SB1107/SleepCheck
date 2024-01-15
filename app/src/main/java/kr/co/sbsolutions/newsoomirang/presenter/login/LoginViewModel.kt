@@ -21,13 +21,13 @@ class LoginViewModel @Inject constructor(
     private val loginRepository: RemoteDataSource
 ) : ViewModel() {
 
-    fun login(snsType: String, token: String) {
+    fun login(snsType: String, token: String, name: String) {
 
         viewModelScope.launch {
             launch {
                 tokenManager.getFcmToken().collectLatest {
                     it?.let {fcmToken ->
-                        loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken)).collectLatest {
+                        loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)).collectLatest {
                             Log.d(TAG, "login: ${it.toString()}")
                         }
                     }

@@ -92,7 +92,7 @@ class LoginActivity : AppCompatActivity() {
 
                             //로그인 API
 //                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
-                            viewModel.login("G", user?.uid.toString(),)
+                            viewModel.login("G", user?.uid.toString(),user?.displayName.toString())
                             Log.d(TAG, "user: ${user?.uid}")
 
                         } else {
