@@ -25,6 +25,7 @@ class WebViewActivity : AppCompatActivity() {
         setContentView(binding.root)
             intent?.let {
                 mWebTypeUrl = it.getStringExtra("webTypeUrl").toString()
+               binding.actionBar.toolbarTitle.text =  it.getStringExtra("webTypeTitle").toString()
             }
         initWebView()
         binding.actionBar.backButton.setOnClickListener {

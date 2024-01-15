@@ -6,6 +6,7 @@ import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
 import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
 import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
+import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -19,6 +20,8 @@ import retrofit2.http.QueryMap
 
 interface AuthServiceAPI {
 
+    @POST("joinagree")
+    suspend fun postJoinAgree(@Body policyModel : PolicyModel): Response<UserEntity>
     //로그 아웃
     @FormUrlEncoded
     @POST

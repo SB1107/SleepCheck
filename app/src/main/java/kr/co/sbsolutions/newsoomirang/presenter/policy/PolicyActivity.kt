@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -17,8 +18,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.WebType
+import kr.co.sbsolutions.newsoomirang.common.addFlag
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toBoolean
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityPolicyBinding
+import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.webview.WebViewActivity
 
 @AndroidEntryPoint
@@ -58,7 +62,7 @@ class PolicyActivity : AppCompatActivity() {
             //필수 약관 체크
             cbEssentialTermsService.setOnCheckedChangeListener { buttonView, isChecked ->
                 viewModel.setCheckServerData(isChecked)
-                btnAgree.isEnabled = isChecked
+//                btnAgree.isEnabled = isChecked
 //                Log.d(TAG, "checkServerData : $checkServerData ")
             }
 
@@ -75,7 +79,7 @@ class PolicyActivity : AppCompatActivity() {
                         .show()
                     return@setOnClickListener
                 }
-//                sns()
+                viewModel.joinAgree()
             }
         }
         lifecycleScope.launch {
@@ -89,21 +93,44 @@ class PolicyActivity : AppCompatActivity() {
                     }
                 }
             }
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.checkServerDataFlow.collect {
+                        binding.btnAgree.setBackgroundColor(if (it == 0) getColor(R.color.color_999999) else getColor(R.color.color_0F63C8))
+                    }
+                }
+            }
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.errorMessage.collect {
+                        this@PolicyActivity.showAlertDialog(R.string.app_error, it)
+                    }
+                }
+            }
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.policyResult.collect {
+                        Log.e("asdfasdf","asdfasdf")
+                        startActivity(Intent(this@PolicyActivity, MainActivity::class.java).addFlag())
+                    }
+                }
+            }
         }
     }
 
-    private fun setSystemBarColor(act: Activity, @ColorRes color: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val window = act.window
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = act.resources.getColor(color)
+        private fun setSystemBarColor(act: Activity, @ColorRes color: Int) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val window = act.window
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                window.statusBarColor = act.resources.getColor(color)
+            }
+        }
+
+        private fun webViewActivity(webType: WebType) {
+            startActivity(Intent(this, WebViewActivity::class.java).apply {
+                putExtra("webTypeUrl", webType.url)
+                putExtra("webTypeTitle", webType.title)
+            })
         }
     }
-
-    private fun webViewActivity(webType: WebType) {
-        startActivity(Intent(this, WebViewActivity::class.java).apply {
-            putExtra("webTypeUrl", webType.url)
-        })
-    }
-}

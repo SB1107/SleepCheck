@@ -8,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.data.api.ServiceAPI
 import kr.co.sbsolutions.withsoom.utils.TokenManager
@@ -20,7 +19,9 @@ import javax.inject.Singleton
 import kr.co.sbsolutions.newsoomirang.common.AuthInterceptor
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.domain.repository.LoginRepository
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteDataSource
+import kr.co.sbsolutions.newsoomirang.domain.repository.PolicyRepository
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
 import javax.inject.Named
 
 @Module
@@ -57,6 +58,7 @@ class APIModule {
 
         return OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
     }
+
     @Singleton
     @Provides
     fun provideAuthAuthenticator(tokenManager: TokenManager) = AuthInterceptor(tokenManager)
@@ -79,7 +81,10 @@ class APIModule {
 @InstallIn(ViewModelComponent::class)
 abstract class ViewModelBindsModule {
     @Binds
-    abstract fun provideRemoteDataSource( NaloginRepository: LoginRepository): RemoteDataSource
+    abstract fun provideRemoteLoginDataSource(loginRepository: LoginRepository): RemoteLoginDataSource
+
+    @Binds
+    abstract fun provideRemotePolicyDataSource(policyRepository: PolicyRepository): RemotePolicyDataSource
 
 
 }
