@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_breathing"
         android:icon="@drawable/selector_menu_1"
         android:title="호흡" />
 
     <item
-        android:id="@+id/navigation_recommend"
+        android:id="@+id/navigation_no_sering"
         android:icon="@drawable/selector_menu_2"
         android:title="코골이" />
 
     <item
-        android:id="@+id/navigation_settings"
+        android:id="@+id/navigation_history"
         android:icon="@drawable/selector_menu_3"
         android:title="이력" />
 
     <item
-        android:id="@+id/navigation_more"
+        android:id="@+id/navigation_settings"
         android:icon="@drawable/selector_menu_4"
         android:title="설정" />
 </menu>
