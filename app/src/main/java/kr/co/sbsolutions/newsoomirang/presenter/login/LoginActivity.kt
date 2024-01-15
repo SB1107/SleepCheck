@@ -124,13 +124,13 @@ class LoginActivity : AppCompatActivity() {
                         } else {
                             // 로그인에 실패했습니다.
                             task.exception?.let {
-                                Log.e(TAG, "로그인 실패: ${it}")
+//                                Log.e(TAG, "로그인 실패: ${it}")
                             }
                         }
                     }
             } catch (e: ApiException) {
                 // Google Sign In에 실패했습니다.
-                Log.e(TAG, "Google Sign In 실패: ${e.message}")
+//                Log.e(TAG, "Google Sign In 실패: ${e.message}")
             }
         }
     }

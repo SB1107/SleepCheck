@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -30,17 +31,15 @@ class LoginViewModel @Inject constructor(
     lateinit var accessToken: String
 
     fun login(snsType: String, token: String, name: String) {
-
         viewModelScope.launch {
-            tokenManager.getFcmToken().collectLatest {
-                it?.let { fcmToken ->
-                    loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)).collectLatest {user ->
-                        user.result?.let { result ->
-                            val isMember = result.member == "Y"
-                            dataManager.saveSNSType(snsType)
-                            dataManager.saveUserName(name)
-                            _whereActivity.tryEmit(whereActivity(isMember, result.access_token ?: ""))
-                        }
+            launch {
+                val fcmToken = tokenManager.getFcmToken().first() ?: ""
+                loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)).collectLatest {user ->
+                    user.result?.let { result ->
+                        val isMember = result.member == "Y"
+                        dataManager.saveSNSType(snsType)
+                        dataManager.saveUserName(name)
+                        _whereActivity.tryEmit(whereActivity(isMember, result.access_token ?: ""))
                     }
                 }
             }
