@@ -79,7 +79,7 @@ class PolicyActivity : AppCompatActivity() {
                         .show()
                     return@setOnClickListener
                 }
-                viewModel.joinAgree()
+                viewModel.joinAgree(accessToken)
             }
         }
         lifecycleScope.launch {
@@ -110,7 +110,6 @@ class PolicyActivity : AppCompatActivity() {
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.policyResult.collect {
-                        Log.e("asdfasdf","asdfasdf")
                         startActivity(Intent(this@PolicyActivity, MainActivity::class.java).addFlag())
                     }
                 }

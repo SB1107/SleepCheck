@@ -18,12 +18,15 @@ import kr.co.sbsolutions.newsoomirang.common.booleanToInt
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel
 class PolicyViewModel @Inject constructor(
     private val dataManager: DataManager,
+    private val tokenManager: TokenManager,
     private val policyRepository: RemotePolicyDataSource
+
 ) : ViewModel() {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
     val userName: SharedFlow<String> = _userName
@@ -56,12 +59,13 @@ class PolicyViewModel @Inject constructor(
         _checkAppDataFlow.tryEmit(isChecked.booleanToInt())
     }
 
-    fun joinAgree() {
+    fun joinAgree(token : String) {
         viewModelScope.launch(Dispatchers.IO) {
             policyRepository.postPolicy(PolicyModel(_checkServerDataFlow.value, _checkAppDataFlow.value)).collectLatest {
                 if (!it.success) {
                     _errorMessage.emit(it.message)
                 }else{
+                    tokenManager.saveToken(token)
                     _policyResult.emit(true)
                 }
             }

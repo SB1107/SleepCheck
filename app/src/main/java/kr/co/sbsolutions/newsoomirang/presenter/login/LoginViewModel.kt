@@ -28,7 +28,7 @@ class LoginViewModel @Inject constructor(
     lateinit var accessToken: String
 
     fun login(snsType: String, token: String, name: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             launch {
                 tokenManager.getFcmToken().first()?.let { fcmToken ->
                     loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)).collectLatest { user ->
@@ -36,7 +36,7 @@ class LoginViewModel @Inject constructor(
                             val isMember = result.member == "Y"
                             dataManager.saveSNSType(snsType)
                             dataManager.saveUserName(name)
-                            _whereActivity.tryEmit(whereActivity(isMember, result.access_token ?: ""))
+                            _whereActivity.emit(whereActivity(isMember, result.access_token ?: ""))
                         }
                     }
                 }
@@ -48,7 +48,7 @@ class LoginViewModel @Inject constructor(
     private fun whereActivity(isMember: Boolean, accessToken: String): WHERE {
         if (isMember) {
             viewModelScope.launch(Dispatchers.IO) {
-                tokenManager.saveFcmToken(accessToken)
+                tokenManager.saveToken(accessToken)
             }
         }
         this.accessToken = accessToken

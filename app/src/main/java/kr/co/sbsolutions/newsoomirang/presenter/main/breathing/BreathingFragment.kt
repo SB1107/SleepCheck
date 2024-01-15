@@ -1,12 +1,12 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kr.co.sbsolutions.newsoomirang.R
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 
 class BreathingFragment : Fragment() {
 
@@ -14,19 +14,16 @@ class BreathingFragment : Fragment() {
         fun newInstance() = BreathingFragment()
     }
 
-    private lateinit var viewModel: BreathingViewModel
+    private val viewModel: BreathingViewModel by viewModels()
+    private val binding: FragmentBreathingBinding by lazy {
+        FragmentBreathingBinding.inflate(layoutInflater)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_breathing, container, false)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(BreathingViewModel::class.java)
-        // TODO: Use the ViewModel
+    ): View {
+        return binding.root
     }
 
 }
