@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -12,9 +15,15 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.addFlag
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
+import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
+import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
+import kr.co.sbsolutions.newsoomirang.presenter.splash.WHERE
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -40,11 +49,28 @@ class LoginActivity : AppCompatActivity() {
         bindView()
     }
 
-    private fun bindView(){
+    private fun bindView() {
         binding.apply {
             btGoogle.setOnClickListener {
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
+        }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.whereActivity.collectLatest {
+                    when (it) {
+                        WHERE.None, WHERE.Login -> {}
+                        WHERE.Main -> {
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
+                        }
+
+                        WHERE.Policy -> {
+                            startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
+                        }
+                    }
+
+                }
             }
         }
     }
@@ -92,7 +118,7 @@ class LoginActivity : AppCompatActivity() {
 
                             //로그인 API
 //                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
-                            viewModel.login("G", user?.uid.toString(),user?.displayName.toString())
+                            viewModel.login("G", user?.uid.toString(), user?.displayName.toString())
                             Log.d(TAG, "user: ${user?.uid}")
 
                         } else {

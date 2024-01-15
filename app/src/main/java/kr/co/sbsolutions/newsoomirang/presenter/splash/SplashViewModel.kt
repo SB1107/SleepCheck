@@ -57,12 +57,12 @@ class SplashViewModel @Inject constructor(
     fun whereLocation() {
         viewModelScope.launch {
             val token = tokenManager.getToken().first()
-            _whereActivity.emit(if (token.isNullOrEmpty()) WHERE.Main else WHERE.Main)
+            _whereActivity.emit(if (token.isNullOrEmpty()) WHERE.Login else WHERE.Main)
         }
 
     }
 }
 
 enum class WHERE {
-    None, Login, Main
+    None, Login, Main ,Policy
 }

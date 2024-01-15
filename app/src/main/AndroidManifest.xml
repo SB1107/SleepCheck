@@ -36,7 +36,8 @@
             android:exported="true" />
         <activity
             android:name=".presenter.main.MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity
             android:name=".presenter.splash.SplashActivity"
             android:exported="true"

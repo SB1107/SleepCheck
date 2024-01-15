@@ -28,6 +28,9 @@ data class SnsLoginModel(
     val device_type : Int = 1,
 
     @SerializedName("fcm_key")
-    val fcm_key: String
+    val fcm_key: String,
+
+    @SerializedName("bc_type")
+    val bcType : String = "C"
 
 )
