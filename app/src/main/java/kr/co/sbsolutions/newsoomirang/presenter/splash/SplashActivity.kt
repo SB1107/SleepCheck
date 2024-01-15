@@ -28,6 +28,7 @@ import kr.co.sbsolutions.newsoomirang.common.isIgnoringBatteryOptimizations
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySplashBinding
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
+import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -64,9 +65,13 @@ class SplashActivity : AppCompatActivity() {
                         when (it) {
                             WHERE.None -> {}
                             WHERE.Login -> {
+                                Log.e("Asdf","Login")
                                 startActivity(Intent(this@SplashActivity , LoginActivity::class.java))
                             }
-                            WHERE.Main -> {}
+                            WHERE.Main -> {
+                                Log.e("Asdf","Main")
+                                startActivity(Intent(this@SplashActivity , MainActivity::class.java))
+                            }
                         }
                     }
                 }

@@ -35,7 +35,7 @@
             android:name=".presenter.login.LoginActivity"
             android:exported="true" />
         <activity
-            android:name=".MainActivity"
+            android:name=".presenter.main.MainActivity"
             android:exported="false" />
         <activity
             android:name=".presenter.splash.SplashActivity"
