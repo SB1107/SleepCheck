@@ -30,33 +30,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
-        binding.navBottomView.setupWithNavController(fragment.navController)
+        binding.navBottomView.apply {
+            setupWithNavController(fragment.navController)
+            itemIconTintList = null
+        }
 
-//        binding.navBottomView.setOnItemSelectedListener { item ->
-//            when (item.itemId) {
-//                R.id.navigation_breathing -> {
+        binding.navBottomView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_breathing -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_breathing, BreathingFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_no_sering -> {
+                    true
+                }
+
+                R.id.navigation_no_sering -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_no_sering, NoSeringFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_history -> {
+                    true
+                }
+
+                R.id.navigation_history -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_history, HistoryFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_settings -> {
+                    true
+                }
+
+                R.id.navigation_settings -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_settings, SettingFragment.newInstance())
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        }
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
 }
