@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.login
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +12,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
+import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.splash.WHERE
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
     private val loginRepository: RemoteLoginDataSource
-) : ViewModel() {
+) : BaseViewModel() {
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
     val whereActivity: SharedFlow<WHERE> = _whereActivity
     lateinit var accessToken: String
@@ -31,7 +31,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 tokenManager.getFcmToken().first()?.let { fcmToken ->
-                    loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)).collectLatest { user ->
+                    request { loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)) }.collectLatest { user ->
                         user.result?.let { result ->
                             val isMember = result.member == "Y"
                             dataManager.saveSNSType(snsType)

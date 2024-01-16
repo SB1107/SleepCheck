@@ -18,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.common.booleanToInt
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
+import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
 
@@ -27,16 +28,13 @@ class PolicyViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val policyRepository: RemotePolicyDataSource
 
-) : ViewModel() {
+) : BaseViewModel() {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
     val userName: SharedFlow<String> = _userName
     private val _checkServerDataFlow: MutableStateFlow<Int> = MutableStateFlow(0)
     val checkServerDataFlow: StateFlow<Int> = _checkServerDataFlow
     private val _checkAppDataFlow: MutableStateFlow<Int> = MutableStateFlow(0)
     val checkAppDataFlow: StateFlow<Int> = _checkAppDataFlow
-
-    private val _errorMessage: MutableSharedFlow<String> = MutableSharedFlow()
-    val errorMessage: SharedFlow<String> = _errorMessage
 
     private val _policyResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val policyResult: SharedFlow<Boolean> = _policyResult
@@ -61,13 +59,9 @@ class PolicyViewModel @Inject constructor(
 
     fun joinAgree(token : String) {
         viewModelScope.launch(Dispatchers.IO) {
-            policyRepository.postPolicy(PolicyModel(_checkServerDataFlow.value, _checkAppDataFlow.value)).collectLatest {
-                if (!it.success) {
-                    _errorMessage.emit(it.message)
-                }else{
-                    tokenManager.saveToken(token)
-                    _policyResult.emit(true)
-                }
+            request { policyRepository.postPolicy(PolicyModel(_checkServerDataFlow.value, _checkAppDataFlow.value)) }.collectLatest {
+                tokenManager.saveToken(token)
+                _policyResult.emit(true)
             }
         }
     }
