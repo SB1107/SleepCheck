@@ -13,6 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
+import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
+import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.BreathingFragment
 import kr.co.sbsolutions.newsoomirang.presenter.main.history.HistoryFragment
@@ -20,8 +22,16 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.nosering.NoSeringFragment
 import kr.co.sbsolutions.newsoomirang.presenter.main.setting.SettingFragment
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    //    private val viewModel: LoginViewModel by viewModels()
+class MainActivity : BaseServiceActivity() {
+    override fun newBackPressed() {
+        twiceBackPressed()
+    }
+
+    override fun injectViewModel(): BaseViewModel {
+        return viewModel
+    }
+
+    private val viewModel: MainViewModel by viewModels()
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -61,5 +71,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
 }

@@ -1,0 +1,61 @@
+package kr.co.sbsolutions.newsoomirang.presenter
+
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Bundle
+import android.os.IBinder
+import android.os.PersistableBundle
+import androidx.annotation.CallSuper
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
+import kr.co.sbsolutions.newsoomirang.domain.repository.BleRepository
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.withsoom.utils.TokenManager
+import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
+
+
+abstract class BaseServiceActivity : BaseActivity() {
+    @Inject
+    lateinit var bleRepository: BleRepository
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        lifecycleScope.launch(Dispatchers.IO){
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    BLEService.sbBreathingInfo.collectLatest {
+
+                    }
+                }
+            }
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    BLEService.sbNoSeringInfo.collectLatest {
+
+                    }
+                }
+            }
+        }
+    }
+    protected fun startSBService(am: ActionMessage, dataId: Int? = null) {
+        Intent(this, BLEService::class.java).apply {
+            action = am.msg
+            dataId?.let { putExtra(DATA_ID, it) }
+            bleRepository.getBleService()?.startForegroundService(this)
+        }
+    }
+
+    open fun onChangeSBSensorInfo(info: BluetoothInfo) {}
+    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
+    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}
+
+
+}

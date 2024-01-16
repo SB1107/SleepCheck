@@ -8,12 +8,15 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.domain.repository.BleRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class BreathingViewModel @Inject constructor(
-    private val dataManager: DataManager
+    private val dataManager: DataManager,
+    private val bleRepository: BleRepository
 ) : ViewModel() {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
     val userName: SharedFlow<String> = _userName
@@ -24,7 +27,9 @@ class BreathingViewModel @Inject constructor(
                 _userName.emit(it)
             }
         }
-
-
+    }
+    fun start(){
+//        bleRepository.getBleService().
+//        service.sbBreathingInfo.
     }
 }

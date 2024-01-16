@@ -9,10 +9,10 @@ import javax.inject.Inject
 @SuppressLint("MissingPermission")
 class BluetoothManageRepository @Inject constructor(private val dataManager: DataManager) : IBluetoothManageRepository {
     override suspend fun registerSBSensor(key: SBBluetoothDevice, name: String, address: String) : Boolean{
-        return dataManager.saveBluetoothDevice(key.type, name, address)
+        return dataManager.saveBluetoothDevice(key.type.name, name, address)
     }
 
     override suspend fun unregisterSBSensor(key: SBBluetoothDevice) : Boolean {
-        return dataManager.deleteBluetoothDevice(key.type)
+        return dataManager.deleteBluetoothDevice(key.type.name)
     }
 }

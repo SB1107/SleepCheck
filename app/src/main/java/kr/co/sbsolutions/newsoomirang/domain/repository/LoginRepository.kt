@@ -12,6 +12,5 @@ class LoginRepository @Inject constructor(private val api: ServiceAPI) : RemoteL
 
     override fun postLogin(loginModel: SnsLoginModel): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
         api.postLogin(loginModel = loginModel)
-
     }
 }

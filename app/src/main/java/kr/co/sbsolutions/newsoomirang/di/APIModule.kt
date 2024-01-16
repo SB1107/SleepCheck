@@ -22,6 +22,8 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.LoginRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.PolicyRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
+import kr.co.sbsolutions.withsoom.data.repository.bluetooth.BluetoothManageRepository
+import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Named
 
 @Module
@@ -86,5 +88,7 @@ abstract class ViewModelBindsModule {
     @Binds
     abstract fun provideRemotePolicyDataSource(policyRepository: PolicyRepository): RemotePolicyDataSource
 
+    @Binds
+    abstract fun bindBluetoothManageRepository(bluetoothManageRepository: BluetoothManageRepository) : IBluetoothManageRepository
 
 }

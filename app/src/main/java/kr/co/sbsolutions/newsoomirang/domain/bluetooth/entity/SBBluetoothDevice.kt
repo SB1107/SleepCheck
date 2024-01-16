@@ -1,28 +1,34 @@
 package kr.co.sbsolutions.withsoom.domain.bluetooth.entity
 
-sealed class SBBluetoothDevice(val type: String) {
-    object SB_SOOM_SENSOR : SBBluetoothDevice(SBSoomSensor)
+sealed class SBBluetoothDevice(val type: Sensor) {
+    object SB_BREATHING_SENSOR : SBBluetoothDevice(SBBreathingSensor)
+    object SB_NO_SERING_SENSOR : SBBluetoothDevice(SBNoSeringSensor)
 
     object SB_SPO2_SENSOR : SBBluetoothDevice(SBSpO2Sensor)
 
     object SB_EEG_SENSOR : SBBluetoothDevice(SBEEGSensor)
 
     companion object {
-        private const val SBSoomSensor = "bluetooth_sb_sensor"
-        private const val SBSpO2Sensor = "bluetooth_spo2_sensor"
-        private const val SBEEGSensor = "bluetooth_eeg_sensor"
+        private val SBBreathingSensor = Sensor.SB_BREATHING_SENSOR
+        private val SBNoSeringSensor = Sensor.SB_NO_SERING_SENSOR
+        private val SBSpO2Sensor = Sensor.SB_SPO2_SENSOR
+        private val SBEEGSensor = Sensor.SB_EEG_SENSOR
 
-        fun getDeviceFromType(type: String) : SBBluetoothDevice? {
-            return when(type) {
-                SBSoomSensor -> SB_SOOM_SENSOR
-                SBSpO2Sensor -> SB_SPO2_SENSOR
-                SBEEGSensor -> SB_EEG_SENSOR
-                else -> null
+        fun getDeviceFromType(type: Sensor): SBBluetoothDevice {
+            return when (type) {
+                Sensor.SB_BREATHING_SENSOR -> SB_BREATHING_SENSOR
+                Sensor.SB_NO_SERING_SENSOR -> SB_NO_SERING_SENSOR
+                Sensor.SB_SPO2_SENSOR -> SB_SPO2_SENSOR
+                Sensor.SB_EEG_SENSOR -> SB_SPO2_SENSOR
             }
         }
     }
 
     override fun toString(): String {
-        return type
+        return type.name
     }
+}
+
+enum class Sensor {
+    SB_BREATHING_SENSOR, SB_NO_SERING_SENSOR, SB_SPO2_SENSOR, SB_EEG_SENSOR
 }

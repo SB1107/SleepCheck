@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.*
 import android.os.Binder
 import android.os.Build
-import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
@@ -22,10 +21,12 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
+import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
 import java.io.File
 import java.io.FileWriter
@@ -37,59 +38,6 @@ import kotlin.concurrent.timerTask
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class BLEService : LifecycleService() {
-    sealed class ActionMessage(val msg: String) {
-        object StartSBService : ActionMessage(startSBService)
-        object StopSBService : ActionMessage(stopSBService)
-        object StopSBServiceForced : ActionMessage(stopSBServiceForced)
-//        object StartSBSensor : ActionMessage(startSBSensor)
-//        object StopSBSensor : ActionMessage(stopSBSensor)
-        object OperateRealtimeSBSensor : ActionMessage(operateRealtimeSBSensor)
-        object OperateDelayedSBSensor : ActionMessage(operateDelayedSBSensor)
-        object OperateDownloadSBSensor : ActionMessage(operateDownloadSBSensor)
-        object OperateDeleteSectorSBSensor : ActionMessage(operateDeleteSectorSBSensor)
-        object OperateDeleteAllSBSensor : ActionMessage(operateDeleteAllSBSensor)
-        /*
-        // Job Scheduler 미사용 - Doze Issue
-        object UploadToServerSBSensor : ActionMessage(uploadToServerSBSensor)
-        */
-
-        companion object {
-            private const val startSBService = "startSBService"
-            private const val stopSBService = "stopSBService"
-            private const val stopSBServiceForced = "stopSBServiceForced"
-            private const val startSBSensor = "startSBSensor"
-            private const val stopSBSensor = "stopSBSensor"
-            private const val operateRealtimeSBSensor = "operateRealtimeSBSensor"
-            private const val operateDelayedSBSensor = "operateDelayedSBSensor"
-            private const val operateDownloadSBSensor = "operateDownloadSBSensor"
-            private const val operateDeleteSectorSBSensor = "operateDeleteSectorSBSensor"
-            private const val operateDeleteAllSBSensor = "operateDeleteAllSBSensor"
-            /*
-            // Job Scheduler 미사용 - Doze Issue
-            private const val uploadToServerSBSensor = "uploadToServerSBSensor"
-            */
-
-            fun getMessage(msg: String) : ActionMessage? {
-                return when(msg) {
-                    startSBService -> StartSBService
-                    stopSBService -> StopSBService
-                    stopSBServiceForced -> StopSBServiceForced
-//                    startSBSensor -> StartSBSensor
-//                    stopSBSensor -> StopSBSensor
-                    operateRealtimeSBSensor -> OperateRealtimeSBSensor
-                    operateDelayedSBSensor -> OperateDelayedSBSensor
-                    operateDownloadSBSensor -> OperateDownloadSBSensor
-                    operateDeleteSectorSBSensor -> OperateDeleteSectorSBSensor
-                    operateDeleteAllSBSensor -> OperateDeleteAllSBSensor
-                    /*
-                    // Job Scheduler 미사용 - Doze Issue
-                    uploadToServerSBSensor -> UploadToServerSBSensor
-                    */
-                    else -> null
-                }
-            }
-        }
-    }
 
     sealed interface FinishState {
         object FinishNormal : FinishState
@@ -106,17 +54,21 @@ class BLEService : LifecycleService() {
         const val TIME_OUT_NOTIFICATION_ID = 1002
         private const val INTERVAL_UPLOAD_TIME = 15L
 
-        private const val TIME_OUT_MEASURE : Long = 12 * 60 * 60 * 1000L
-    }
+        private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
+        private var instance: BLEService? = null
+        fun getInstance(): BLEService? {
+            return instance
+        }
 
-    val sbSensorInfo by lazy {
-        bluetoothNetworkRepository.sbSensorInfo
-    }
-    val spo2SensorInfo by lazy {
-        bluetoothNetworkRepository.spo2SensorInfo
-    }
-    val eegSensorInfo by lazy {
-        bluetoothNetworkRepository.eegSensorInfo
+        var isServiceStarted: Boolean = false
+        private val _sbBreathingInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_BREATHING_SENSOR))
+        val sbBreathingInfo: StateFlow<BluetoothInfo> = _sbBreathingInfo
+        private val _sbNoSeringInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_NO_SERING_SENSOR))
+        val sbNoSeringInfo: StateFlow<BluetoothInfo> = _sbNoSeringInfo
+//        private  val  _spo2SensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
+//        val spo2SensorInfo :StateFlow<BluetoothInfo> = _spo2SensorInfo
+//        private  val  _eegSensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
+//        val eegSensorInfo :StateFlow<BluetoothInfo> = _eegSensorInfo
     }
 
     @Inject
@@ -135,25 +87,23 @@ class BLEService : LifecycleService() {
     lateinit var sbSensorDBRepository: SBSensorDBRepository
 
     @Inject
-    lateinit var logDBDataRepository : LogDBDataRepository
+    lateinit var logDBDataRepository: LogDBDataRepository
 
-    private val mBinder: IBinder = LocalBinder()
 
     override fun onCreate() {
         super.onCreate()
+
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
 
         registerReceiver(mReceiver, mFilter)
 
-        lifecycleScope.launch {
-            bluetoothNetworkRepository.listenRegisterSBSensor()
-        }
-        lifecycleScope.launch {
-            bluetoothNetworkRepository.listenRegisterSpO2Sensor()
-        }
-        lifecycleScope.launch {
-            bluetoothNetworkRepository.listenRegisterEEGSensor()
-        }
+
+//        lifecycleScope.launch {
+//            bluetoothNetworkRepository.listenRegisterSpO2Sensor()
+//        }
+//        lifecycleScope.launch {
+//            bluetoothNetworkRepository.listenRegisterEEGSensor()
+//        }
 
         initNotification()
     }
@@ -172,19 +122,23 @@ class BLEService : LifecycleService() {
                         BluetoothAdapter.STATE_OFF -> {
                             bluetoothNetworkRepository.changeBluetoothState(false)
                         }
+
                         BluetoothAdapter.STATE_ON -> {
                             bluetoothNetworkRepository.changeBluetoothState(true)
                         }
+
                         BluetoothAdapter.STATE_TURNING_OFF -> {}
                         BluetoothAdapter.STATE_TURNING_ON -> {}
                     }
                 }
+
                 BluetoothDevice.ACTION_ACL_CONNECTED -> {
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
                     //Log.d(TAG, "[RCV] ACTION_ACL_CONNECTED ${device?.name} / ${device?.address}")
                 }
+
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     //Log.d(TAG, "[RCV] ACTION_ACL_DISCONNECTED ${device?.name} / ${device?.address}")
                 }
@@ -192,7 +146,7 @@ class BLEService : LifecycleService() {
         }
     }
 
-    private val mFilter = IntentFilter().apply{
+    private val mFilter = IntentFilter().apply {
         addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
         addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
         //addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
@@ -212,8 +166,8 @@ class BLEService : LifecycleService() {
     }
 
     fun disconnectDevice(bluetoothInfo: BluetoothInfo) {
-        bluetoothInfo.bluetoothGatt?.let {gatt ->
-            BluetoothUtils.findResponseCharacteristic(gatt)?.let { char->
+        bluetoothInfo.bluetoothGatt?.let { gatt ->
+            BluetoothUtils.findResponseCharacteristic(gatt)?.let { char ->
                 gatt.setCharacteristicNotification(char, false)
             }
             gatt.disconnect()
@@ -226,11 +180,6 @@ class BLEService : LifecycleService() {
         bluetoothInfo.currentData = null
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        super.onBind(intent)
-
-        return mBinder
-    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -253,10 +202,10 @@ class BLEService : LifecycleService() {
     }
     */
 
-    private fun startScheduler() {
+    private fun startScheduler(flowObj : StateFlow<BluetoothInfo>) {
         bluetoothNetworkRepository.setOnUploadCallback {
-            sbSensorInfo.value?.let {
-                if(it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
+            flowObj.value.let {
+                if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                     bluetoothNetworkRepository.operateDownloadSbSensor(true)
                 }
             }
@@ -267,25 +216,27 @@ class BLEService : LifecycleService() {
             schedule(timerTask {
                 stopSBSensor()
                 val forceClose = notifyPowerOff(FinishState.FinishTimeOut)
-                sbSensorInfo.value?.let {
+                flowObj.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
                             exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
                         }
                     } ?: finishService(-1, forceClose)
-                } ?: finishService(-1, forceClose)
+                }
+
             }, TIME_OUT_MEASURE)
         }
 
     }
+
     private fun stopScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
     }
 
-    private fun registerDownloadCallback() {
+    private fun registerDownloadCallback(flowObj : StateFlow<BluetoothInfo>) {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
-            sbSensorInfo.value?.let {
-                it.dataId?.let {dataId ->
+            flowObj.value.let {
+                it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         Log.d(TAG, "uploading: register")
                         exportFile(dataId, sbSensorDBRepository.getMaxIndex(dataId))
@@ -296,7 +247,7 @@ class BLEService : LifecycleService() {
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
-            sbSensorInfo.value?.let {
+            flowObj.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
@@ -306,8 +257,8 @@ class BLEService : LifecycleService() {
         }
     }
 
-    private fun notifyPowerOff(state: FinishState) : Boolean {
-        val param = when(state) {
+    private fun notifyPowerOff(state: FinishState): Boolean {
+        val param = when (state) {
             FinishState.FinishBatteryLow -> Pair(POWER_OFF_NOTIFICATION_ID, getString(R.string.device_power_off_battery_low))
             FinishState.FinishPowerOff -> Pair(POWER_OFF_NOTIFICATION_ID, getString(R.string.device_power_off_force_off))
             FinishState.FinishTimeOut -> Pair(TIME_OUT_NOTIFICATION_ID, getString(R.string.device_measure_timeout))
@@ -340,62 +291,99 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback(null)
     }
 
+    @SuppressLint("ForegroundServiceType")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
+        when (intent?.action?.let { ActionMessage.getMessage(it) }) {
 
-        when(intent?.action?.let { ActionMessage.getMessage(it) }) {
-            ActionMessage.StartSBService -> {
+            ActionMessage.StartBreathingService -> {
 //                registerListenSBSensorState()
-                listenChannelMessage()
-                startScheduler()
-                registerDownloadCallback()
+                listenChannelMessage(sbBreathingInfo)
+                startScheduler(sbBreathingInfo)
+                registerDownloadCallback(sbBreathingInfo)
                 // uploadStart()
                 //startNotification()
                 startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
+                lifecycleScope.launch {
+                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbBreathingInfo)
+                }
             }
-            ActionMessage.StopSBService -> {
+            ActionMessage.StartNoSeringService -> {
+                listenChannelMessage(sbNoSeringInfo)
+                startScheduler(sbNoSeringInfo)
+                registerDownloadCallback(sbNoSeringInfo)
+                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
+                lifecycleScope.launch {
+                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbNoSeringInfo)
+                }
+            }
+
+            ActionMessage.StopBreathingService , ActionMessage.StopNoSeringService -> {
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
 //                unregisterListenSBSensorState()
                 stopScheduler()
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
             }
-            ActionMessage.StopSBServiceForced -> {
+            ActionMessage.StopBreathingServiceForced -> {
 //                unregisterListenSBSensorState()
                 stopScheduler()
-                sbSensorInfo.value?.let {
-                    it.bluetoothName?.let {name->
-                        it.dataId?.let { dataId ->
-                            lifecycleScope.launch(IO) {
-                                val max = sbSensorDBRepository.getMaxIndex(dataId)
-                                val min = sbSensorDBRepository.getMinIndex(dataId)
-                                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
-                                if((max - min + 1) == size) {
-                                    exportLastFile(dataId, max, true)
-                                }else {
-                                    finishService(dataId, true)
-                                }
-                            }
-                        } ?: {
-                            finishService(-1, true)
-                        }
-                    } ?: {
-                        finishService(-1, true)
-                    }
-                } ?: finishService(-1, true)
+                forcedFlow(sbBreathingInfo)
             }
-            ActionMessage.OperateRealtimeSBSensor -> { bluetoothNetworkRepository.operateRealtimeSBSensor() }
-            ActionMessage.OperateDelayedSBSensor -> { bluetoothNetworkRepository.operateDelayedSBSensor() }
-            ActionMessage.OperateDownloadSBSensor -> { bluetoothNetworkRepository.operateDownloadSbSensor(false) }
-            ActionMessage.OperateDeleteSectorSBSensor -> { bluetoothNetworkRepository.operateDeleteSbSensor(false) }
-            ActionMessage.OperateDeleteAllSBSensor -> { bluetoothNetworkRepository.operateDeleteSbSensor(true) }
+            ActionMessage.StopNoSeringServiceForced -> {
+                stopScheduler()
+                forcedFlow(sbNoSeringInfo)
+            }
+
+            ActionMessage.OperateBreathingRealtimeSBSensor , ActionMessage.OperateNoSeringRealtimeSBSensor -> {
+                bluetoothNetworkRepository.operateRealtimeSBSensor()
+            }
+
+            ActionMessage.OperateBreathingDelayedSBSensor , ActionMessage.OperateNoSeringDelayedSBSensor-> {
+                bluetoothNetworkRepository.operateDelayedSBSensor()
+            }
+
+            ActionMessage.OperateBreathingDownloadSBSensor , ActionMessage.OperateNoSeringDownloadSBSensor -> {
+                bluetoothNetworkRepository.operateDownloadSbSensor(false)
+            }
+
+            ActionMessage.OperateBreathingDeleteSectorSBSensor, ActionMessage.OperateNoSeringDeleteSectorSBSensor -> {
+                bluetoothNetworkRepository.operateDeleteSbSensor(false)
+            }
+
+            ActionMessage.OperateBreathingDeleteAllSBSensor, ActionMessage.OperateNoSeringDeleteAllSBSensor -> {
+                bluetoothNetworkRepository.operateDeleteSbSensor(true)
+            }
             /*
             // Job Scheduler 미사용 - Doze Issue
             ActionMessage.UploadToServerSBSensor -> { processUpload() }
             */
             null -> {}
         }
-        return START_NOT_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
+
+    private fun forcedFlow(flowObj : StateFlow<BluetoothInfo>) {
+        flowObj.value.let {
+            it.bluetoothName?.let { name ->
+                it.dataId?.let { dataId ->
+                    lifecycleScope.launch(IO) {
+                        val max = sbSensorDBRepository.getMaxIndex(dataId)
+                        val min = sbSensorDBRepository.getMinIndex(dataId)
+                        val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                        if ((max - min + 1) == size) {
+                            exportLastFile(dataId, max, true)
+                        } else {
+                            finishService(dataId, true)
+                        }
+                    }
+                } ?: {
+                    finishService(-1, true)
+                }
+            } ?: {
+                finishService(-1, true)
+            }
+        }
+    }
+
     fun startSBSensor(dataId: Int) {
         // TODO Release 주석 해제
         /*lifecycleScope.launch(IO) {
@@ -403,6 +391,7 @@ class BLEService : LifecycleService() {
         }*/
         bluetoothNetworkRepository.startNetworkSBSensor(dataId)
     }
+
     fun stopSBSensor() {
         bluetoothNetworkRepository.stopNetworkSBSensor()
     }
@@ -422,7 +411,7 @@ class BLEService : LifecycleService() {
 
             Log.d(TAG, "exportFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
 
-            if(size < 1000) {
+            if (size < 1000) {
                 Log.d(TAG, "exportFile - data size 1000 미만 $size")
                 return@launch
             }
@@ -436,7 +425,7 @@ class BLEService : LifecycleService() {
                 CSVWriter(fw).use { cw ->
 //                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
                     cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
-                    sbList.forEach {data->
+                    sbList.forEach { data ->
                         cw.writeNext(data.toArray())
                     }
                 }
@@ -445,6 +434,7 @@ class BLEService : LifecycleService() {
             uploading(dataId, file, sbList)
         }
     }
+
     private fun exportLastFile(dataId: Int, max: Int, isForcedClose: Boolean) {
         /*filesDir.listFiles { _, name ->
             name.endsWith(".csv")
@@ -459,7 +449,7 @@ class BLEService : LifecycleService() {
 
             Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
 
-            if(size < 100) {
+            if (size < 100) {
                 Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                 finishService(dataId, isForcedClose)
                 return@launch
@@ -474,7 +464,7 @@ class BLEService : LifecycleService() {
                 CSVWriter(fw).use { cw ->
 //                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
                     cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
-                    sbList.forEach {data->
+                    sbList.forEach { data ->
                         cw.writeNext(data.toArray())
                     }
                 }
@@ -482,6 +472,7 @@ class BLEService : LifecycleService() {
             uploading(dataId, file, sbList, true, isForcedClose)
         }
     }
+
     private fun finishService(dataId: Int, isForcedClose: Boolean) {
         // TODO Release 주석 해제
         /*lifecycleScope.launch(IO) {
@@ -497,6 +488,7 @@ class BLEService : LifecycleService() {
         stopSelf()
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
     }
+
     /*private fun endMeasure(dataId: Int) {
         baseRequest({
             if(it != ApiResponse.Loading) {
@@ -552,72 +544,19 @@ class BLEService : LifecycleService() {
 //        }
     }
 
-    private var timerOfDisconnection : Timer? = null
-    private var timerOfReconnection : Timer? = null
+    private var timerOfDisconnection: Timer? = null
+    private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
-    private fun registerListenSBSensorState() {
+
+    private fun listenChannelMessage(flowObj : StateFlow<BluetoothInfo>) {
         lifecycleScope.launch(IO) {
-            sbSensorInfo.collectLatest {
-                when(it?.bluetoothState) {
-                    is BluetoothState.Connected -> {
-                        if(it.bluetoothState == BluetoothState.Connected.Reconnected && isForegroundServiceRunning()) {
-                            timerOfReconnection?.cancel()
-                            timerOfReconnection = Timer().apply {
-                                schedule(timerTask {
-                                    Intent(this@BLEService, BLEService::class.java).apply {
-                                        action = ActionMessage.StopSBService.msg
-                                        startForegroundService(this)
-                                    }
-                                }, 3000L)
-                            }
-                        } else {
-                            timerOfReconnection?.cancel()
-                            timerOfReconnection = null
-                        }
-
-                        /*if(it.bluetoothState == BluetoothState.Connected.SendDelete && isForegroundServiceRunning()) {
-                            it.bluetoothName?.let {name->
-                                it.dataId?.let {dataId ->
-                                    exportFile(dataId, name, false)
-                                }
-                            }
-                        }*/
-                    }
-                    else -> {
-
-                    }
-                    /*BluetoothState.Connected.End -> TODO()
-                    BluetoothState.Connected.Finish -> TODO()
-                    BluetoothState.Connected.Init -> TODO()
-                    BluetoothState.Connected.Ready -> TODO()
-                    BluetoothState.Connected.ReceivingDelayed -> TODO()
-                    BluetoothState.Connected.ReceivingMemory -> TODO()
-                    BluetoothState.Connected.ReceivingRealtime -> TODO()
-                    BluetoothState.Connected.SendDelayed -> TODO()
-                    BluetoothState.Connected.SendDelete -> TODO()
-                    BluetoothState.Connected.SendDownload -> TODO()
-                    BluetoothState.Connected.SendRealtime -> TODO()
-                    BluetoothState.Connected.SendStart -> TODO()
-                    BluetoothState.Connected.SendStop -> TODO()
-                    BluetoothState.Connected.WaitStart -> TODO()
-                    BluetoothState.Connecting -> TODO()
-                    BluetoothState.DisconnectedByUser -> TODO()
-                    BluetoothState.Registered -> TODO()
-                    BluetoothState.Unregistered -> TODO()*/
-                }
-            }
-        }
-
-    }
-    private fun listenChannelMessage() {
-        lifecycleScope.launch(IO) {
-            sbSensorInfo.value?.channel?.consumeEach {
+            flowObj.value.channel.consumeEach {
                 sbSensorDBRepository.insert(it)
             }
         }
     }
 
-    private lateinit var notification : Notification
+    private lateinit var notification: Notification
     private fun initNotification() {
 
         val notificationBuilder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
@@ -656,7 +595,7 @@ class BLEService : LifecycleService() {
         }
     }
 
-    fun isForegroundServiceRunning() : Boolean {
+    fun isForegroundServiceRunning(): Boolean {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
@@ -666,7 +605,7 @@ class BLEService : LifecycleService() {
             lifecycleScope.launch(Dispatchers.Main) {
                 errorHandler.onError(error.localizedMessage ?: "Error occured! Please try again.")
             }
-        }){
+        }) {
             request().collect {
                 withContext(Dispatchers.Main) {
                     callback(it)
@@ -676,6 +615,6 @@ class BLEService : LifecycleService() {
     }
 
     interface CoroutinesErrorHandler {
-        fun onError(message:String)
+        fun onError(message: String)
     }
 }
