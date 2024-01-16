@@ -45,31 +45,32 @@ class MainActivity : BaseServiceActivity() {
             itemIconTintList = null
         }
 
-        binding.navBottomView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navigation_breathing -> {
+
+//        binding.navBottomView.setOnItemSelectedListener { item ->
+//            when (item.itemId) {
+//                R.id.navigation_breathing -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_breathing, BreathingFragment.newInstance())
-                    true
-                }
-
-                R.id.navigation_no_sering -> {
+//                    true
+//                }
+//
+//                R.id.navigation_no_sering -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_no_sering, NoSeringFragment.newInstance())
-                    true
-                }
-
-                R.id.navigation_history -> {
+//                    true
+//                }
+//
+//                R.id.navigation_history -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_history, HistoryFragment.newInstance())
-                    true
-                }
-
-                R.id.navigation_settings -> {
+//                    true
+//                }
+//
+//                R.id.navigation_settings -> {
 //                    supportFragmentManager.beginTransaction().replace(R.id.navigation_settings, SettingFragment.newInstance())
-                    true
-                }
-
-                else -> false
-            }
-        }
+//                    true
+//                }
+//
+//                else -> false
+//            }
+//        }
     }
 
 

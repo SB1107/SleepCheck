@@ -58,19 +58,22 @@ class LoginActivity : AppCompatActivity() {
         }
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.whereActivity.collectLatest {
-                    when (it) {
-                        WHERE.None, WHERE.Login -> {}
-                        WHERE.Main -> {
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
+                launch {
+                    viewModel.whereActivity.collectLatest {
+                        when (it) {
+                            WHERE.None, WHERE.Login -> {}
+                            WHERE.Main -> {
+                                startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
+                            }
+
+                            WHERE.Policy -> {
+                                startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
+                            }
                         }
 
-                        WHERE.Policy -> {
-                            startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
-                        }
                     }
-
                 }
+
             }
         }
     }

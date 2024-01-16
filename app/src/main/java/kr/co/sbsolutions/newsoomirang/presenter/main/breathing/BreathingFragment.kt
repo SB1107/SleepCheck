@@ -1,10 +1,12 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,7 +17,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.addFlag
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
+import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,6 +46,10 @@ class BreathingFragment : Fragment() {
                     binding.tvName.text = it
                 }
             }
+        }
+
+        binding.startButton.setOnClickListener {
+            startActivity(Intent(this@BreathingFragment.context, SensorActivity::class.java).addFlag())
         }
 
     }
