@@ -2,6 +2,8 @@ package kr.co.sbsolutions.withsoom.domain.bluetooth.repository
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
+import androidx.lifecycle.LiveData
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +22,7 @@ interface IBluetoothNetworkRepository {
     fun setOnUploadCallback(callback: (() -> Unit)?)
     fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice) : BluetoothGattCallback
 
-    suspend fun listenRegisterSBSensor(flowData :MutableStateFlow<BluetoothInfo>)
+    suspend fun listenRegisterSBSensor(sbSensorFlowData :MutableStateFlow<BluetoothInfo>)
     suspend fun listenRegisterSpO2Sensor()
     suspend fun listenRegisterEEGSensor()
 

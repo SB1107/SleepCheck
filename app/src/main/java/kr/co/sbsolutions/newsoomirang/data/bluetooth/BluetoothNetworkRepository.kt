@@ -7,7 +7,10 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
@@ -50,8 +53,9 @@ class BluetoothNetworkRepository @Inject constructor(
     private  lateinit var _sbSensorInfo: MutableStateFlow<BluetoothInfo>
     private  lateinit var _spo2SensorInfo: MutableStateFlow<BluetoothInfo>
     private  lateinit var _eegSensorInfo: MutableStateFlow<BluetoothInfo>
-    override suspend fun listenRegisterSBSensor(sbSensorInfo :MutableStateFlow<BluetoothInfo>) {
-        this._sbSensorInfo = sbSensorInfo
+    override suspend fun listenRegisterSBSensor(sbSensorFlowData : MutableStateFlow<BluetoothInfo>) {
+        this._sbSensorInfo = sbSensorFlowData
+
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
             .zip(dataManager.getBluetoothDeviceAddress(_sbSensorInfo.value.sbBluetoothDevice.type.toString()))
             { name, address ->
@@ -107,15 +111,17 @@ class BluetoothNetworkRepository @Inject constructor(
 //            }
     }
 
-    override fun getDeviceAddress(sbBluetoothDevice: SBBluetoothDevice) : String? {
-        return when(sbBluetoothDevice) {
+    override fun getDeviceAddress(sbBluetoothDevice: SBBluetoothDevice): String? {
+        return when (sbBluetoothDevice) {
             SBBluetoothDevice.SB_EEG_SENSOR -> {
                 _eegSensorInfo.value.bluetoothAddress
 //                flowData.value.bluetoothAddress
             }
+
             SBBluetoothDevice.SB_SOOM_SENSOR -> {
                 _sbSensorInfo.value.bluetoothAddress
             }
+
             SBBluetoothDevice.SB_SPO2_SENSOR -> {
                 _spo2SensorInfo.value.bluetoothAddress
             }
@@ -123,16 +129,20 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun connectedDevice(device: BluetoothDevice?) {
-        when(device?.address) {
-            _sbSensorInfo.value.bluetoothAddress -> { _sbSensorInfo }
+        when (device?.address) {
+            _sbSensorInfo.value.bluetoothAddress -> {
+                _sbSensorInfo
+            }
 //            _spo2SensorInfo.value?.bluetoothAddress -> { _spo2SensorInfo }
 //            _eegSensorInfo.value?.bluetoothAddress -> { _eegSensorInfo }
-            else -> { return }
+            else -> {
+                return
+            }
         }.apply {
-            value.let {bi ->
-                if(bi.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+            value.let { bi ->
+                if (bi.bluetoothState == BluetoothState.DisconnectedNotIntent) {
                     bi.bluetoothState = BluetoothState.Connected.Reconnected
-                }else {
+                } else {
                     bi.bluetoothState = BluetoothState.Connected.Init
                 }
                 tryEmit(bi)
@@ -142,15 +152,19 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     private fun disconnectedDevice(gatt: BluetoothGatt) {
-        when(gatt.device.address) {
-            _sbSensorInfo.value?.bluetoothAddress -> { _sbSensorInfo }
+        when (gatt.device.address) {
+            _sbSensorInfo.value?.bluetoothAddress -> {
+                _sbSensorInfo
+            }
 //            _spo2SensorInfo.value?.bluetoothAddress -> { _spo2SensorInfo }
 //            _eegSensorInfo.value?.bluetoothAddress -> { _eegSensorInfo }
-            else -> { return }
+            else -> {
+                return
+            }
         }.apply {
             value.let { bi ->
                 bi.bluetoothState =
-                    when(bi.bluetoothState) {
+                    when (bi.bluetoothState) {
                         BluetoothState.Connected.ReceivingDelayed,
                         BluetoothState.Connected.Reconnected,
                         BluetoothState.Connected.ReceivingRealtime,
@@ -194,7 +208,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice) {
-        when(sbBluetoothDevice) {
+        when (sbBluetoothDevice) {
             SBBluetoothDevice.SB_SOOM_SENSOR -> {
                 _sbSensorInfo
             }
@@ -206,7 +220,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
         }.apply {
             value.let {
-                if(it.bluetoothState != BluetoothState.Unregistered) {
+                if (it.bluetoothState != BluetoothState.Unregistered) {
                     it.bluetoothState = BluetoothState.DisconnectedByUser
                     tryEmit(it)
                     insertLog(it.bluetoothState)
@@ -217,7 +231,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun releaseResource() {
         _sbSensorInfo.value.apply {
-            if(bluetoothState != BluetoothState.Unregistered) {
+            if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
             }
             bluetoothGatt?.let {
@@ -259,7 +273,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun startNetworkSBSensor(dataId: Int) {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateStart) {state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateStart) { state ->
             _sbSensorInfo.value.let {
                 it.dataId = dataId
                 it.bluetoothState = state
@@ -268,8 +282,9 @@ class BluetoothNetworkRepository @Inject constructor(
             }
         }
     }
+
     override fun stopNetworkSBSensor() {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateStop) { state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateStop) { state ->
             _sbSensorInfo.value.let {
                 it.bluetoothState = state
                 _sbSensorInfo.tryEmit(it)
@@ -280,14 +295,18 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun endNetworkSBSensor(isForcedClose: Boolean) {
         _sbSensorInfo.value.let {
-            if(isForcedClose) { it.bluetoothState = BluetoothState.Connected.ForceEnd } else { it.bluetoothState = BluetoothState.Connected.End }
+            if (isForcedClose) {
+                it.bluetoothState = BluetoothState.Connected.ForceEnd
+            } else {
+                it.bluetoothState = BluetoothState.Connected.End
+            }
             _sbSensorInfo.tryEmit(it)
             insertLog(it.bluetoothState)
         }
     }
 
     override fun operateRealtimeSBSensor() {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessRealtime) { state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessRealtime) { state ->
             _sbSensorInfo.value?.let {
                 it.bluetoothState = state
                 _sbSensorInfo.tryEmit(it)
@@ -295,8 +314,9 @@ class BluetoothNetworkRepository @Inject constructor(
             }
         }
     }
+
     override fun operateDelayedSBSensor() {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessDelayed) { state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessDelayed) { state ->
             _sbSensorInfo.value.let {
                 it.bluetoothState = state
                 _sbSensorInfo.tryEmit(it)
@@ -306,7 +326,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDownloadSbSensor(isContinue: Boolean) {
-        writeData(_sbSensorInfo.value.bluetoothGatt, if(isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
             _sbSensorInfo.value.let {
                 it.bluetoothState = state
                 _sbSensorInfo.tryEmit(it)
@@ -332,7 +352,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDeleteSbSensor(isAllDelete: Boolean) {
-        writeData(_sbSensorInfo.value.bluetoothGatt, if(isAllDelete) AppToModule.OperateDeleteAll else AppToModule.OperateDeleteSector) { state->
+        writeData(_sbSensorInfo.value.bluetoothGatt, if (isAllDelete) AppToModule.OperateDeleteAll else AppToModule.OperateDeleteSector) { state ->
             _sbSensorInfo.value.let {
                 it.bluetoothState = state
                 _sbSensorInfo.tryEmit(it)
@@ -366,12 +386,13 @@ class BluetoothNetworkRepository @Inject constructor(
 
         gatt.writeCharacteristic(cmd)
     }
-    private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback : ((BluetoothState) -> Unit)?) {
+
+    private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
         gatt?.let {
             stateCallback?.invoke(command.getState())
 
             val cmd = BluetoothUtils.findCommandCharacteristic(gatt)
-            if(cmd == null) {
+            if (cmd == null) {
                 stateCallback?.invoke(BluetoothState.Connected.Ready)
                 return
             }
@@ -383,7 +404,7 @@ class BluetoothNetworkRepository @Inject constructor(
             do {
                 result = gatt.writeCharacteristic(cmd)
 
-                if(result) {
+                if (result) {
                     strBuilder.clear()
                     strBuilder.append("[ ")
                     for (v in cmd.value) {
@@ -420,15 +441,16 @@ class BluetoothNetworkRepository @Inject constructor(
         private val DOWNLOAD_RETRY_COUNT = 3
         private var downloadContinueCount = 0
 
-        private val innerData = when(sbBluetoothDevice) {
+        private val innerData = when (sbBluetoothDevice) {
             SBBluetoothDevice.SB_SOOM_SENSOR -> _sbSensorInfo
             SBBluetoothDevice.SB_SPO2_SENSOR -> _spo2SensorInfo
             SBBluetoothDevice.SB_EEG_SENSOR -> _eegSensorInfo
         }
 
-        private val accFormatter = DecimalFormat("#.####").apply { roundingMode =  RoundingMode.HALF_UP }
-//        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
-        private var startTime : Long = 0L
+        private val accFormatter = DecimalFormat("#.####").apply { roundingMode = RoundingMode.HALF_UP }
+
+        //        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+        private var startTime: Long = 0L
         private val coroutine = CoroutineScope(Dispatchers.IO)
 
         init {
@@ -446,8 +468,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 //Log.d(TAG, "[NR] onConnectionStateChange: GATT_FAILURE ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
-            }
-            else if (status != BluetoothGatt.GATT_SUCCESS) {
+            } else if (status != BluetoothGatt.GATT_SUCCESS) {
                 //Log.d(TAG, "[NR] onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
@@ -488,7 +509,7 @@ class BluetoothNetworkRepository @Inject constructor(
             // find command characteristics from the GATT server
             val respCharacteristic = BluetoothUtils.findResponseCharacteristic(bleGatt)
 
-            if(respCharacteristic == null) {
+            if (respCharacteristic == null) {
                 disconnectedDevice(bleGatt)
                 return
             }
@@ -501,6 +522,7 @@ class BluetoothNetworkRepository @Inject constructor(
             descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             innerData.value?.bluetoothGatt?.writeDescriptor(descriptor)
         }
+
         private fun stopNotification(bleGatt: BluetoothGatt) {
             val respCharacteristic = bleGatt.let { BluetoothUtils.findResponseCharacteristic(it) }
             bleGatt.setCharacteristicNotification(respCharacteristic, false)
@@ -529,34 +551,38 @@ class BluetoothNetworkRepository @Inject constructor(
             Log.d("---> Device To App", strBuilder.toString())
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
-            when((String.format("%02X", value[4])).getCommand()) {
+            when ((String.format("%02X", value[4])).getCommand()) {
                 ModuleToApp.StartStopACK -> {
                     innerData.value?.let {
-                        when(it.bluetoothState) {
+                        when (it.bluetoothState) {
                             BluetoothState.Connected.SendStart -> {
                                 uploadCallbackQuotient = 0
                                 it.bluetoothState = BluetoothState.Connected.WaitStart
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             BluetoothState.Connected.SendStop -> {
                                 uploadCallbackQuotient = -1
                                 it.bluetoothState = BluetoothState.Connected.Finish
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             BluetoothState.Connected.DataFlow -> {
                                 writeData(gatt, AppToModule.OperateDeleteSector, null)
                                 it.bluetoothState = BluetoothState.Connected.SendDelete
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             else -> {
 
                             }
                         }
                     }
                 }
+
                 ModuleToApp.RealtimeData -> {
                     innerData.value.let {
                         when (it.bluetoothState) {
@@ -584,14 +610,14 @@ class BluetoothNetworkRepository @Inject constructor(
 
                             BluetoothState.Connected.SendDownloadContinue -> {
                                 downloadContinueCount++
-                                if(downloadContinueCount % DOWNLOAD_RETRY_INTERVAL == 0) {
-                                    if(downloadContinueCount >= DOWNLOAD_RETRY_COUNT * DOWNLOAD_RETRY_INTERVAL) {
+                                if (downloadContinueCount % DOWNLOAD_RETRY_INTERVAL == 0) {
+                                    if (downloadContinueCount >= DOWNLOAD_RETRY_COUNT * DOWNLOAD_RETRY_INTERVAL) {
                                         it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
                                         innerData.tryEmit(it)
                                         insertLog(it.bluetoothState)
                                         downloadContinueCount = 0
                                     } else {
-                                        writeData(gatt, AppToModule.OperateDownloadContinue) {state ->
+                                        writeData(gatt, AppToModule.OperateDownloadContinue) { state ->
                                             _sbSensorInfo.value.let { info ->
                                                 info.bluetoothState = state
                                                 _sbSensorInfo.tryEmit(info)
@@ -612,7 +638,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
                             }
                         }
-                        if(value.verifyCheckSum()) {
+                        if (value.verifyCheckSum()) {
                             coroutine.launch {
                                 val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
                                 val capacitance1 = String.format("%02X%02X%02X", value[9], value[10], value[11]).toUInt(16).toInt()
@@ -645,8 +671,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                 it.currentData?.postValue(capacitance2)
 
                                 val quotient = index1 / UPLOAD_COUNT_INTERVAL
-                                if(safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
-                                    uploadCallback?.let {cb ->
+                                if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
+                                    uploadCallback?.let { cb ->
                                         safetyMode = 0
                                         uploadCallbackQuotient = quotient
                                         cb.invoke()
@@ -659,7 +685,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 }
                             }
                             writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
-                        }else {
+                        } else {
                             writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseNAK)
                         }
                     }
@@ -676,14 +702,17 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             BluetoothState.Connected.ReceivingRealtime -> {
                                 it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             BluetoothState.Connected.ReceivingDelayed -> {
                                 // Do Nothing
                             }
+
                             else -> {
                                 // 상태 이상
                                 //Log.e("---> Device To App", "DelayedData Receive State Error : ${it.bluetoothState}")
@@ -721,17 +750,19 @@ class BluetoothNetworkRepository @Inject constructor(
                 ModuleToApp.OperateACK -> {
                     if (value.verifyCheckSum()) {
                         innerData.value?.let {
-                            when(it.bluetoothState) {
+                            when (it.bluetoothState) {
                                 BluetoothState.Connected.SendRealtime -> {
                                     it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
                                     innerData.tryEmit(it)
                                     insertLog(it.bluetoothState)
                                 }
+
                                 BluetoothState.Connected.SendDelayed -> {
                                     it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
                                     innerData.tryEmit(it)
                                     insertLog(it.bluetoothState)
                                 }
+
                                 else -> {
                                     //Log.e("---> Device To App", "OperateACK Receive State Error : ${it.bluetoothState}")
                                 }
@@ -739,12 +770,14 @@ class BluetoothNetworkRepository @Inject constructor(
                         }
                     }
                 }
+
                 ModuleToApp.MemoryData -> {
                     innerData.value?.let {
-                        when(it.bluetoothState) {
+                        when (it.bluetoothState) {
                             BluetoothState.Connected.SendDownload, BluetoothState.Connected.SendDownloadContinue -> {
                                 downloadContinueCount = 0
                             }
+
                             else -> {
                                 //Log.e("---> Device To App", "MemoryData Receive State Error : ${it.bluetoothState}")
                             }
@@ -777,6 +810,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         }
                     }
                 }
+
                 ModuleToApp.MemoryDataACK -> {
                     innerData.value?.let {
                         when (it.bluetoothState) {
@@ -787,6 +821,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             BluetoothState.Connected.SendDownloadContinue -> {
                                 downloadContinueCount = 0
 //                                downloadCompleteCallback?.invoke()
@@ -794,38 +829,42 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.tryEmit(it)
                                 insertLog(it.bluetoothState)
                             }
+
                             else -> {
                                 // 상태 이상
                                 //Log.e("---> Device To App", "MemoryDataACK Receive State Error : ${it.bluetoothState}")
                             }
                         }
-                        if(value.verifyCheckSum()) {
+                        if (value.verifyCheckSum()) {
                             writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                         } else {
                             writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)
                         }
                     }
                 }
+
                 ModuleToApp.MemoryDataDeleteACK -> {
                     innerData.value?.let {
-                         it.bluetoothState = BluetoothState.Connected.Ready
-                         innerData.tryEmit(it)
+                        it.bluetoothState = BluetoothState.Connected.Ready
+                        innerData.tryEmit(it)
                         insertLog(it.bluetoothState)
                     }
                 }
+
                 ModuleToApp.PowerOff -> {
                     val data = String.format("%02X", value[6])
                     lastDownloadCompleteCallback?.invoke(
-                        if(data == "01") BLEService.FinishState.FinishPowerOff
+                        if (data == "01") BLEService.FinishState.FinishPowerOff
                         else BLEService.FinishState.FinishBatteryLow
                     )
                     insertLog(
-                        if(data == "01") "FinishPowerOff"
+                        if (data == "01") "FinishPowerOff"
                         else "FinishBatteryLow"
                     )
                     downloadContinueCount = 0
                     writeResponse(gatt, AppToModuleResponse.PowerOffACK)
                 }
+
                 ModuleToApp.Error -> {
                     // Do Nothing ???
                 }

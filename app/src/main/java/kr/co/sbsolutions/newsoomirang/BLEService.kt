@@ -13,6 +13,7 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
@@ -63,7 +64,8 @@ class BLEService : LifecycleService() {
 
         var isServiceStarted: Boolean = false
         private val _sbSensorInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
-        val sbSensorInfo: StateFlow<BluetoothInfo> = _sbSensorInfo
+//        private val _sbSensorInfShard: MutableSharedFlow<BluetoothInfo> = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
+        val sbSensorInfo:  SharedFlow<BluetoothInfo> = _sbSensorInfo
 
 //        private  val  _spo2SensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
 //        val spo2SensorInfo :StateFlow<BluetoothInfo> = _spo2SensorInfo
@@ -93,7 +95,6 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var logDBDataRepository: LogDBDataRepository
-
 
     override fun onCreate() {
         super.onCreate()
@@ -203,9 +204,9 @@ class BLEService : LifecycleService() {
     }
     */
 
-    private fun startScheduler(flowObj: StateFlow<BluetoothInfo>) {
+    private fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
-            flowObj.value.let {
+            _sbSensorInfo.value?.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                     bluetoothNetworkRepository.operateDownloadSbSensor(true)
                 }
@@ -217,7 +218,7 @@ class BLEService : LifecycleService() {
             schedule(timerTask {
                 stopSBSensor()
                 val forceClose = notifyPowerOff(FinishState.FinishTimeOut)
-                flowObj.value.let {
+                _sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
                             exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
@@ -234,9 +235,9 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
     }
 
-    private fun registerDownloadCallback(flowObj: StateFlow<BluetoothInfo>) {
+    private fun registerDownloadCallback() {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
-            flowObj.value.let {
+            _sbSensorInfo.value?.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         Log.d(TAG, "uploading: register")
@@ -248,7 +249,7 @@ class BLEService : LifecycleService() {
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
-            flowObj.value.let {
+            _sbSensorInfo.value?.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
@@ -296,9 +297,9 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
 //                registerListenSBSensorState()
-                listenChannelMessage(sbSensorInfo)
-                startScheduler(sbSensorInfo)
-                registerDownloadCallback(sbSensorInfo)
+                listenChannelMessage()
+                startScheduler()
+                registerDownloadCallback()
                 // uploadStart()
                 //startNotification()
                 createNotificationChannel()
@@ -306,6 +307,7 @@ class BLEService : LifecycleService() {
 
                 lifecycleScope.launch {
                     bluetoothNetworkRepository.listenRegisterSBSensor(_sbSensorInfo)
+
                 }
             }
 
@@ -319,7 +321,7 @@ class BLEService : LifecycleService() {
             ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
                 stopScheduler()
-                forcedFlow(sbSensorInfo)
+                forcedFlow()
             }
 
 
@@ -351,8 +353,8 @@ class BLEService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun forcedFlow(flowObj: StateFlow<BluetoothInfo>) {
-        flowObj.value.let {
+    private fun forcedFlow() {
+        _sbSensorInfo.value?.let {
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -544,9 +546,9 @@ class BLEService : LifecycleService() {
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
 
-    private fun listenChannelMessage(flowObj: StateFlow<BluetoothInfo>) {
+    private fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
-            flowObj.value.channel.consumeEach {
+            _sbSensorInfo.value.channel.consumeEach {
                 sbSensorDBRepository.insert(it)
             }
         }

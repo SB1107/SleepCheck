@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
@@ -20,36 +21,26 @@ import javax.inject.Inject
 abstract class BaseServiceActivity : BaseActivity() {
     @Inject
     lateinit var bleRepository: BleRepository
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        lifecycleScope.launch(Dispatchers.IO){
-            launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    BLEService.sbSensorInfo.collectLatest {
-                        onChangeSBSensorInfo(it)
-                    }
-                }
-            }
-        }
-    }
+
 
     override fun onStart() {
         super.onStart()
         if (!isMyServiceRunning()) {
-            Intent(this@BaseServiceActivity ,BLEService::class.java).also {
-                if(!isMyServiceRunning() || !BLEService.isServiceStarted){
-                    it.action = ActionMessage.StartSBService.msg
-                    startForegroundService(it)
-                    Log.e("Adfsdf","Asdfsdf")
-                }
+            startSBService(ActionMessage.StartSBService)
+        }
+
+        lifecycleScope.launch {
+            BLEService.sbSensorInfo.collect {
+                onChangeSBSensorInfo(it)
             }
         }
+
     }
-    protected fun startSBService(am: ActionMessage, dataId: Int? = null) {
-        Intent(this, BLEService::class.java).apply {
-            action = am.msg
-            dataId?.let { putExtra(DATA_ID, it) }
-            bleRepository.getBleService()?.startForegroundService(this)
+
+    protected fun startSBService(am: ActionMessage) {
+        Intent(this@BaseServiceActivity, BLEService::class.java).also {
+            it.action = am.msg
+            startForegroundService(it)
         }
     }
 
