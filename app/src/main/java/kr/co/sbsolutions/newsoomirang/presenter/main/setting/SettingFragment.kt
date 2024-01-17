@@ -1,32 +1,46 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.setting
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 
 class SettingFragment : Fragment() {
+    private val viewModel: SettingViewModel by viewModels()
 
-    companion object {
-        fun newInstance() = SettingFragment()
+    private val binding: FragmentSettingBinding by lazy {
+        FragmentSettingBinding.inflate(layoutInflater)
     }
-
-    private lateinit var viewModel: SettingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_setting, container, false)
+    ): View {
+        return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(SettingViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+            //내센서 클릭
+            binding.clSensor.setOnClickListener {  }
+            //개인정보 방침
+            binding.clPolicy.setOnClickListener {  
+
+            }
+            //로그아웃
+            binding.clLogout.setOnClickListener {  }
+            //회원 탈퇴
+            binding.clLeave.setOnClickListener {  }
+
+            //디바이스 연결시에 디바이스 이름
+            binding.cvDeviceName.visibility = View.GONE
+            binding.tvDeviceName.text = ""
     }
 
 }
