@@ -12,7 +12,7 @@
         layout="@layout/toolbar_back" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/device_name_text_view"
+        android:id="@+id/deviceNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"
@@ -25,7 +25,7 @@
         app:layout_constraintTop_toBottomOf="@id/action_bar" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/disconnect_button"
+        android:id="@+id/disconnectButton"
         android:layout_width="wrap_content"
         android:layout_height="36dp"
         android:layout_gravity="center_horizontal"
@@ -38,10 +38,10 @@
         app:cornerRadius="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/device_name_text_view" />
+        app:layout_constraintTop_toBottomOf="@id/deviceNameTextView" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_search"
+        android:id="@+id/btSearch"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginLeft="30dp"
@@ -57,20 +57,20 @@
         app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/device_name_text_view"
+        app:layout_constraintTop_toBottomOf="@id/deviceNameTextView"
         app:strokeColor="@color/color_6EA7EC"
         app:strokeWidth="1dp" />
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/device_recycler_view"
+        android:id="@+id/deviceRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bt_search" />
+        app:layout_constraintTop_toBottomOf="@id/btSearch" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

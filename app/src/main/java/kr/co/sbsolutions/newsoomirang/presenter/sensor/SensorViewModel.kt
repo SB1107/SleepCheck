@@ -8,8 +8,6 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.ParcelUuid
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,14 +31,14 @@ class SensorViewModel @Inject constructor(
     companion object {
         private const val DELAY_TIMEOUT = 5000L
     }
-    private val _isScanning = MutableSharedFlow<Boolean>()
+    private val _isScanning = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isScanning : SharedFlow<Boolean> = _isScanning
 
     private val _isRegistered = MutableSharedFlow<Boolean>()
     val isRegistered: SharedFlow<Boolean> = _isRegistered
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
-    private val _scanList = MutableSharedFlow<List<BluetoothDevice>>()
+    private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
     val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
     private var timer : Timer? = null
 
@@ -58,7 +56,8 @@ class SensorViewModel @Inject constructor(
     }
     fun registerDevice( bluetoothDevice: BluetoothDevice) {
         stopTimer()
-        registerBluetoothDevice( bluetoothDevice)
+        registerBluetoothDevice( bluetoothDevice )
+
     }
     private fun startTimer() {
         stopTimer()
@@ -95,7 +94,7 @@ class SensorViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
 
             val result1 = bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_BREATHING_SENSOR, device.name, device.address)
             val result2 = bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_NO_SERING_SENSOR, device.name, device.address)
@@ -118,11 +117,12 @@ class SensorViewModel @Inject constructor(
         }
 
         private fun addScanResult(result: ScanResult) {
-            val device = result.device
+                val device = result.device
 
-            if(_scanSet.add(device)) {
-                _scanList.tryEmit(_scanSet.toList())
-            }
+                if(_scanSet.add(device)) {
+                    _scanList.tryEmit(_scanSet.toList())
+                }
+
         }
     }
 }
