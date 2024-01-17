@@ -9,6 +9,8 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 interface RemoteLoginDataSource {
      fun postLogin(loginModel: SnsLoginModel): Flow<ApiResponse<UserEntity>>
 }
-interface RemotePolicyDataSource{
+interface RemoteAuthDataSource{
      fun postPolicy(policyModel: PolicyModel): Flow<ApiResponse<UserEntity>>
+     fun postLogout(): Flow<ApiResponse<UserEntity>>
 }
+

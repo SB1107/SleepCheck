@@ -19,9 +19,9 @@ import javax.inject.Singleton
 import kr.co.sbsolutions.newsoomirang.common.AuthInterceptor
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.domain.repository.LoginRepository
-import kr.co.sbsolutions.newsoomirang.domain.repository.PolicyRepository
+import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.withsoom.data.repository.bluetooth.BluetoothManageRepository
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Named
@@ -86,7 +86,8 @@ abstract class ViewModelBindsModule {
     abstract fun provideRemoteLoginDataSource(loginRepository: LoginRepository): RemoteLoginDataSource
 
     @Binds
-    abstract fun provideRemotePolicyDataSource(policyRepository: PolicyRepository): RemotePolicyDataSource
+    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
+
 
     @Binds
     abstract fun bindBluetoothManageRepository(bluetoothManageRepository: BluetoothManageRepository) : IBluetoothManageRepository

@@ -52,6 +52,7 @@ class LoginActivity : AppCompatActivity() {
     private fun bindView() {
         binding.apply {
             btGoogle.setOnClickListener {
+
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
             }
@@ -61,7 +62,8 @@ class LoginActivity : AppCompatActivity() {
                 launch {
                     viewModel.whereActivity.collectLatest {
                         when (it) {
-                            WHERE.None, WHERE.Login -> {}
+                            WHERE.None -> {}
+                            WHERE.Login -> {}
                             WHERE.Main -> {
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
                             }
@@ -116,12 +118,13 @@ class LoginActivity : AppCompatActivity() {
                 mAuth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
+                            Log.d(TAG, "onActivityResult: 성공")
                             // 로그인에 성공했습니다.
                             val user = task.result?.user
 
                             //로그인 API
 //                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
-                            viewModel.login("G", user?.uid.toString(), user?.displayName.toString())
+                            viewModel.login(snsType = "G", token = user?.uid.toString(), name = user?.displayName.toString())
                             Log.d(TAG, "user: ${user?.uid}")
 
                         } else {

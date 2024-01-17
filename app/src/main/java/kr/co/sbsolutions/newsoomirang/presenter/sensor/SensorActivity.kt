@@ -4,7 +4,9 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -14,10 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -40,6 +45,8 @@ class SensorActivity : BaseServiceActivity() {
         return viewModel
     }
 
+
+
     private val viewModel: SensorViewModel by viewModels()
 
     private val binding: ActivitySensorBinding by lazy {
@@ -56,7 +63,7 @@ class SensorActivity : BaseServiceActivity() {
     }
 
     private val animator: ObjectAnimator by lazy {
-        ObjectAnimator.ofFloat(binding.btSearch, "rotation", 0f, 359f).apply {
+        ObjectAnimator.ofFloat(binding.btSearch, "rotation", 0f, 0f).apply {
             duration = 1000L
             repeatCount = ObjectAnimator.INFINITE
         }
@@ -99,13 +106,10 @@ class SensorActivity : BaseServiceActivity() {
 
                     launch {
                         isScanning.collectLatest { isScanning ->
-                            if (isScanning) {
-                                animator.start()
-
-                            } else {
-                                animator.cancel()
-
+                            animator.also {
+                                if(isScanning) it.start() else it.cancel()
                             }
+
                         }
                     }
 
@@ -127,8 +131,21 @@ class SensorActivity : BaseServiceActivity() {
                 }
             }
         }
+    }
+
+    private fun changeStatus(iBinding: ActivitySensorBinding, info: BluetoothInfo) {
+        with(iBinding) {
+            /*if (info.bluetoothState.) {
+                deviceNameTextView.text = info.bluetoothName
+                btSearch.visibility = View.INVISIBLE
+            }*/
+            if(info.bluetoothState == BluetoothState.Registered) {
+                viewModel.deviceConnect(info)
+            }
+        }
 
     }
+
 
 
 }

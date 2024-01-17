@@ -98,6 +98,7 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
         registerReceiver(mReceiver, mFilter)
 
@@ -155,6 +156,7 @@ class BLEService : LifecycleService() {
     }
 
     fun connectDevice(bluetoothInfo: BluetoothInfo) {
+        Log.d(TAG, "getCallback: ConnectDevice ")
         val device = bluetoothAdapter.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt = device.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))

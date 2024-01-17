@@ -9,6 +9,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
@@ -23,8 +24,7 @@ interface AuthServiceAPI {
     @POST("joinagree")
     suspend fun postJoinAgree(@Body policyModel : PolicyModel): Response<UserEntity>
     //로그 아웃
-    @FormUrlEncoded
-    @POST
+    @POST("logout")
     suspend fun postLogOut(): Response<UserEntity>
 
     //회원 탈퇴

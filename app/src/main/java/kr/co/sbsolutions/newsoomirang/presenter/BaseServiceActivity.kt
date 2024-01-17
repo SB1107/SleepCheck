@@ -19,21 +19,18 @@ import javax.inject.Inject
 
 
 abstract class BaseServiceActivity : BaseActivity() {
-    @Inject
-    lateinit var bleRepository: BleRepository
 
-
-    override fun onStart() {
-        super.onStart()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (!isMyServiceRunning()) {
             startSBService(ActionMessage.StartSBService)
         }
+    }
+    override fun onStart() {
+        super.onStart()
 
-        lifecycleScope.launch {
-            BLEService.sbSensorInfo.collect {
-                onChangeSBSensorInfo(it)
-            }
-        }
+
+
 
     }
 
@@ -44,9 +41,9 @@ abstract class BaseServiceActivity : BaseActivity() {
         }
     }
 
-    open fun onChangeSBSensorInfo(info: BluetoothInfo) {}
+/*    open fun onChangeSBSensorInfo(info: BluetoothInfo) {}
     open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
-    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}
+    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}*/
 
 
 }

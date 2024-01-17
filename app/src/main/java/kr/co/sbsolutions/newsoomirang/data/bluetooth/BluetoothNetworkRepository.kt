@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.AppToModule
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.AppToModuleResponse
@@ -454,7 +455,8 @@ class BluetoothNetworkRepository @Inject constructor(
         private val coroutine = CoroutineScope(Dispatchers.IO)
 
         init {
-            innerData.value?.let {
+            Log.d(TAG, "getCallback: Connecting ")
+            innerData.value.let {
                 it.bluetoothState = BluetoothState.Connecting
                 innerData.tryEmit(it)
                 insertLog(it.bluetoothState)
@@ -465,19 +467,19 @@ class BluetoothNetworkRepository @Inject constructor(
             super.onConnectionStateChange(gatt, status, newState)
 
             if (status == BluetoothGatt.GATT_FAILURE) {
-                //Log.d(TAG, "[NR] onConnectionStateChange: GATT_FAILURE ${gatt.device.name} / ${gatt.device.address}")
+//                Log.d(TAG, "[NR] onConnectionStateChange: GATT_FAILURE ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
-                //Log.d(TAG, "[NR] onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
+//                Log.d(TAG, "[NR] onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                //Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
+//                Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 gatt.discoverServices()
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                //Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
+//                Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }

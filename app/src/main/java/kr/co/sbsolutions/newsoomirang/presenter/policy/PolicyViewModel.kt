@@ -1,7 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.policy
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -9,15 +7,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.booleanToInt
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemotePolicyDataSource
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
@@ -26,7 +22,7 @@ import javax.inject.Inject
 class PolicyViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
-    private val policyRepository: RemotePolicyDataSource
+    private val policyRepository: RemoteAuthDataSource
 
 ) : BaseViewModel() {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
