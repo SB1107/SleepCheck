@@ -12,7 +12,9 @@ object Cons {
 
     const val EXTRA_KEY_USER_KEY = "${TAG}_userKey"
     const val EXTRA_KEY_BLE_KEY = "${TAG}_bleKey"
-
+    const val NOTIFICATION_CHANNEL_ID = "kr.co.sbsolutions.newsoomirang"
+    const val NOTIFICATION_CHANNEL_NAME  = "BleService channel "
+    const val NOTIFICATION_ID = 1248
     val PERMISSIONS_ALL = arrayOf(
         ACCESS_FINE_LOCATION,
         BLUETOOTH

@@ -1,16 +1,12 @@
 package kr.co.sbsolutions.newsoomirang
 
-import android.Manifest.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE
 import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-import android.os.Binder
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
 import com.opencsv.CSVWriter
@@ -20,6 +16,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
+import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
@@ -72,6 +70,11 @@ class BLEService : LifecycleService() {
 //        private  val  _eegSensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
 //        val eegSensorInfo :StateFlow<BluetoothInfo> = _eegSensorInfo
     }
+    @Inject
+    lateinit var notificationBuilder: NotificationCompat.Builder
+
+    @Inject
+    lateinit var notificationManager: NotificationManager
 
     @Inject
     lateinit var dataManager: DataManager
@@ -95,9 +98,7 @@ class BLEService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
-
         registerReceiver(mReceiver, mFilter)
-
 
 //        lifecycleScope.launch {
 //            bluetoothNetworkRepository.listenRegisterSpO2Sensor()
@@ -106,7 +107,6 @@ class BLEService : LifecycleService() {
 //            bluetoothNetworkRepository.listenRegisterEEGSensor()
 //        }
 
-        initNotification()
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -295,14 +295,14 @@ class BLEService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
-                Log.e("sdfsadfsadf", "onStartCommand")
 //                registerListenSBSensorState()
                 listenChannelMessage(sbSensorInfo)
                 startScheduler(sbSensorInfo)
                 registerDownloadCallback(sbSensorInfo)
                 // uploadStart()
                 //startNotification()
-                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
+                createNotificationChannel()
+                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
 
                 lifecycleScope.launch {
                     bluetoothNetworkRepository.listenRegisterSBSensor(_sbSensorInfo)
@@ -374,6 +374,12 @@ class BLEService : LifecycleService() {
         }
     }
 
+    private fun createNotificationChannel() {
+        val channel =  NotificationChannel(
+            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
     fun startSBSensor(dataId: Int) {
         // TODO Release 주석 해제
         /*lifecycleScope.launch(IO) {
@@ -546,34 +552,6 @@ class BLEService : LifecycleService() {
         }
     }
 
-    private lateinit var notification: Notification
-    private fun initNotification() {
-
-        val notificationBuilder = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
-        /*val notificationIntent: Intent = Intent(this, MainActivity::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this,0,notificationIntent,
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            else PendingIntent.FLAG_UPDATE_CURRENT
-        )*/
-
-        notification = notificationBuilder.apply {
-            setOngoing(true)
-            setSmallIcon(R.mipmap.ic_launcher)
-            setContentTitle("숨이랑 기기 연결대기중")
-            priority = NotificationCompat.PRIORITY_DEFAULT
-            setCategory(Notification.CATEGORY_SERVICE)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                foregroundServiceBehavior = Notification.FOREGROUND_SERVICE_IMMEDIATE
-            }
-//            setContentText(if(deviceList.value?.size == 1) "1 Module is attached" else "${deviceList.value?.size} Modules are attached")
-//            setContentIntent(pendingIntent)
-        }.build()
-    }
-
-    inner class LocalBinder : Binder() {
-        val service: BLEService
-            get() = this@BLEService
-    }
 
     private var mJob: Job? = null
 
