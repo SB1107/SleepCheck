@@ -12,4 +12,6 @@ import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkR
 abstract class ServiceModule {
     @Binds
     abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository) : IBluetoothNetworkRepository
+//    @Binds
+//    abstract fun bindApneaUploadRepository(apneaUploadRepository: ApneaUploadRepository) : IApneaUploadRepository
 }

@@ -34,7 +34,7 @@ class SensorViewModel @Inject constructor(
     private val _isScanning = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isScanning : SharedFlow<Boolean> = _isScanning
 
-    private val _isRegistered = MutableSharedFlow<Boolean>()
+    private val _isRegistered = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isRegistered: SharedFlow<Boolean> = _isRegistered
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
@@ -95,10 +95,7 @@ class SensorViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.Main) {
-
-            val result1 = bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_BREATHING_SENSOR, device.name, device.address)
-            val result2 = bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_NO_SERING_SENSOR, device.name, device.address)
-            _isRegistered.tryEmit(result1 && result2)
+            _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address))
         }
     }
 

@@ -1,26 +1,20 @@
 package kr.co.sbsolutions.newsoomirang.presenter
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.os.PersistableBundle
-import androidx.annotation.CallSuper
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.newsoomirang.domain.repository.BleRepository
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 
 abstract class BaseServiceActivity : BaseActivity() {
@@ -31,16 +25,22 @@ abstract class BaseServiceActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO){
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    BLEService.sbBreathingInfo.collectLatest {
-
+                    BLEService.sbSensorInfo.collectLatest {
+                        onChangeSBSensorInfo(it)
                     }
                 }
             }
-            launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    BLEService.sbNoSeringInfo.collectLatest {
+        }
+    }
 
-                    }
+    override fun onStart() {
+        super.onStart()
+        if (!isMyServiceRunning()) {
+            Intent(this@BaseServiceActivity ,BLEService::class.java).also {
+                if(!isMyServiceRunning() || !BLEService.isServiceStarted){
+                    it.action = ActionMessage.StartSBService.msg
+                    startForegroundService(it)
+                    Log.e("Adfsdf","Asdfsdf")
                 }
             }
         }

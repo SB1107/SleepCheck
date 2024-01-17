@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
@@ -78,18 +79,12 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected fun isMyServiceRunning(): Boolean {
-        try {
-            val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-            for (service in manager.getRunningServices(
-                Int.MAX_VALUE
-            )) {
-                if (BLEService::class.java.name == service.service.className && service.foreground) {
-                    return true
-                }
-            }
-        } catch (e: Exception) {
-            return false
+        val manager: ActivityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val tradingService = manager.getRunningServices(Int.MAX_VALUE).firstOrNull {
+            BLEService::class.java.name == it.service.className
         }
-        return false
+        val result = tradingService?.foreground ?: false
+        val serviceStarted = BLEService.isServiceStarted
+        return result || serviceStarted
     }
 }

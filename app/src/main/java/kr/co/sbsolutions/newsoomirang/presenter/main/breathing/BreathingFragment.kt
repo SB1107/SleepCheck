@@ -49,7 +49,7 @@ class BreathingFragment : Fragment() {
         }
 
         binding.startButton.setOnClickListener {
-            startActivity(Intent(this@BreathingFragment.context, SensorActivity::class.java).addFlag())
+            startActivity(Intent(this@BreathingFragment.context, SensorActivity::class.java))
         }
 
     }

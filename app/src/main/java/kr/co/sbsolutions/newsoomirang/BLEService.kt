@@ -1,13 +1,16 @@
 package kr.co.sbsolutions.newsoomirang
 
+import android.Manifest.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE
 import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.os.Binder
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
 import com.opencsv.CSVWriter
@@ -61,10 +64,9 @@ class BLEService : LifecycleService() {
         }
 
         var isServiceStarted: Boolean = false
-        private val _sbBreathingInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_BREATHING_SENSOR))
-        val sbBreathingInfo: StateFlow<BluetoothInfo> = _sbBreathingInfo
-        private val _sbNoSeringInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_NO_SERING_SENSOR))
-        val sbNoSeringInfo: StateFlow<BluetoothInfo> = _sbNoSeringInfo
+        private val _sbSensorInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
+        val sbSensorInfo: StateFlow<BluetoothInfo> = _sbSensorInfo
+
 //        private  val  _spo2SensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
 //        val spo2SensorInfo :StateFlow<BluetoothInfo> = _spo2SensorInfo
 //        private  val  _eegSensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
@@ -92,7 +94,6 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
 
         registerReceiver(mReceiver, mFilter)
@@ -202,7 +203,7 @@ class BLEService : LifecycleService() {
     }
     */
 
-    private fun startScheduler(flowObj : StateFlow<BluetoothInfo>) {
+    private fun startScheduler(flowObj: StateFlow<BluetoothInfo>) {
         bluetoothNetworkRepository.setOnUploadCallback {
             flowObj.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
@@ -233,7 +234,7 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
     }
 
-    private fun registerDownloadCallback(flowObj : StateFlow<BluetoothInfo>) {
+    private fun registerDownloadCallback(flowObj: StateFlow<BluetoothInfo>) {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
             flowObj.value.let {
                 it.dataId?.let { dataId ->
@@ -291,65 +292,54 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback(null)
     }
 
-    @SuppressLint("ForegroundServiceType")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
-
-            ActionMessage.StartBreathingService -> {
+            ActionMessage.StartSBService -> {
+                Log.e("sdfsadfsadf", "onStartCommand")
 //                registerListenSBSensorState()
-                listenChannelMessage(sbBreathingInfo)
-                startScheduler(sbBreathingInfo)
-                registerDownloadCallback(sbBreathingInfo)
+                listenChannelMessage(sbSensorInfo)
+                startScheduler(sbSensorInfo)
+                registerDownloadCallback(sbSensorInfo)
                 // uploadStart()
                 //startNotification()
                 startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
+
                 lifecycleScope.launch {
-                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbBreathingInfo)
-                }
-            }
-            ActionMessage.StartNoSeringService -> {
-                listenChannelMessage(sbNoSeringInfo)
-                startScheduler(sbNoSeringInfo)
-                registerDownloadCallback(sbNoSeringInfo)
-                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification)
-                lifecycleScope.launch {
-                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbNoSeringInfo)
+                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbSensorInfo)
                 }
             }
 
-            ActionMessage.StopBreathingService , ActionMessage.StopNoSeringService -> {
+            ActionMessage.StopSBService -> {
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
 //                unregisterListenSBSensorState()
                 stopScheduler()
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
             }
-            ActionMessage.StopBreathingServiceForced -> {
+
+            ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
                 stopScheduler()
-                forcedFlow(sbBreathingInfo)
-            }
-            ActionMessage.StopNoSeringServiceForced -> {
-                stopScheduler()
-                forcedFlow(sbNoSeringInfo)
+                forcedFlow(sbSensorInfo)
             }
 
-            ActionMessage.OperateBreathingRealtimeSBSensor , ActionMessage.OperateNoSeringRealtimeSBSensor -> {
+
+            ActionMessage.OperateRealtimeSBSensor -> {
                 bluetoothNetworkRepository.operateRealtimeSBSensor()
             }
 
-            ActionMessage.OperateBreathingDelayedSBSensor , ActionMessage.OperateNoSeringDelayedSBSensor-> {
+            ActionMessage.OperateDelayedSBSensor -> {
                 bluetoothNetworkRepository.operateDelayedSBSensor()
             }
 
-            ActionMessage.OperateBreathingDownloadSBSensor , ActionMessage.OperateNoSeringDownloadSBSensor -> {
+            ActionMessage.OperateDownloadSBSensor -> {
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
             }
 
-            ActionMessage.OperateBreathingDeleteSectorSBSensor, ActionMessage.OperateNoSeringDeleteSectorSBSensor -> {
+            ActionMessage.OperateDeleteSectorSBSensor -> {
                 bluetoothNetworkRepository.operateDeleteSbSensor(false)
             }
 
-            ActionMessage.OperateBreathingDeleteAllSBSensor, ActionMessage.OperateNoSeringDeleteAllSBSensor -> {
+            ActionMessage.OperateDeleteAllSBSensor -> {
                 bluetoothNetworkRepository.operateDeleteSbSensor(true)
             }
             /*
@@ -361,7 +351,7 @@ class BLEService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun forcedFlow(flowObj : StateFlow<BluetoothInfo>) {
+    private fun forcedFlow(flowObj: StateFlow<BluetoothInfo>) {
         flowObj.value.let {
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
@@ -548,7 +538,7 @@ class BLEService : LifecycleService() {
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
 
-    private fun listenChannelMessage(flowObj : StateFlow<BluetoothInfo>) {
+    private fun listenChannelMessage(flowObj: StateFlow<BluetoothInfo>) {
         lifecycleScope.launch(IO) {
             flowObj.value.channel.consumeEach {
                 sbSensorDBRepository.insert(it)
@@ -569,7 +559,7 @@ class BLEService : LifecycleService() {
         notification = notificationBuilder.apply {
             setOngoing(true)
             setSmallIcon(R.mipmap.ic_launcher)
-            setContentTitle(getString(R.string.service_title))
+            setContentTitle("숨이랑 기기 연결대기중")
             priority = NotificationCompat.PRIORITY_DEFAULT
             setCategory(Notification.CATEGORY_SERVICE)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

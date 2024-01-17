@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.presenter.sensor
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
 import android.view.MenuItem
@@ -15,10 +16,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
+import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 
+@SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class SensorActivity : BaseActivity() {
+class SensorActivity : BaseServiceActivity() {
 
     override fun newBackPressed() {
         finish()
@@ -42,9 +45,10 @@ class SensorActivity : BaseActivity() {
     private val binding: ActivitySensorBinding by lazy {
         ActivitySensorBinding.inflate(layoutInflater)
     }
-    private val bleAdapter: BluetoothAdapter by lazy {
-        BluetoothAdapter(bleClickListener)
+    private val bleAdapter: SensorBluetoothAdapter by lazy {
+        SensorBluetoothAdapter(bleClickListener)
     }
+
 
     private val bleClickListener: (BluetoothDevice) -> Unit = { bluetoothDevice ->
         viewModel.registerDevice(bluetoothDevice)
