@@ -14,8 +14,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
@@ -30,34 +33,89 @@ import javax.inject.Inject
 class SensorViewModel @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
+    private val dataManager: DataManager
 ) : BaseServiceViewModel() {
     companion object {
         private const val DELAY_TIMEOUT = 5000L
     }
+
     private val _isScanning = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isScanning: SharedFlow<Boolean> = _isScanning
 
     private val _isRegistered = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isRegistered: SharedFlow<Boolean> = _isRegistered
 
-    private val _scanSet = mutableSetOf<BluetoothDevice>()
     private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
     val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
+
+    private val _bleName: MutableSharedFlow<String> = MutableSharedFlow(extraBufferCapacity = 1)
+    val bleName: SharedFlow<String> = _bleName
+
+    private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
 
+    private var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
+
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-        changeStatus(info)
+        Log.d(TAG, "[SVM]: $info")
+        bluetoothInfo = info
+        getName(info)
+
+        if (info.bluetoothState == BluetoothState.Registered) {
+            changeStatus(info)
+        }
+    }
+
+    private fun getName(info: BluetoothInfo) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataManager.getBluetoothDeviceName(info.sbBluetoothDevice.type.name).first()?.let {
+                _bleName.emit(it)
+//                Log.d(TAG, "디바이스 이름: $it")
+            }
+        }
     }
 
     private fun changeStatus(info: BluetoothInfo) {
-        /*if (info.bluetoothState.) {
-            deviceNameTextView.text = info.bluetoothName
-            btSearch.visibility = View.INVISIBLE
-        }*/
+        viewModelScope.launch(Dispatchers.IO) {
+            dataManager.getBluetoothDeviceName(info.sbBluetoothDevice.type.name).first()?.let {
+                _bleName.emit(it)
+//                Log.d(TAG, "changeStatus: $it")
+            }
+        }
+
         if (info.bluetoothState == BluetoothState.Registered) {
-            Log.e("safsf","Registered")
             deviceConnect(info)
         }
+    }
+
+
+    fun disconnectDevice() {
+        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
+
+        getService()?.disconnectDevice(bluetoothInfo)
+        unRegister()
+
+        /*// 상태 정리 필요함
+        when (bluetoothInfo.bluetoothState) {
+            BluetoothState.Connected.ReceivingRealtime,
+            BluetoothState.Connected.SendDownloadContinue,
+            -> {
+                Log.d(TAG, "disconnectDevice: 연결해제 불가능")
+            }
+            else -> {
+                Log.d(TAG, "disconnectDevice: 연결해제 완료")
+                getService()?.disconnectDevice(bluetoothInfo)
+                unRegister()
+            }
+        }*/
+
+    }
+
+    private fun unRegister() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
+        }
+
 
     }
 
@@ -116,16 +174,14 @@ class SensorViewModel @Inject constructor(
         stopTimer()
     }
 
-    fun deviceConnect(info: BluetoothInfo) {
+    private fun deviceConnect(info: BluetoothInfo) {
         getService()?.connectDevice(info)
-
     }
 
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address))
-
         }
     }
 
@@ -150,7 +206,6 @@ class SensorViewModel @Inject constructor(
             if (_scanSet.add(device)) {
                 _scanList.tryEmit(_scanSet.toList())
             }
-
         }
     }
 }

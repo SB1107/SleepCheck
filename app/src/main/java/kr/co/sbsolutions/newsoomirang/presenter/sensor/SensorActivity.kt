@@ -32,8 +32,9 @@ class SensorActivity : BaseServiceActivity() {
         finish()
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             android.R.id.home -> {
                 newBackPressed()
             }
@@ -44,7 +45,6 @@ class SensorActivity : BaseServiceActivity() {
     override fun injectViewModel(): BaseViewModel {
         return viewModel
     }
-
 
 
     private val viewModel: SensorViewModel by viewModels()
@@ -59,7 +59,6 @@ class SensorActivity : BaseServiceActivity() {
 
     private val bleClickListener: (BluetoothDevice) -> Unit = { bluetoothDevice ->
         viewModel.registerDevice(bluetoothDevice)
-        binding.deviceNameTextView.text = bluetoothDevice.name.toString()
     }
 
     private val animator: ObjectAnimator by lazy {
@@ -98,16 +97,37 @@ class SensorActivity : BaseServiceActivity() {
                 }
                 viewModel.scanBLEDevices()
             }
+
+            disconnectButton.setOnClickListener {
+                lifecycleScope.launch {
+                    viewModel.disconnectDevice()
+                    btSearch.visibility = View.VISIBLE
+                    disconnectButton.visibility = View.GONE
+                    deviceNameTextView.text = "연결된 기기가 없습니다."
+                }
+
+            }
         }
 
         with(viewModel) {
             lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    //Bluetooth 상태에 따른 ui
+                    launch {
+                        viewModel.bleName.collectLatest { bleName ->
+                            Log.d(TAG, "bindViews: $bleName")
+                            binding.apply {
+                                deviceNameTextView.text = bleName
+                                btSearch.visibility = View.GONE
+                                disconnectButton.visibility = View.VISIBLE
+                            }
+                        }
+                    }
 
                     launch {
                         isScanning.collectLatest { isScanning ->
                             animator.also {
-                                if(isScanning) it.start() else it.cancel()
+                                if (isScanning) it.start() else it.cancel()
                             }
 
                         }
@@ -117,6 +137,7 @@ class SensorActivity : BaseServiceActivity() {
                         isRegistered.collectLatest {
                             if (it) {
                                 finish()
+
                             } else {
                                 Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
                             }
@@ -132,20 +153,4 @@ class SensorActivity : BaseServiceActivity() {
             }
         }
     }
-
-    private fun changeStatus(iBinding: ActivitySensorBinding, info: BluetoothInfo) {
-        with(iBinding) {
-            /*if (info.bluetoothState.) {
-                deviceNameTextView.text = info.bluetoothName
-                btSearch.visibility = View.INVISIBLE
-            }*/
-            if(info.bluetoothState == BluetoothState.Registered) {
-
-            }
-        }
-
-    }
-
-
-
 }
