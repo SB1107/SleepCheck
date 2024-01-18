@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 
 
 abstract class BaseServiceActivity : BaseActivity() {
@@ -44,6 +45,9 @@ abstract class BaseServiceActivity : BaseActivity() {
                 launch {
                     service?.let {
                         it.sbSensorInfo.collectLatest { info ->
+                            if (info.bluetoothState == BluetoothState.Registered) {
+                                service?.connectDevice(info)
+                            }
                             changeServiceViewModel()?.onChangeSBSensorInfo(info)
                         }
                     }

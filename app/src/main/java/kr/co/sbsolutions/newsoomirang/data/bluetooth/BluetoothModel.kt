@@ -4,8 +4,10 @@ import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kotlin.experimental.inv
 
 sealed interface AppToModule {
-    object OperateStart : AppToModule
-    object OperateStop : AppToModule
+    object BreathingOperateStart : AppToModule
+    object NoSeringOperateStart : AppToModule
+    object BreathingOperateStop : AppToModule
+    object NoSeringOperateStop : AppToModule
     object OperateChangeProcessRealtime : AppToModule
     object OperateChangeProcessDelayed : AppToModule
     object OperateDownloadContinue : AppToModule
@@ -25,8 +27,8 @@ sealed interface AppToModuleResponse {
 
 fun AppToModule.getState() : BluetoothState.Connected {
     return when(this){
-        AppToModule.OperateStart -> BluetoothState.Connected.SendStart
-        AppToModule.OperateStop -> BluetoothState.Connected.SendStop
+        AppToModule.BreathingOperateStart,  AppToModule.NoSeringOperateStart-> BluetoothState.Connected.SendStart
+        AppToModule.BreathingOperateStop,AppToModule.NoSeringOperateStop -> BluetoothState.Connected.SendStop
         AppToModule.OperateChangeProcessRealtime -> BluetoothState.Connected.SendRealtime
         AppToModule.OperateChangeProcessDelayed -> BluetoothState.Connected.SendDelayed
         AppToModule.OperateDownloadContinue -> BluetoothState.Connected.SendDownloadContinue
@@ -37,7 +39,7 @@ fun AppToModule.getState() : BluetoothState.Connected {
 
 fun AppToModule.getCommandByteArr() : ByteArray {
     return when(this) {
-        AppToModule.OperateStart -> {
+        AppToModule.BreathingOperateStart -> {
             byteArrayOf(
                 // PREFIX
                 0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
@@ -49,12 +51,36 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
-        AppToModule.OperateStop -> {
+        AppToModule.NoSeringOperateStart -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xFE.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x01.toByte()
+            ).addCheckSum()
+        }
+        AppToModule.BreathingOperateStop -> {
             byteArrayOf(
                 // PREFIX
                 0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
                 // CMD
                 0xF3.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x00.toByte()
+            ).addCheckSum()
+        }
+        AppToModule.NoSeringOperateStop -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xFE.toByte(),
                 // LEN
                 0x01.toByte(),
                 // Payload
@@ -220,6 +246,7 @@ sealed interface ModuleToApp {
     object MemoryDataDeleteACK : ModuleToApp
     object PowerOff : ModuleToApp
     object Error : ModuleToApp
+    object BatteryState : ModuleToApp
 }
 
 fun String.getCommand() : ModuleToApp {
@@ -232,6 +259,7 @@ fun String.getCommand() : ModuleToApp {
         "C5" -> ModuleToApp.MemoryDataACK
         "C6" -> ModuleToApp.MemoryDataDeleteACK
         "FD" -> ModuleToApp.PowerOff
+        "FA" -> ModuleToApp.BatteryState
         else -> ModuleToApp.Error
     }
 }

@@ -7,12 +7,32 @@
     android:background="@color/color_061629"
     tools:context=".presenter.main.breathing.BreathingFragment">
 
+
+    <!-- 배터리 텍스트 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/battery_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:drawableEnd="@drawable/ic_battery"
+        android:drawablePadding="10dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintHorizontal_bias="1"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/init_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:constraint_referenced_ids="tv_name ,tv_name_des1 ,tv_name_des2"/>
+        app:constraint_referenced_ids="tv_name ,tv_name_des1 ,tv_name_des2" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_name"
@@ -20,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="150dp"
-        android:text="홍길동"
+        android:text="고객"
         android:textColor="@color/color_FFFFFF"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,12 +65,24 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
-        android:text="아직코골이 정보가 없습니다.\n시작을 눌러주세요."
+        android:text="아직 호흡정보가 없습니다.\n시작을 눌러주세요."
         android:textColor="@color/color_78899F"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
         app:layout_constraintStart_toStartOf="@id/tv_name"
         app:layout_constraintTop_toBottomOf="@id/tv_name_des1" />
+
+
+    <include
+        android:id="@+id/action_measurer"
+        layout="@layout/breathing_measure"
+        android:visibility="gone"/>
+
+    <include
+        android:id="@+id/action_result"
+        layout="@layout/breathing_sending_data"
+        android:visibility="gone"/>
+
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/start_button"

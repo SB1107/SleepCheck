@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_061629"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title_text_view"
+        android:layout_width="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:fontFamily="@font/nanumsquarebold"
+        android:text="호흡측정"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RelativeLayout
+        android:id="@+id/chart_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="393:178"
+        app:layout_constraintTop_toBottomOf="@id/title_text_view">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp" />
+
+    </RelativeLayout>
+
+    <!--    측정 중 표시     -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/record_info_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@color/color_1C9083"
+        android:gravity="center"
+        android:fontFamily="@font/nanumsquarebold"
+        android:text="측정중"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/chart_layout" />
+
+    <!--    측정 상태     -->
+    <RelativeLayout
+        android:id="@+id/measure_state_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/color_061629"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/record_info_text_view"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/background_layout"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:background="@drawable/record_gradient" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/state_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:fontFamily="@font/nanumsquarebold"
+            android:gravity="center"
+            android:text="호흡 측정중"
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="34sp" />
+    </RelativeLayout>
+    <!--   타이머 텍스트     -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/timer_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="30dp"
+        android:fontFamily="@font/nanumsquarebold"
+        android:gravity="center"
+        android:text="00 : 00"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="34sp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/record_info_text_view" />
+
+
+
+    <LinearLayout
+        android:id="@+id/analy_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_061629"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/record_info_text_view">
+
+        <!--        <com.airbnb.lottie.LottieAnimationView-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="168dp"-->
+        <!--            android:layout_gravity="center_horizontal"-->
+        <!--            app:lottie_autoPlay="true"-->
+        <!--            app:lottie_loop="true"-->
+        <!--            app:lottie_rawRes="@raw/ic_loading" />-->
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="-30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
+            android:text="서버에서 데이터 분석중입니다."
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="20dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
+            android:text="이 작업은 몇분 정도\n걸리 수 있습니다."
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="18dp" />
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 
@@ -32,7 +33,7 @@ interface IBluetoothNetworkRepository {
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
     fun releaseResource()
 
-    fun startNetworkSBSensor(dataId: Int)
+    fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
     fun stopNetworkSBSensor()
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun operateRealtimeSBSensor()

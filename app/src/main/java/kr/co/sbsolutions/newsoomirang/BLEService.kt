@@ -25,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
@@ -111,7 +112,7 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch {
             bluetoothNetworkRepository.listenRegisterEEGSensor()
         }
-
+        createNotificationChannel()
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -307,7 +308,6 @@ class BLEService : LifecycleService() {
                 registerDownloadCallback()
                 // uploadStart()
                 //startNotification()
-                createNotificationChannel()
                 startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
             }
 
@@ -382,12 +382,12 @@ class BLEService : LifecycleService() {
         )
         notificationManager.createNotificationChannel(channel)
     }
-    fun startSBSensor(dataId: Int) {
-        // TODO Release 주석 해제
-        /*lifecycleScope.launch(IO) {
-            sbSensorDBRepository.deletePastList(dataId)
-        }*/
-        bluetoothNetworkRepository.startNetworkSBSensor(dataId)
+    fun startSBSensor(dataId: Int, sleepType: SleepType) {
+        lifecycleScope.launch(IO) {
+            sbSensorDBRepository.deleteAll()
+            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+        }
+
     }
 
     fun stopSBSensor() {

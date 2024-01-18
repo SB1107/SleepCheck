@@ -123,6 +123,7 @@ dependencies {
     val openCsvVersion = "5.9"
     implementation ("com.opencsv:opencsv:$openCsvVersion")
 
+    implementation ("io.github.florent37:shapeofview:1.4.7")                      // Shape of view
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
