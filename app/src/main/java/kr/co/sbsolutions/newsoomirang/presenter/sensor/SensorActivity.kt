@@ -140,7 +140,7 @@ class SensorActivity : BaseServiceActivity() {
                 btSearch.visibility = View.INVISIBLE
             }*/
             if(info.bluetoothState == BluetoothState.Registered) {
-                viewModel.deviceConnect(info)
+
             }
         }
 

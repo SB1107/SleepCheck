@@ -5,7 +5,9 @@ import android.app.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.*
+import android.os.Binder
 import android.os.Build
+import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
@@ -55,22 +57,19 @@ class BLEService : LifecycleService() {
         const val POWER_OFF_NOTIFICATION_ID = 1001
         const val TIME_OUT_NOTIFICATION_ID = 1002
         private const val INTERVAL_UPLOAD_TIME = 15L
-
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
-        private var instance: BLEService? = null
-        fun getInstance(): BLEService? {
-            return instance
-        }
 
-        var isServiceStarted: Boolean = false
-        private val _sbSensorInfo: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
-//        private val _sbSensorInfShard: MutableSharedFlow<BluetoothInfo> = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
-        val sbSensorInfo:  SharedFlow<BluetoothInfo> = _sbSensorInfo
+    }
 
-//        private  val  _spo2SensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
-//        val spo2SensorInfo :StateFlow<BluetoothInfo> = _spo2SensorInfo
-//        private  val  _eegSensorInfo : MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
-//        val eegSensorInfo :StateFlow<BluetoothInfo> = _eegSensorInfo
+
+    val sbSensorInfo by lazy {
+        bluetoothNetworkRepository.sbSensorInfo
+    }
+    val spo2SensorInfo by lazy {
+        bluetoothNetworkRepository.spo2SensorInfo
+    }
+    val eegSensorInfo by lazy {
+        bluetoothNetworkRepository.eegSensorInfo
     }
     @Inject
     lateinit var notificationBuilder: NotificationCompat.Builder
@@ -96,18 +95,22 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var logDBDataRepository: LogDBDataRepository
 
+    private val mBinder: IBinder = LocalBinder()
     override fun onCreate() {
         super.onCreate()
-        instance = this
+
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
         registerReceiver(mReceiver, mFilter)
 
-//        lifecycleScope.launch {
-//            bluetoothNetworkRepository.listenRegisterSpO2Sensor()
-//        }
-//        lifecycleScope.launch {
-//            bluetoothNetworkRepository.listenRegisterEEGSensor()
-//        }
+        lifecycleScope.launch {
+            bluetoothNetworkRepository.listenRegisterSBSensor()
+        }
+        lifecycleScope.launch {
+            bluetoothNetworkRepository.listenRegisterSpO2Sensor()
+        }
+        lifecycleScope.launch {
+            bluetoothNetworkRepository.listenRegisterEEGSensor()
+        }
 
     }
 
@@ -208,7 +211,7 @@ class BLEService : LifecycleService() {
 
     private fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
-            _sbSensorInfo.value?.let {
+            sbSensorInfo.value?.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                     bluetoothNetworkRepository.operateDownloadSbSensor(true)
                 }
@@ -220,7 +223,7 @@ class BLEService : LifecycleService() {
             schedule(timerTask {
                 stopSBSensor()
                 val forceClose = notifyPowerOff(FinishState.FinishTimeOut)
-                _sbSensorInfo.value.let {
+                sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
                             exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
@@ -239,7 +242,7 @@ class BLEService : LifecycleService() {
 
     private fun registerDownloadCallback() {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
-            _sbSensorInfo.value?.let {
+            sbSensorInfo.value?.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         Log.d(TAG, "uploading: register")
@@ -251,7 +254,7 @@ class BLEService : LifecycleService() {
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
-            _sbSensorInfo.value?.let {
+            sbSensorInfo.value?.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
@@ -306,11 +309,6 @@ class BLEService : LifecycleService() {
                 //startNotification()
                 createNotificationChannel()
                 startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-
-                lifecycleScope.launch {
-                    bluetoothNetworkRepository.listenRegisterSBSensor(_sbSensorInfo)
-
-                }
             }
 
             ActionMessage.StopSBService -> {
@@ -356,7 +354,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun forcedFlow() {
-        _sbSensorInfo.value?.let {
+        sbSensorInfo.value?.let {
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -473,6 +471,12 @@ class BLEService : LifecycleService() {
         }
     }
 
+    override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
+
+        return mBinder
+    }
+
     private fun finishService(dataId: Int, isForcedClose: Boolean) {
         // TODO Release 주석 해제
         /*lifecycleScope.launch(IO) {
@@ -550,12 +554,17 @@ class BLEService : LifecycleService() {
 
     private fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
-            _sbSensorInfo.value.channel.consumeEach {
+            sbSensorInfo.value.channel.consumeEach {
                 sbSensorDBRepository.insert(it)
             }
         }
     }
 
+
+    inner class LocalBinder : Binder() {
+        val service: BLEService
+            get() = this@BLEService
+    }
 
     private var mJob: Job? = null
 

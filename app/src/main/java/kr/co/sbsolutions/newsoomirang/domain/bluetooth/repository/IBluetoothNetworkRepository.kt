@@ -22,7 +22,7 @@ interface IBluetoothNetworkRepository {
     fun setOnUploadCallback(callback: (() -> Unit)?)
     fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice) : BluetoothGattCallback
 
-    suspend fun listenRegisterSBSensor(sbSensorFlowData :MutableStateFlow<BluetoothInfo>)
+    suspend fun listenRegisterSBSensor()
     suspend fun listenRegisterSpO2Sensor()
     suspend fun listenRegisterEEGSensor()
 
@@ -44,4 +44,7 @@ interface IBluetoothNetworkRepository {
     fun startNetworkEEGSensor()
     fun stopNetworkEEGSensor()
 
+    val sbSensorInfo : StateFlow<BluetoothInfo>
+    val spo2SensorInfo : StateFlow<BluetoothInfo>
+    val eegSensorInfo : StateFlow<BluetoothInfo>
 }

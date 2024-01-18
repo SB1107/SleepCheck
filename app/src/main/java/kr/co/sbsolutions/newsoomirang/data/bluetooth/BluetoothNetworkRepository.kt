@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.os.Build
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -44,18 +46,20 @@ class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val logDBDataRepository: LogDBDataRepository
-): IBluetoothNetworkRepository {
+) : IBluetoothNetworkRepository {
     private val strBuilder = StringBuilder()
 
     private val logCoroutine = CoroutineScope(Dispatchers.IO)
 
     private val timeID = SimpleDateFormat("yy-MM-dd HH:mm:ss.S", Locale.getDefault()).format(System.currentTimeMillis())
 
-    private  lateinit var _sbSensorInfo: MutableStateFlow<BluetoothInfo>
-    private  lateinit var _spo2SensorInfo: MutableStateFlow<BluetoothInfo>
-    private  lateinit var _eegSensorInfo: MutableStateFlow<BluetoothInfo>
-    override suspend fun listenRegisterSBSensor(sbSensorFlowData : MutableStateFlow<BluetoothInfo>) {
-        this._sbSensorInfo = sbSensorFlowData
+    private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
+    override val sbSensorInfo: StateFlow<BluetoothInfo> = _sbSensorInfo
+    private val _spo2SensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
+    override val spo2SensorInfo: StateFlow<BluetoothInfo> = _spo2SensorInfo
+    private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
+    override val eegSensorInfo: StateFlow<BluetoothInfo> = _eegSensorInfo
+    override suspend fun listenRegisterSBSensor() {
 
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
             .zip(dataManager.getBluetoothDeviceAddress(_sbSensorInfo.value.sbBluetoothDevice.type.toString()))
@@ -64,12 +68,13 @@ class BluetoothNetworkRepository @Inject constructor(
                     it.bluetoothName = name
                     it.bluetoothAddress = address
                 }
-//                Log.d(TAG, "[SB_SENSOR] NAME: $name, ADDR: $address")
+                Log.d(TAG, "[SB_SENSOR] NAME: $name, ADDR: $address")
                 !name.isNullOrEmpty() && !address.isNullOrEmpty()
-            }.collect { registered->
+            }.collect { registered ->
                 _sbSensorInfo.value.let {
-                    it.bluetoothState = if(registered) BluetoothState.Registered else BluetoothState.Unregistered
+                    it.bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered
                     _sbSensorInfo.tryEmit(it)
+                    Log.e("aaaaaa","_sbSensorInfo = ${_sbSensorInfo.value.bluetoothState}")
                     insertLog(it.bluetoothState)
                 }
 //                Log.d(TAG, "[SB_SENSOR is ${if(registered) "REGISTERED" else "UNREGISTERED"}]")
@@ -134,8 +139,8 @@ class BluetoothNetworkRepository @Inject constructor(
             _sbSensorInfo.value.bluetoothAddress -> {
                 _sbSensorInfo
             }
-//            _spo2SensorInfo.value?.bluetoothAddress -> { _spo2SensorInfo }
-//            _eegSensorInfo.value?.bluetoothAddress -> { _eegSensorInfo }
+            _spo2SensorInfo.value.bluetoothAddress -> { _spo2SensorInfo }
+            _eegSensorInfo.value.bluetoothAddress -> { _eegSensorInfo }
             else -> {
                 return
             }
@@ -154,11 +159,11 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private fun disconnectedDevice(gatt: BluetoothGatt) {
         when (gatt.device.address) {
-            _sbSensorInfo.value?.bluetoothAddress -> {
+            _sbSensorInfo.value.bluetoothAddress -> {
                 _sbSensorInfo
             }
-//            _spo2SensorInfo.value?.bluetoothAddress -> { _spo2SensorInfo }
-//            _eegSensorInfo.value?.bluetoothAddress -> { _eegSensorInfo }
+            _spo2SensorInfo.value.bluetoothAddress -> { _spo2SensorInfo }
+            _eegSensorInfo.value.bluetoothAddress -> { _eegSensorInfo }
             else -> {
                 return
             }
@@ -195,17 +200,11 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun changeBluetoothState(isOn: Boolean) {
         BluetoothInfo.isOn = isOn
-        if (::_sbSensorInfo.isInitialized) {
-            _sbSensorInfo.apply { tryEmit(value) }
-            releaseResource()
-        }
-        if (::_spo2SensorInfo.isInitialized) {
-            _spo2SensorInfo.apply { tryEmit(value) }
-        }
-        if (::_eegSensorInfo.isInitialized) {
-            _eegSensorInfo.apply { tryEmit(value) }
-        }
+        _sbSensorInfo.apply { tryEmit(value) }
+        _spo2SensorInfo.apply { tryEmit(value) }
+        _eegSensorInfo.apply { tryEmit(value) }
 
+        releaseResource()
     }
 
     override fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice) {
@@ -213,9 +212,11 @@ class BluetoothNetworkRepository @Inject constructor(
             SBBluetoothDevice.SB_SOOM_SENSOR -> {
                 _sbSensorInfo
             }
+
             SBBluetoothDevice.SB_SPO2_SENSOR -> {
                 _spo2SensorInfo
             }
+
             SBBluetoothDevice.SB_EEG_SENSOR -> {
                 _eegSensorInfo
             }
@@ -244,33 +245,33 @@ class BluetoothNetworkRepository @Inject constructor(
             bluetoothGatt = null
             currentData = null
         }
-//        _spo2SensorInfo.value?.apply {
-//            if(bluetoothState != BluetoothState.Unregistered) {
-//                bluetoothState = BluetoothState.DisconnectedByUser
-//            }
-//            bluetoothGatt?.let {
-//                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
-//                it.disconnect()
-//                it.close()
-//            }
-//            dataId = null
-//            bluetoothGatt = null
-//            currentData = null
-//        }
+        _spo2SensorInfo.value?.apply {
+            if(bluetoothState != BluetoothState.Unregistered) {
+                bluetoothState = BluetoothState.DisconnectedByUser
+            }
+            bluetoothGatt?.let {
+                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                it.disconnect()
+                it.close()
+            }
+            dataId = null
+            bluetoothGatt = null
+            currentData = null
+        }
 //
-//        _eegSensorInfo.value?.apply {
-//            if(bluetoothState != BluetoothState.Unregistered) {
-//                bluetoothState = BluetoothState.DisconnectedByUser
-//            }
-//            bluetoothGatt?.let {
-//                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
-//                it.disconnect()
-//                it.close()
-//            }
-//            dataId = null
-//            bluetoothGatt = null
-//            currentData = null
-//        }
+        _eegSensorInfo.value?.apply {
+            if(bluetoothState != BluetoothState.Unregistered) {
+                bluetoothState = BluetoothState.DisconnectedByUser
+            }
+            bluetoothGatt?.let {
+                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                it.disconnect()
+                it.close()
+            }
+            dataId = null
+            bluetoothGatt = null
+            currentData = null
+        }
     }
 
     override fun startNetworkSBSensor(dataId: Int) {

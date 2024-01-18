@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.ParcelUuid
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +16,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
-import kr.co.sbsolutions.newsoomirang.domain.repository.BleRepository
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
@@ -32,12 +30,10 @@ import javax.inject.Inject
 class SensorViewModel @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
-    private val bleRepository: BleRepository
 ) : BaseServiceViewModel() {
     companion object {
         private const val DELAY_TIMEOUT = 5000L
     }
-
     private val _isScanning = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isScanning: SharedFlow<Boolean> = _isScanning
 
@@ -59,6 +55,7 @@ class SensorViewModel @Inject constructor(
             btSearch.visibility = View.INVISIBLE
         }*/
         if (info.bluetoothState == BluetoothState.Registered) {
+            Log.e("safsf","Registered")
             deviceConnect(info)
         }
 
@@ -120,9 +117,7 @@ class SensorViewModel @Inject constructor(
     }
 
     fun deviceConnect(info: BluetoothInfo) {
-        bleRepository.getBleService()?.let {
-            it.connectDevice(info)
-        }
+        getService()?.connectDevice(info)
 
     }
 

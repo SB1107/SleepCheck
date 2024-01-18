@@ -83,8 +83,9 @@ abstract class BaseActivity : AppCompatActivity() {
         val tradingService = manager.getRunningServices(Int.MAX_VALUE).firstOrNull {
             BLEService::class.java.name == it.service.className
         }
-        val result = tradingService?.foreground ?: false
-        val serviceStarted = BLEService.isServiceStarted
-        return result || serviceStarted
+        return tradingService?.foreground ?: false
+    }
+    protected  fun getViewModel() : BaseViewModel {
+        return  _viewModel
     }
 }
