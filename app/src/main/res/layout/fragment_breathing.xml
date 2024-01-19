@@ -9,23 +9,7 @@
 
 
     <!-- 배터리 텍스트 -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/battery_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:drawableEnd="@drawable/ic_battery"
-        android:drawablePadding="10dp"
-        android:gravity="center"
-        android:text=""
-        android:textColor="@color/color_FFFFFF"
-        android:textSize="20sp"
-        android:visibility="visible"
-        app:layout_constraintHorizontal_bias="1"
-        android:layout_marginEnd="30dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/init_group"
@@ -91,11 +75,42 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
-        android:clickable="false"
-        android:src="@drawable/selector_start"
+        android:clickable="true"
+        android:src="@drawable/btn_start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/stop_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:src="@drawable/btn_close"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/battery_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:drawableEnd="@drawable/ic_battery"
+        android:drawablePadding="10dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintHorizontal_bias="1"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -241,7 +241,6 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             dataId = null
             bluetoothGatt = null
-            currentData = null
         }
         _spo2SensorInfo.value?.apply {
             if(bluetoothState != BluetoothState.Unregistered) {
@@ -254,7 +253,6 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             dataId = null
             bluetoothGatt = null
-            currentData = null
         }
 //
         _eegSensorInfo.value?.apply {
@@ -268,21 +266,14 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             dataId = null
             bluetoothGatt = null
-            currentData = null
         }
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
         val module = if (sleepType == SleepType.Breathing)  AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-             _sbSensorInfo.update { it.copy(dataId = dataId , bluetoothState = state , sleepType = sleepType) }
+             _sbSensorInfo.update { it.copy(dataId = dataId , bluetoothState = state , sleepType = sleepType , snoreTime = 0) }
             insertLog(state)
-//            _sbSensorInfo.value.let {
-//                it.dataId = dataId
-//                it.bluetoothState = state
-//                _sbSensorInfo.tryEmit(it)
-//                insertLog(it.bluetoothState)
-//            }
         }
     }
 
@@ -291,11 +282,6 @@ class BluetoothNetworkRepository @Inject constructor(
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
              _sbSensorInfo.update { it.copy(bluetoothState = state ) }
             insertLog(state)
-//            _sbSensorInfo.value.let {
-//                it.bluetoothState = state
-//                _sbSensorInfo.tryEmit(it)
-//                insertLog(it.bluetoothState)
-//            }
         }
     }
 
@@ -510,15 +496,6 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
             //Log.d(TAG, "[NR] onServicesDiscovered: SUCCESS ${gatt.device.name} / ${gatt.device.address}")
-
-
-            innerData.value?.let {
-                //it.bluetoothState = BluetoothState.Connected.Init
-                // it.bluetoothGatt = gatt
-                it.currentData = MutableLiveData<Int>()
-                //innerData.postValue(it)
-            }
-
             startNotification(gatt)
         }
 
@@ -677,8 +654,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                 val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
 
                                 val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
-
-                                info.currentData?.postValue(capacitance1)
+                                info.currentData.tryEmit(capacitance1)
+//                                info.currentData?.postValue(capacitance1)
 
                                 val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
                                 val capacitance2 = String.format("%02X%02X%02X", value[18], value[19], value[20]).toUInt(16).toInt()
@@ -693,8 +670,8 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
 
-                                info.currentData?.postValue(capacitance2)
-
+//                                info.currentData?.postValue(capacitance2)
+                                info.currentData.tryEmit(capacitance2)
                                 val quotient = index1 / UPLOAD_COUNT_INTERVAL
                                 if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
                                     uploadCallback?.let { cb ->

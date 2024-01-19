@@ -86,10 +86,8 @@ abstract class ViewModelBindsModule {
     abstract fun provideRemoteLoginDataSource(loginRepository: LoginRepository): RemoteLoginDataSource
 
     @Binds
-    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
-
-
-    @Binds
     abstract fun bindBluetoothManageRepository(bluetoothManageRepository: BluetoothManageRepository) : IBluetoothManageRepository
 
+    @Binds
+    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
 }

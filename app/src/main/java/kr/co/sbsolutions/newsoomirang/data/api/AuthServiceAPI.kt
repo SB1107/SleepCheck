@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.data.api
 
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
 import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
@@ -52,13 +53,12 @@ interface AuthServiceAPI {
     @POST("sleepdata/create")
     suspend fun postSleepDataCreate(@Body createModel: SleepCreateModel): Response<SleepCreateEntity>
 
-    @FormUrlEncoded
     @POST("sleepdata/delete")
     suspend fun  postSleepDataDelete(@Body sleepModel : SleepModel): Response<SleepModel>
 
     @Multipart
     @POST("sleepdata/upload")
-    suspend fun uploading(@Part file : List<MultipartBody.Part>) : Response<SleepModel>
+    suspend fun postUploading(@Part file : List<MultipartBody.Part>) : Response<UploadingEntity>
 
     @GET("notice/list")
     suspend fun getNoticeList(@QueryMap notice : Map<String , Any>) : Response<NoticeModel>

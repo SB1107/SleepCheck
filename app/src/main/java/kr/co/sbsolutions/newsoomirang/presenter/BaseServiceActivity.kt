@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,10 +13,11 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
+import java.lang.ref.WeakReference
 
 
 abstract class BaseServiceActivity : BaseActivity() {
-    private var service: BLEService? = null
+    private lateinit var service: WeakReference<BLEService>
 
     override fun onStart() {
         super.onStart()
@@ -33,7 +33,7 @@ abstract class BaseServiceActivity : BaseActivity() {
         Intent(this, BLEService::class.java).apply {
             action = am.msg
             dataId?.let { putExtra(DATA_ID, it) }
-            service?.startForegroundService(this)
+            service.get()?.startForegroundService(this)
         }
     }
 
@@ -43,10 +43,10 @@ abstract class BaseServiceActivity : BaseActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    service?.let {
+                    service.get()?.let {
                         it.sbSensorInfo.collectLatest { info ->
                             if (info.bluetoothState == BluetoothState.Registered) {
-                                service?.connectDevice(info)
+                                service.get()?.connectDevice(info)
                             }
                             changeServiceViewModel()?.onChangeSBSensorInfo(info)
                         }
@@ -54,14 +54,14 @@ abstract class BaseServiceActivity : BaseActivity() {
                 }
             }
             launch {
-                service?.let {
+                service.get()?.let {
                     it.spo2SensorInfo.collectLatest { info ->
                         changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
                     }
                 }
             }
             launch {
-                service?.let {
+                service.get()?.let {
                     it.eegSensorInfo.collectLatest { info ->
                         changeServiceViewModel()?.onChangeEEGSensorInfo(info)
                     }
@@ -80,15 +80,15 @@ abstract class BaseServiceActivity : BaseActivity() {
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            service = (binder as BLEService.LocalBinder).service
-            service?.let {
+            service = WeakReference((binder as BLEService.LocalBinder).service)
+            service.get()?.let {
                 changeServiceViewModel()?.setService(it)
             }
             onServiceAvailable()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            service = null
+            service.clear()
         }
     }
 

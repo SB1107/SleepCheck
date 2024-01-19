@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.domain.db
 
+import androidx.room.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
@@ -46,5 +47,7 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
     fun deletePastList(dataId: Int) {
         return dao.deletePastData(dataId)
     }
+
+
 
 }

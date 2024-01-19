@@ -2,15 +2,18 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.github.mikephil.charting.data.Entry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
@@ -23,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BreathingViewModel @Inject constructor(
     private val dataManager: DataManager,
-    private  val authAPIRepository: RemoteAuthDataSource
+    private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel() {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
     val userName: SharedFlow<String> = _userName
@@ -39,10 +42,17 @@ class BreathingViewModel @Inject constructor(
     private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
     val measuringState: SharedFlow<MeasuringState> = _measuringState
 
+    private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
+    val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
+    val  _capacitanceFlow : MutableSharedFlow<Int> = MutableSharedFlow()
+     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
+
+    lateinit var timerJob: Job
+    private var time: Int = 0
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getUserName().last()?.let {
+            dataManager.getUserName().first()?.let {
                 _userName.emit(it)
             }
         }
@@ -56,36 +66,82 @@ class BreathingViewModel @Inject constructor(
             return
         }
 
-        if(bluetoothInfo.bluetoothState == BluetoothState.Connected.Init || bluetoothInfo.bluetoothState == BluetoothState.Connected.Init){
+        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init || bluetoothInfo.bluetoothState == BluetoothState.Connected.Init) {
             viewModelScope.launch {
                 _showMeasurementAlert.emit(true)
             }
         }
     }
-    fun sleepDataCreate(){
+
+    fun stopClick() {
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
+        }
+        setMeasuringState(MeasuringState.Analytics)
+        viewModelScope.launch {
+            getService()?.stopSBSensor()
+        }
+    }
+
+    fun sleepDataCreate() {
+        startTimer()
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
-                request {  authAPIRepository.postSleepDataCreate(SleepCreateModel(it) )}
+                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
                     .collectLatest {
-                        it.result?.id?.let {id ->
+                        it.result?.id?.let { id ->
                             getService()?.startSBSensor(id, SleepType.Breathing )
-                            _measuringState.emit(MeasuringState.FiveRecode)
+                            setMeasuringState(MeasuringState.FiveRecode)
                         }
                     }
             }
         }
     }
 
+    fun setMeasuringState(state: MeasuringState) {
+        viewModelScope.launch {
+            _measuringState.emit(state)
+        }
+    }
+
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
         bluetoothInfo = info
         viewModelScope.launch {
-            info.batteryInfo?.let { _batteryState.emit(it) }
-            _canMeasurement.emit(info.canMeasurement)
+            launch {
+                info.batteryInfo?.let { _batteryState.emit(it) }
+                _canMeasurement.emit(info.canMeasurement)
+            }
+            launch {
+                if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
+                    info.currentData.collectLatest {
+                        _capacitanceFlow.emit(it)
+                    }
+                }
+            }
         }
 
         Log.e("onChangeSBSensorInfo", "breating = ${info.bluetoothState}")
     }
+
+    private fun startTimer() {
+        time = 0
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
+        }
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                time += 1
+                val hour = time / 3600
+                val minute = time % 3600 / 60
+                val second = time % 60
+                _measuringTimer.emit(Triple(hour, minute, second))
+            }
+
+        }
+    }
 }
-enum class MeasuringState{
-    InIt ,FiveRecode,Record,Analytics,Result
+
+enum class MeasuringState {
+    InIt, FiveRecode, Record, Analytics, Result
 }

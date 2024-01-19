@@ -1,8 +1,10 @@
 package kr.co.sbsolutions.withsoom.domain.bluetooth.entity
 
 import android.bluetooth.BluetoothGatt
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 
@@ -13,15 +15,16 @@ data class BluetoothInfo(
     var bluetoothState: BluetoothState = BluetoothState.Unregistered,
     var bluetoothGatt: BluetoothGatt? = null,
     var dataId: Int? = null,
-    var batteryInfo : String? = null,
-    var canMeasurement : Boolean = true,
+    var batteryInfo: String? = null,
+    var canMeasurement: Boolean = true,
 
-    var currentData: MutableLiveData<Int>? = null,
+    var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,
-    val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED)
+    val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),
+    var snoreTime : Long = 0
 ) {
     companion object {
         var isOn = true
     }
-    override fun toString() = "$bluetoothState / $bluetoothName / $bluetoothAddress / ${if(isOn) "ON" else "OFF"} / $dataId"
+    override fun toString() = "$bluetoothState / $bluetoothName / $bluetoothAddress / ${if (isOn) "ON" else "OFF"} / $dataId"
 }

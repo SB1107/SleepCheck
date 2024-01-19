@@ -15,7 +15,7 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
@@ -23,15 +23,16 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
 import java.io.File
 import java.io.FileWriter
@@ -72,6 +73,7 @@ class BLEService : LifecycleService() {
     val eegSensorInfo by lazy {
         bluetoothNetworkRepository.eegSensorInfo
     }
+
     @Inject
     lateinit var notificationBuilder: NotificationCompat.Builder
 
@@ -87,8 +89,8 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var bluetoothNetworkRepository: IBluetoothNetworkRepository
 
-//    @Inject
-//    lateinit var apneaUploadRepository: IApneaUploadRepository
+    @Inject
+    lateinit var remoteAuthDataSource: RemoteAuthDataSource
 
     @Inject
     lateinit var sbSensorDBRepository: SBSensorDBRepository
@@ -185,7 +187,6 @@ class BLEService : LifecycleService() {
 
         bluetoothInfo.dataId = null
         bluetoothInfo.bluetoothGatt = null
-        bluetoothInfo.currentData = null
     }
 
 
@@ -227,7 +228,7 @@ class BLEService : LifecycleService() {
                 sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
-                            exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
+                            exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType , snoreTime = it.snoreTime)
                         }
                     } ?: finishService(-1, forceClose)
                 }
@@ -243,11 +244,11 @@ class BLEService : LifecycleService() {
 
     private fun registerDownloadCallback() {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
-            sbSensorInfo.value?.let {
+            sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         Log.d(TAG, "uploading: register")
-                        exportFile(dataId, sbSensorDBRepository.getMaxIndex(dataId))
+                        exportFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), it.sleepType, it.snoreTime)
                     }
                 }
             }
@@ -255,10 +256,10 @@ class BLEService : LifecycleService() {
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
-            sbSensorInfo.value?.let {
+            sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
-                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose)
+                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                     }
                 } ?: finishService(-1, forceClose)
             }
@@ -354,7 +355,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun forcedFlow() {
-        sbSensorInfo.value?.let {
+        sbSensorInfo.value.let {
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -362,7 +363,7 @@ class BLEService : LifecycleService() {
                         val min = sbSensorDBRepository.getMinIndex(dataId)
                         val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
                         if ((max - min + 1) == size) {
-                            exportLastFile(dataId, max, true)
+                            exportLastFile(dataId, max, true, sleepType = it.sleepType , snoreTime = it.snoreTime)
                         } else {
                             finishService(dataId, true)
                         }
@@ -377,11 +378,12 @@ class BLEService : LifecycleService() {
     }
 
     private fun createNotificationChannel() {
-        val channel =  NotificationChannel(
+        val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager.createNotificationChannel(channel)
     }
+
     fun startSBSensor(dataId: Int, sleepType: SleepType) {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
@@ -395,7 +397,7 @@ class BLEService : LifecycleService() {
     }
 
 
-    private fun exportFile(dataId: Int, max: Int) {
+    private fun exportFile(dataId: Int, max: Int, sleepType: SleepType, snoreTime: Long = 0) {
         /*filesDir.listFiles { _, name ->
             name.endsWith(".csv")
         }?.map {
@@ -429,11 +431,11 @@ class BLEService : LifecycleService() {
                 }
             }
             Log.d(TAG, "uploading: exportFile")
-            uploading(dataId, file, sbList)
+            uploading(dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime)
         }
     }
 
-    private fun exportLastFile(dataId: Int, max: Int, isForcedClose: Boolean) {
+    private fun exportLastFile(dataId: Int, max: Int, isForcedClose: Boolean, sleepType: SleepType, snoreTime: Long = 0) {
         /*filesDir.listFiles { _, name ->
             name.endsWith(".csv")
         }?.map {
@@ -467,7 +469,7 @@ class BLEService : LifecycleService() {
                     }
                 }
             }
-            uploading(dataId, file, sbList, true, isForcedClose)
+            uploading(dataId, file, sbList, true, isForcedClose, sleepType, snoreTime)
         }
     }
 
@@ -511,41 +513,21 @@ class BLEService : LifecycleService() {
             }
         }) { apneaUploadRepository.uploadEnd(UploadDataId(dataId)) }*//*
     }*/
-    private fun uploading(dataId: Int, file: File, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false) {
-//        baseRequest( {
-//            Log.d(TAG, "uploading - Result: $it")
-//            when(it) {
-//                is ApiResponse.Failure -> {
-//                    if(isLast) {
-//                        finishService(dataId, isForcedClose)
-//                    }
-//                }
-//                ApiResponse.Loading -> {
-//
-//                }
-//                ApiResponse.ReAuthorize -> {
-//
-//                }
-//                is ApiResponse.Success -> {
-//                    lifecycleScope.launch(IO) {
-//                        sbSensorDBRepository.deleteUploadedList(list)
-//                        file.delete()
-//                    }
-//                    if(isLast) {
-//                        finishService(dataId, isForcedClose)
-//                    }
-//                 }
-//             }
-//        }, object: CoroutinesErrorHandler {
-//            override fun onError(message: String) {
-//                if(isLast) {
-//                    finishService(dataId, isForcedClose)
-//                }
-//            }
-//        }) {
-//            Log.d(TAG, "uploading: uploading")
-//            apneaUploadRepository.uploading(file, dataId)
-//        }
+    private fun uploading(dataId: Int, file: File, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) {
+        lifecycleScope.launch {
+
+            request({ remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }) {
+                if (isLast) {
+                    finishService(dataId, isForcedClose)
+                }
+            }.collectLatest {
+                sbSensorDBRepository.deleteUploadedList(list)
+                file.delete()
+            }
+            if (isLast) {
+                finishService(dataId, isForcedClose)
+            }
+        }
     }
 
     private var timerOfDisconnection: Timer? = null
@@ -581,21 +563,36 @@ class BLEService : LifecycleService() {
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
 
-    private fun <T> baseRequest(callback: (T) -> Unit, errorHandler: CoroutinesErrorHandler, request: () -> Flow<T>) {
+    private suspend fun <T> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler) = callbackFlow {
         mJob = lifecycleScope.launch(IO + CoroutineExceptionHandler { _, error ->
             lifecycleScope.launch(Dispatchers.Main) {
+//                finishService()
                 errorHandler.onError(error.localizedMessage ?: "Error occured! Please try again.")
             }
         }) {
             request().collect {
-                withContext(Dispatchers.Main) {
-                    callback(it)
+                when (it) {
+                    is ApiResponse.Failure -> {
+                        errorHandler.onError(it.errorCode.msg)
+                    }
+
+                    ApiResponse.Loading -> {
+                    }
+
+                    ApiResponse.ReAuthorize -> {
+                    }
+
+                    is ApiResponse.Success -> {
+                        trySend(it.data)
+                        cancel()
+                    }
                 }
             }
         }
+        awaitClose()
     }
 
-    interface CoroutinesErrorHandler {
+    fun interface CoroutinesErrorHandler {
         fun onError(message: String)
     }
 }

@@ -15,6 +15,8 @@ import dagger.hilt.android.scopes.ServiceScoped
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
+import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import kr.co.sbsolutions.withsoom.data.repository.bluetooth.BluetoothNetworkRepository
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -23,11 +25,15 @@ import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkR
 @InstallIn(ServiceComponent::class)
 abstract class ServiceModule {
     @Binds
-    abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository) : IBluetoothNetworkRepository
-//    @Binds
+    abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository): IBluetoothNetworkRepository
+
+    //    @Binds
 //    abstract fun bindApneaUploadRepository(apneaUploadRepository: ApneaUploadRepository) : IApneaUploadRepository
+    @Binds
+    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
 
 }
+
 @Module
 @InstallIn(ServiceComponent::class)
 class ServiceModuleNotification {
@@ -40,6 +46,7 @@ class ServiceModuleNotification {
             this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
+
     @ServiceScoped
     @Provides
     fun provideNotificationBuilder(

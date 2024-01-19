@@ -26,11 +26,15 @@
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="393:178"
         app:layout_constraintTop_toBottomOf="@id/title_text_view">
+
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="20dp" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp" />
 
     </RelativeLayout>
 
@@ -102,7 +106,7 @@
         android:layout_height="wrap_content"
         android:background="@color/color_061629"
         android:orientation="vertical"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/record_info_text_view">
 
         <!--        <com.airbnb.lottie.LottieAnimationView-->
@@ -133,7 +137,7 @@
             android:gravity="center"
             android:text="이 작업은 몇분 정도\n걸리 수 있습니다."
             android:textColor="@color/color_FFFFFF"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
 
     </LinearLayout>
