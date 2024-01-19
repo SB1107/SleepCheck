@@ -213,7 +213,7 @@ class BLEService : LifecycleService() {
 
     private fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
-            sbSensorInfo.value?.let {
+            sbSensorInfo.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                     bluetoothNetworkRepository.operateDownloadSbSensor(true)
                 }
@@ -516,14 +516,17 @@ class BLEService : LifecycleService() {
         }) { apneaUploadRepository.uploadEnd(UploadDataId(dataId)) }*//*
     }*/
     private fun uploading(dataId: Int, file: File, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) {
-        lifecycleScope.launch {
+        lifecycleScope.launch(IO) {
 
             request({ remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }) {
                 if (isLast) {
                     finishService(dataId, isForcedClose)
                 }
             }.collectLatest {
-                sbSensorDBRepository.deleteUploadedList(list)
+                lifecycleScope.launch(IO) {
+                    sbSensorDBRepository.deleteUploadedList(list)
+                }
+
                 file.delete()
             }
             if (isLast) {
