@@ -1,9 +1,11 @@
 package kr.co.sbsolutions.newsoomirang.domain.repository
 
+import com.kizitonwose.calendar.core.Week
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
+import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
@@ -19,5 +21,6 @@ interface RemoteAuthDataSource{
      fun postLogout(): Flow<ApiResponse<UserEntity>>
      fun postSleepDataCreate(sleepCreateModel: SleepCreateModel) : Flow<ApiResponse<SleepCreateEntity>>
      fun postUploading(file : File, dataId : Int, sleepType: SleepType, snoreTime: Long = 0) : Flow<ApiResponse<UploadingEntity>>
-}
+     fun getWeek(): Flow<ApiResponse<SleepModel>>
 
+}

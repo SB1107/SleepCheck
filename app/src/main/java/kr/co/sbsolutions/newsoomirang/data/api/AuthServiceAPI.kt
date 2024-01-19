@@ -54,7 +54,7 @@ interface AuthServiceAPI {
     suspend fun postSleepDataCreate(@Body createModel: SleepCreateModel): Response<SleepCreateEntity>
 
     @POST("sleepdata/delete")
-    suspend fun  postSleepDataDelete(@Body sleepModel : SleepModel): Response<SleepModel>
+    suspend fun postSleepDataDelete(@Body sleepModel : SleepModel): Response<SleepModel>
 
     @Multipart
     @POST("sleepdata/upload")

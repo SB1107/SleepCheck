@@ -431,7 +431,7 @@ class BluetoothNetworkRepository @Inject constructor(
     /////                                            /////
     //////////////////////////////////////////////////////
     private fun getCallback(sbBluetoothDevice: SBBluetoothDevice) = object : BluetoothGattCallback() {
-        private val UPLOAD_COUNT_INTERVAL = 300 * 10
+        private val UPLOAD_COUNT_INTERVAL = 300
         private val DATA_INTERVAL = 9
 
         private var uploadCallbackQuotient = -1

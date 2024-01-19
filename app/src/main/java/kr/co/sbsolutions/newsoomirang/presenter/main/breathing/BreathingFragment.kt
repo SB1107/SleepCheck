@@ -25,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
 
@@ -60,6 +61,11 @@ class BreathingFragment : Fragment() {
             viewModel.stopClick()
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        chartSetting()
     }
 
     private fun setObservers() {
@@ -118,13 +124,7 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.capacitanceFlow.collectLatest {
 
-                        //데이터를 x축의 max까지 채워서 그리기
-                        if (queueList.size < 50) {
-                            for (i in 0..49) {
-                                queueList.offer(Entry(i.toFloat(), it.toFloat()))
-                            }
-                            dataSetList.values = queueList.toList()
-                        } else if (xCountResetFlag && graphCount > 50) {
+                        if(xCountResetFlag && graphCount > 50f){
                             binding.actionMeasurer.chart.xAxis.resetAxisMaximum()
                             xCountResetFlag = false
                         }
@@ -132,7 +132,6 @@ class BreathingFragment : Fragment() {
                         dataSetList.values = queueList.toList()
                         lineDataList.notifyDataChanged()
                         binding.actionMeasurer.chart.invalidate()
-                        binding.actionMeasurer.chart.notifyDataSetChanged()
                     }
                 }
                 //UI 변경
@@ -204,47 +203,51 @@ class BreathingFragment : Fragment() {
     private fun chartSetting() {
         binding.actionMeasurer.chart.apply {
             clear()
-            background = requireActivity().getDrawable(R.color.color_061629) // 배경색
-            description.isEnabled = false // 설명 제거
-            setTouchEnabled(false) // 터치 제거
-            setScaleEnabled(false)
+
             isAutoScaleMinMaxEnabled = true
             setPinchZoom(false)
             isDoubleTapToZoomEnabled = false
-            isDragEnabled = false
-            isDragXEnabled = true
-            isDragYEnabled = false
-            setDrawGridBackground(false) // 배경 그리드 제거
-            isHighlightPerDragEnabled = false
-            isHighlightPerTapEnabled = false
-            setNoDataText("") // 차트 데이터가 없을 때 문구
-            setNoDataTextColor(requireActivity().getColor(R.color.color_FFFFFF))
-            isScrollContainer = true
-            setExtraOffsets(0f, 0f, 0f, 0f)
-            setViewPortOffsets(0f, 0f, 0f, 0f)
-        }.also {
-            it.legend.isEnabled = false
-            it.axisLeft.isEnabled = false
-            it.axisRight.isEnabled = false
+            description = null
+            data = lineDataList
+            setScaleEnabled(false)
+            legend.isEnabled = false
+
+
+            xAxis.setDrawAxisLine(false)
+            xAxis.setDrawLabels(false)
+            xAxis.setDrawGridLines(false)
+            xAxis.axisMaximum = 50f
+
+            axisLeft.textColor = Color.parseColor("#8B80F8")
+            axisLeft.setDrawAxisLine(false)
+            axisLeft.setDrawGridLines(false)
+            axisLeft.setDrawLabels(false)
+
+            axisRight.setDrawAxisLine(false)
+            axisRight.setDrawLabels(false)
+            axisRight.setDrawGridLines(false)
         }
+
         queueList.clear()
-        graphCount = 50f
+        graphCount = 0F
         xCountResetFlag = true
-        dataSetList.apply {
-            lineWidth = 2f
-            setCircleColor(Color.TRANSPARENT)
-            setDrawHorizontalHighlightIndicator(false)
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            setDrawCircles(false)
-            dataSetList.valueTextColor = requireActivity().getColor(R.color.clear)
-            dataSetList.color = requireActivity().getColor(R.color.color_4482CC)
-        }
+
+        dataSetList.lineWidth = 2f
+        dataSetList.color = Color.parseColor("#8B80F8")
+        dataSetList.setCircleColor(Color.TRANSPARENT)
+        dataSetList.setDrawHorizontalHighlightIndicator(false)
+        dataSetList.isHighlightEnabled = false
+
+        dataSetList.mode = LineDataSet.Mode.CUBIC_BEZIER
+        dataSetList.setDrawCircles(false)
     }
 
     private fun showChargingDialog() {
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-                viewModel.sleepDataCreate()
+                viewModel.sleepDataCreate().apply {
+                    activityViewModel.setCommend(ServiceCommend.START)
+                }
             }
         }).show(requireActivity().supportFragmentManager, "")
     }

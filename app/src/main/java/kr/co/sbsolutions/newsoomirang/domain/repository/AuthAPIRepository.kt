@@ -1,10 +1,12 @@
 package kr.co.sbsolutions.newsoomirang.domain.repository
 
+import com.kizitonwose.calendar.core.Week
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
+import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
@@ -38,4 +40,7 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     }
 
 
+    override fun getWeek(): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
+        api.getSleepDataWeekResult()
+    }
 }

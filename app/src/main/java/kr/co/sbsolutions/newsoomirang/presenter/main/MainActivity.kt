@@ -1,25 +1,21 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
-import androidx.navigation.findNavController
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
+import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.login.LoginViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.BreathingFragment
-import kr.co.sbsolutions.newsoomirang.presenter.main.history.HistoryFragment
-import kr.co.sbsolutions.newsoomirang.presenter.main.nosering.NoSeringFragment
-import kr.co.sbsolutions.newsoomirang.presenter.main.setting.SettingFragment
 
 @AndroidEntryPoint
 class MainActivity : BaseServiceActivity() {
@@ -45,6 +41,17 @@ class MainActivity : BaseServiceActivity() {
             itemIconTintList = null
         }
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.serviceCommend.collectLatest {
+                    when(it) {
+                        ServiceCommend.START -> startSBService(ActionMessage.StartSBService)
+                        ServiceCommend.STOP -> startSBService(ActionMessage.StopSBService)
+                    }
+
+                }
+            }
+        }
 
 //        binding.navBottomView.setOnItemSelectedListener { item ->
 //            when (item.itemId) {

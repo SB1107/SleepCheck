@@ -112,7 +112,6 @@ class SensorActivity : BaseServiceActivity() {
         with(viewModel) {
             lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    //Bluetooth 상태에 따른 ui
                     launch {
                         viewModel.bleName.collectLatest { bleName ->
                             Log.d(TAG, "bindViews: $bleName")
@@ -129,7 +128,6 @@ class SensorActivity : BaseServiceActivity() {
                             animator.also {
                                 if (isScanning) it.start() else it.cancel()
                             }
-
                         }
                     }
 

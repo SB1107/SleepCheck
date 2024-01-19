@@ -303,6 +303,8 @@ class BLEService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
+                notificationBuilder.setContentTitle("측정 중")
+//                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
                 listenChannelMessage()
                 startScheduler()

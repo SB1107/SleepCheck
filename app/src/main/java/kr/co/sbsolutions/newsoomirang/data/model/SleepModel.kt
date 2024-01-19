@@ -1,5 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.data.model
 
+import kotlinx.coroutines.flow.MutableSharedFlow
+
 data class SleepModel(
     var id: Int? = null,
     var user_id: Int? = null,

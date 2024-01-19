@@ -61,6 +61,9 @@ dependencies {
     implementation ("androidx.activity:activity-ktx:1.8.2")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
+    //리사이클러뷰
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
 
     //프레그먼트
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
@@ -122,6 +125,10 @@ dependencies {
     //CSV
     val openCsvVersion = "5.9"
     implementation ("com.opencsv:opencsv:$openCsvVersion")
+
+    //캘린더
+    implementation ("com.kizitonwose.calendar:view:2.2.0")
+
 
     implementation ("io.github.florent37:shapeofview:1.4.7")                      // Shape of view
 
