@@ -1,29 +1,43 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.kizitonwose.calendar.core.WeekDay
 import com.kizitonwose.calendar.view.WeekDayBinder
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
-import java.time.format.DateTimeFormatter
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.YearMonth
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
-/*
-    companion object {
-        fun newInstance() = HistoryFragment()
-    }*/
+    /*
+        companion object {
+            fun newInstance() = HistoryFragment()
+        }*/
 
     private val viewModel: HistoryViewModel by viewModels()
     private val binding: FragmentHistoryBinding by lazy {
         FragmentHistoryBinding.inflate(layoutInflater)
     }
+
+    private var mSelectedDate: LocalDate? = null
+
+
+    //--------------------------------------------------------------------------------------------
+    // MARK : Bind Area
+    //--------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
+    // MARK : Local variables
+    //--------------------------------------------------------------------------------------------
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,18 +61,48 @@ class HistoryFragment : Fragment() {
 
     private fun bindViews() {
 
-        viewModel.sleepWeekData
-        /*binding.weekCalendarView.dayBinder = object : WeekDayBinder<DayViewContainer> {
-            override fun bind(container: DayViewContainer, data: WeekDay) {
-                TODO("Not yet implemented")
+        binding.historyRecyclerView.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.VERTICAL, false)
 
+        //adpter 작업 필요함
+//        binding.historyRecyclerView.adapter = mHistoryAdapter
+
+        val currentDate = LocalDate.now()
+        val currentMonth = YearMonth.now()
+        val startDate: LocalDate = currentMonth.minusMonths(100).atEndOfMonth()
+        val endDate: LocalDate = currentMonth.plusMonths(100).atEndOfMonth()
+        mSelectedDate = currentDate
+
+        viewModel.sleepWeekData
+        binding.weekCalendarView.dayBinder = object : WeekDayBinder<DayViewContainer> {
+            override fun bind(container: DayViewContainer, data: WeekDay) {
+                container.dateView.text = data.date.dayOfMonth.toString()
+
+                container.dateLayout.setOnClickListener {
+                    mSelectedDate = data.date
+                    binding.weekCalendarView.notifyCalendarChanged()
+
+                }
 
             }
 
             override fun create(view: View): DayViewContainer {
-                TODO("Not yet implemented")
+                return DayViewContainer(view)
             }
-        }*/
+        }
+
+        binding.weekCalendarView.setup(startDate, endDate, DayOfWeek.SUNDAY)
+        binding.weekCalendarView.scrollToWeek(currentDate)
+        binding.weekCalendarView.weekScrollListener = { week ->
+
+            var firstDate = week.days[0].date
+            var lastDate = week.days[week.days.size - 1].date
+            if (firstDate.year == lastDate.year && firstDate.monthValue == lastDate.monthValue) {
+                binding.dateTextView.text =  firstDate.year.toString() + "." + firstDate.monthValue.toString()
+            } else {
+                binding.dateTextView.text = firstDate.year.toString() + "." + firstDate.monthValue + " ~ " + lastDate.year + "." + lastDate.monthValue
+            }
+        }
+
 
 //        binding.weekCalendarView.dayBinder(object : WeekDayBinder<DayViewContainer?> {
 //            fun bind(container: DayViewContainer, weekDay: WeekDay) {

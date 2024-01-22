@@ -14,7 +14,10 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.domain.bluetooth.usecase.BluetoothManageUseCase
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
@@ -24,12 +27,20 @@ class SettingViewModel @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
     private val tokenManager: TokenManager,
+    private val dataManager: DataManager,
     private val remoteAuthDataSource: RemoteAuthDataSource
-) : BaseViewModel() {
+) : BaseServiceViewModel() {
 
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
+    private var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
+
+    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
+
+        bluetoothInfo = info
+
+    }
 
     fun logout() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -41,12 +52,21 @@ class SettingViewModel @Inject constructor(
                             _logoutResult.emit(true)
                             tokenManager.deleteToken()
                             Firebase.auth.signOut()
+                            deleteDeviceName()
                         }
                     }
                 }
             }
         }
     }
+
+    private fun deleteDeviceName() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
+        }
+
+    }
+
 
 
 }

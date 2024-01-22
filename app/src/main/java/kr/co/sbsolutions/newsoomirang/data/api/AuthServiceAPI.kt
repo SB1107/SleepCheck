@@ -3,12 +3,12 @@ package kr.co.sbsolutions.newsoomirang.data.api
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
 import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
 import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
 import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
-import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import okhttp3.MultipartBody
@@ -19,6 +19,7 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 interface AuthServiceAPI {
@@ -49,6 +50,9 @@ interface AuthServiceAPI {
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/detail")
     suspend fun sleepDataDetail(@Body sleepModel : SleepModel): Response<SleepModel>
+
+    @GET("sleepdata/detail")
+    fun sleepDataDetail2(@Query("ended_at") day: String): Response<SleepModel>
 
     //수면데이터 측정 시작
     @POST("sleepdata/create")

@@ -20,6 +20,9 @@ open class BaseViewModel : ViewModel() {
     private val _isProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isProgressBar: SharedFlow<Boolean> = _isProgressBar
 
+    private val _isTokenState: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val isTokenSate: SharedFlow<Boolean> = _isTokenState
+
     fun cancelJob() {
         mJob?.let {
             if (it.isActive) {
@@ -44,18 +47,22 @@ open class BaseViewModel : ViewModel() {
                     is ApiResponse.Failure -> {
                         _isProgressBar.emit(false)
                         _errorMessage.emit(it.errorCode.msg)
-                    }
+                        _isTokenState.emit(false)
 
+                    }
                     ApiResponse.Loading -> {
                         _isProgressBar.emit(true)
+                        _isTokenState.emit(false)
                     }
 
                     ApiResponse.ReAuthorize -> {
                         _isProgressBar.emit(false)
+                        _isTokenState.emit(true)
                     }
 
                     is ApiResponse.Success -> {
                         _isProgressBar.emit(false)
+                        _isTokenState.emit(false)
                         trySend(it.data)
                         cancel()
                     }

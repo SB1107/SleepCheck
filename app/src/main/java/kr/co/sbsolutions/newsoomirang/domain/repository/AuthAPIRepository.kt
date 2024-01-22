@@ -45,6 +45,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     }
 
     override fun getSleepDataResult(): Flow<ApiResponse<SleepResultEntity>> = apiRequestFlow {
-      api.getSleepDataResult()
+        api.getSleepDataResult()
+    }
+    override fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
+        api.sleepDataDetail(sleepModel)
     }
 }

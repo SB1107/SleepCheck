@@ -1,24 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/color_061629">
     <!--  결과  -->
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/result_title_text_view"
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:text="고객"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_name_des1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="30dp"
-        android:fontFamily="@font/nanumsquarebold"
-        android:text="홍길동님의\n코골이를 확인하세요."
+        android:layout_marginEnd="30dp"
+        android:text="님"
         android:textColor="@color/color_78899F"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_name_des2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:text="호흡결과를 확인하세요."
+        android:textColor="@color/color_78899F"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
+        app:layout_constraintStart_toStartOf="@id/tv_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_name_des1" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/result_date_text_view"
@@ -35,7 +58,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/result_title_text_view" />
+        app:layout_constraintTop_toBottomOf="@id/tv_name_des2" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/result_duration_text_view"
@@ -144,8 +167,8 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_state"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="351dp"
+        android:layout_height="23dp"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="20dp"
         android:layout_marginRight="30dp"
@@ -163,7 +186,7 @@
         android:layout_width="0dp"
         android:layout_height="16dp"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="40dp"
         android:elevation="0dp"
         app:cardCornerRadius="16dp"
@@ -203,7 +226,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progress_background" />
 
-    <androidx.constraintlayout.widget.Group
+        <androidx.constraintlayout.widget.Group
         android:id="@+id/Indicators_center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -289,7 +312,7 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:background="@color/color_1F3046"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

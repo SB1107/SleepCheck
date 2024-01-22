@@ -286,6 +286,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun endNetworkSBSensor(isForcedClose: Boolean) {
+        Log.d(TAG, "endNetworkSBSensor: end  $isForcedClose")
         val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState =   if (isForcedClose) BluetoothState.Connected.ForceEnd else  BluetoothState.Connected.End) }
         insertLog(result.bluetoothState)
 //        _sbSensorInfo.value.let {
@@ -431,7 +432,7 @@ class BluetoothNetworkRepository @Inject constructor(
     /////                                            /////
     //////////////////////////////////////////////////////
     private fun getCallback(sbBluetoothDevice: SBBluetoothDevice) = object : BluetoothGattCallback() {
-        private val UPLOAD_COUNT_INTERVAL = 300 * 10
+        private val UPLOAD_COUNT_INTERVAL = 300
         private val DATA_INTERVAL = 9
 
         private var uploadCallbackQuotient = -1

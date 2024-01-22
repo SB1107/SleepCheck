@@ -24,4 +24,6 @@ interface RemoteAuthDataSource{
      fun getWeek(): Flow<ApiResponse<SleepModel>>
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
 
+     fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>>
+
 }

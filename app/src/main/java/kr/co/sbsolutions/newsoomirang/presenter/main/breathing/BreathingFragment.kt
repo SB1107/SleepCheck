@@ -66,6 +66,7 @@ class BreathingFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         chartSetting()
+        viewModel.sleepDataResult()
     }
 
     private fun setObservers() {
@@ -75,6 +76,7 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.userName.collectLatest {
                         binding.tvName.text = it
+                        binding.actionResult.tvName.text = it
                     }
                 }
                 //액티비티 뷰모델 -> 프래그먼트 뷰모델로 데이터 전달
@@ -145,6 +147,7 @@ class BreathingFragment : Fragment() {
                         binding.actionResult.resultTotalTextView.text = it.resultTotal
                         binding.actionResult.resultRealTextView.text = it.resultReal
                         binding.actionResult.resultAsleepTextView.text = it.resultAsleep
+                        binding.actionResult.resultDurationTextView.text = it.duration
                         when (it.apneaState) {
                             3 -> {
                                 binding.actionResult.IndicatorsLeft.visibility = View.GONE
@@ -178,6 +181,7 @@ class BreathingFragment : Fragment() {
                                 binding.startButton.visibility = View.VISIBLE
                                 binding.stopButton.visibility = View.GONE
                                 chartSetting()
+
                             }
 
                             MeasuringState.FiveRecode -> {
@@ -266,7 +270,7 @@ class BreathingFragment : Fragment() {
         xCountResetFlag = true
 
         dataSetList.lineWidth = 2f
-        dataSetList.color = Color.parseColor("#8B80F8")
+        dataSetList.color = Color.parseColor("#FFFFFF")
         dataSetList.setCircleColor(Color.TRANSPARENT)
         dataSetList.setDrawHorizontalHighlightIndicator(false)
         dataSetList.isHighlightEnabled = false
@@ -297,6 +301,6 @@ class BreathingFragment : Fragment() {
         } else {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery), null)
         }
-        binding.batteryTextView.text = "센서 배터리 $batteryInfo%"
+        binding.batteryTextView.text = "배터리 $batteryInfo%"
     }
 }

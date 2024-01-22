@@ -15,7 +15,6 @@
         android:layout_height="50dp"
         android:gravity="center"
         android:fontFamily="@font/nanumsquarebold"
-        android:text="호흡측정"
         android:textColor="@color/color_FFFFFF"
         android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +47,7 @@
         android:background="@color/color_1C9083"
         android:gravity="center"
         android:fontFamily="@font/nanumsquarebold"
-        android:text="측정중"
+        android:text="호흡 측정중"
         android:textColor="@color/color_FFFFFF"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/chart_layout" />
