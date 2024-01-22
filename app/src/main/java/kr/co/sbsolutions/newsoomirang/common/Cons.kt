@@ -15,6 +15,7 @@ object Cons {
     const val NOTIFICATION_CHANNEL_ID = "kr.co.sbsolutions.newsoomirang"
     const val NOTIFICATION_CHANNEL_NAME  = "BleService channel "
     const val NOTIFICATION_ID = 1248
+    const val NOTIFICATION_ACTION = "ACTION_SEND_DATA"
     val PERMISSIONS_ALL = arrayOf(
         ACCESS_FINE_LOCATION,
         BLUETOOTH

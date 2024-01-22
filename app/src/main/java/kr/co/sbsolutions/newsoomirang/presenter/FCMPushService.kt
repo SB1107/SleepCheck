@@ -1,10 +1,12 @@
 package kr.co.sbsolutions.newsoomirang.presenter
 
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
@@ -14,8 +16,8 @@ import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
-import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
@@ -25,6 +27,11 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 
     @Inject
     lateinit var tokenManager: TokenManager
+    @Inject
+    lateinit var notificationBuilder: NotificationCompat.Builder
+    @Inject
+    lateinit var notificationManager: NotificationManager
+
 
     companion object {
         const val DATA_KEY = "dataId"
@@ -50,23 +57,10 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 //        Log.d(TAG, "[FMS] Data / ${remoteMessage.data[DATA_KEY]}")
 //        Log.d(TAG, "[FMS] Noti / title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
 
-        Intent("ACTION_SEND_DATA").apply {
-//            putExtra(DATA_KEY, remoteMessage.data["dataId"])
-            sendBroadcast(this)
-        }
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        @SuppressLint("InvalidWakeLockTag") val wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG")
+        wakeLock.acquire(3000)
         sendDataMessage("측정이 완료되었어요.", "측정이 완료되었어요", "0")
-
-        /*//알림 메세지의 경우
-        remoteMessage.notification?.let {
-            if (remoteMessage.data.isNotEmpty()) {
-                remoteMessage.data[DATA_KEY]?.let { data -> sendDataMessage(it.title.toString(), it.body.toString(), data) }
-                Log.d(TAG, "[FMS] remoteMessage.data: ${remoteMessage.data["dataId"]}")
-            }else{
-                sendDataMessage(it.title.toString(), it.body.toString(), "0")
-            }
-        }*/
-
-
     }
 
     // 등록된 토큰 확인
@@ -86,29 +80,28 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 
 
     private fun sendDataMessage(title: String, message: String, data: String) {
-
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-//        intent.putExtra(DATA_KEY, data)
-
+        val app = packageManager.getLaunchIntentForPackage(baseContext.packageName)
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
+            this, 0, app,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             else PendingIntent.FLAG_UPDATE_CURRENT
         )
+        notificationBuilder.setContentIntent(pendingIntent)
+        notificationBuilder.setContentTitle(title )
+        notificationBuilder.setContentText(message)
+        notificationBuilder.setAutoCancel(true)
 
-        val notificationBuild = NotificationCompat.Builder(this, getString(R.string.notification_channel_id))
-            .setAutoCancel(true)
-            .setContentTitle(title)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentText(message)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(pendingIntent)
-            .setFullScreenIntent(pendingIntent, true)
+        Intent().also { intent ->
+            intent.setAction(Cons.NOTIFICATION_ACTION)
+            intent.setPackage(baseContext.packageName)
+            sendBroadcast(intent)
+        }
+        val channel = NotificationChannel(
+            Cons.NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
+        notificationManager.notify((System.currentTimeMillis()/1000).toInt(), notificationBuilder.build())
 
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify((System.currentTimeMillis()/1000).toInt(), notificationBuild.build())
     }
 
     private val dispatcher = ServiceLifecycleDispatcher(this)
