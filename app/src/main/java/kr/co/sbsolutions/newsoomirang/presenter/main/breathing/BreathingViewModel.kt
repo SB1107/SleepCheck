@@ -31,16 +31,7 @@ import javax.inject.Inject
 class BreathingViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val authAPIRepository: RemoteAuthDataSource
-) : BaseServiceViewModel() {
-    private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
-    val userName: SharedFlow<String> = _userName
-    private val _gotoScan: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val gotoScan: SharedFlow<Boolean> = _gotoScan
-    private var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
-    private val _batteryState: MutableSharedFlow<String> = MutableSharedFlow()
-    val batteryState: SharedFlow<String> = _batteryState
-    private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val canMeasurement: SharedFlow<Boolean> = _canMeasurement
+) : BaseServiceViewModel(dataManager) {
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
     private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
@@ -59,30 +50,18 @@ class BreathingViewModel @Inject constructor(
     lateinit var timerJob: Job
     private var time: Int = 0
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getUserName().first()?.let {
-                _userName.emit(it)
-            }
-        }
-    }
 
-    fun startClick() {
-        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered) {
-            viewModelScope.launch {
-                _gotoScan.emit(true)
-            }
-            return
-        }
-
-        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
-            bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
-            bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-            bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd) {
-            viewModelScope.launch {
-                _showMeasurementAlert.emit(true)
-            }
-        }
+     fun startClick() {
+         if (isRegistered()) {
+             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
+                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
+                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
+                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd) {
+                 viewModelScope.launch {
+                     _showMeasurementAlert.emit(true)
+                 }
+             }
+         }
     }
 
     fun stopClick() {
@@ -139,12 +118,10 @@ class BreathingViewModel @Inject constructor(
     }
 
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
+        super.onChangeSBSensorInfo(info)
         bluetoothInfo = info
         viewModelScope.launch {
-            launch {
-                info.batteryInfo?.let { _batteryState.emit(it) }
-                _canMeasurement.emit(info.canMeasurement)
-            }
+
             launch {
                 if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                     info.currentData.collectLatest {

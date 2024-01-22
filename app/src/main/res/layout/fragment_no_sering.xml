@@ -1,13 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_061629"
     tools:context=".presenter.main.nosering.NoSeringFragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/init_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="tv_name ,tv_name_des1 ,tv_name_des2" />
 
-</FrameLayout>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="150dp"
+        android:fontFamily="@font/nanumsquarebold"
+        android:text="고객"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_name_des1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquarebold"
+        android:text="님"
+        android:textColor="@color/color_78899F"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_name_des2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="아직 코골이정보가 없습니다.\n시작을 눌러주세요."
+        android:textColor="@color/color_78899F"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
+        app:layout_constraintStart_toStartOf="@id/tv_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_name_des1" />
+
+    <include
+        android:id="@+id/action_measurer"
+        layout="@layout/no_sering_measure"
+        android:visibility="gone"/>
+
+    <include
+        android:id="@+id/action_result"
+        layout="@layout/no_sering_result"
+        android:visibility="gone"/>
+
+    <View
+        android:id="@+id/v_line"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="코골이 진동 알림"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/motor_check_box"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/motor_check_box" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/motor_check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:checked="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/v_line"
+        app:thumbTint="@color/color_4482CC" />
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_v"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_margin="20dp"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/motor_check_box">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/type0_chip"
+                style="@style/CustomChipStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:checked="false"
+                android:clickable="false"
+                android:fontFamily="@font/nanumsquareregular"
+                android:tag="0"
+                android:text="약"
+                android:textAlignment="center"
+                android:textSize="14dp"
+                app:chipCornerRadius="0dp"
+                app:chipMinTouchTargetSize="0dp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/color_061629" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/type1_chip"
+                style="@style/CustomChipStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:checked="false"
+                android:clickable="false"
+                android:fontFamily="@font/nanumsquareregular"
+                android:tag="1"
+                android:text="중"
+                android:textAlignment="center"
+                android:textSize="14dp"
+                app:chipCornerRadius="0dp"
+                app:chipMinTouchTargetSize="0dp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/color_061629" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/type2_chip"
+                style="@style/CustomChipStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:checked="true"
+                android:clickable="false"
+                android:fontFamily="@font/nanumsquareregular"
+                android:tag="2"
+                android:text="강"
+                android:textAlignment="center"
+                android:textSize="14dp"
+                app:chipCornerRadius="0dp"
+                app:chipMinTouchTargetSize="0dp" />
+
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="진동 세기"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        android:layout_marginStart="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cv_v"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cv_v" />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/start_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="25dp"
+        android:clickable="true"
+        android:src="@drawable/btn_start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/stop_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:src="@drawable/btn_close"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/battery_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:drawableEnd="@drawable/ic_battery"
+        android:drawablePadding="5dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
