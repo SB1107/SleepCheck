@@ -519,18 +519,13 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch(IO) {
 
             request({ remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }) {
+                finishService(dataId, isForcedClose)
+            }.flowOn(IO).collectLatest {
                 if (isLast) {
                     finishService(dataId, isForcedClose)
                 }
-            }.collectLatest {
-                lifecycleScope.launch(IO) {
                     sbSensorDBRepository.deleteUploadedList(list)
-                }
-
                 file.delete()
-            }
-            if (isLast) {
-                finishService(dataId, isForcedClose)
             }
         }
     }

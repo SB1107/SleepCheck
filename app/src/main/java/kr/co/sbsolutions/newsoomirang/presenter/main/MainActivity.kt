@@ -47,7 +47,7 @@ class MainActivity : BaseServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        registerReceiver(receiver, IntentFilter("ACTION_SEND_DATA"))
+        registerReceiver(receiver, IntentFilter("ACTION_SEND_DATA"), RECEIVER_NOT_EXPORTED)
         val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         binding.navBottomView.apply {
             setupWithNavController(fragment.navController)

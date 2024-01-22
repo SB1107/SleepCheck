@@ -75,7 +75,10 @@ class BreathingViewModel @Inject constructor(
             return
         }
 
-        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init || bluetoothInfo.bluetoothState == BluetoothState.Connected.Init) {
+        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
+            bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
+            bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
+            bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd) {
             viewModelScope.launch {
                 _showMeasurementAlert.emit(true)
             }
@@ -147,6 +150,8 @@ class BreathingViewModel @Inject constructor(
                     info.currentData.collectLatest {
                         _capacitanceFlow.emit(it)
                     }
+                }else if(info.bluetoothState == BluetoothState.Connected.End) {
+                    stopTimer()
                 }
             }
         }
@@ -169,6 +174,12 @@ class BreathingViewModel @Inject constructor(
                 _measuringTimer.emit(Triple(hour, minute, second))
             }
 
+        }
+    }
+    private  fun stopTimer(){
+        time = 0
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
         }
     }
 }
