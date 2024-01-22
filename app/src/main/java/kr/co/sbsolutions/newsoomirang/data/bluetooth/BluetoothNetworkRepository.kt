@@ -566,8 +566,8 @@ class BluetoothNetworkRepository @Inject constructor(
                             }
 
                             BluetoothState.Connected.DataFlow -> {
-                                writeData(gatt, AppToModule.OperateDeleteSector, null)
-                                innerData.update { it.copy(bluetoothState =  BluetoothState.Connected.SendDelete) }
+//                                writeData(gatt, AppToModule.OperateDeleteSector, null)
+                                innerData.update { it.copy(bluetoothState =  BluetoothState.Connected.Ready) }
 //                                it.bluetoothState = BluetoothState.Connected.SendDelete
 //                                innerData.tryEmit(it)
                                 insertLog(info.bluetoothState)

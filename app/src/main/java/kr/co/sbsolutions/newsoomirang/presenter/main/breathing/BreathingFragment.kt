@@ -86,6 +86,11 @@ class BreathingFragment : Fragment() {
                         }
                     }
                 }
+                launch {
+                    activityViewModel.breathingResults.collectLatest {
+                        viewModel.sleepDataResult()
+                    }
+                }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
@@ -124,7 +129,7 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.capacitanceFlow.collectLatest {
 
-                        if(xCountResetFlag && graphCount > 50f){
+                        if (xCountResetFlag && graphCount > 50f) {
                             binding.actionMeasurer.chart.xAxis.resetAxisMaximum()
                             xCountResetFlag = false
                         }
@@ -132,6 +137,34 @@ class BreathingFragment : Fragment() {
                         dataSetList.values = queueList.toList()
                         lineDataList.notifyDataChanged()
                         binding.actionMeasurer.chart.invalidate()
+                    }
+                }
+                launch {
+                    viewModel.sleepDataResultFlow.collectLatest {
+                        binding.actionResult.resultDateTextView.text = it.endDate
+                        binding.actionResult.resultTotalTextView.text = it.resultTotal
+                        binding.actionResult.resultRealTextView.text = it.resultReal
+                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
+                        when (it.apneaState) {
+                            3 -> {
+                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
+                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
+                                binding.actionResult.IndicatorsEnd.visibility = View.VISIBLE
+                            }
+
+                            2 -> {
+                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
+                                binding.actionResult.IndicatorsCenter.visibility = View.VISIBLE
+                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
+                            }
+
+                            else -> {
+                                binding.actionResult.IndicatorsLeft.visibility = View.VISIBLE
+                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
+                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
+                            }
+                        }
+//                        binding.actionResult.tvState.
                     }
                 }
                 //UI 변경

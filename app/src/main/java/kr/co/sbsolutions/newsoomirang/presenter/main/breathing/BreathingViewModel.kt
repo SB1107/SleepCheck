@@ -2,7 +2,6 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.github.mikephil.charting.data.Entry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,15 +13,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
+import kr.co.sbsolutions.newsoomirang.common.toDate
+import kr.co.sbsolutions.newsoomirang.common.toDayString
+import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataResultModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
-import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,6 +50,11 @@ class BreathingViewModel @Inject constructor(
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
     val  _capacitanceFlow : MutableSharedFlow<Int> = MutableSharedFlow()
      val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
+
+
+    private val  _sleepDataResultFlow : MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
+    val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
+
 
     lateinit var timerJob: Job
     private var time: Int = 0
@@ -98,6 +105,28 @@ class BreathingViewModel @Inject constructor(
                     }
             }
         }
+    }
+    fun sleepDataResult(){
+        viewModelScope.launch(Dispatchers.IO) {
+            request{authAPIRepository.getSleepDataResult()}
+            .collectLatest {
+                it.result?.let {result ->
+                        _measuringState.emit(if(result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
+                        val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
+                        val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
+                        val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
+                        val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
+                        val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
+                        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+                        val sleepTime = (result.sleepTime * 60).toHourMinute()
+                        val resultAsleep = (result.asleepTime * 60).toHourMinute()
+                        _sleepDataResultFlow.emit(SleepDataResultModel(endDate = endedAtString, duration = "$durationString 수면"
+                            , resultTotal = min, resultReal =  sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState ))
+                }?: _measuringState.emit(MeasuringState.InIt)
+            }
+        }
+
+
     }
 
     fun setMeasuringState(state: MeasuringState) {

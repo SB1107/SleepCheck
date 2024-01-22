@@ -1,5 +1,9 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -31,10 +35,19 @@ class MainActivity : BaseServiceActivity() {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == "ACTION_SEND_DATA") {
+//                intent.getStringExtra(FCMPushService.DATA_KEY)?.let {
+                    getBroadcastData()
+//                }
+            }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        registerReceiver(receiver, IntentFilter("ACTION_SEND_DATA"))
         val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         binding.navBottomView.apply {
             setupWithNavController(fragment.navController)
@@ -52,6 +65,7 @@ class MainActivity : BaseServiceActivity() {
                 }
             }
         }
+
 
 //        binding.navBottomView.setOnItemSelectedListener { item ->
 //            when (item.itemId) {
@@ -79,6 +93,11 @@ class MainActivity : BaseServiceActivity() {
 //            }
 //        }
     }
-
+    fun getBroadcastData() {
+            viewModel.sendMeasurementResults()
+//            viewModel.addLastDataID(data.toInt())
+        // viewModel.getDataIdResult(data.toInt())
+//        Log.d(TAG, "[MAIN] getBroadcastData() : $data")
+    }
 
 }

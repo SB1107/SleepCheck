@@ -51,7 +51,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 //        Log.d(TAG, "[FMS] Noti / title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
 
         Intent("ACTION_SEND_DATA").apply {
-            putExtra(DATA_KEY, remoteMessage.data["dataId"])
+//            putExtra(DATA_KEY, remoteMessage.data["dataId"])
             sendBroadcast(this)
         }
         sendDataMessage("측정이 완료되었어요.", "측정이 완료되었어요", "0")
@@ -90,7 +90,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        intent.putExtra(DATA_KEY, data)
+//        intent.putExtra(DATA_KEY, data)
 
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,

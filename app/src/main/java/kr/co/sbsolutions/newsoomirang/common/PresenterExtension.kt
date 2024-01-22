@@ -5,17 +5,23 @@ import android.content.Context.POWER_SERVICE
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.PowerManager
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.bumptech.glide.Glide
 import kr.co.sbsolutions.newsoomirang.R
+import java.text.SimpleDateFormat
+import java.time.Duration
+import java.util.Date
+import java.util.Locale
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "data_store")
 fun ContextWrapper.getPermissionResult(): ArrayList<String> {
@@ -128,6 +134,26 @@ fun Boolean.booleanToInt(): Int {
 
 fun Int.toBoolean(): Boolean {
     return this == 1
+}
+
+fun String.toDate(format : String) : Date? {
+    val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
+    return  simpleDateFormat.parse(this)
+}
+fun Date.toDayString(format : String): String? {
+    val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
+    return  simpleDateFormat.format(this)
+}
+fun  Int.toHourMinute(): String {
+    val time = Duration.ofSeconds( this.toLong())
+    val hours = time.toHours() // 전체 시간을 시간 단위로 추출
+
+    val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
+    return  if (hours > 0) {
+        String.format("%d시간 %d분", hours, minutes)
+    } else {
+        String.format("%d분", minutes)
+    }
 }
 
 fun Intent.addFlag() = this.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
