@@ -24,7 +24,7 @@ class PolicyViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val policyRepository: RemoteAuthDataSource
 
-) : BaseViewModel() {
+) : BaseViewModel(dataManager, tokenManager) {
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
     val userName: SharedFlow<String> = _userName
     private val _checkServerDataFlow: MutableStateFlow<Int> = MutableStateFlow(0)

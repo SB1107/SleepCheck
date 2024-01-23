@@ -5,13 +5,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : BaseServiceViewModel() {
+class MainViewModel @Inject constructor(private  val dataManager: DataManager, private val tokenManager: TokenManager) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _changeSBSensorInfo: MutableSharedFlow<BluetoothInfo> = MutableSharedFlow()
     val changeSBSensorInfo: SharedFlow<BluetoothInfo> = _changeSBSensorInfo
 

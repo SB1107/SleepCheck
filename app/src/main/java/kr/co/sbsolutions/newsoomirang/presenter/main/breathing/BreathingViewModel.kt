@@ -24,14 +24,16 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class BreathingViewModel @Inject constructor(
     private val dataManager: DataManager,
+    private val tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
-) : BaseServiceViewModel(dataManager) {
+) : BaseServiceViewModel(dataManager,tokenManager) {
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
     private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()

@@ -15,6 +15,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 
 abstract class BaseActivity : AppCompatActivity() {
     private val callback = object : OnBackPressedCallback(true) {
@@ -22,29 +23,35 @@ abstract class BaseActivity : AppCompatActivity() {
             newBackPressed()
         }
     }
-    protected fun twiceBackPressed() {
-        if(backPressedTime + 2000L > System.currentTimeMillis()) {
-            finish()
+    private val reAuthorizeCallBack = object : ReAuthorizeCallBack {
+        override fun reLogin() {
+            endAndStartActivity(Intent(this@BaseActivity, SplashActivity::class.java))
         }
-        else {
+    }
+
+    protected fun twiceBackPressed() {
+        if (backPressedTime + 2000L > System.currentTimeMillis()) {
+            finish()
+        } else {
             Toast.makeText(this, R.string.app_finish_message, Toast.LENGTH_SHORT).show()
         }
         backPressedTime = System.currentTimeMillis()
     }
+
     private var backPressedTime = 0L
 
     abstract fun newBackPressed()
-    abstract fun injectViewModel() : BaseViewModel
+    abstract fun injectViewModel(): BaseViewModel
 
     private fun progressCanceled() {
         _viewModel.cancelJob()
     }
 
-    private val _viewModel : BaseViewModel by lazy {
+    private val _viewModel: BaseViewModel by lazy {
         injectViewModel()
     }
 
-    private val progressDialog : Dialog by lazy {
+    private val progressDialog: Dialog by lazy {
         Dialog(this).apply {
             window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(ProgressBar(this@BaseActivity))
@@ -60,18 +67,20 @@ abstract class BaseActivity : AppCompatActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         onBackPressedDispatcher.addCallback(this, callback)
+        _viewModel.setReAuthorizeCallBack(reAuthorizeCallBack)
     }
 
     protected fun showProgress() {
         progressDialog.show()
     }
+
     protected fun hideProgress() {
         if (progressDialog.isShowing) {
             progressDialog.dismiss()
         }
     }
 
-    protected fun endAndStartActivity(intent : Intent) {
+    protected fun endAndStartActivity(intent: Intent) {
         intent.apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(this)
@@ -85,7 +94,12 @@ abstract class BaseActivity : AppCompatActivity() {
         }
         return tradingService?.foreground ?: false
     }
-    protected  fun getViewModel() : BaseViewModel {
-        return  _viewModel
+
+    protected fun getViewModel(): BaseViewModel {
+        return _viewModel
+    }
+
+    interface ReAuthorizeCallBack {
+        fun reLogin()
     }
 }

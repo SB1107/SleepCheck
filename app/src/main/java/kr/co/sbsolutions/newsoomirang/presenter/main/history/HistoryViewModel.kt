@@ -15,14 +15,16 @@ import kr.co.sbsolutions.newsoomirang.data.server.ApiHelper
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import okhttp3.ResponseBody
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val dataManager: DataManager,
+    private val tokenManager: TokenManager,
     private val authDataSource: RemoteAuthDataSource
-) : BaseServiceViewModel() {
+) : BaseServiceViewModel(dataManager , tokenManager) {
     private val _sleepWeekData: MutableSharedFlow<SleepModel> = MutableSharedFlow()
     val sleepWeekData: SharedFlow<SleepModel> = _sleepWeekData
 

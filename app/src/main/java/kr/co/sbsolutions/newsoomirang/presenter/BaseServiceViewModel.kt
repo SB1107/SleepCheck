@@ -12,9 +12,10 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import java.lang.ref.WeakReference
 
-abstract class BaseServiceViewModel(private val dataManager: DataManager) : BaseViewModel() {
+abstract class BaseServiceViewModel(private val dataManager: DataManager , private  val tokenManager: TokenManager) : BaseViewModel(dataManager,tokenManager) {
     private lateinit var service: WeakReference<BLEService>
     private val _serviceCommend: MutableSharedFlow<ServiceCommend> = MutableSharedFlow()
     val serviceCommend: SharedFlow<ServiceCommend> = _serviceCommend

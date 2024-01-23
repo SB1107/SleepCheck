@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
     private val loginRepository: RemoteLoginDataSource
-) : BaseViewModel() {
+) : BaseViewModel(dataManager, tokenManager) {
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
     val whereActivity: SharedFlow<WHERE> = _whereActivity
     lateinit var accessToken: String

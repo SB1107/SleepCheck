@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -10,9 +11,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 
-open class BaseViewModel : ViewModel() {
+
+open class BaseViewModel(private  val dataManager: DataManager,private  val tokenManager: TokenManager) : ViewModel() {
     var mJob: Job? = null
     private val _errorMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val errorMessage: SharedFlow<String> = _errorMessage
@@ -22,6 +27,7 @@ open class BaseViewModel : ViewModel() {
 
     private val _isTokenState: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isTokenSate: SharedFlow<Boolean> = _isTokenState
+    private  lateinit var reAuthorizeCallBack : BaseActivity.ReAuthorizeCallBack
 
     fun cancelJob() {
         mJob?.let {
@@ -30,7 +36,9 @@ open class BaseViewModel : ViewModel() {
             }
         }
     }
-
+fun setReAuthorizeCallBack(reAuthorizeCallBack : BaseActivity.ReAuthorizeCallBack){
+    this.reAuthorizeCallBack = reAuthorizeCallBack
+}
     override fun onCleared() {
         super.onCleared()
         cancelJob()
@@ -47,22 +55,27 @@ open class BaseViewModel : ViewModel() {
                     is ApiResponse.Failure -> {
                         _isProgressBar.emit(false)
                         _errorMessage.emit(it.errorCode.msg)
-                        _isTokenState.emit(false)
 
                     }
                     ApiResponse.Loading -> {
                         _isProgressBar.emit(true)
-                        _isTokenState.emit(false)
                     }
 
                     ApiResponse.ReAuthorize -> {
                         _isProgressBar.emit(false)
-                        _isTokenState.emit(true)
+                        if (::reAuthorizeCallBack.isInitialized) {
+                            reAuthorizeCallBack.reLogin()
+                            viewModelScope.launch(Dispatchers.IO) {
+                                tokenManager.deleteToken()
+                                dataManager.deleteUserName()
+                                dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
+                            }
+
+                        }
                     }
 
                     is ApiResponse.Success -> {
                         _isProgressBar.emit(false)
-                        _isTokenState.emit(false)
                         trySend(it.data)
                         cancel()
                     }

@@ -24,6 +24,7 @@ import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.domain.bluetooth.usecase.BluetoothManageUseCase
+import kr.co.sbsolutions.withsoom.utils.TokenManager
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -33,8 +34,9 @@ import javax.inject.Inject
 class SensorViewModel @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
-    private val dataManager: DataManager
-) : BaseServiceViewModel() {
+    private val dataManager: DataManager,
+    private val tokenManager: TokenManager
+) : BaseServiceViewModel(dataManager, tokenManager) {
     companion object {
         private const val DELAY_TIMEOUT = 5000L
     }
@@ -54,7 +56,6 @@ class SensorViewModel @Inject constructor(
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
 
-    private var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
 
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
         Log.d(TAG, "[SVM]: $info")

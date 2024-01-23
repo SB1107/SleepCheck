@@ -29,12 +29,11 @@ class SettingViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
     private val remoteAuthDataSource: RemoteAuthDataSource
-) : BaseServiceViewModel() {
+) : BaseServiceViewModel(dataManager,tokenManager) {
 
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
-    private var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
 
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
 
