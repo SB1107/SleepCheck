@@ -128,10 +128,11 @@ dependencies {
 
     //캘린더
     implementation ("com.kizitonwose.calendar:view:2.2.0")
-
-
     implementation ("io.github.florent37:shapeofview:1.4.7")                      // Shape of view
-
+    //텐서 플로우
+    implementation ("org.tensorflow:tensorflow-lite-task-audio:0.4.0")
+    //권한
+    implementation ("io.github.ParkSangGwon:tedpermission-normal:3.3.0")          // TED Permission
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

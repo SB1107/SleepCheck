@@ -394,8 +394,11 @@ class BLEService : LifecycleService() {
 
     }
 
-    fun stopSBSensor() {
-        bluetoothNetworkRepository.stopNetworkSBSensor()
+    fun stopSBSensor(snoreTime: Long = 0) {
+        bluetoothNetworkRepository.stopNetworkSBSensor(snoreTime)
+    }
+    fun callVibrationNotifications(Intensity : Int){
+        bluetoothNetworkRepository.callVibrationNotifications(Intensity)
     }
 
 

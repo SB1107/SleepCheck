@@ -277,10 +277,10 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun stopNetworkSBSensor() {
+    override fun stopNetworkSBSensor(snoreTime : Long ) {
         val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing)  AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-             _sbSensorInfo.update { it.copy(bluetoothState = state ) }
+             _sbSensorInfo.update { it.copy(bluetoothState = state , snoreTime = snoreTime) }
             insertLog(state)
         }
     }
@@ -423,6 +423,24 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkSpO2Sensor() {}
 
     override fun stopNetworkEEGSensor() {}
+    override fun callVibrationNotifications(Intensity: Int) {
+        val module = when (Intensity) {
+            3 -> {
+                AppToModule.VibrationNotificationsStrong
+            }
+            1 -> {
+                AppToModule.VibrationNotificationsNormal
+            }
+            else -> {
+                AppToModule.VibrationNotificationsWeak
+            }
+        }
+
+        writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+            _sbSensorInfo.update { it.copy(bluetoothState = state) }
+            insertLog(state)
+        }
+    }
 
     override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback = getCallback(sbBluetoothDevice)
 
@@ -547,7 +565,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
             when ((String.format("%02X", value[4])).getCommand()) {
-                ModuleToApp.StartStopACK -> {
+                ModuleToApp.StartStopACK , ModuleToApp.NoSeringStopACK-> {
                     innerData.value.let {info ->
                         when (info.bluetoothState) {
                             BluetoothState.Connected.SendStart -> {
@@ -573,7 +591,6 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                innerData.tryEmit(it)
                                 insertLog(info.bluetoothState)
                             }
-
                             else -> {
 
                             }
@@ -748,6 +765,11 @@ class BluetoothNetworkRepository @Inject constructor(
                         } else {
                             writeResponse(gatt, AppToModuleResponse.DelayedDataResponseNAK)
                         }
+                    }
+                }
+                ModuleToApp.MOTCtrlSetACK ->{
+                    innerData.value.let { info ->
+                        insertLog("코골이 동작 피드백")
                     }
                 }
 

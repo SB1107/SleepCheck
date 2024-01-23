@@ -2,6 +2,8 @@ package kr.co.sbsolutions.newsoomirang.presenter
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
@@ -28,7 +30,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
     protected var bluetoothInfo: BluetoothInfo = BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR)
     private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val canMeasurement: SharedFlow<Boolean> = _canMeasurement
+    private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
+    val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
+    lateinit var timerJob: Job
+    private var time: Int = 0
     open fun onChangeSBSensorInfo(info: BluetoothInfo){
         viewModelScope.launch {
             launch {
@@ -72,6 +78,35 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
         } else {
             null
         }
+    }
+    protected open fun startTimer() {
+        time = 0
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
+        }
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1000)
+                time += 1
+                val hour = time / 3600
+                val minute = time % 3600 / 60
+                val second = time % 60
+                _measuringTimer.emit(Triple(hour, minute, second))
+            }
 
+        }
+    }
+    protected fun timerJobCancel(){
+        time = 0
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
+        }
+    }
+    protected fun getTime() : Int {
+        return  time
+    }
+    protected open fun stopTimer() {
+        time = 0
+        timerJobCancel()
     }
 }

@@ -67,32 +67,6 @@ class MainActivity : BaseServiceActivity() {
             }
         }
 
-
-//        binding.navBottomView.setOnItemSelectedListener { item ->
-//            when (item.itemId) {
-//                R.id.navigation_breathing -> {
-//                    supportFragmentManager.beginTransaction().replace(R.id.navigation_breathing, BreathingFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_no_sering -> {
-//                    supportFragmentManager.beginTransaction().replace(R.id.navigation_no_sering, NoSeringFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_history -> {
-//                    supportFragmentManager.beginTransaction().replace(R.id.navigation_history, HistoryFragment.newInstance())
-//                    true
-//                }
-//
-//                R.id.navigation_settings -> {
-//                    supportFragmentManager.beginTransaction().replace(R.id.navigation_settings, SettingFragment.newInstance())
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        }
     }
     fun getBroadcastData() {
             viewModel.sendMeasurementResults()

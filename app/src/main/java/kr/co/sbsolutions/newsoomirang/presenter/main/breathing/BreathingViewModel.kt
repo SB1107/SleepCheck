@@ -4,13 +4,10 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -25,7 +22,6 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.utils.TokenManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -42,18 +38,10 @@ class BreathingViewModel @Inject constructor(
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
     private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
     val measuringState: SharedFlow<MeasuringState> = _measuringState
-
-    private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
-    val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
     val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
-
-
-    lateinit var timerJob: Job
-    private var time: Int = 0
-
 
     fun startClick() {
         if (isRegistered()) {
@@ -70,9 +58,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun cancelClick() {
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
+        timerJobCancel()
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
@@ -81,15 +67,14 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if (time < 300) {
+        if (getTime() < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
             return
         }
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
+        timerJobCancel()
+
         setMeasuringState(MeasuringState.Analytics)
         viewModelScope.launch {
             getService()?.stopSBSensor()
@@ -100,15 +85,9 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
                 .collectLatest {
-//                    viewModelScope.launch {
-
-//                        bluetoothInfo.dataId = null
-
-//                    }
+                        bluetoothInfo.dataId = null
                 }
         }
-
-
     }
 
     fun sleepDataCreate() {
@@ -175,31 +154,6 @@ class BreathingViewModel @Inject constructor(
         }
 
         Log.e(TAG, "[BVM]  ${info.bluetoothState}")
-    }
-
-    private fun startTimer() {
-        time = 0
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
-        timerJob = viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                time += 1
-                val hour = time / 3600
-                val minute = time % 3600 / 60
-                val second = time % 60
-                _measuringTimer.emit(Triple(hour, minute, second))
-            }
-
-        }
-    }
-
-    private fun stopTimer() {
-        time = 0
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
     }
 }
 

@@ -8,12 +8,16 @@ sealed interface AppToModule {
     object NoSeringOperateStart : AppToModule
     object BreathingOperateStop : AppToModule
     object NoSeringOperateStop : AppToModule
+    object VibrationNotificationsWeak :AppToModule
+    object VibrationNotificationsNormal :AppToModule
+    object VibrationNotificationsStrong :AppToModule
     object OperateChangeProcessRealtime : AppToModule
     object OperateChangeProcessDelayed : AppToModule
     object OperateDownloadContinue : AppToModule
     object OperateDownload : AppToModule
     object OperateDeleteAll : AppToModule
     object OperateDeleteSector : AppToModule
+
 }
 sealed interface AppToModuleResponse {
     object RealtimeDataResponseACK : AppToModuleResponse
@@ -23,12 +27,14 @@ sealed interface AppToModuleResponse {
     object MemoryDataResponseACK : AppToModuleResponse
     object MemoryDataResponseNAK : AppToModuleResponse
     object PowerOffACK : AppToModuleResponse
+    object MOTCtrlSetACK : AppToModuleResponse
 }
 
 fun AppToModule.getState() : BluetoothState.Connected {
     return when(this){
         AppToModule.BreathingOperateStart,  AppToModule.NoSeringOperateStart-> BluetoothState.Connected.SendStart
         AppToModule.BreathingOperateStop,AppToModule.NoSeringOperateStop -> BluetoothState.Connected.SendStop
+        AppToModule.VibrationNotificationsWeak , AppToModule.VibrationNotificationsNormal , AppToModule.VibrationNotificationsStrong->BluetoothState.Connected.MotCtrlSet
         AppToModule.OperateChangeProcessRealtime -> BluetoothState.Connected.SendRealtime
         AppToModule.OperateChangeProcessDelayed -> BluetoothState.Connected.SendDelayed
         AppToModule.OperateDownloadContinue -> BluetoothState.Connected.SendDownloadContinue
@@ -85,6 +91,42 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte(),
                 // Payload
                 0x00.toByte()
+            ).addCheckSum()
+        }
+        AppToModule.VibrationNotificationsWeak -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xF9.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x01.toByte()
+            ).addCheckSum()
+        }
+            AppToModule.VibrationNotificationsNormal -> {
+                byteArrayOf(
+                    // PREFIX
+                    0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                    // CMD
+                    0xF9.toByte(),
+                    // LEN
+                    0x01.toByte(),
+                    // Payload
+                    0x02.toByte()
+                ).addCheckSum()
+        }
+        AppToModule.VibrationNotificationsStrong -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xF9.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x03.toByte()
             ).addCheckSum()
         }
         AppToModule.OperateChangeProcessRealtime -> {
@@ -233,14 +275,26 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+        AppToModuleResponse.MOTCtrlSetACK -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xC9.toByte(),
+                // LEN
+                0x00.toByte()
+            ).addCheckSum()
+        }
     }
 }
 
 sealed interface ModuleToApp {
     object StartStopACK : ModuleToApp
+    object NoSeringStopACK : ModuleToApp
     object RealtimeData : ModuleToApp
     object DelayedData : ModuleToApp
     object OperateACK : ModuleToApp
+    object MOTCtrlSetACK : ModuleToApp
     object MemoryData : ModuleToApp
     object MemoryDataACK : ModuleToApp
     object MemoryDataDeleteACK : ModuleToApp
@@ -252,8 +306,10 @@ sealed interface ModuleToApp {
 fun String.getCommand() : ModuleToApp {
     return when(this) {
         "C3" -> ModuleToApp.StartStopACK
+        "CE" -> ModuleToApp.NoSeringStopACK
         "F2" -> ModuleToApp.RealtimeData
         "C1" -> ModuleToApp.OperateACK
+        "F9" -> ModuleToApp.MOTCtrlSetACK
         "F4" -> ModuleToApp.DelayedData
         "F7" -> ModuleToApp.MemoryData
         "C5" -> ModuleToApp.MemoryDataACK

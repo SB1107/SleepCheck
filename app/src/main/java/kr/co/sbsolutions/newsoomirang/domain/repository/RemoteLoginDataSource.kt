@@ -27,4 +27,5 @@ interface RemoteAuthDataSource{
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
      fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>>
      fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<RequestBody>>
+
 }

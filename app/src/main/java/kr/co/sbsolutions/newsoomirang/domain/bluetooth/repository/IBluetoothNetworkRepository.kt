@@ -34,7 +34,7 @@ interface IBluetoothNetworkRepository {
     fun releaseResource()
 
     fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
-    fun stopNetworkSBSensor()
+    fun stopNetworkSBSensor(snoreTime : Long )
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun operateRealtimeSBSensor()
     fun operateDelayedSBSensor()
@@ -44,6 +44,7 @@ interface IBluetoothNetworkRepository {
     fun stopNetworkSpO2Sensor()
     fun startNetworkEEGSensor()
     fun stopNetworkEEGSensor()
+    fun callVibrationNotifications(Intensity : Int)
 
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>

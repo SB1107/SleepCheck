@@ -11,6 +11,7 @@ sealed class BluetoothState(open val state: String) {
         object Ready : Connected("Ready")
         object Reconnected : Connected("Reconnected")
         object SendStart : Connected("SendStart")
+        object MotCtrlSet : Connected("MotCtrlSet")
         object WaitStart : Connected("WaitStart")
         object SendStop : Connected("SendStop")
         object SendRealtime : Connected("SendRealtime")

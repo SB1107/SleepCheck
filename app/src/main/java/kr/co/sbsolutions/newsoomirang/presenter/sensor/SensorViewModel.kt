@@ -136,7 +136,7 @@ class SensorViewModel @Inject constructor(
 
     }
 
-    private fun startTimer() {
+     override fun startTimer() {
         stopTimer()
 
         _isScanning.tryEmit(true)
@@ -158,7 +158,7 @@ class SensorViewModel @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private fun stopTimer() {
+    override fun stopTimer() {
         _isScanning.tryEmit(false)
         timer?.let {
             bluetoothAdapter.bluetoothLeScanner.stopScan(bleScanCallback)

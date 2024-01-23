@@ -1,32 +1,36 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.nosering
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.lifecycle.ViewModelProvider
+import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.github.mikephil.charting.data.Entry
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
+import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
-import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.BreathingViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
+import org.tensorflow.lite.support.label.Category
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -35,6 +39,16 @@ class NoSeringFragment : Fragment() {
     private val activityViewModel: MainViewModel by activityViewModels()
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
+    }
+    private  val audioHelper : AudioClassificationHelper by lazy {
+        AudioClassificationHelper(requireActivity(),object  : AudioClassificationHelper.AudioClassificationListener{
+            override fun onError(error: String?) {
+            }
+
+            override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
+                viewModel.noSeringResult(results,inferenceTime)
+            }
+        })
     }
 
     override fun onCreateView(
@@ -46,7 +60,60 @@ class NoSeringFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        isPermission()
         setObservers()
+        binding.motorCheckBox.setOnCheckedChangeListener{ _ , isChecked ->
+            run {
+                viewModel.setMotorCheckBox(isChecked)
+            }
+        }
+        binding.type0Chip.setOnClickListener {
+            binding.type0Chip.isChecked = true
+            binding.type1Chip.isChecked = false
+            binding.type2Chip.isChecked = false
+            viewModel.setType(0)
+        }
+        binding.type1Chip.setOnClickListener {
+            binding.type0Chip.isChecked = false
+            binding.type1Chip.isChecked = true
+            binding.type2Chip.isChecked = false
+            viewModel.setType(1)
+        }
+        binding.type2Chip.setOnClickListener {
+            binding.type0Chip.isChecked = false
+            binding.type1Chip.isChecked = false
+            binding.type2Chip.isChecked = true
+            viewModel.setType(2)
+        }
+
+        binding.startButton.setOnClickListener {
+            viewModel.startClick()
+        }
+        binding.stopButton.setOnClickListener {
+            viewModel.stopClick()
+            audioHelper.stopAudioClassification()
+        }
+
+    }
+    private  fun isPermission(){
+        if(ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) ==  PackageManager.PERMISSION_DENIED){
+            binding.startButton.visibility = View.GONE
+            TedPermission.create()
+                .setPermissionListener(object  : PermissionListener{
+                    override fun onPermissionGranted() {
+                        binding.startButton.visibility = View.VISIBLE
+                    }
+
+                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                        binding.startButton.visibility = View.GONE
+                    }
+                }).setPermissions(Manifest.permission.RECORD_AUDIO)
+                .setDeniedMessage("권한을 설정해주셔야 합니다.")
+                .check()
+        }else{
+            binding.startButton.visibility = View.VISIBLE
+        }
     }
 
     private fun setObservers() {
@@ -68,11 +135,11 @@ class NoSeringFragment : Fragment() {
                         }
                     }
                 }
-//                launch {
-//                    activityViewModel.breathingResults.collectLatest {
-//                        viewModel.sleepDataResult()
-//                    }
-//                }
+                launch {
+                    activityViewModel.noSeringResults.collectLatest {
+                        viewModel.noSeringResult()
+                    }
+                }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
@@ -100,54 +167,38 @@ class NoSeringFragment : Fragment() {
                     }
                 }
 //                //타이머 설정
-//                launch {
-//                    viewModel.measuringTimer.collectLatest {
-//                        if (it.second >= 5) {
-//                            viewModel.setMeasuringState(MeasuringState.Record)
-//                        }
-//                        binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
-//                    }
-//                }
-//                launch {
-//                    viewModel.sleepDataResultFlow.collectLatest {
-//                        binding.actionResult.resultDateTextView.text = it.endDate
-//                        binding.actionResult.resultTotalTextView.text = it.resultTotal
+                launch {
+                    viewModel.measuringTimer.collectLatest {
+                        binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
+                    }
+                }
+                launch {
+                    viewModel.sleepDataResultFlow.collectLatest {
+                        binding.actionResult.resultDateTextView.text = it.endDate
+                        binding.actionResult.resultTotalTextView.text = it.resultTotal
 //                        binding.actionResult.resultRealTextView.text = it.resultReal
 //                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
-//                        binding.actionResult.resultDurationTextView.text = it.duration
-//                        when (it.apneaState) {
-//                            3 -> {
-//                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
-//                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
-//                                binding.actionResult.IndicatorsEnd.visibility = View.VISIBLE
-//                            }
-//
-//                            2 -> {
-//                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
-//                                binding.actionResult.IndicatorsCenter.visibility = View.VISIBLE
-//                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
-//                            }
-//
-//                            else -> {
-//                                binding.actionResult.IndicatorsLeft.visibility = View.VISIBLE
-//                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
-//                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
-//                            }
-//                        }
-////                        binding.actionResult.tvState.
-//                    }
-//                }
+                        binding.actionResult.resultDurationTextView.text = it.duration
+                    }
+                }
+                //300미만 취소 시
+                launch {
+                    viewModel.showMeasurementCancelAlert.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,"측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?",confirmAction ={
+                            viewModel.cancelClick()
+                        })
+                    }
+                }
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {
                         when (it) {
-                            MeasuringState.InIt , MeasuringState.FiveRecode -> {
+                            MeasuringState.InIt, MeasuringState.FiveRecode -> {
                                 binding.initGroup.visibility = View.VISIBLE
                                 binding.actionMeasurer.root.visibility = View.GONE
                                 binding.actionResult.root.visibility = View.GONE
                                 binding.startButton.visibility = View.VISIBLE
                                 binding.stopButton.visibility = View.GONE
-
                             }
 
                             MeasuringState.Record -> {
@@ -190,9 +241,12 @@ class NoSeringFragment : Fragment() {
     private fun showChargingDialog() {
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-//                viewModel.sleepDataCreate().apply {
-//                    activityViewModel.setCommend(ServiceCommend.START)
-//                }
+                viewModel.sleepDataCreate().apply {
+                    activityViewModel.setCommend(ServiceCommend.START)
+                }
+                lifecycleScope.launch{
+                    audioHelper.startAudioClassification()
+                }
             }
         }).show(requireActivity().supportFragmentManager, "")
     }

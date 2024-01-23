@@ -36,7 +36,13 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
         val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
         val appKind = MultipartBody.Part.createFormData("app_kind", "C")
-        val list = arrayListOf(body, dataId, appKind)
+        val list = if (sleepType == SleepType.Breathing) {
+            arrayListOf(body, dataId, appKind)
+        }else {
+            val snoreTime  =  MultipartBody.Part.createFormData("snore_time", "$snoreTime")
+            arrayListOf(body, dataId, appKind,snoreTime)
+        }
+
         api.postUploading(list)
     }
 
