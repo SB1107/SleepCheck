@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.github.mikephil.charting.data.Entry
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -28,6 +29,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
 
+@AndroidEntryPoint
 class NoSeringFragment : Fragment() {
     private val viewModel: NoSeringViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
