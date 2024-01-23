@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -17,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataResultModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
@@ -33,19 +35,19 @@ class BreathingViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
-) : BaseServiceViewModel(dataManager,tokenManager) {
+) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
+    private val _showMeasurementCancelAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
     private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
     val measuringState: SharedFlow<MeasuringState> = _measuringState
 
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    val  _capacitanceFlow : MutableSharedFlow<Int> = MutableSharedFlow()
-     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
-
-
-    private val  _sleepDataResultFlow : MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
+    val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
+    val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
+    private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
 
 
@@ -53,20 +55,38 @@ class BreathingViewModel @Inject constructor(
     private var time: Int = 0
 
 
-     fun startClick() {
-         if (isRegistered()) {
-             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
-                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
-                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd) {
-                 viewModelScope.launch {
-                     _showMeasurementAlert.emit(true)
-                 }
-             }
-         }
+    fun startClick() {
+        if (isRegistered()) {
+            if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
+            ) {
+                viewModelScope.launch {
+                    _showMeasurementAlert.emit(true)
+                }
+            }
+        }
+    }
+
+    fun cancelClick() {
+        if (::timerJob.isInitialized) {
+            timerJob.cancel()
+        }
+        setMeasuringState(MeasuringState.InIt)
+        sleepDataDelete()
+        viewModelScope.launch {
+            getService()?.stopSBSensor()
+        }
     }
 
     fun stopClick() {
+        if (time < 300) {
+            viewModelScope.launch {
+                _showMeasurementCancelAlert.emit(true)
+            }
+            return
+        }
         if (::timerJob.isInitialized) {
             timerJob.cancel()
         }
@@ -76,6 +96,21 @@ class BreathingViewModel @Inject constructor(
         }
     }
 
+    private fun sleepDataDelete() {
+        viewModelScope.launch(Dispatchers.IO) {
+            request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
+                .collectLatest {
+//                    viewModelScope.launch {
+
+//                        bluetoothInfo.dataId = null
+
+//                    }
+                }
+        }
+
+
+    }
+
     fun sleepDataCreate() {
         startTimer()
         viewModelScope.launch(Dispatchers.IO) {
@@ -83,19 +118,20 @@ class BreathingViewModel @Inject constructor(
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
                     .collectLatest {
                         it.result?.id?.let { id ->
-                            getService()?.startSBSensor(id, SleepType.Breathing )
+                            getService()?.startSBSensor(id, SleepType.Breathing)
                             setMeasuringState(MeasuringState.FiveRecode)
                         }
                     }
             }
         }
     }
-    fun sleepDataResult(){
+
+    fun sleepDataResult() {
         viewModelScope.launch(Dispatchers.IO) {
-            request{authAPIRepository.getSleepDataResult()}
-            .collectLatest {
-                it.result?.let {result ->
-                        _measuringState.emit(if(result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
+            request { authAPIRepository.getSleepDataResult() }
+                .collectLatest {
+                    it.result?.let { result ->
+                        _measuringState.emit(if (result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
                         val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
                         val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
                         val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
@@ -104,10 +140,13 @@ class BreathingViewModel @Inject constructor(
                         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
                         val sleepTime = (result.sleepTime * 60).toHourMinute()
                         val resultAsleep = (result.asleepTime * 60).toHourMinute()
-                        _sleepDataResultFlow.emit(SleepDataResultModel(endDate = endedAtString, duration = "$durationString 수면"
-                            , resultTotal = min, resultReal =  sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState ))
-                }?: _measuringState.emit(MeasuringState.InIt)
-            }
+                        _sleepDataResultFlow.emit(
+                            SleepDataResultModel(
+                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState
+                            )
+                        )
+                    } ?: _measuringState.emit(MeasuringState.InIt)
+                }
         }
 
 
@@ -129,7 +168,7 @@ class BreathingViewModel @Inject constructor(
                     info.currentData.collectLatest {
                         _capacitanceFlow.emit(it)
                     }
-                }else if(info.bluetoothState == BluetoothState.Connected.End) {
+                } else if (info.bluetoothState == BluetoothState.Connected.End) {
                     stopTimer()
                 }
             }
@@ -155,7 +194,8 @@ class BreathingViewModel @Inject constructor(
 
         }
     }
-    private  fun stopTimer(){
+
+    private fun stopTimer() {
         time = 0
         if (::timerJob.isInitialized) {
             timerJob.cancel()

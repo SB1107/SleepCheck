@@ -11,7 +11,9 @@ import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
 import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
@@ -59,7 +61,7 @@ interface AuthServiceAPI {
     suspend fun postSleepDataCreate(@Body createModel: SleepCreateModel): Response<SleepCreateEntity>
 
     @POST("sleepdata/delete")
-    suspend fun postSleepDataDelete(@Body sleepModel : SleepModel): Response<SleepModel>
+    suspend fun postSleepDataDelete(@Body sleepDataRemoveModel: SleepDataRemoveModel): Response<RequestBody>
 
     @Multipart
     @POST("sleepdata/upload")

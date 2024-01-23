@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
@@ -168,6 +170,14 @@ class BreathingFragment : Fragment() {
                             }
                         }
 //                        binding.actionResult.tvState.
+                    }
+                }
+                //300미만 취소 시
+                launch {
+                    viewModel.showMeasurementCancelAlert.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,"측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?",confirmAction ={
+                            viewModel.cancelClick()
+                        })
                     }
                 }
                 //UI 변경

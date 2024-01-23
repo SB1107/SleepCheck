@@ -8,6 +8,7 @@
     <string name="common_auth"><![CDATA[숨이랑을 이용하기 위하여 권한이 필요합니다.]]></string>
     <string name="common_auth_denined"><![CDATA[[어플리케이션 > 숨이랑 > 권한 설정] 에서 권한 설정을 다시 할 수 있습니다.]]></string>
     <string name="common_ok">확인</string>
+    <string name="common_title">알림</string>
     <string name="common_select">선택</string>
     <string name="common_cancel">취소</string>
     <string name="common_delete">삭제</string>

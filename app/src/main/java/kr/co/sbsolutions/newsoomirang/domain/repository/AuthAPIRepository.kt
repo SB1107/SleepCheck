@@ -11,6 +11,7 @@ import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
@@ -49,5 +50,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     }
     override fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
         api.sleepDataDetail(sleepModel)
+    }
+
+    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<RequestBody>>  = apiRequestFlow{
+        api.postSleepDataDelete(sleepDataRemoveModel)
     }
 }
