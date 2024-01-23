@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
@@ -53,6 +54,8 @@ class SensorViewModel @Inject constructor(
     private val _bleName: MutableSharedFlow<String> = MutableSharedFlow(extraBufferCapacity = 1)
     val bleName: SharedFlow<String> = _bleName
 
+    private val _disconected = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
 
@@ -93,8 +96,10 @@ class SensorViewModel @Inject constructor(
     fun disconnectDevice() {
         Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
 
-        getService()?.disconnectDevice(bluetoothInfo)
-        unRegister()
+        viewModelScope.launch(Dispatchers.IO) {
+            _disconected.emit(dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name))
+            getService()?.disconnectDevice(bluetoothInfo)
+        }
 
         /*// 상태 정리 필요함
         when (bluetoothInfo.bluetoothState) {
@@ -109,14 +114,6 @@ class SensorViewModel @Inject constructor(
                 unRegister()
             }
         }*/
-
-    }
-
-    private fun unRegister() {
-        viewModelScope.launch(Dispatchers.IO) {
-            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
-        }
-
 
     }
 

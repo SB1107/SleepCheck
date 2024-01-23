@@ -83,30 +83,17 @@ class SensorActivity : BaseServiceActivity() {
             }
 
             btSearch.setOnClickListener {
-                lifecycleScope.launch {
-                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        launch {
-                            viewModel.isScanning.collectLatest {
-                                if (it) {
-                                    Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                    return@collectLatest
-                                }
-                            }
-                        }
-                    }
-                }
+                viewModel.disconnectDevice()
+                btSearch.text = "스캔"
+                deviceNameTextView.text = "연결된 기기가 없습니다."
                 viewModel.scanBLEDevices()
             }
 
-            disconnectButton.setOnClickListener {
-                lifecycleScope.launch {
-                    viewModel.disconnectDevice()
-                    btSearch.visibility = View.VISIBLE
-                    disconnectButton.visibility = View.GONE
-                    deviceNameTextView.text = "연결된 기기가 없습니다."
-                }
-
-            }
+            /*disconnectButton.setOnClickListener {
+                btSearch.visibility = View.VISIBLE
+                disconnectButton.visibility = View.GONE
+                deviceNameTextView.text = "연결된 기기가 없습니다."
+            }*/
         }
 
         with(viewModel) {
@@ -117,8 +104,17 @@ class SensorActivity : BaseServiceActivity() {
                             Log.d(TAG, "bindViews: $bleName")
                             binding.apply {
                                 deviceNameTextView.text = bleName
-                                btSearch.visibility = View.GONE
-                                disconnectButton.visibility = View.VISIBLE
+                                btSearch.text = "연결끊기"
+
+                            }
+                        }
+                    }
+
+                    launch {
+                        viewModel.isScanning.collectLatest {
+                            if (it) {
+                                Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
+                                return@collectLatest
                             }
                         }
                     }
