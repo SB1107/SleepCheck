@@ -25,8 +25,6 @@ open class BaseViewModel(private  val dataManager: DataManager,private  val toke
     private val _isProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isProgressBar: SharedFlow<Boolean> = _isProgressBar
 
-    private val _isTokenState: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val isTokenSate: SharedFlow<Boolean> = _isTokenState
     private  lateinit var reAuthorizeCallBack : BaseActivity.ReAuthorizeCallBack
 
     fun cancelJob() {
