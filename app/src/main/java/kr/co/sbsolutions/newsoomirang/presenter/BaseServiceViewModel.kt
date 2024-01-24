@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
@@ -43,6 +44,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collect {
+                    Log.d(TAG, "상태: ${it.bluetoothState}")
                     bluetoothInfo = it
                     setBatteryInfo()
                 }

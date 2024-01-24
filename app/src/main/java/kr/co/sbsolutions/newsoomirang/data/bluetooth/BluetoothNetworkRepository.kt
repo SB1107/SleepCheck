@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -621,7 +622,20 @@ class BluetoothNetworkRepository @Inject constructor(
                             }
 
                             BluetoothState.Connected.Init -> {
-                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                coroutine.launch {
+                                    info.currentData.first().let {
+                                        when(it){
+                                            0 -> { writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                                Log.d(TAG, "DataFlow: 코골이 종료 ")
+                                            }
+
+                                            else -> {
+                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                                Log.d(TAG, "DataFlow: 호흡 종료 ")
+                                            }
+                                        }
+                                    }
+                                }
                                 innerData.update { it.copy(bluetoothState =  BluetoothState.Connected.DataFlow) }
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
