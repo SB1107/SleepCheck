@@ -52,6 +52,10 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    override fun whereTag(): String {
+        return  "History"
+    }
+
 //    fun test(sleepModel: SleepModel) {
 //        APIRouter.api().sleepdataDetail(ApiHelper.getInstance().convert(sleepModel)).enqueue(RocatCallback(mActivity, object : ResponseListener() {
 //            fun successResponse(response: Any) {

@@ -34,7 +34,7 @@ interface IBluetoothNetworkRepository {
     fun releaseResource()
 
     fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
-    fun stopNetworkSBSensor(snoreTime : Long )
+    fun stopNetworkSBSensor(snoreTime : Long = 0 )
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun operateRealtimeSBSensor()
     fun operateDelayedSBSensor()

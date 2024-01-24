@@ -35,6 +35,10 @@ class MainViewModel @Inject constructor(private  val dataManager: DataManager, p
         }
     }
 
+    override fun whereTag(): String {
+        return  "Main"
+    }
+
 }
 
 enum class ServiceCommend {

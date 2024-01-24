@@ -60,6 +60,9 @@ class SettingViewModel @Inject constructor(
 
     }
 
+    override fun whereTag(): String {
+        return  "Setting"
+    }
 
 
 }

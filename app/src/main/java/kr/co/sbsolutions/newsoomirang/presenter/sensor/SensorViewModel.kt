@@ -149,7 +149,7 @@ init {
 
     }
 
-     override fun startTimer() {
+     private fun startTimer() {
         stopTimer()
 
         _isScanning.tryEmit(true)
@@ -171,13 +171,17 @@ init {
     }
 
     @SuppressLint("MissingPermission")
-    override fun stopTimer() {
+    private fun stopTimer() {
         _isScanning.tryEmit(false)
         timer?.let {
             bluetoothAdapter.bluetoothLeScanner.stopScan(bleScanCallback)
             it.cancel()
         }
         timer = null
+    }
+
+    override fun whereTag(): String {
+        return "Sensor"
     }
 
     override fun onCleared() {

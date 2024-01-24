@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -115,9 +116,7 @@ class BreathingFragment : Fragment() {
                 //타이머 설정
                 launch {
                     viewModel.measuringTimer.collectLatest {
-                        if (it.second >= 5) {
-                            viewModel.setMeasuringState(MeasuringState.Record)
-                        }
+                        viewModel.setMeasuringState(if(it.second >= 5) MeasuringState.Record else MeasuringState.FiveRecode)
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }

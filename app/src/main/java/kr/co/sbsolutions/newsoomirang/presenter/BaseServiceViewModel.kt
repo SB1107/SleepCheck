@@ -14,6 +14,7 @@ import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
@@ -34,29 +35,28 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
 
     private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val canMeasurement: SharedFlow<Boolean> = _canMeasurement
-    private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
-    val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
     protected  var bluetoothInfo = ApplicationManager.getBluetoothInfo()
+    abstract fun whereTag() : String
 
-    lateinit var timerJob: Job
-    private var time: Int = 0
     init {
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collect {
-                    Log.d(TAG, "상태: ${it.bluetoothState}")
+                    Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
                     setBatteryInfo()
+                    serviceSettingCall()
                 }
             }
             launch {
                 service = ApplicationManager.getService().value
-                ApplicationManager.getService().collectLatest {
+                ApplicationManager.getService().collect {
                     service = it
                 }
             }
         }
     }
+    open fun serviceSettingCall(){}
     fun setBatteryInfo(){
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
@@ -98,34 +98,5 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
             null
         }
     }
-    protected open fun startTimer() {
-        time = 0
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
-        timerJob = viewModelScope.launch {
-            while (true) {
-                delay(1000)
-                time += 1
-                val hour = time / 3600
-                val minute = time % 3600 / 60
-                val second = time % 60
-                _measuringTimer.emit(Triple(hour, minute, second))
-            }
 
-        }
-    }
-    protected fun timerJobCancel(){
-        time = 0
-        if (::timerJob.isInitialized) {
-            timerJob.cancel()
-        }
-    }
-    protected fun getTime() : Int {
-        return  time
-    }
-    protected open fun stopTimer() {
-        time = 0
-        timerJobCancel()
-    }
 }

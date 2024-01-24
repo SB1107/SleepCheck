@@ -40,16 +40,6 @@ class NoSeringFragment : Fragment() {
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
     }
-    private  val audioHelper : AudioClassificationHelper by lazy {
-        AudioClassificationHelper(requireActivity(),object  : AudioClassificationHelper.AudioClassificationListener{
-            override fun onError(error: String?) {
-            }
-
-            override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
-                viewModel.noSeringResult(results,inferenceTime)
-            }
-        })
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,7 +86,6 @@ class NoSeringFragment : Fragment() {
         }
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
-            audioHelper.stopAudioClassification()
         }
 
     }
@@ -165,6 +154,7 @@ class NoSeringFragment : Fragment() {
 //                //타이머 설정
                 launch {
                     viewModel.measuringTimer.collectLatest {
+                        viewModel.setMeasuringState(MeasuringState.Record)
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
@@ -240,9 +230,6 @@ class NoSeringFragment : Fragment() {
             override fun onConfirm() {
                 viewModel.sleepDataCreate().apply {
                     activityViewModel.setCommend(ServiceCommend.START)
-                }
-                lifecycleScope.launch{
-                    audioHelper.startAudioClassification()
                 }
             }
         }).show(requireActivity().supportFragmentManager, "")

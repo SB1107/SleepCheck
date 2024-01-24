@@ -23,7 +23,10 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
+import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
+import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -34,6 +37,7 @@ import kr.co.sbsolutions.soomirang.db.SBSensorData
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
+import org.tensorflow.lite.support.label.Category
 import java.io.File
 import java.io.FileWriter
 import java.text.SimpleDateFormat
@@ -63,6 +67,16 @@ class BLEService : LifecycleService() {
 
     }
 
+    private val audioHelper: AudioClassificationHelper by lazy {
+        AudioClassificationHelper(this, object : AudioClassificationHelper.AudioClassificationListener {
+            override fun onError(error: String?) {
+            }
+
+            override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
+                noseRingHelper.noSeringResult(results, inferenceTime)
+            }
+        })
+    }
 
     val sbSensorInfo by lazy {
         bluetoothNetworkRepository.sbSensorInfo
@@ -97,6 +111,11 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var logDBDataRepository: LogDBDataRepository
+
+    @Inject
+    lateinit var timeHelper: TimeHelper
+    @Inject
+    lateinit var noseRingHelper: NoseRingHelper
 
     private val mBinder: IBinder = LocalBinder()
     override fun onCreate() {
@@ -189,6 +208,16 @@ class BLEService : LifecycleService() {
         bluetoothInfo.bluetoothGatt = null
     }
 
+    private fun startTimer() {
+        lifecycleScope.launch {
+            timeHelper.startTimer(this)
+        }
+    }
+
+    fun stopTimer() {
+        timeHelper.stopTimer()
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -228,7 +257,7 @@ class BLEService : LifecycleService() {
                 sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
-                            exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType , snoreTime = it.snoreTime)
+                            exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                         }
                     } ?: finishService(-1, forceClose)
                 }
@@ -367,7 +396,7 @@ class BLEService : LifecycleService() {
                         val min = sbSensorDBRepository.getMinIndex(dataId)
                         val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
                         if ((max - min + 1) == size) {
-                            exportLastFile(dataId, max, true, sleepType = it.sleepType , snoreTime = it.snoreTime)
+                            exportLastFile(dataId, max, true, sleepType = it.sleepType, snoreTime = it.snoreTime)
                         } else {
                             finishService(dataId, true)
                         }
@@ -393,13 +422,27 @@ class BLEService : LifecycleService() {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
         }
+        startTimer()
+        if (sleepType == SleepType.NoSering) {
+            stopAudioClassification()
+        }
+    }
+
+    private fun stopAudioClassification(){
+        audioHelper.stopAudioClassification()
+    }
+    fun stopSBSensor() {
+        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
+            stopAudioClassification()
+            bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
+        }else{
+            bluetoothNetworkRepository.stopNetworkSBSensor()
+        }
+        stopTimer()
 
     }
 
-    fun stopSBSensor(snoreTime: Long = 0) {
-        bluetoothNetworkRepository.stopNetworkSBSensor(snoreTime)
-    }
-    fun callVibrationNotifications(Intensity : Int){
+    fun callVibrationNotifications(Intensity: Int) {
         bluetoothNetworkRepository.callVibrationNotifications(Intensity)
     }
 
@@ -529,7 +572,7 @@ class BLEService : LifecycleService() {
                 if (isLast) {
                     finishService(dataId, isForcedClose)
                 }
-                    sbSensorDBRepository.deleteUploadedList(list)
+                sbSensorDBRepository.deleteUploadedList(list)
                 file.delete()
             }
         }
@@ -541,9 +584,12 @@ class BLEService : LifecycleService() {
 
     private fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
-            sbSensorInfo.value.channel.consumeEach {
-                sbSensorDBRepository.insert(it)
+            withContext(IO) {
+                sbSensorInfo.value.channel.consumeEach {
+                    sbSensorDBRepository.insert(it)
+                }
             }
+
         }
     }
 

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
@@ -24,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.withsoom.utils.TokenManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -43,7 +45,8 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
-
+    private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
+    val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
     init {
         viewModelScope.launch {
             launch {
@@ -51,9 +54,10 @@ class BreathingViewModel @Inject constructor(
                     if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                         info.currentData.collectLatest {
                             _capacitanceFlow.emit(it)
+
                         }
                     } else if (info.bluetoothState == BluetoothState.Connected.End) {
-                        stopTimer()
+                        getService()?.stopTimer()
                     }
 
                 }
@@ -73,12 +77,13 @@ class BreathingViewModel @Inject constructor(
                 viewModelScope.launch {
                     _showMeasurementAlert.emit(true)
                 }
+            }else{
+
             }
         }
     }
 
     fun cancelClick() {
-        timerJobCancel()
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
@@ -87,14 +92,12 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if (getTime() < 300) {
+        if (getService()?.timeHelper?.getTime() ?: 0 < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
             return
         }
-        timerJobCancel()
-
         setMeasuringState(MeasuringState.Analytics)
         viewModelScope.launch {
             getService()?.stopSBSensor()
@@ -111,8 +114,8 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun sleepDataCreate() {
-        startTimer()
         viewModelScope.launch(Dispatchers.IO) {
+
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
                     .collectLatest {
@@ -155,6 +158,22 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch {
             _measuringState.emit(state)
         }
+    }
+
+    override fun whereTag(): String {
+        return  SleepType.Breathing.name
+    }
+
+    override fun serviceSettingCall() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (bluetoothInfo.sleepType == SleepType.Breathing) {
+                getService()?.timeHelper?.measuringTimer?.collectLatest {
+                    _measuringTimer.emit(it)
+                }
+            }
+
+        }
+
     }
 }
     enum class MeasuringState {

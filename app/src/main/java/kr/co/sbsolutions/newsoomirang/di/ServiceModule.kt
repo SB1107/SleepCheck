@@ -15,6 +15,8 @@ import dagger.hilt.android.scopes.ServiceScoped
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
+import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
+import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
@@ -58,5 +60,12 @@ class ServiceModuleNotification {
     @Provides
     fun provideNotificationManager(@ApplicationContext context: Context) = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    @ServiceScoped
+    @Provides
+    fun provideTimeHelperManager() = TimeHelper()
+
+    @ServiceScoped
+    @Provides
+    fun provideNoseRingManager() = NoseRingHelper()
 
 }
