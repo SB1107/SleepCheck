@@ -91,7 +91,7 @@
         android:layout_marginRight="30dp"
         android:fontFamily="@font/nanumsquarebold"
         android:gravity="center"
-        android:text="00 : 00 : 00"
+        android:text="00:00:00"
         android:textColor="@color/color_FFFFFF"
         android:textSize="34sp"
         android:visibility="visible"

@@ -36,6 +36,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
 import org.tensorflow.lite.support.label.Category
 import java.io.File
@@ -209,12 +210,32 @@ class BLEService : LifecycleService() {
     }
 
     private fun startTimer() {
+        notVibrationNotifyChannelCreate()
         lifecycleScope.launch {
-            timeHelper.startTimer(this)
+            launch {
+                timeHelper.startTimer(this)
+            }
+            launch {
+                timeHelper.measuringTimer.collectLatest {
+                    notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
+                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
+
+                }
+            }
         }
     }
 
-    fun stopTimer() {
+    private fun notVibrationNotifyChannelCreate(){
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            enableVibration(false)
+        }
+        notificationManager.createNotificationChannel(channel)
+
+    }
+
+    private fun stopTimer() {
         timeHelper.stopTimer()
     }
 
@@ -333,7 +354,6 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 notificationBuilder.setContentTitle("측정 중")
-                notificationBuilder.setContentText("")
 //                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
                 listenChannelMessage()
@@ -341,7 +361,7 @@ class BLEService : LifecycleService() {
                 registerDownloadCallback()
                 // uploadStart()
                 //startNotification()
-                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build()).apply { startTimer() }
             }
 
             ActionMessage.StopSBService -> {
@@ -438,6 +458,7 @@ class BLEService : LifecycleService() {
         }else{
             bluetoothNetworkRepository.stopNetworkSBSensor()
         }
+        createNotificationChannel()
         stopTimer()
 
     }

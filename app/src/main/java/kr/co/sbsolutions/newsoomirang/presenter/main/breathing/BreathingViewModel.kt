@@ -47,6 +47,7 @@ class BreathingViewModel @Inject constructor(
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
+
     init {
         viewModelScope.launch {
             launch {
@@ -56,10 +57,7 @@ class BreathingViewModel @Inject constructor(
                             _capacitanceFlow.emit(it)
 
                         }
-                    } else if (info.bluetoothState == BluetoothState.Connected.End) {
-                        getService()?.stopTimer()
                     }
-
                 }
             }
 
@@ -77,7 +75,7 @@ class BreathingViewModel @Inject constructor(
                 viewModelScope.launch {
                     _showMeasurementAlert.emit(true)
                 }
-            }else{
+            } else {
 
             }
         }
@@ -161,21 +159,20 @@ class BreathingViewModel @Inject constructor(
     }
 
     override fun whereTag(): String {
-        return  SleepType.Breathing.name
+        return SleepType.Breathing.name
     }
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-                getService()?.timeHelper?.measuringTimer?.collectLatest {
-                    if (bluetoothInfo.sleepType == SleepType.Breathing) {
+            getService()?.timeHelper?.measuringTimer?.collectLatest {
+                if (bluetoothInfo.sleepType == SleepType.Breathing) {
                     _measuringTimer.emit(it)
                 }
             }
-
         }
-
     }
 }
-    enum class MeasuringState {
-        InIt, FiveRecode, Record, Analytics, Result
-    }
+
+enum class MeasuringState {
+    InIt, FiveRecode, Record, Analytics, Result
+}
