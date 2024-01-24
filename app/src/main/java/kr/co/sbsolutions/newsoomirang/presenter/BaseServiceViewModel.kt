@@ -45,13 +45,14 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
                     Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
                     setBatteryInfo()
-                    serviceSettingCall()
                 }
             }
             launch {
                 service = ApplicationManager.getService().value
+                serviceSettingCall()
                 ApplicationManager.getService().collect {
                     service = it
+                    serviceSettingCall()
                 }
             }
         }

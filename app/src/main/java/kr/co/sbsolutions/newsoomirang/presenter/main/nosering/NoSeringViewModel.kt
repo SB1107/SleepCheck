@@ -179,8 +179,9 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch {
             Log.e("Aa","123123123123123")
             Log.e("Aa","${bluetoothInfo.sleepType}")
-            if (bluetoothInfo.sleepType == SleepType.NoSering) {
+
                 getService()?.timeHelper?.measuringTimer?.collectLatest {
+                    if (bluetoothInfo.sleepType == SleepType.NoSering) {
                     _measuringTimer.emit(it)
                 }
             }
