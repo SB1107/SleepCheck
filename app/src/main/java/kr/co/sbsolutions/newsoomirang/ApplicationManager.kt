@@ -14,12 +14,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import java.lang.ref.WeakReference
 
 @HiltAndroidApp
 class ApplicationManager : Application() {
     private val _bluetoothInfoFlow: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
-
+    private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
+    private  val service : StateFlow<WeakReference<BLEService>> = _service
     init {
         instance = this
     }
@@ -29,13 +31,20 @@ class ApplicationManager : Application() {
         fun getBluetoothInfo(): BluetoothInfo {
             return instance.bluetoothInfoFlow.value
         }
-
         fun getBluetoothInfoFlow(): StateFlow<BluetoothInfo> {
             return instance.bluetoothInfoFlow
         }
-
         fun setBluetoothInfo(info: BluetoothInfo) {
             instance._bluetoothInfoFlow.tryEmit(info)
+        }
+        fun setService(service : WeakReference<BLEService>){
+            instance._service.tryEmit(service)
+        }
+        fun serviceClear(){
+            instance._service.tryEmit(WeakReference(null))
+        }
+        fun getService() :  StateFlow<WeakReference<BLEService>>{
+            return instance.service
         }
     }
 

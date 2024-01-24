@@ -85,15 +85,13 @@ abstract class BaseServiceActivity : BaseActivity() {
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             service = WeakReference((binder as BLEService.LocalBinder).service)
-            service.get()?.let {
-                changeServiceViewModel()?.setService(it)
-
-            }
+            ApplicationManager.setService(service)
             onServiceAvailable()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             service.clear()
+            ApplicationManager.serviceClear()
         }
     }
 

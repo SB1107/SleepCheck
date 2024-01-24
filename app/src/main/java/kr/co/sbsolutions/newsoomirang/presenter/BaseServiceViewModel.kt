@@ -47,6 +47,12 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
                     setBatteryInfo()
                 }
             }
+            launch {
+                service = ApplicationManager.getService().value
+                ApplicationManager.getService().collectLatest {
+                    service = it
+                }
+            }
         }
     }
     fun setBatteryInfo(){
@@ -88,10 +94,6 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
                 _userName.emit(it)
             }
         }
-    }
-
-    fun setService(service: BLEService) {
-        this.service = WeakReference(service)
     }
 
     fun getService(): BLEService? {

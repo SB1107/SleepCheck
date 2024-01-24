@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.nosering
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +40,8 @@ class NoSeringViewModel  @Inject constructor(
     private var mSnoreTime : Long = 0
     private var mLastEventTime : Long  = 0
     private var  mContSnoringTime : Long = 0
-    private  var motorCheckBok : Boolean = false
-    private  var type : Int = 0
+    private  var motorCheckBok : Boolean = true
+    private  var type : Int = 2
 
     fun startClick() {
         if(isRegistered()){
@@ -112,10 +113,12 @@ class NoSeringViewModel  @Inject constructor(
         this.type = type
     }
     fun callVibrationNotifications(){
+        Log.e("Aa","callVibrationNotifications")
         if (!this.motorCheckBok) {
             return
         }
         getService()?.callVibrationNotifications(type)
+        Log.e("Aa","callVibrationNotifications2")
     }
     fun setMotorCheckBox(isChecked : Boolean){
         this.motorCheckBok = isChecked
@@ -129,6 +132,7 @@ class NoSeringViewModel  @Inject constructor(
                     mSnoreTime += timeDelta
                     mContSnoringTime += timeDelta
                     if (mContSnoringTime > 10000) {
+                        Log.e("Aa","mContSnoringTime")
                         callVibrationNotifications()
                     }
                 } else {

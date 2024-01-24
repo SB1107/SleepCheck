@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
@@ -42,6 +43,25 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
+
+    init {
+        viewModelScope.launch {
+            launch {
+                ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
+                    if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
+                        info.currentData.collectLatest {
+                            _capacitanceFlow.emit(it)
+                        }
+                    } else if (info.bluetoothState == BluetoothState.Connected.End) {
+                        stopTimer()
+                    }
+
+                }
+            }
+
+        }
+
+    }
 
     fun startClick() {
         if (isRegistered()) {
@@ -85,7 +105,7 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
                 .collectLatest {
-                        bluetoothInfo.dataId = null
+                    bluetoothInfo.dataId = null
                 }
         }
     }
@@ -136,26 +156,7 @@ class BreathingViewModel @Inject constructor(
             _measuringState.emit(state)
         }
     }
-
-    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-        super.onChangeSBSensorInfo(info)
-        viewModelScope.launch {
-
-            launch {
-                if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
-                    info.currentData.collectLatest {
-                        _capacitanceFlow.emit(it)
-                    }
-                } else if (info.bluetoothState == BluetoothState.Connected.End) {
-                    stopTimer()
-                }
-            }
-        }
-
-        Log.e(TAG, "[BVM]  ${info.bluetoothState}")
+}
+    enum class MeasuringState {
+        InIt, FiveRecode, Record, Analytics, Result
     }
-}
-
-enum class MeasuringState {
-    InIt, FiveRecode, Record, Analytics, Result
-}

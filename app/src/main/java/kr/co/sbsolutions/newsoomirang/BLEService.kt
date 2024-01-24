@@ -315,6 +315,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.StopSBService -> {
+                notificationBuilder.setContentTitle("측정 종료")
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
 //                unregisterListenSBSensorState()
                 stopScheduler()

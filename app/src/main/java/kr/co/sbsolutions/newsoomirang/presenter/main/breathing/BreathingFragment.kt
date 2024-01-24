@@ -54,12 +54,6 @@ class BreathingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
         setObservers()
-        activityViewModel.getService()?.let {
-            viewModel.setService(it)
-        }
-
-
-
         binding.startButton.setOnClickListener {
             viewModel.startClick()
         }

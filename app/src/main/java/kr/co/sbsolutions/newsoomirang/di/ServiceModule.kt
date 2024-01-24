@@ -51,7 +51,7 @@ class ServiceModuleNotification {
     @Provides
     fun provideNotificationBuilder(
         @ApplicationContext context: Context, pendingIntent: PendingIntent
-    ) = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID).setAutoCancel(false).setOngoing(true).setSmallIcon(R.mipmap.ic_launcher) // TODO: Notification 아이콘 작업
+    ) = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID).setAutoCancel(true).setOngoing(true).setSmallIcon(R.mipmap.ic_launcher) // TODO: Notification 아이콘 작업
         .setContentTitle("숨이랑 기기 연결 대기 중").setContentIntent(pendingIntent)
 
     @ServiceScoped

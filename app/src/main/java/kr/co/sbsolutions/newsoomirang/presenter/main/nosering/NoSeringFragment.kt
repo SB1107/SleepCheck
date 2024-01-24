@@ -60,9 +60,6 @@ class NoSeringFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activityViewModel.getService()?.let {
-        viewModel.setService(it)
-        }
         isPermission()
         setObservers()
         binding.motorCheckBox.setOnCheckedChangeListener{ _ , isChecked ->
