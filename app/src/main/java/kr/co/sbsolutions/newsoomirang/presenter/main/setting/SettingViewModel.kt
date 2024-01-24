@@ -37,7 +37,6 @@ class SettingViewModel @Inject constructor(
 
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
 
-        bluetoothInfo = info
 
     }
 

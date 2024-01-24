@@ -60,7 +60,9 @@ class NoSeringFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        activityViewModel.getService()?.let {
+        viewModel.setService(it)
+        }
         isPermission()
         setObservers()
         binding.motorCheckBox.setOnCheckedChangeListener{ _ , isChecked ->
@@ -126,15 +128,7 @@ class NoSeringFragment : Fragment() {
                         binding.actionResult.tvName.text = it
                     }
                 }
-                //액티비티 뷰모델 -> 프래그먼트 뷰모델로 데이터 전달
-                launch {
-                    activityViewModel.changeSBSensorInfo.collectLatest {
-                        viewModel.onChangeSBSensorInfo(it)
-                        activityViewModel.getService()?.let { service ->
-                            viewModel.setService(service)
-                        }
-                    }
-                }
+
                 launch {
                     activityViewModel.noSeringResults.collectLatest {
                         viewModel.noSeringResult()

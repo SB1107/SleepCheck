@@ -62,7 +62,6 @@ class SensorViewModel @Inject constructor(
 
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
         Log.d(TAG, "[SVM]: $info")
-        bluetoothInfo = info
         getName(info)
 
         if (info.bluetoothState == BluetoothState.Registered) {

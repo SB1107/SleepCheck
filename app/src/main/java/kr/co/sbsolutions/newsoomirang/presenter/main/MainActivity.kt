@@ -69,6 +69,7 @@ class MainActivity : BaseServiceActivity() {
 
     }
     fun getBroadcastData() {
+        Log.e("Adsf","getBroadcastData")
             viewModel.sendMeasurementResults()
 //            viewModel.addLastDataID(data.toInt())
         // viewModel.getDataIdResult(data.toInt())

@@ -142,7 +142,6 @@ class NoSeringViewModel  @Inject constructor(
     }
     override fun onChangeSBSensorInfo(info: BluetoothInfo) {
         super.onChangeSBSensorInfo(info)
-        bluetoothInfo = info
         viewModelScope.launch {
 
             launch {

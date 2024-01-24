@@ -4,12 +4,14 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
@@ -42,31 +44,30 @@ abstract class BaseServiceActivity : BaseActivity() {
     fun onServiceAvailable() {
 
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    service.get()?.let {
-                        it.sbSensorInfo.collectLatest { info ->
-                            if (info.bluetoothState == BluetoothState.Registered) {
-                                service.get()?.connectDevice(info)
-                            }else if(info.bluetoothState == BluetoothState.Connected.Finish){
-                                changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
-                            }
-                            changeServiceViewModel()?.onChangeSBSensorInfo(info)
+            launch {
+                service.get()?.let {
+                    it.sbSensorInfo.collectLatest { info ->
+                        if (info.bluetoothState == BluetoothState.Registered) {
+                            service.get()?.connectDevice(info)
+                        } else if (info.bluetoothState == BluetoothState.Connected.Finish) {
+                            changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
                         }
+                        Log.e("Aa","call33")
+                        ApplicationManager.setBluetoothInfo(info)
                     }
                 }
             }
             launch {
                 service.get()?.let {
                     it.spo2SensorInfo.collectLatest { info ->
-                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
+//                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
                     }
                 }
             }
             launch {
                 service.get()?.let {
                     it.eegSensorInfo.collectLatest { info ->
-                        changeServiceViewModel()?.onChangeEEGSensorInfo(info)
+//                        changeServiceViewModel()?.onChangeEEGSensorInfo(info)
                     }
                 }
             }
@@ -74,9 +75,9 @@ abstract class BaseServiceActivity : BaseActivity() {
     }
 
     private fun changeServiceViewModel(): BaseServiceViewModel? {
-        return if(getViewModel() is BaseServiceViewModel){
+        return if (getViewModel() is BaseServiceViewModel) {
             (getViewModel() as BaseServiceViewModel)
-        }else{
+        } else {
             null
         }
     }
@@ -86,6 +87,7 @@ abstract class BaseServiceActivity : BaseActivity() {
             service = WeakReference((binder as BLEService.LocalBinder).service)
             service.get()?.let {
                 changeServiceViewModel()?.setService(it)
+
             }
             onServiceAvailable()
         }

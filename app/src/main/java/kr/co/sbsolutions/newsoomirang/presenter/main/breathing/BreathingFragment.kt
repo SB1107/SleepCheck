@@ -33,7 +33,6 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class BreathingFragment : Fragment() {
-
     private val viewModel: BreathingViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
     private val binding: FragmentBreathingBinding by lazy {
@@ -55,6 +54,11 @@ class BreathingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
         setObservers()
+        activityViewModel.getService()?.let {
+            viewModel.setService(it)
+        }
+
+
 
         binding.startButton.setOnClickListener {
             viewModel.startClick()
@@ -69,6 +73,7 @@ class BreathingFragment : Fragment() {
         super.onResume()
         chartSetting()
         viewModel.sleepDataResult()
+        viewModel.setBatteryInfo()
     }
 
     private fun setObservers() {
@@ -81,15 +86,7 @@ class BreathingFragment : Fragment() {
                         binding.actionResult.tvName.text = it
                     }
                 }
-                //액티비티 뷰모델 -> 프래그먼트 뷰모델로 데이터 전달
-                launch {
-                    activityViewModel.changeSBSensorInfo.collectLatest {
-                        viewModel.onChangeSBSensorInfo(it)
-                        activityViewModel.getService()?.let { service ->
-                            viewModel.setService(service)
-                        }
-                    }
-                }
+
                 launch {
                     activityViewModel.breathingResults.collectLatest {
                         viewModel.sleepDataResult()
@@ -103,7 +100,7 @@ class BreathingFragment : Fragment() {
                 }
                 //배터리 상태
                 launch {
-                    viewModel.batteryState.collectLatest {
+                    activityViewModel.batteryState.collectLatest {
                         setBatteryInfo(it)
                     }
                 }
