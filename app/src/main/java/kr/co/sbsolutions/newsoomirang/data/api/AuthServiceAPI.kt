@@ -14,6 +14,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
@@ -47,7 +48,7 @@ interface AuthServiceAPI {
 
     //코골이 데이터 결과
     @GET("snoredata/result")
-    suspend fun snoreDataResult(): Response<SleepModel>
+    suspend fun getSnoreDataResult(): Response<ResponseBody>
 
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/detail")

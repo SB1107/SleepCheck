@@ -123,6 +123,15 @@ class NoSeringViewModel  @Inject constructor(
     fun setMotorCheckBox(isChecked : Boolean){
         this.motorCheckBok = isChecked
     }
+    fun noSeringResultData(){
+        viewModelScope.launch(Dispatchers.IO) {
+            request { authAPIRepository.getSleepDataResult() }
+                .collectLatest {
+                    Log.e("aa",it.toString())
+                }
+        }
+
+    }
     fun noSeringResult(results: List<Category?>?, inferenceTime: Long?){
         results?.forEach {value ->
             if (value?.index == 38) { // 코골이만 측정

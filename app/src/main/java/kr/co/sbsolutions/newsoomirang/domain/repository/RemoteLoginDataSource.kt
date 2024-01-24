@@ -13,6 +13,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import java.io.File
 
 interface RemoteLoginDataSource {
@@ -28,4 +29,5 @@ interface RemoteAuthDataSource{
      fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>>
      fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<RequestBody>>
 
+     fun getNoSeringDataResult() : Flow<ApiResponse<ResponseBody>>
 }

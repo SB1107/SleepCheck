@@ -16,6 +16,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import java.io.File
 import javax.inject.Inject
 
@@ -60,5 +61,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
 
     override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<RequestBody>>  = apiRequestFlow{
         api.postSleepDataDelete(sleepDataRemoveModel)
+    }
+    override fun getNoSeringDataResult(): Flow<ApiResponse<ResponseBody>>  = apiRequestFlow{
+        api.getSnoreDataResult()
     }
 }
