@@ -35,11 +35,6 @@ class SettingViewModel @Inject constructor(
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
 
-    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-
-
-    }
-
     fun logout() {
         viewModelScope.launch(Dispatchers.IO) {
             launch {

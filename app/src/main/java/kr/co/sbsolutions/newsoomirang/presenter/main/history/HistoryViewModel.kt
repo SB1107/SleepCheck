@@ -30,9 +30,7 @@ class HistoryViewModel @Inject constructor(
         getWeekSleepData()
     }
 
-    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-        Log.d(TAG, "[HVM] : $info ")
-    }
+
 
     private fun getWeekSleepData() {
         viewModelScope.launch(Dispatchers.IO) {

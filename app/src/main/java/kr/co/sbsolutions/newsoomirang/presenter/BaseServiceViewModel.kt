@@ -63,14 +63,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
         }
 
     }
-    open fun onChangeSBSensorInfo(info: BluetoothInfo){
-        viewModelScope.launch {
-            launch {
-                bluetoothInfo.batteryInfo?.let { _batteryState.emit(it) }
-                _canMeasurement.emit(ApplicationManager.getBluetoothInfo().canMeasurement)
-            }
-        }
-    }
+
 //    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
 //    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}
     fun setCommend(serviceCommend: ServiceCommend) {

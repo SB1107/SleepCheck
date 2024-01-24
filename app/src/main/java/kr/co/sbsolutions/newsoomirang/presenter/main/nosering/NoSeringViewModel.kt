@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -43,6 +44,19 @@ class NoSeringViewModel  @Inject constructor(
     private  var motorCheckBok : Boolean = true
     private  var type : Int = 2
 
+    init {
+        viewModelScope.launch {
+            launch {
+                ApplicationManager.getBluetoothInfoFlow().collectLatest {info ->
+                    if (info.bluetoothState == BluetoothState.Connected.End) {
+                        stopTimer()
+                    }
+                }
+
+            }
+        }
+
+    }
     fun startClick() {
         if(isRegistered()){
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
@@ -153,16 +167,5 @@ class NoSeringViewModel  @Inject constructor(
         }
 
     }
-    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-        super.onChangeSBSensorInfo(info)
-        viewModelScope.launch {
 
-            launch {
-                if (info.bluetoothState == BluetoothState.Connected.End) {
-                    stopTimer()
-                }
-            }
-        }
-
-    }
 }

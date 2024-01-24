@@ -15,8 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -59,15 +61,27 @@ class SensorViewModel @Inject constructor(
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
 
-
-    override fun onChangeSBSensorInfo(info: BluetoothInfo) {
-        Log.d(TAG, "[SVM]: $info")
-        getName(info)
-
-        if (info.bluetoothState == BluetoothState.Registered) {
-            changeStatus(info)
+init {
+    viewModelScope.launch{
+        launch {
+            getName(bluetoothInfo)
+            if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {
+                changeStatus(bluetoothInfo)
+            }
         }
+        launch {
+            ApplicationManager.getBluetoothInfoFlow().collectLatest {info ->
+                Log.d(TAG, "[SVM]: $info")
+                getName(info)
+
+                if (info.bluetoothState == BluetoothState.Registered) {
+                    changeStatus(info)
+                }
+            }
+        }
+
     }
+}
 
     private fun getName(info: BluetoothInfo) {
         viewModelScope.launch(Dispatchers.IO) {
