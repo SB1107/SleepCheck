@@ -51,6 +51,33 @@ class NoSeringViewModel @Inject constructor(
     val noSeringDataResult: SharedFlow<NoSeringDataResultModel> = _noSeringDataResultFlow
 
 
+    private val _motorCheckBox: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val motorCheckBox: SharedFlow<Boolean> = _motorCheckBox
+
+    private val _intensity: MutableSharedFlow<Int> = MutableSharedFlow()
+    val intensity: SharedFlow<Int> = _intensity
+
+
+    init {
+
+        viewModelScope.launch {
+
+            launch {
+                dataManager.getSnoringOnOff().first()?.let {
+                    _motorCheckBox.emit(it)
+                }
+            }
+
+            launch {
+                dataManager.getSnoringIntensity().first()?.let {
+                    _intensity.emit(it)
+                }
+            }
+
+
+        }
+
+    }
     fun startClick() {
         if (isRegistered()) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
@@ -146,17 +173,19 @@ class NoSeringViewModel @Inject constructor(
 
     fun setType(type: Int) {
         this.type = type
+        viewModelScope.launch {
+            dataManager.saveSnoringIntensity(type)
+        }
     }
 
-    fun callVibrationNotifications() {
-        if (!this.motorCheckBok) {
-            return
-        }
-        getService()?.callVibrationNotifications(type)
-    }
 
     fun setMotorCheckBox(isChecked: Boolean) {
         this.motorCheckBok = isChecked
+        viewModelScope.launch {
+            dataManager.saveSnoringOnOff(isChecked)
+            _motorCheckBox.emit(isChecked)
+        }
+
     }
 
     fun noSeringResultData() {

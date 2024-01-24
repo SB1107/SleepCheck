@@ -121,7 +121,15 @@ class BLEService : LifecycleService() {
     private val mBinder: IBinder = LocalBinder()
     override fun onCreate() {
         super.onCreate()
+        noseRingHelper.setCallVibrationNotifications {
+            lifecycleScope.launch {
+                val onOff = dataManager.getSnoringOnOff().first() ?: true
+                if (onOff) {
+                    callVibrationNotifications(dataManager.getSnoringIntensity().first() ?: 2)
+                }
 
+            }
+        }
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
         registerReceiver(mReceiver, mFilter)
 
@@ -441,10 +449,11 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+            dataManager.saveSleepType(sleepType.name)
         }
         startTimer()
         if (sleepType == SleepType.NoSering) {
-            stopAudioClassification()
+           audioHelper.startAudioClassification()
         }
     }
 
@@ -463,7 +472,7 @@ class BLEService : LifecycleService() {
 
     }
 
-    fun callVibrationNotifications(Intensity: Int) {
+    private fun callVibrationNotifications(Intensity: Int) {
         bluetoothNetworkRepository.callVibrationNotifications(Intensity)
     }
 

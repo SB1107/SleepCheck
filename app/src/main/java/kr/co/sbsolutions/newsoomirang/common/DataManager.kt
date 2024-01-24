@@ -15,10 +15,66 @@ class DataManager(private val context: Context) {
         private val APP_UPDATE_CHECK = stringPreferencesKey("app_update_check")
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
-
+        private val SNORING_ON_OFF = booleanPreferencesKey("snoring_on_off")
+        private val SNORING_VIBRATION_INTENSITY = intPreferencesKey("snoring_vibration_intensity")
+        private val SLEEP_TYPE = stringPreferencesKey("sleep_type")
         private const val ADDRESS = "_address"
         private const val NAME = "_name"
     }
+    suspend fun saveSleepType(type: String) {
+        context.dataStore.edit {preferences ->
+            preferences[SLEEP_TYPE] = type
+        }
+    }
+
+    fun getSleepType(): Flow<String?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[SLEEP_TYPE]
+        }
+    }
+
+    suspend fun deleteSleepType() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(SLEEP_TYPE)
+        }
+    }
+
+
+    suspend fun saveSnoringOnOff(onOff: Boolean) {
+        context.dataStore.edit {preferences ->
+            preferences[SNORING_ON_OFF] = onOff
+        }
+    }
+
+    fun getSnoringOnOff(): Flow<Boolean?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[SNORING_ON_OFF]
+        }
+    }
+
+    suspend fun deleteSnoringOnOff() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(SNORING_ON_OFF)
+        }
+    }
+    suspend fun saveSnoringIntensity(intensity: Int) {
+        context.dataStore.edit {preferences ->
+            preferences[SNORING_VIBRATION_INTENSITY] = intensity
+        }
+    }
+
+    fun getSnoringIntensity(): Flow<Int?> {
+        return context.dataStore.data.map { preferences ->
+            preferences[SNORING_VIBRATION_INTENSITY]
+        }
+    }
+
+    suspend fun deleteSnoringIntensity() {
+        context.dataStore.edit { preferences ->
+            preferences.remove(SNORING_VIBRATION_INTENSITY)
+        }
+    }
+
 
     suspend fun setDataId(dataId: Int) {
         context.dataStore.edit { preferences ->

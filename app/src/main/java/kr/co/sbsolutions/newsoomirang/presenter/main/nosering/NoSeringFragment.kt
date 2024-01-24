@@ -176,6 +176,24 @@ class NoSeringFragment : Fragment() {
                         })
                     }
                 }
+                launch {
+                    viewModel.motorCheckBox.collectLatest {
+                        binding.motorCheckBox.isChecked = it
+                        binding.type0Chip.isEnabled = it
+                        binding.type1Chip.isEnabled = it
+                        binding.type2Chip.isEnabled = it
+                    }
+                }
+
+                launch {
+                    viewModel.intensity.collectLatest {
+                        when(it){
+                            0 -> {binding.type0Chip.performClick()}
+                            1 -> {binding.type1Chip.performClick()}
+                            2 -> {binding.type2Chip.performClick()}
+                        }
+                    }
+                }
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {
