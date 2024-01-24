@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.domain.repository
 
 import kotlinx.coroutines.flow.Flow
+import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
@@ -28,6 +29,5 @@ interface RemoteAuthDataSource{
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
      fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>>
      fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<RequestBody>>
-
-     fun getNoSeringDataResult() : Flow<ApiResponse<ResponseBody>>
+     fun getNoSeringDataResult() : Flow<ApiResponse<NoSeringResultEntity>>
 }

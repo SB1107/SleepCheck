@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
@@ -25,8 +26,10 @@ class MainViewModel @Inject constructor(private  val dataManager: DataManager, p
     fun  sendMeasurementResults(){
         viewModelScope.launch {
                 if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
+                    Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
                     _breathingResults.emit(0)
                 }else{
+                    Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
                     _noSeringResults.emit(0)
                 }
         }

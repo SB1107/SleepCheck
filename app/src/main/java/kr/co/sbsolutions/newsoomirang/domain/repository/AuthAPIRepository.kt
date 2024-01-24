@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
+import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
@@ -33,15 +34,15 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postSleepDataCreate(createModel = sleepCreateModel)
     }
 
-    override fun postUploading(file: File, dataId: Int, sleepType: SleepType, snoreTime: Long): Flow<ApiResponse<UploadingEntity>>  = apiRequestFlow {
+    override fun postUploading(file: File, dataId: Int, sleepType: SleepType, snoreTime: Long): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
         val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
         val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
         val appKind = MultipartBody.Part.createFormData("app_kind", "C")
         val list = if (sleepType == SleepType.Breathing) {
             arrayListOf(body, dataId, appKind)
-        }else {
-            val snoreTime  =  MultipartBody.Part.createFormData("snore_time", "$snoreTime")
-            arrayListOf(body, dataId, appKind,snoreTime)
+        } else {
+            val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
+            arrayListOf(body, dataId, appKind, snoreTime)
         }
 
         api.postUploading(list)
@@ -55,14 +56,16 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun getSleepDataResult(): Flow<ApiResponse<SleepResultEntity>> = apiRequestFlow {
         api.getSleepDataResult()
     }
+
     override fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
         api.sleepDataDetail(sleepModel)
     }
 
-    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<RequestBody>>  = apiRequestFlow{
+    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<RequestBody>> = apiRequestFlow {
         api.postSleepDataDelete(sleepDataRemoveModel)
     }
-    override fun getNoSeringDataResult(): Flow<ApiResponse<ResponseBody>>  = apiRequestFlow{
+
+    override fun getNoSeringDataResult(): Flow<ApiResponse<NoSeringResultEntity>> = apiRequestFlow {
         api.getSnoreDataResult()
     }
 }

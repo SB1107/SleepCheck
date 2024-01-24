@@ -60,7 +60,7 @@ class NoSeringFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.noSeringResultData()
+        viewModel.noSeringResult()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -169,11 +169,12 @@ class NoSeringFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.sleepDataResultFlow.collectLatest {
+                    viewModel.noSeringDataResult.collectLatest {
                         binding.actionResult.resultDateTextView.text = it.endDate
                         binding.actionResult.resultTotalTextView.text = it.resultTotal
 //                        binding.actionResult.resultRealTextView.text = it.resultReal
 //                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
+                        binding.actionResult.snoreTimeTextView.text = it.resultReal
                         binding.actionResult.resultDurationTextView.text = it.duration
                     }
                 }

@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.data.api
 
+import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
@@ -48,7 +49,7 @@ interface AuthServiceAPI {
 
     //코골이 데이터 결과
     @GET("snoredata/result")
-    suspend fun getSnoreDataResult(): Response<ResponseBody>
+    suspend fun getSnoreDataResult(): Response<NoSeringResultEntity>
 
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/detail")
