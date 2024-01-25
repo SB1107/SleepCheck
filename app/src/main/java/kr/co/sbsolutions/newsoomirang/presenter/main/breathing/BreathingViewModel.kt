@@ -58,15 +58,6 @@ class BreathingViewModel @Inject constructor(
                     }
                 }
             }
-            launch {
-                viewModelScope.launch(Dispatchers.IO) {
-                    getService()?.timeHelper?.measuringTimer?.collectLatest {
-                        if (bluetoothInfo.sleepType == SleepType.Breathing) {
-                            _measuringTimer.emit(it)
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -173,6 +164,15 @@ class BreathingViewModel @Inject constructor(
         return SleepType.Breathing.name
     }
 
+    override fun serviceSettingCall() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getService()?.timeHelper?.measuringTimer?.collectLatest {
+                if (bluetoothInfo.sleepType == SleepType.Breathing) {
+                    _measuringTimer.emit(it)
+                }
+            }
+        }
+    }
 }
 
 enum class MeasuringState {

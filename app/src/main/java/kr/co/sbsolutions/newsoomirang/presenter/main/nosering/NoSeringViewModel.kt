@@ -27,6 +27,7 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -34,7 +35,8 @@ import javax.inject.Inject
 class NoSeringViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
-    private val authAPIRepository: RemoteAuthDataSource
+    private val authAPIRepository: RemoteAuthDataSource,
+    private val settingDataRepository: SettingDataRepository
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _showMeasurementCancelAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
@@ -60,26 +62,17 @@ class NoSeringViewModel @Inject constructor(
 
     init {
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
 
             launch {
-                dataManager.getSnoringOnOff().first()?.let {
+                settingDataRepository.getSnoringOnOff().let {
                     _motorCheckBox.emit(it)
                 }
             }
 
             launch {
-                dataManager.getSnoringIntensity().first()?.let {
+                settingDataRepository.getSnoringVibrationIntensity().let {
                     _intensity.emit(it)
-                }
-            }
-            launch {
-                viewModelScope.launch {
-                    getService()?.timeHelper?.measuringTimer?.collectLatest {
-                        if (bluetoothInfo.sleepType == SleepType.NoSering) {
-                            _measuringTimer.emit(it)
-                        }
-                    }
                 }
             }
 
@@ -191,16 +184,16 @@ class NoSeringViewModel @Inject constructor(
 
     fun setType(type: Int) {
         this.type = type
-        viewModelScope.launch {
-            dataManager.saveSnoringIntensity(type)
+        viewModelScope.launch(Dispatchers.IO) {
+            settingDataRepository.setSnoringVibrationIntensity(type)
         }
     }
 
 
     fun setMotorCheckBox(isChecked: Boolean) {
         this.motorCheckBok = isChecked
-        viewModelScope.launch {
-            dataManager.saveSnoringOnOff(isChecked)
+        viewModelScope.launch(Dispatchers.IO) {
+            settingDataRepository.setSnoringOnOff(isChecked)
             _motorCheckBox.emit(isChecked)
         }
 
@@ -222,4 +215,13 @@ class NoSeringViewModel @Inject constructor(
         return  SleepType.NoSering.name
     }
 
+    override fun serviceSettingCall() {
+        viewModelScope.launch {
+                getService()?.timeHelper?.measuringTimer?.collectLatest {
+                    if (bluetoothInfo.sleepType == SleepType.NoSering) {
+                    _measuringTimer.emit(it)
+                }
+            }
+        }
+    }
 }

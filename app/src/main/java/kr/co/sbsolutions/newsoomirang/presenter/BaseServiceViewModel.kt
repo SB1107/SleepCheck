@@ -17,6 +17,7 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import java.lang.ref.WeakReference
 
 abstract class BaseServiceViewModel(private val dataManager: DataManager , private  val tokenManager: TokenManager) : BaseViewModel(dataManager,tokenManager) {
+    private lateinit var service: WeakReference<BLEService>
     private val _serviceCommend: MutableSharedFlow<ServiceCommend> = MutableSharedFlow()
     val serviceCommend: SharedFlow<ServiceCommend> = _serviceCommend
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
@@ -40,17 +41,17 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
                     setBatteryInfo()
                 }
             }
-//            launch {
-//                service = ApplicationManager.getService().value
-//                serviceSettingCall()
-//                ApplicationManager.getService().collect {
-//                    service = it
-//                    serviceSettingCall()
-//                }
-//            }
+            launch {
+                service = ApplicationManager.getService().value
+                serviceSettingCall()
+                ApplicationManager.getService().collect {
+                    service = it
+                    serviceSettingCall()
+                }
+            }
         }
     }
-//    open fun serviceSettingCall(){}
+    open fun serviceSettingCall(){}
     fun setBatteryInfo(){
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
@@ -87,7 +88,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
     }
 
     fun getService(): BLEService? {
-       return BLEService.getInstance()
+        return if (::service.isInitialized) {
+            this.service.get()
+        } else {
+            null
+        }
     }
 
 }

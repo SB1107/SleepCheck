@@ -30,6 +30,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.LogData
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -39,7 +40,7 @@ import javax.inject.Inject
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
-    private val sbSensorDBRepository: SBSensorDBRepository,
+    private val settingDataRepository: SettingDataRepository,
     private val logDBDataRepository: LogDBDataRepository
 ) : IBluetoothNetworkRepository {
     private val strBuilder = StringBuilder()
@@ -648,13 +649,12 @@ class BluetoothNetworkRepository @Inject constructor(
                             BluetoothState.Connected.Init -> {
                                 coroutine.launch {
                                     launch {
-                                        dataManager.getSleepType().first()?.let {
+                                        settingDataRepository.getSleepType().let {
                                             when (it) {
                                                 SleepType.NoSering.name -> {
                                                     writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
                                                     Log.d(TAG, "DataFlow: 코골이 종료 ")
                                                 }
-
                                                 else -> {
                                                     writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                                     Log.d(TAG, "DataFlow: 호흡 종료 ")

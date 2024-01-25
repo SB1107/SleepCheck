@@ -29,15 +29,15 @@ import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
-import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import org.tensorflow.lite.support.label.Category
 import java.io.File
 import java.io.FileWriter
@@ -65,10 +65,6 @@ class BLEService : LifecycleService() {
         const val TIME_OUT_NOTIFICATION_ID = 1002
         private const val INTERVAL_UPLOAD_TIME = 15L
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
-        private  var instance :BLEService? = null
-        fun getInstance() : BLEService?{
-            return  instance
-        }
 
     }
 
@@ -115,7 +111,7 @@ class BLEService : LifecycleService() {
     lateinit var sbSensorDBRepository: SBSensorDBRepository
 
     @Inject
-    lateinit var logDBDataRepository: LogDBDataRepository
+    lateinit var settingDataRepository: SettingDataRepository
 
     @Inject
     lateinit var timeHelper: TimeHelper
@@ -124,17 +120,15 @@ class BLEService : LifecycleService() {
 
     private val mBinder: IBinder = LocalBinder()
     override fun onCreate() {
-        
         super.onCreate()
-        BLEService.instance = this
-
         Log.d(TAG, "onCreate: 호출호출~~~~~~~~~₩")
 
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch {
-                val onOff = dataManager.getSnoringOnOff().first() ?: true
+
+                val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
-                    callVibrationNotifications(dataManager.getSnoringIntensity().first() ?: 2)
+                    callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
                 }
 
             }
@@ -458,7 +452,7 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
-            dataManager.saveSleepType(sleepType.name)
+            settingDataRepository.setSleepType(sleepType)
         }
         startTimer()
         if (sleepType == SleepType.NoSering) {
@@ -633,7 +627,8 @@ class BLEService : LifecycleService() {
 
 
     inner class LocalBinder : Binder() {
-        fun getService(): BLEService = this@BLEService
+        val service: BLEService
+            get() = this@BLEService
     }
 
     private var mJob: Job? = null

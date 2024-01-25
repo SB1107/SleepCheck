@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDao
 import javax.inject.Singleton
 
 @Module
@@ -19,11 +20,12 @@ object  ApplicationModule {
 
     @Provides
     fun provideLogDataDao(db : SBSensorDataBase) = db.logDataDao()
-    @Singleton
     @Provides
     fun provideSBSensorDAO(sbSensorDatabase: SBSensorDataBase) : SBSensorDataDao = sbSensorDatabase.sbSensorDAO()
 
-    @Singleton
+    @Provides
+    fun provideSettingDAO(db: SBSensorDataBase) : SettingDao = db.settingDao()
+
     @Provides
     fun provideBluetoothAdapter(@ApplicationContext context: Context) = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
 
