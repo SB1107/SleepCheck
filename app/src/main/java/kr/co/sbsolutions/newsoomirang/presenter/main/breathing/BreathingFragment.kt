@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -287,8 +288,12 @@ class BreathingFragment : Fragment() {
     private fun showChargingDialog() {
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-                viewModel.sleepDataCreate().apply {
-                    activityViewModel.setCommend(ServiceCommend.START)
+                lifecycleScope.launch {
+                    viewModel.sleepDataCreate().collect{
+                        if (it) {
+                            activityViewModel.setCommend(ServiceCommend.START)
+                        }
+                    }
                 }
             }
         }).show(requireActivity().supportFragmentManager, "")

@@ -1,10 +1,15 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -106,19 +111,25 @@ class BreathingViewModel @Inject constructor(
         }
     }
 
-    fun sleepDataCreate() {
+    fun sleepDataCreate() : Flow<Boolean>  = callbackFlow{
         viewModelScope.launch(Dispatchers.IO) {
-
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
+                    .catch {
+                        trySend(false)
+                        close()
+                    }
                     .collectLatest {
                         it.result?.id?.let { id ->
                             getService()?.startSBSensor(id, SleepType.Breathing)
                             setMeasuringState(MeasuringState.FiveRecode)
+                            trySend(true)
+                            close()
                         }
                     }
             }
         }
+        awaitClose()
     }
 
     fun sleepDataResult() {

@@ -252,8 +252,12 @@ class NoSeringFragment : Fragment() {
     private fun showChargingDialog() {
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-                viewModel.sleepDataCreate().apply {
-                    activityViewModel.setCommend(ServiceCommend.START)
+                lifecycleScope.launch {
+                    viewModel.sleepDataCreate().collectLatest {
+                        if (it) {
+                            activityViewModel.setCommend(ServiceCommend.START)
+                        }
+                    }
                 }
             }
         }).show(requireActivity().supportFragmentManager, "")

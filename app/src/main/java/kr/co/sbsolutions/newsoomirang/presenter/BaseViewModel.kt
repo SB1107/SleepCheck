@@ -46,46 +46,47 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         if (!ApplicationManager.getNetworkCheck()) {
             viewModelScope.launch {
                 _errorMessage.emit("네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요")
+                cancel("네트워크 오류")
             }
-        }
-        mJob = viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, error ->
-            viewModelScope.launch(Dispatchers.Main) {
-                _errorMessage.emit(error.localizedMessage ?: "Error occured! Please try again.")
-            }
-        }) {
-            request().collect {
-                when (it) {
-                    is ApiResponse.Failure -> {
-                        _isProgressBar.emit(false)
-                        _errorMessage.emit(it.errorCode.msg)
-
-                    }
-
-                    ApiResponse.Loading -> {
-                        _isProgressBar.emit(true)
-                    }
-
-                    ApiResponse.ReAuthorize -> {
-                        _isProgressBar.emit(false)
-                        if (::reAuthorizeCallBack.isInitialized) {
-                            reAuthorizeCallBack.reLogin()
-                            viewModelScope.launch(Dispatchers.IO) {
-                                tokenManager.deleteToken()
-                                dataManager.deleteUserName()
-                                dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
-                            }
+        }else{
+            mJob = viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, error ->
+                viewModelScope.launch(Dispatchers.Main) {
+                    _errorMessage.emit(error.localizedMessage ?: "Error occured! Please try again.")
+                }
+            }) {
+                request().collect {
+                    when (it) {
+                        is ApiResponse.Failure -> {
+                            _isProgressBar.emit(false)
+                            _errorMessage.emit(it.errorCode.msg)
 
                         }
-                    }
+                        ApiResponse.Loading -> {
+                            _isProgressBar.emit(true)
+                        }
+                        ApiResponse.ReAuthorize -> {
+                            _isProgressBar.emit(false)
+                            if (::reAuthorizeCallBack.isInitialized) {
+                                reAuthorizeCallBack.reLogin()
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    tokenManager.deleteToken()
+                                    dataManager.deleteUserName()
+                                    dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
+                                }
 
-                    is ApiResponse.Success -> {
-                        _isProgressBar.emit(false)
-                        trySend(it.data)
-                        cancel()
+                            }
+                        }
+
+                        is ApiResponse.Success -> {
+                            _isProgressBar.emit(false)
+                            trySend(it.data)
+                            cancel()
+                        }
                     }
                 }
             }
         }
+
         awaitClose()
     }
 
