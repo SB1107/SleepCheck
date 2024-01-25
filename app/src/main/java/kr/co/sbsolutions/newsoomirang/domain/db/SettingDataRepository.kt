@@ -11,9 +11,7 @@ class SettingDataRepository @Inject constructor(private val dao: SettingDao) {
 
     suspend fun setSleepType(sleepType: SleepType) {
         var data: SettingData? = dao.getSettingData()
-        if (data == null) {
-            data = SettingData().copy(sleepType = sleepType.name)
-        }
+        data = data?.copy(sleepType = sleepType.name) ?: SettingData().copy(sleepType = sleepType.name)
         insertSettingData(data)
     }
 
@@ -27,17 +25,13 @@ class SettingDataRepository @Inject constructor(private val dao: SettingDao) {
 
     suspend fun setSnoringOnOff(value: Boolean) {
         var data: SettingData? = dao.getSettingData()
-        if (data == null) {
-            data = SettingData().copy(snoringOnOff = value)
-        }
+        data = data?.copy(snoringOnOff = value) ?: SettingData().copy(snoringOnOff = value)
         insertSettingData(data)
     }
 
-    suspend fun setSnoringVibrationIntensity(Intensity: Int) {
+    suspend fun setSnoringVibrationIntensity(intensity: Int) {
         var data: SettingData? = dao.getSettingData()
-        if (data == null) {
-            data = SettingData().copy(snoringVibrationIntensity = Intensity)
-        }
+        data = data?.copy(snoringVibrationIntensity = intensity) ?: SettingData().copy(snoringVibrationIntensity = intensity)
         insertSettingData(data)
     }
 
