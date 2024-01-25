@@ -55,14 +55,11 @@ class BreathingViewModel @Inject constructor(
                     if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                         info.currentData.collectLatest {
                             _capacitanceFlow.emit(it)
-
                         }
                     }
                 }
             }
-
         }
-
     }
 
     fun startClick() {

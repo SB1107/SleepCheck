@@ -178,6 +178,7 @@ class NoSeringFragment : Fragment() {
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title,"측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?",confirmAction ={
+                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0 ,0)
                             viewModel.cancelClick()
                         })
                     }

@@ -19,10 +19,6 @@ import java.time.YearMonth
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
-    /*
-        companion object {
-            fun newInstance() = HistoryFragment()
-        }*/
 
     private val viewModel: HistoryViewModel by viewModels()
     private val binding: FragmentHistoryBinding by lazy {
@@ -31,19 +27,12 @@ class HistoryFragment : Fragment() {
 
     private var mSelectedDate: LocalDate? = null
 
-
-    //--------------------------------------------------------------------------------------------
-    // MARK : Bind Area
-    //--------------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------------
-    // MARK : Local variables
-    //--------------------------------------------------------------------------------------------
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_history, container, false)
+    ): View {
+        return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,12 +41,6 @@ class HistoryFragment : Fragment() {
         bindViews()
 
     }
-
-    /*override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(HistoryViewModel::class.java)
-        // TODO: Use the ViewModel
-    }*/
 
     private fun bindViews() {
 

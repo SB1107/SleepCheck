@@ -55,7 +55,9 @@ fun sendErrorMessage(message: String){
         }else{
             mJob = viewModelScope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, error ->
                 viewModelScope.launch(Dispatchers.Main) {
-                    _errorMessage.emit(error.localizedMessage ?: "Error occured! Please try again.")
+                    if(error.message != "Unable to create instance of class okhttp3.RequestBody. Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args constructor may fix this problem."){
+                        _errorMessage.emit(error.localizedMessage ?: "Error occured! Please try again.")
+                    }
                 }
             }) {
                 request().collect {
