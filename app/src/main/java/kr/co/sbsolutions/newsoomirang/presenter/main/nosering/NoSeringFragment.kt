@@ -21,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
 import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
@@ -117,6 +118,11 @@ class NoSeringFragment : Fragment() {
                     viewModel.userName.collectLatest {
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
+                    }
+                }
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
 

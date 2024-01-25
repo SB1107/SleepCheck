@@ -4,6 +4,10 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.LinkProperties
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Job
@@ -12,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
 import java.lang.ref.WeakReference
@@ -22,6 +27,8 @@ class ApplicationManager : Application() {
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
     private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
     private  val service : StateFlow<WeakReference<BLEService>> = _service
+    private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private  val networkCheck : StateFlow<Boolean> = _networkCheck
     init {
         instance = this
     }
@@ -46,11 +53,35 @@ class ApplicationManager : Application() {
         fun getService() :  StateFlow<WeakReference<BLEService>>{
             return instance.service
         }
+        fun getNetworkCheck() : Boolean {
+            return instance.networkCheck.value
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        NetworkUtil.registerNetworkCallback(getSystemService(ConnectivityManager::class.java), networkCallback)
+    }
+    // 네트워크 체크를 위한 Callback 함수
+    private val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+//            logger.system.info("${NetworkUtil.getTransportName(getSystemService(ConnectivityManager::class.java))} network is available.")
+            _networkCheck.tryEmit(true)
+        }
+
+        override fun onLost(network: Network) {
+//            logger.system.info("Network is lost.")
+            _networkCheck.tryEmit(false)
+        }
+
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+            // logger.system.info("Default Network Capabilities has changed...")
+        }
+
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+            // logger.system.info("Default Network LinkProperties has changed...")
+        }
     }
 
     private fun createNotificationChannel() {
