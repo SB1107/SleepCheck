@@ -12,7 +12,6 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -53,39 +52,39 @@ class SensorViewModel @Inject constructor(
     private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
     val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
 
-    private val _bleName: MutableSharedFlow<String> = MutableSharedFlow(extraBufferCapacity = 1)
-    val bleName: SharedFlow<String> = _bleName
+    private val _bleName: MutableSharedFlow<String?> = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
+    val bleName: SharedFlow<String?> = _bleName
 
-    private val _disconected = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
 
-init {
-    viewModelScope.launch{
-        launch {
-            getName(bluetoothInfo)
-            if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {
-                changeStatus(bluetoothInfo)
-            }
-        }
-        launch {
-            ApplicationManager.getBluetoothInfoFlow().collectLatest {info ->
-                Log.d(TAG, "[SVM]: $info")
-                getName(info)
-
-                if (info.bluetoothState == BluetoothState.Registered) {
-                    changeStatus(info)
+    init {
+        viewModelScope.launch {
+            launch {
+                getName()
+                if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {
+                    changeStatus(bluetoothInfo)
                 }
             }
+            launch {
+                ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
+                    Log.d(TAG, "[SVM]: $info")
+                    getName()
+
+                    if (info.bluetoothState == BluetoothState.Registered) {
+                        changeStatus(info)
+                    }
+                }
+            }
+
         }
-
     }
-}
 
-    private fun getName(info: BluetoothInfo) {
+    private fun getName() {
         viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getBluetoothDeviceName(info.sbBluetoothDevice.type.name).first()?.let {
+            dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()?.let {
                 _bleName.emit(it)
 //                Log.d(TAG, "디바이스 이름: $it")
             }
@@ -110,7 +109,7 @@ init {
         Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
 
         viewModelScope.launch(Dispatchers.IO) {
-            _disconected.emit(dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name))
+            _disconnected.emit(dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name))
             getService()?.disconnectDevice(bluetoothInfo)
         }
 
@@ -149,7 +148,7 @@ init {
 
     }
 
-     private fun startTimer() {
+    private fun startTimer() {
         stopTimer()
 
         _isScanning.tryEmit(true)
