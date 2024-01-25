@@ -2,12 +2,16 @@ package kr.co.sbsolutions.newsoomirang.presenter.sensor
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,14 +19,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
-import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -68,11 +70,15 @@ class SensorActivity : BaseServiceActivity() {
         }
     }
 
+    private lateinit var bluetoothActivityResultLauncher: ActivityResultLauncher<Intent>
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         bindViews()
+        onBluetoothActive()
     }
 
     private fun bindViews() {
@@ -99,6 +105,7 @@ class SensorActivity : BaseServiceActivity() {
         with(viewModel) {
             lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
                     launch {
                         viewModel.bleName.collectLatest { bleName ->
                             Log.d(TAG, "bindViews: $bleName")
@@ -147,4 +154,23 @@ class SensorActivity : BaseServiceActivity() {
             }
         }
     }
+
+    private fun onBluetoothActive() {
+        bluetoothActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // 사용자가 블루투스를 활성화했을 때의 처리
+
+            } else {
+                // 사용자가 블루투스를 활성화하지 않았을 때의 처리
+                finish()
+            }
+        }
+        requestBluetoothActivation()
+    }
+
+    private fun requestBluetoothActivation() {
+        val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+        bluetoothActivityResultLauncher.launch(enableBluetoothIntent)
+    }
+
 }

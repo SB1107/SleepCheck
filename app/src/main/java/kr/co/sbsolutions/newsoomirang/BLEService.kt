@@ -210,7 +210,7 @@ class BLEService : LifecycleService() {
             }
             gatt.disconnect()
             gatt.close()
-            bluetoothNetworkRepository.disconnectedDevice(bluetoothInfo.sbBluetoothDevice)
+            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
         }
 
         bluetoothInfo.dataId = null
