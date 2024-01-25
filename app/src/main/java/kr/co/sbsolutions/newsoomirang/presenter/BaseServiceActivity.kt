@@ -52,7 +52,6 @@ abstract class BaseServiceActivity : BaseActivity() {
                         } else if (info.bluetoothState == BluetoothState.Connected.Finish) {
                             changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
                         }
-                        Log.e("Aa","call33")
                         ApplicationManager.setBluetoothInfo(info)
                     }
                 }

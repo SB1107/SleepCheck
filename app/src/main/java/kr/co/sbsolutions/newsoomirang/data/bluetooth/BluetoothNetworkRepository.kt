@@ -5,6 +5,7 @@ import android.bluetooth.*
 import android.os.Build
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -54,7 +55,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private val strBuilder = StringBuilder()
 
     private val logCoroutine = CoroutineScope(Dispatchers.IO)
-
+    private val ff = FirebaseFirestore.getInstance()
     private val timeID = SimpleDateFormat("yy-MM-dd HH:mm:ss.S", Locale.getDefault()).format(System.currentTimeMillis())
 
     private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
@@ -643,12 +644,6 @@ class BluetoothNetworkRepository @Inject constructor(
                             BluetoothState.Connected.Init -> {
                                 coroutine.launch {
                                     launch {
-                                        info.currentData.collect {
-                                            Log.d(TAG, "readData: $it")
-                                        }
-                                    }
-
-                                    launch {
                                         dataManager.getSleepType().first()?.let {
                                             when (it) {
                                                 SleepType.NoSering.name -> {
@@ -977,6 +972,12 @@ class BluetoothNetworkRepository @Inject constructor(
     private fun LogData.log() {
         logCoroutine.launch {
             logDBDataRepository.insertLogData(this@log)
+            dataManager.getUserName().first()?.let {name ->
+                val logCollection = ff.collection("B2C").document(name).collection(timeID)
+                val logDocument = logCollection.document("${this@log.time} - ${this@log.log}")
+
+                logDocument.set(hashMapOf<Void, Void>())
+            }
         }
     }
 }

@@ -83,10 +83,11 @@ class NoSeringViewModel @Inject constructor(
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
-            )
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd)
                 viewModelScope.launch {
                     _showMeasurementAlert.emit(true)
+                }else if(bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
+                    sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
                 }
         }
     }

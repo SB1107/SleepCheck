@@ -75,8 +75,8 @@ class BreathingViewModel @Inject constructor(
                 viewModelScope.launch {
                     _showMeasurementAlert.emit(true)
                 }
-            } else {
-
+            } else if(bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
+                sendErrorMessage("코걸이 측정중 입니다. 종료후 사용해 주세요")
             }
         }
     }

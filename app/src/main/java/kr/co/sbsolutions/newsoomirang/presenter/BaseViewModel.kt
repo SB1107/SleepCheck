@@ -32,7 +32,11 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
             }
         }
     }
-
+fun sendErrorMessage(message: String){
+    viewModelScope.launch {
+        _errorMessage.emit(message)
+    }
+}
     fun setReAuthorizeCallBack(reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack) {
         this.reAuthorizeCallBack = reAuthorizeCallBack
     }
