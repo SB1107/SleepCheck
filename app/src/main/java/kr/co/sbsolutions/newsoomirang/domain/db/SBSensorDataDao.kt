@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.domain.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +11,7 @@ import kr.co.sbsolutions.soomirang.db.SBSensorData
 
 @Dao
 interface SBSensorDataDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSensorData(sbSensorData: SBSensorData): Long
 
     @Query("DELETE FROM SLEEP_DATA")
