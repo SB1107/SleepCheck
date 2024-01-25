@@ -1,11 +1,8 @@
-package kr.co.sbsolutions.withsoom.domain.bluetooth.entity
+package kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity
 
 import android.bluetooth.BluetoothGatt
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 

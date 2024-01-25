@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 
 
 open class BaseViewModel(private val dataManager: DataManager, private val tokenManager: TokenManager) : ViewModel() {

@@ -21,15 +21,16 @@ import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 
 abstract class BaseServiceActivity : BaseActivity() {
-    private lateinit var service: WeakReference<BLEService>
+    private lateinit var service: BLEService
     private lateinit var bluetoothActivityResultLauncher: ActivityResultLauncher<Intent>
 
     @Inject
@@ -37,10 +38,8 @@ abstract class BaseServiceActivity : BaseActivity() {
     private  var bind : Boolean  = false
     override fun onStart() {
         super.onStart()
-        if (ApplicationManager.getService().value.get() == null) {
+        if (BLEService.getInstance() == null) {
             bindService(Intent(this, BLEService::class.java), serviceConnection, BIND_AUTO_CREATE)
-        } else {
-            service = ApplicationManager.getService().value
         }
 
     }
@@ -77,7 +76,7 @@ abstract class BaseServiceActivity : BaseActivity() {
         Intent(this, BLEService::class.java).apply {
             action = am.msg
             dataId?.let { putExtra(DATA_ID, it) }
-            ApplicationManager.getService().value.get()?.startForegroundService(this)
+            BLEService.getInstance()?.startForegroundService(this)
         }
     }
 
@@ -85,10 +84,11 @@ abstract class BaseServiceActivity : BaseActivity() {
     fun onServiceAvailable() {
         lifecycleScope.launch {
             launch {
-                service.get()?.let {
+                service.let {
                     it.sbSensorInfo.collectLatest { info ->
                         if (info.bluetoothState == BluetoothState.Registered) {
-                            service.get()?.connectDevice(info)
+                            Log.d(Cons.TAG, "onServiceAvailable: !!!!!!!!!!!!!!!!!!!")
+                            service.connectDevice(info)
                         } else if (info.bluetoothState == BluetoothState.Connected.Finish) {
                             changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
                         }
@@ -97,14 +97,14 @@ abstract class BaseServiceActivity : BaseActivity() {
                 }
             }
             launch {
-                service.get()?.let {
+                service.let {
                     it.spo2SensorInfo.collectLatest { info ->
-//                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
+            //                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
                     }
                 }
             }
             launch {
-                service.get()?.let {
+                service?.let {
                     it.eegSensorInfo.collectLatest { info ->
 //                        changeServiceViewModel()?.onChangeEEGSensorInfo(info)
                     }
@@ -123,14 +123,14 @@ abstract class BaseServiceActivity : BaseActivity() {
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            service = WeakReference((binder as BLEService.LocalBinder).getService())
-            ApplicationManager.setService(service)
+            service = BLEService.getInstance()!!
+//            ApplicationManager.setService(WeakReference(service))
             onServiceAvailable()
             bind = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            ApplicationManager.serviceClear()
+//            ApplicationManager.serviceClear()
             bind = false
         }
     }

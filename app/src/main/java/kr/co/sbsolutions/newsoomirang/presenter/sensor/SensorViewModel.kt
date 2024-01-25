@@ -21,12 +21,12 @@ import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.domain.bluetooth.usecase.BluetoothManageUseCase
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -52,7 +52,7 @@ class SensorViewModel @Inject constructor(
     private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
     val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
 
-    private val _bleName: MutableSharedFlow<String?> = MutableSharedFlow(replay = 1, extraBufferCapacity = 1)
+    private val _bleName: MutableSharedFlow<String?> = MutableSharedFlow(extraBufferCapacity = 1)
     val bleName: SharedFlow<String?> = _bleName
 
     private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)

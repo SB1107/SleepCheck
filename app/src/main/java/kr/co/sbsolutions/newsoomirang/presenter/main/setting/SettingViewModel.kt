@@ -15,8 +15,8 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.withsoom.domain.bluetooth.usecase.BluetoothManageUseCase
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel

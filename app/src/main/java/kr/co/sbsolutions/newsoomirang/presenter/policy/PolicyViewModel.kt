@@ -15,7 +15,7 @@ import kr.co.sbsolutions.newsoomirang.common.booleanToInt
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel

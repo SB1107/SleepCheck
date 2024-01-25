@@ -1,7 +1,7 @@
-package kr.co.sbsolutions.withsoom.domain.bluetooth.usecase
+package kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase
 
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Inject
 
 class BluetoothManageUseCase @Inject constructor(private val bluetoothManageRepository: IBluetoothManageRepository){

@@ -10,23 +10,20 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import java.lang.ref.WeakReference
 
 @HiltAndroidApp
 class ApplicationManager : Application() {
     private val _bluetoothInfoFlow: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
-    private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
-    private  val service : StateFlow<WeakReference<BLEService>> = _service
+//    private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
+//    private  val service : StateFlow<WeakReference<BLEService>> = _service
     private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
     init {
@@ -44,15 +41,15 @@ class ApplicationManager : Application() {
         fun setBluetoothInfo(info: BluetoothInfo) {
             instance._bluetoothInfoFlow.tryEmit(info)
         }
-        fun setService(service : WeakReference<BLEService>){
-            instance._service.tryEmit(service)
-        }
-        fun serviceClear(){
-            instance._service.value.clear()
-        }
-        fun getService() :  StateFlow<WeakReference<BLEService>>{
-            return instance.service
-        }
+//        fun setService(service : WeakReference<BLEService>){
+//            instance._service.tryEmit(service)
+//        }
+//        fun serviceClear(){
+//            instance._service.value.clear()
+//        }
+//        fun getService() :  StateFlow<WeakReference<BLEService>>{
+//            return StateFlow<WeakReference<BLEService>>()
+//        }
         fun getNetworkCheck() : Boolean {
             return instance.networkCheck.value
         }

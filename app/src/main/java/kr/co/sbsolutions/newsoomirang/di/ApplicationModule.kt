@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao
-import kr.co.sbsolutions.soomirang.db.SBSensorDataBase
 import javax.inject.Singleton
 
 @Module

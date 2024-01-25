@@ -1,7 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.splash
 
 import android.util.Log
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel

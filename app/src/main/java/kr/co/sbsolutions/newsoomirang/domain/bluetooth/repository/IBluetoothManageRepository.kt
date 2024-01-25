@@ -1,6 +1,6 @@
-package kr.co.sbsolutions.withsoom.domain.bluetooth.repository
+package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 
 interface IBluetoothManageRepository {
     suspend fun registerSBSensor(key: SBBluetoothDevice, name: String, address: String) : Boolean

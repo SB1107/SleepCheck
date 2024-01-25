@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,14 +17,14 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataResultModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -55,6 +54,15 @@ class BreathingViewModel @Inject constructor(
                     if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                         info.currentData.collectLatest {
                             _capacitanceFlow.emit(it)
+                        }
+                    }
+                }
+            }
+            launch {
+                viewModelScope.launch(Dispatchers.IO) {
+                    getService()?.timeHelper?.measuringTimer?.collectLatest {
+                        if (bluetoothInfo.sleepType == SleepType.Breathing) {
+                            _measuringTimer.emit(it)
                         }
                     }
                 }
@@ -165,15 +173,6 @@ class BreathingViewModel @Inject constructor(
         return SleepType.Breathing.name
     }
 
-    override fun serviceSettingCall() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getService()?.timeHelper?.measuringTimer?.collectLatest {
-                if (bluetoothInfo.sleepType == SleepType.Breathing) {
-                    _measuringTimer.emit(it)
-                }
-            }
-        }
-    }
 }
 
 enum class MeasuringState {

@@ -1,10 +1,9 @@
-package kr.co.sbsolutions.withsoom.data.repository.bluetooth
+package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.os.Build
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,34 +11,25 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.AppToModule
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.AppToModuleResponse
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.ModuleToApp
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.getCommand
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.getCommandByteArr
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.getState
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.verifyCheckSum
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.LogData
 import kr.co.sbsolutions.soomirang.db.SBSensorData
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -64,6 +54,9 @@ class BluetoothNetworkRepository @Inject constructor(
     override val spo2SensorInfo: StateFlow<BluetoothInfo> = _spo2SensorInfo.asStateFlow()
     private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
     override val eegSensorInfo: StateFlow<BluetoothInfo> = _eegSensorInfo.asStateFlow()
+    var bleName: String = ""
+    var bleAddress: String = ""
+    var check: Boolean = false
     override suspend fun listenRegisterSBSensor() {
 
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
@@ -72,10 +65,17 @@ class BluetoothNetworkRepository @Inject constructor(
                 _sbSensorInfo.value.let {
                     it.bluetoothName = name
                     it.bluetoothAddress = address
+                    if (bleName != name || bleAddress != address) {
+                        bleName = name.toString()
+                        bleAddress = address.toString()
+                        check = true
+                    }
                 }
-                !name.isNullOrEmpty() && !address.isNullOrEmpty()
+//                !name.isNullOrEmpty() && !address.isNullOrEmpty()
+                check && !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
                 val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                Log.d(TAG, "listenRegisterSBSensor: $result")
                 insertLog(result.bluetoothState)
 //                _sbSensorInfo.value.let {
 //                    it.bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered
@@ -242,6 +242,7 @@ class BluetoothNetworkRepository @Inject constructor(
             value.let {
                 if (it.bluetoothState != BluetoothState.Unregistered) {
                     it.bluetoothState = BluetoothState.DisconnectedByUser
+                    Log.d(TAG, "disconnectedDevice: 1")
                     tryEmit(it)
                     insertLog(it.bluetoothState)
                 }
@@ -253,6 +254,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _sbSensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
+                Log.d(TAG, "disconnectedDevice: 2")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -262,9 +264,10 @@ class BluetoothNetworkRepository @Inject constructor(
             dataId = null
             bluetoothGatt = null
         }
-        _spo2SensorInfo.value?.apply {
+        _spo2SensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
+                Log.d(TAG, "disconnectedDevice: 3")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -275,9 +278,10 @@ class BluetoothNetworkRepository @Inject constructor(
             bluetoothGatt = null
         }
 //
-        _eegSensorInfo.value?.apply {
+        _eegSensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
+                Log.d(TAG, "disconnectedDevice: 4")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -656,11 +660,12 @@ class BluetoothNetworkRepository @Inject constructor(
                                                     Log.d(TAG, "DataFlow: 호흡 종료 ")
                                                 }
                                             }
-                                        } ?: launch{
+                                        } ?: launch {
                                             // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
                                             writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                             delay(1000)
-                                        writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)}
+                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                        }
 
                                     }
 
@@ -972,7 +977,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private fun LogData.log() {
         logCoroutine.launch {
             logDBDataRepository.insertLogData(this@log)
-            dataManager.getUserName().first()?.let {name ->
+            dataManager.getUserName().first()?.let { name ->
                 val logCollection = ff.collection("B2C").document(name).collection(timeID)
                 val logDocument = logCollection.document("${this@log.time} - ${this@log.log}")
 

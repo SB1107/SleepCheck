@@ -1,10 +1,10 @@
 package kr.co.sbsolutions.newsoomirang.domain.repository
 
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Inject
 
-class BluetoothManagerRepository @Inject constructor(private val bluetoothManageRepository: IBluetoothManageRepository): IBluetoothManageRepository{
+class BluetoothManagerRepository @Inject constructor(private val bluetoothManageRepository: IBluetoothManageRepository): IBluetoothManageRepository {
     override suspend fun registerSBSensor(key: SBBluetoothDevice, name: String, address: String): Boolean {
         return  bluetoothManageRepository.registerSBSensor(key, name, address)
     }

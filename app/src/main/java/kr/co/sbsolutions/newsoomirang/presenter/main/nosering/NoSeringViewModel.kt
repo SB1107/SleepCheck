@@ -18,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.model.NoSeringDataResultModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -25,8 +26,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -73,12 +73,22 @@ class NoSeringViewModel @Inject constructor(
                     _intensity.emit(it)
                 }
             }
+            launch {
+                viewModelScope.launch {
+                    getService()?.timeHelper?.measuringTimer?.collectLatest {
+                        if (bluetoothInfo.sleepType == SleepType.NoSering) {
+                            _measuringTimer.emit(it)
+                        }
+                    }
+                }
+            }
 
 
         }
 
     }
     fun startClick() {
+        Log.d(TAG, "startClick: ${isRegistered()}")
         if (isRegistered()) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
@@ -212,13 +222,4 @@ class NoSeringViewModel @Inject constructor(
         return  SleepType.NoSering.name
     }
 
-    override fun serviceSettingCall() {
-        viewModelScope.launch {
-                getService()?.timeHelper?.measuringTimer?.collectLatest {
-                    if (bluetoothInfo.sleepType == SleepType.NoSering) {
-                    _measuringTimer.emit(it)
-                }
-            }
-        }
-    }
 }

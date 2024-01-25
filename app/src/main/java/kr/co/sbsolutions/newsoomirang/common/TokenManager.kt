@@ -1,4 +1,4 @@
-package kr.co.sbsolutions.withsoom.utils
+package kr.co.sbsolutions.newsoomirang.common
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kr.co.sbsolutions.newsoomirang.common.dataStore
 
 class TokenManager(private val context: Context) {
     companion object {

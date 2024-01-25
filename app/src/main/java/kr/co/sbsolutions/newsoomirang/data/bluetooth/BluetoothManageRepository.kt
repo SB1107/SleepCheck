@@ -1,9 +1,9 @@
-package kr.co.sbsolutions.withsoom.data.repository.bluetooth
+package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
 import android.annotation.SuppressLint
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Inject
 
 @SuppressLint("MissingPermission")

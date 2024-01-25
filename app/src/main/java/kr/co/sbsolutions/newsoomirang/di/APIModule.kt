@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.data.api.ServiceAPI
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -22,8 +22,8 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.LoginRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
-import kr.co.sbsolutions.withsoom.data.repository.bluetooth.BluetoothManageRepository
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Named
 
 @Module

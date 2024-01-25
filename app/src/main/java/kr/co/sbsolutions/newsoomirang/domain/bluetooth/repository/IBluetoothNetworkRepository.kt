@@ -1,16 +1,12 @@
-package kr.co.sbsolutions.withsoom.domain.bluetooth.repository
+package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
-import androidx.lifecycle.LiveData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 
 interface IBluetoothNetworkRepository {
     var downloadCompleteCallback: (() -> Unit)?

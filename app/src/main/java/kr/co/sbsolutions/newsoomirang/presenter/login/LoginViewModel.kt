@@ -14,7 +14,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.splash.WHERE
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
 @HiltViewModel

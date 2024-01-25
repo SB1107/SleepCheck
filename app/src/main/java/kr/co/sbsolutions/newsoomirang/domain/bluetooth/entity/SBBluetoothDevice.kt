@@ -1,4 +1,4 @@
-package kr.co.sbsolutions.withsoom.domain.bluetooth.entity
+package kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity
 
 sealed class SBBluetoothDevice(val type: Sensor) {
     object SB_SOOM_SENSOR : SBBluetoothDevice(SBSoomSensor)

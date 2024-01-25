@@ -3,27 +3,20 @@ package kr.co.sbsolutions.newsoomirang.presenter
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.withsoom.utils.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import java.lang.ref.WeakReference
 
 abstract class BaseServiceViewModel(private val dataManager: DataManager , private  val tokenManager: TokenManager) : BaseViewModel(dataManager,tokenManager) {
-    private lateinit var service: WeakReference<BLEService>
     private val _serviceCommend: MutableSharedFlow<ServiceCommend> = MutableSharedFlow()
     val serviceCommend: SharedFlow<ServiceCommend> = _serviceCommend
     private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
@@ -47,17 +40,17 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
                     setBatteryInfo()
                 }
             }
-            launch {
-                service = ApplicationManager.getService().value
-                serviceSettingCall()
-                ApplicationManager.getService().collect {
-                    service = it
-                    serviceSettingCall()
-                }
-            }
+//            launch {
+//                service = ApplicationManager.getService().value
+//                serviceSettingCall()
+//                ApplicationManager.getService().collect {
+//                    service = it
+//                    serviceSettingCall()
+//                }
+//            }
         }
     }
-    open fun serviceSettingCall(){}
+//    open fun serviceSettingCall(){}
     fun setBatteryInfo(){
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
@@ -76,6 +69,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
     }
     fun  isRegistered() : Boolean{
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered) {
+            Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             viewModelScope.launch {
                 _gotoScan.emit(true)
             }
@@ -93,11 +87,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
     }
 
     fun getService(): BLEService? {
-        return if (::service.isInitialized) {
-            this.service.get()
-        } else {
-            null
-        }
+       return BLEService.getInstance()
     }
 
 }

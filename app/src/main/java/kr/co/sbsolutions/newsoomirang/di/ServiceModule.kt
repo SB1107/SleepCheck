@@ -17,11 +17,11 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
-import kr.co.sbsolutions.withsoom.data.repository.bluetooth.BluetoothNetworkRepository
-import kr.co.sbsolutions.withsoom.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothNetworkRepository
 
 @Module
 @InstallIn(ServiceComponent::class)

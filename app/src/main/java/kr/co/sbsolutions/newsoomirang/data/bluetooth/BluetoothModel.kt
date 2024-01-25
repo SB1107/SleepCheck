@@ -1,6 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
-import kr.co.sbsolutions.withsoom.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kotlin.experimental.inv
 
 sealed interface AppToModule {
