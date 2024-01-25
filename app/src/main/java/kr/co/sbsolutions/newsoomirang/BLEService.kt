@@ -555,7 +555,6 @@ class BLEService : LifecycleService() {
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
-
         return mBinder
     }
 
@@ -625,8 +624,7 @@ class BLEService : LifecycleService() {
 
 
     inner class LocalBinder : Binder() {
-        val service: BLEService
-            get() = this@BLEService
+        fun getService(): BLEService = this@BLEService
     }
 
     private var mJob: Job? = null

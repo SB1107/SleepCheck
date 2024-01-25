@@ -48,7 +48,7 @@ class ApplicationManager : Application() {
             instance._service.tryEmit(service)
         }
         fun serviceClear(){
-            instance._service.tryEmit(WeakReference(null))
+            instance._service.value.clear()
         }
         fun getService() :  StateFlow<WeakReference<BLEService>>{
             return instance.service
