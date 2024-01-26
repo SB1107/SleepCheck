@@ -74,7 +74,7 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
             binding.resultDateTextView.text = endedAtString
             binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_1_off), null, null, null)
-            binding.resultDurationTextView.text = durationString + "수면"
+            binding.resultDurationTextView.text = durationString + " 수면"
             binding.actionType.root.visibility = View.GONE
             binding.clLayout.setOnClickListener {
                 binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -167,7 +167,7 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
             binding.resultDateTextView.text = endedAtString
             binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_2_off), null, null, null)
-            binding.resultDurationTextView.text = durationString + "수면"
+            binding.resultDurationTextView.text = durationString + " 수면"
             binding.actionType.root.visibility = View.GONE
             binding.clLayout.setOnClickListener {
                 binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
