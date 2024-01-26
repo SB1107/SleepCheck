@@ -2,6 +2,8 @@ package kr.co.sbsolutions.newsoomirang.data.api
 
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
@@ -9,12 +11,10 @@ import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
 import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
 import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
-import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -45,7 +45,7 @@ interface AuthServiceAPI {
 
     //수면 데이터 결과 주로 보기
     @GET("sleepdata/week")
-    suspend fun getSleepDataWeekResult(): Response<SleepModel>
+    suspend fun getSleepDataWeekResult(): Response<SleepDateEntity>
 
     //코골이 데이터 결과
     @GET("snoredata/result")
@@ -53,17 +53,14 @@ interface AuthServiceAPI {
 
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/detail")
-    suspend fun sleepDataDetail(@Body sleepModel : SleepModel): Response<SleepModel>
-
-    @GET("sleepdata/detail")
-    fun sleepDataDetail2(@Query("ended_at") day: String): Response<SleepModel>
+    suspend fun sleepDataDetail(@Query("ended_at") day: String): Response<SleepDetailEntity>
 
     //수면데이터 측정 시작
     @POST("sleepdata/create")
     suspend fun postSleepDataCreate(@Body createModel: SleepCreateModel): Response<SleepCreateEntity>
 
     @POST("sleepdata/delete")
-    suspend fun postSleepDataDelete(@Body sleepDataRemoveModel: SleepDataRemoveModel): Response<RequestBody>
+    suspend fun postSleepDataDelete(@Body sleepDataRemoveModel: SleepDataRemoveModel): Response<ResponseBody>
 
     @Multipart
     @POST("sleepdata/upload")

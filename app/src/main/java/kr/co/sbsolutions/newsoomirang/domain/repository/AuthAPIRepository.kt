@@ -4,10 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
-import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
@@ -49,7 +50,7 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     }
 
 
-    override fun getWeek(): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
+    override fun getWeek(): Flow<ApiResponse<SleepDateEntity>> = apiRequestFlow {
         api.getSleepDataWeekResult()
     }
 
@@ -57,11 +58,11 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.getSleepDataResult()
     }
 
-    override fun sleepDataDetail(sleepModel: SleepModel): Flow<ApiResponse<SleepModel>> = apiRequestFlow {
-        api.sleepDataDetail(sleepModel)
+    override fun getSleepDataDetail(endedAt: String): Flow<ApiResponse<SleepDetailEntity>> = apiRequestFlow {
+        api.sleepDataDetail(endedAt)
     }
 
-    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<RequestBody>> = apiRequestFlow {
+    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<ResponseBody>> = apiRequestFlow {
         api.postSleepDataDelete(sleepDataRemoveModel)
     }
 

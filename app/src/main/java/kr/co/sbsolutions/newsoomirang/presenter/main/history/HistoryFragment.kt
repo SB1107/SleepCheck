@@ -7,15 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kizitonwose.calendar.core.WeekDay
 import com.kizitonwose.calendar.view.WeekDayBinder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.common.toDp2Px
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
@@ -24,9 +33,8 @@ class HistoryFragment : Fragment() {
     private val binding: FragmentHistoryBinding by lazy {
         FragmentHistoryBinding.inflate(layoutInflater)
     }
-
     private var mSelectedDate: LocalDate? = null
-
+    private val adapter = HistoryAdapter()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,33 +47,54 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         bindViews()
-
+        setObservers()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindViews() {
-
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.VERTICAL, false)
-
         //adpter 작업 필요함
-//        binding.historyRecyclerView.adapter = mHistoryAdapter
+        binding.historyRecyclerView.adapter = adapter
+    }
 
+    @SuppressLint("SetTextI18n")
+    private fun setCalendarView(sleepData: SleepDateEntity) {
         val currentDate = LocalDate.now()
         val currentMonth = YearMonth.now()
         val startDate: LocalDate = currentMonth.minusMonths(100).atEndOfMonth()
         val endDate: LocalDate = currentMonth.plusMonths(100).atEndOfMonth()
         mSelectedDate = currentDate
 
-        viewModel.sleepWeekData
         binding.weekCalendarView.dayBinder = object : WeekDayBinder<DayViewContainer> {
             override fun bind(container: DayViewContainer, data: WeekDay) {
                 container.dateView.text = data.date.dayOfMonth.toString()
-
                 container.dateLayout.setOnClickListener {
                     mSelectedDate = data.date
                     binding.weekCalendarView.notifyCalendarChanged()
+                    mSelectedDate?.let {
+                        viewModel.getDetailSleepData(it)
+                    }
 
                 }
-
+                val dateString: String = data.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                container.progressCardView.layoutParams.height = this@HistoryFragment.context?.toDp2Px(0f)?.toInt() ?: 0
+                sleepData.result?.data?.filter { it.day == dateString }?.forEach { value ->
+                    if (value.minute >= 900) {
+                        container.progressCardView.layoutParams.height = this@HistoryFragment.context?.toDp2Px(70f)?.toInt() ?: 0
+                    } else {
+                        val height = value.minute.toDouble() / 900.0 * 70
+                        container.progressCardView.layoutParams.height = this@HistoryFragment.context?.toDp2Px(height.toFloat())?.toInt() ?: 0
+                    }
+                }
+                container.progressCardView.requestLayout()
+                // 선택 시
+                if (data.date.isEqual(mSelectedDate)) {
+                    container.dateView.setTextColor(requireActivity().getColor(R.color.color_4482CC))
+                    container.calendarCardView.setCardBackgroundColor(requireActivity().getColor(R.color.color_FFFFFF))
+                } else {
+                    container.dateView.setTextColor(requireActivity().getColor(R.color.color_FFFFFF))
+                    container.calendarCardView.setCardBackgroundColor(requireActivity().getColor(R.color.clear))
+                }
             }
 
             override fun create(view: View): DayViewContainer {
@@ -75,58 +104,39 @@ class HistoryFragment : Fragment() {
 
         binding.weekCalendarView.setup(startDate, endDate, DayOfWeek.SUNDAY)
         binding.weekCalendarView.scrollToWeek(currentDate)
-        binding.weekCalendarView.weekScrollListener = { week ->
-
-            var firstDate = week.days[0].date
-            var lastDate = week.days[week.days.size - 1].date
-            if (firstDate.year == lastDate.year && firstDate.monthValue == lastDate.monthValue) {
-                binding.dateTextView.text =  firstDate.year.toString() + "." + firstDate.monthValue.toString()
-            } else {
-                binding.dateTextView.text = firstDate.year.toString() + "." + firstDate.monthValue + " ~ " + lastDate.year + "." + lastDate.monthValue
+        binding.weekCalendarView.weekScrollListener =
+            { week ->
+                val firstDate = week.days[0].date
+                val lastDate = week.days[week.days.size - 1].date
+                if (firstDate.year == lastDate.year && firstDate.monthValue == lastDate.monthValue) {
+                    binding.dateTextView.text = firstDate.year.toString() + "." + firstDate.monthValue.toString()
+                } else {
+                    binding.dateTextView.text = firstDate.year.toString() + "." + firstDate.monthValue + " ~ " + lastDate.year + "." + lastDate.monthValue
+                }
             }
-        }
-
-
-//        binding.weekCalendarView.dayBinder(object : WeekDayBinder<DayViewContainer?> {
-//            fun bind(container: DayViewContainer, weekDay: WeekDay) {
-//                container.dateView.setText("" + weekDay.date.dayOfMonth)
-//                container.dateLayout.setOnClickListener {
-//                    mSelectedDate = weekDay.date
-//                    binding.weekCalendarView.notifyCalendarChanged()
-//                    sleepDataDetail()
-//                }
-//                val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-//                val dateString = weekDay.date.format(dateTimeFormatter)
-//                container.progressCardView.layoutParams.height = UIHelper.getInstance().dp2px(mActivity, 0)
-//                //
-//                for (value in mDateList) {
-//                    if (value.getDay().equals(dateString)) {
-//                        if (value.getMinute() >= 900) {
-//                            container.progressCardView.layoutParams.height = UIHelper.getInstance().dp2px(mActivity, 70f)
-//                        } else {
-//                            val height = value.getMinute() as Double / 900.0 * 70
-//                            container.progressCardView.layoutParams.height = UIHelper.getInstance().dp2px(mActivity, height.toFloat())
-//                        }
-//                        break
-//                    }
-//                }
-//                container.progressCardView.requestLayout()
-//
-//                // 선택 시
-//                if (weekDay.date.isEqual(mSelectedDate)) {
-//                    container.dayView.setTextColor(mActivity.getColor(R.color.color_4482CC))
-//                    container.calendarCardView.setCardBackgroundColor(mActivity.getColor(R.color.color_FFFFFF))
-//                } else {
-//                    container.dayView.setTextColor(mActivity.getColor(R.color.color_FFFFFF))
-//                    container.calendarCardView.setCardBackgroundColor(mActivity.getColor(R.color.clear))
-//                }
-//            }
-//
-//            override fun create(view: View): DayViewContainer {
-//                return DayViewContainer(view)
-//            }
-//        })
 
     }
 
+
+    private fun setObservers() {
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.sleepWeekData.collectLatest {
+                        setCalendarView(it)
+                    }
+                }
+                launch {
+                    viewModel.sleepDataDetailData.collectLatest {
+                        adapter.submitList(it.toMutableList())
+                    }
+                }
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        requireActivity().showAlertDialog(R.string.common_title, it)
+                    }
+                }
+            }
+        }
+    }
 }

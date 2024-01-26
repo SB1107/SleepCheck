@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -8,12 +7,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.data.model.SleepModel
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,8 +23,10 @@ class HistoryViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val authDataSource: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager , tokenManager) {
-    private val _sleepWeekData: MutableSharedFlow<SleepModel> = MutableSharedFlow()
-    val sleepWeekData: SharedFlow<SleepModel> = _sleepWeekData
+    private val _sleepWeekData: MutableSharedFlow<SleepDateEntity> = MutableSharedFlow()
+    val sleepWeekData: SharedFlow<SleepDateEntity> = _sleepWeekData
+    private  val _sleepDataDetailData : MutableSharedFlow<List<SleepDetailResult>> = MutableSharedFlow()
+      val sleepDataDetailData : SharedFlow<List<SleepDetailResult>> = _sleepDataDetailData
 
     init {
         getWeekSleepData()
@@ -35,18 +38,20 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getWeek() }
                 .collectLatest {
+                    _sleepWeekData.emit(it)
 //                    getDetailSleepData(it)
-                    Log.d(TAG, "getWeekSleepData: $it")
 //                    test(it)
                 }
         }
     }
 
-    private fun getDetailSleepData(sleepModel: SleepModel) {
-        viewModelScope.launch {
-            request { authDataSource.sleepDataDetail(sleepModel) }
+     fun getDetailSleepData(localDate: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            request { authDataSource.getSleepDataDetail(localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))) }
                 .collectLatest { sleepData ->
-                    Log.d(TAG, "getWeekSleepData: $sleepData")
+                    sleepData.result?.data?.let {
+                        _sleepDataDetailData.emit(it)
+                    }
                 }
         }
     }

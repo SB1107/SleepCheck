@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:background="@color/color_061629"
+  android:orientation="vertical">
+
+  <!-- 총 수면 시간 -->
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="30dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="총 수면 시간"
+      android:textColor="@color/color_78899F"
+      android:textSize="18dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_total_text_view"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:text="8시간 30분"
+      android:textColor="@color/color_FFFFFF"
+      android:textSize="18dp" />
+
+
+  </RelativeLayout>
+  <!-- 실제 수면 시간 -->
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="30dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="실제 수면 시간"
+      android:textColor="@color/color_78899F"
+      android:textSize="18dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_real_text_view"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:text="7시간 50분"
+      android:textColor="@color/color_FFFFFF"
+      android:textSize="18dp" />
+
+
+  </RelativeLayout>
+  <!-- 잠들때까지 걸린 시간 -->
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="30dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="잠들때까지 걸린 시간"
+      android:textColor="@color/color_78899F"
+      android:textSize="18dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_asleep_text_view"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:text="40분"
+      android:textColor="@color/color_FFFFFF"
+      android:textSize="18dp" />
+
+
+  </RelativeLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginBottom="30dp"
+    android:background="@color/color_1F3046" />
+
+  <!-- 코골이 시간 -->
+  <androidx.appcompat.widget.AppCompatTextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:gravity="center"
+    android:text="코골이 시간"
+    android:textColor="@color/color_78899F"
+    android:textSize="18dp" />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/snore_time_text_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="30dp"
+    android:gravity="center"
+    android:text="35분"
+    android:textColor="@color/color_FFFFFF"
+    android:textSize="26dp" />
+
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginBottom="30dp"
+    android:background="@color/color_1F3046" />
+
+  <!-- 수면 자세 -->
+  <androidx.appcompat.widget.AppCompatTextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:gravity="center"
+    android:text="수면자세"
+    android:textColor="@color/color_78899F"
+    android:textSize="18dp" />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="바른자세"
+      android:textColor="@color/color_999999" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:orientation="horizontal">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_toLeftOf="@id/pose1_text_view">
+
+        <com.google.android.material.card.MaterialCardView
+
+          android:layout_width="200dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#301D59A1"
+          app:cardElevation="0dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pose1_progress_view"
+          android:layout_width="100dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#1D59A1"
+          app:cardElevation="0dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/pose1_percent_text_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="5dp"
+          android:text="11%"
+          android:textColor="@color/color_FFFFFF"
+          android:textSize="10dp" />
+
+      </RelativeLayout>
+
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pose1_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="53분"
+        android:textColor="@color/color_FFFFFF" />
+
+    </RelativeLayout>
+
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="30dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="왼쪽으로 누은 자세"
+      android:textColor="@color/color_999999" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:orientation="horizontal">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_toLeftOf="@id/pose2_text_view">
+
+        <com.google.android.material.card.MaterialCardView
+          android:layout_width="150dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#301C9083"
+          app:cardElevation="0dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pose2_progress_view"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="#1C9083"
+            app:cardElevation="0dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/pose2_percent_text_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="5dp"
+          android:text="6%"
+          android:textColor="@color/color_FFFFFF"
+          android:textSize="10dp" />
+
+      </RelativeLayout>
+
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pose2_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="53분"
+        android:textColor="@color/color_FFFFFF" />
+
+    </RelativeLayout>
+
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="30dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="오른쪽으로 누운 자세"
+      android:textColor="@color/color_999999" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:orientation="horizontal">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_toLeftOf="@id/pose3_text_view">
+
+        <com.google.android.material.card.MaterialCardView
+          android:layout_width="150dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#30D4A74D"
+          app:cardElevation="0dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pose3_progress_view"
+          android:layout_width="50dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#D4A74D"
+          app:cardElevation="0dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/pose3_percent_text_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="5dp"
+          android:text="6%"
+          android:textColor="@color/color_FFFFFF"
+          android:textSize="10dp" />
+
+      </RelativeLayout>
+
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pose3_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="53분"
+        android:textColor="@color/color_FFFFFF" />
+
+    </RelativeLayout>
+
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="30dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="엎드린 자세"
+      android:textColor="@color/color_999999" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:orientation="horizontal">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_toLeftOf="@id/pose4_text_view">
+
+        <com.google.android.material.card.MaterialCardView
+          android:layout_width="150dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#30D4A74D"
+          app:cardElevation="0dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pose4_progress_view"
+          android:layout_width="50dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#D4A74D"
+          app:cardElevation="0dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/pose4_percent_text_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="5dp"
+          android:text="6%"
+          android:textColor="@color/color_FFFFFF"
+          android:textSize="10dp" />
+
+      </RelativeLayout>
+
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pose4_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="2시간 39분"
+        android:textColor="@color/color_FFFFFF" />
+
+    </RelativeLayout>
+
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginRight="30dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.AppCompatTextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="일어남"
+      android:textColor="@color/color_999999" />
+
+    <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:orientation="horizontal">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="15dp"
+        android:layout_toLeftOf="@id/pose5_text_view">
+
+        <com.google.android.material.card.MaterialCardView
+          android:layout_width="100dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#30FF7700"
+          app:cardElevation="0dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pose5_progress_view"
+          android:layout_width="20dp"
+          android:layout_height="match_parent"
+          android:backgroundTint="#FF7700"
+          app:cardElevation="0dp" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/pose5_percent_text_view"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerVertical="true"
+          android:layout_marginLeft="5dp"
+          android:text="6%"
+          android:textColor="@color/color_FFFFFF"
+          android:textSize="10dp" />
+
+      </RelativeLayout>
+
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/pose5_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="53분"
+        android:textColor="@color/color_FFFFFF" />
+
+    </RelativeLayout>
+
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginTop="30dp"
+    android:layout_marginBottom="30dp"
+    android:background="@color/color_1F3046" />
+
+  <!-- 수면 패턴 -->
+  <androidx.appcompat.widget.AppCompatTextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="30dp"
+    android:layout_marginRight="30dp"
+    android:gravity="center"
+    android:text="수면 패턴"
+    android:textColor="@color/color_78899F"
+    android:textSize="18dp" />
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+      android:id="@+id/chart_background"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="30dp"
+      android:layout_marginTop="20dp"
+      android:layout_marginRight="30dp"
+      android:layout_marginBottom="30dp"
+      android:orientation="vertical">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046" />
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="right|center_vertical"
+        android:text="깨어남"
+        android:textColor="@color/color_78899F" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046" />
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="right|center_vertical"
+        android:text="램수면"
+        android:textColor="@color/color_78899F" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046" />
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="right|center_vertical"
+        android:text="얕은수면"
+        android:textColor="@color/color_78899F" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046" />
+
+      <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="right|center_vertical"
+        android:text="깊은수면"
+        android:textColor="@color/color_78899F" />
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_1F3046" />
+
+
+    </LinearLayout>
+
+    <com.github.mikephil.charting.charts.LineChart
+      android:id="@+id/chart"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignTop="@id/chart_background"
+      android:layout_alignBottom="@id/chart_background"
+      android:layout_marginLeft="30dp"
+      android:layout_marginRight="100dp" />
+
+
+  </RelativeLayout>
+
+
+</LinearLayout>

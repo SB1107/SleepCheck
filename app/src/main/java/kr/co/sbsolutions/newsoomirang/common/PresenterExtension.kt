@@ -5,13 +5,12 @@ import android.content.Context.POWER_SERVICE
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.PowerManager
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -136,24 +135,34 @@ fun Int.toBoolean(): Boolean {
     return this == 1
 }
 
-fun String.toDate(format : String) : Date? {
+fun String.toDate(format: String): Date? {
     val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
-    return  simpleDateFormat.parse(this)
+    return simpleDateFormat.parse(this)
 }
-fun Date.toDayString(format : String): String? {
+
+fun Date.toDayString(format: String): String? {
     val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
-    return  simpleDateFormat.format(this)
+    return simpleDateFormat.format(this)
 }
-fun  Int.toHourMinute(): String {
-    val time = Duration.ofSeconds( this.toLong())
+
+fun Int.toHourMinute(): String {
+    val time = Duration.ofSeconds(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
 
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
-    return  if (hours > 0) {
+    return if (hours > 0) {
         String.format("%d시간 %d분", hours, minutes)
     } else {
         String.format("%d분", minutes)
     }
+}
+
+fun Context.toDp2Px(dp: Float): Float {
+    return dp * (this.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
+}
+
+fun Context.toPx2Dp(px: Float): Float {
+    return px / (this.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
 }
 
 fun Intent.addFlag() = this.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }

@@ -1,9 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history
 
 import android.view.View
-import android.widget.RelativeLayout
-import androidx.appcompat.widget.AppCompatTextView
-import com.google.android.material.card.MaterialCardView
 import com.kizitonwose.calendar.view.ViewContainer
 import kr.co.sbsolutions.newsoomirang.databinding.CalendarDayLayoutBinding
 
