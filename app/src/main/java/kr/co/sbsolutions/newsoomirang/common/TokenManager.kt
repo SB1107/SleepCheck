@@ -11,58 +11,70 @@ class TokenManager(private val context: Context) {
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("jwt_token")
         private val KEY_FCM_TOKEN = stringPreferencesKey("fcm_token")
-
         private val KEY_IS_TOKEN_CHECK = booleanPreferencesKey("is_token_check")
+        private val KEY_NEW_FCM_TOKEN = stringPreferencesKey("new_fcm_token")
+    }
+
+    suspend fun saveNewToken(newToken: String) {
+        context.tokenStore.edit { preferences ->
+            preferences[KEY_NEW_FCM_TOKEN] = newToken
+        }
+    }
+
+    fun getNewToken(): Flow<String?> {
+        return context.tokenStore.data.map { preferences ->
+            preferences[KEY_NEW_FCM_TOKEN]
+        }
     }
 
     fun getToken(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
+        return context.tokenStore.data.map { preferences ->
             preferences[KEY_TOKEN]
         }
     }
 
     suspend fun saveToken(token: String) {
-        context.dataStore.edit { preferences ->
+        context.tokenStore.edit { preferences ->
             preferences[KEY_TOKEN] = token
         }
     }
 
     suspend fun deleteToken() {
-        context.dataStore.edit { preferences ->
+        context.tokenStore.edit { preferences ->
             preferences.remove(KEY_TOKEN)
         }
     }
 
     fun getFcmToken() : Flow<String?> {
-        return context.dataStore.data.map {preferences->
+        return context.tokenStore.data.map {preferences->
             preferences[KEY_FCM_TOKEN]
         }
     }
     suspend fun saveFcmToken(fcmToken: String){
-        context.dataStore.edit {preferences ->
+        context.tokenStore.edit {preferences ->
             preferences[KEY_FCM_TOKEN] = fcmToken
         }
     }
 
     suspend fun deleteFcmToken(){
-        context.dataStore.edit {preferences->
+        context.tokenStore.edit {preferences->
             preferences.remove(KEY_FCM_TOKEN)
         }
     }
     fun isFirstAndEqualFcmToken() : Flow<Boolean> {
-        return context.dataStore.data.map { preferences ->
+        return context.tokenStore.data.map { preferences ->
             preferences[KEY_IS_TOKEN_CHECK] ?: true
         }
     }
 
     suspend fun setDifferentValue(){
-        context.dataStore.edit { preferences ->
+        context.tokenStore.edit { preferences ->
             preferences[KEY_IS_TOKEN_CHECK] = false
         }
     }
 
     fun getFcmTokenState() {
-        context.dataStore.data.map{ preferences ->
+        context.tokenStore.data.map{ preferences ->
             preferences[KEY_IS_TOKEN_CHECK]
         }
     }

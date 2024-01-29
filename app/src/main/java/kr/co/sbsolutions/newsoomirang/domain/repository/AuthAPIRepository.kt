@@ -69,4 +69,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun getNoSeringDataResult(): Flow<ApiResponse<NoSeringResultEntity>> = apiRequestFlow {
         api.getSnoreDataResult()
     }
+
+    override fun postNewFcmToken(newToken: String): Flow<ApiResponse<UserEntity>> = apiRequestFlow{
+        api.postFcmUpdate(newToken)
+    }
 }

@@ -31,8 +31,8 @@ abstract class ServiceModule {
 
     //    @Binds
 //    abstract fun bindApneaUploadRepository(apneaUploadRepository: ApneaUploadRepository) : IApneaUploadRepository
-    @Binds
-    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
+//    @Binds
+//    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
 
 }
 

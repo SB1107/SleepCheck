@@ -30,6 +30,10 @@ interface AuthServiceAPI {
 
     @POST("joinagree")
     suspend fun postJoinAgree(@Body policyModel : PolicyModel): Response<UserEntity>
+
+    @POST("fcmupdate")
+    suspend fun postFcmUpdate(@Body newToken : String): Response<UserEntity>
+
     //로그 아웃
     @POST("logout")
     suspend fun postLogOut(): Response<UserEntity>

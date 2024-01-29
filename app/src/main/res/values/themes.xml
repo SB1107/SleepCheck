@@ -5,5 +5,22 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
+    <style name="Theme.MyApplication" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/color_333333</item>
+        <item name="android:statusBarColor">@color/color_000000</item>
+        <item name="colorControlHighlight">@color/md_light_blue_100</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/color_FFFFFF</item>
+        <item name="android:colorBackground">@color/color_FFFFFF</item>
+        <item name="android:buttonStyle">@style/NanumButtonStyle</item>
+        <item name="editTextStyle">@style/NanumEditTextStyle</item>
+        <item name="android:radioButtonStyle">@style/NanumRadioButtonStyle</item>
+        <item name="android:checkboxStyle">@style/NanumCheckboxStyle</item>
+        <item name="android:textViewStyle">@style/NanumTextViewStyle</item>
+        <item name="android:actionMenuTextColor">@color/colorPrimary</item>
+
+    </style>
+
 </resources>

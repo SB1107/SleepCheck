@@ -30,4 +30,6 @@ interface RemoteAuthDataSource{
      fun getSleepDataDetail(endedAt: String): Flow<ApiResponse<SleepDetailEntity>>
      fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<ResponseBody>>
      fun getNoSeringDataResult() : Flow<ApiResponse<NoSeringResultEntity>>
+
+     fun postNewFcmToken(newToken: String) : Flow<ApiResponse<UserEntity>>
 }

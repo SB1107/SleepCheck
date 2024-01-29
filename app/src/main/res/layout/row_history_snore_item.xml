@@ -230,7 +230,7 @@
         android:layout_toLeftOf="@id/pose2_text_view">
 
         <com.google.android.material.card.MaterialCardView
-          android:layout_width="150dp"
+          android:layout_width="200dp"
           android:layout_height="match_parent"
           android:backgroundTint="#301C9083"
           app:cardElevation="0dp" />
@@ -294,7 +294,7 @@
         android:layout_toLeftOf="@id/pose3_text_view">
 
         <com.google.android.material.card.MaterialCardView
-          android:layout_width="150dp"
+          android:layout_width="200dp"
           android:layout_height="match_parent"
           android:backgroundTint="#30D4A74D"
           app:cardElevation="0dp" />
@@ -358,7 +358,7 @@
         android:layout_toLeftOf="@id/pose4_text_view">
 
         <com.google.android.material.card.MaterialCardView
-          android:layout_width="150dp"
+          android:layout_width="200dp"
           android:layout_height="match_parent"
           android:backgroundTint="#30D4A74D"
           app:cardElevation="0dp" />
@@ -422,7 +422,7 @@
         android:layout_toLeftOf="@id/pose5_text_view">
 
         <com.google.android.material.card.MaterialCardView
-          android:layout_width="100dp"
+          android:layout_width="200dp"
           android:layout_height="match_parent"
           android:backgroundTint="#30FF7700"
           app:cardElevation="0dp" />

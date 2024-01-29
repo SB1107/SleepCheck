@@ -7,11 +7,15 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -21,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -36,9 +41,11 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.math.log
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
+    private val tokenManager: TokenManager,
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
     private val logDBDataRepository: LogDBDataRepository
@@ -55,25 +62,13 @@ class BluetoothNetworkRepository @Inject constructor(
     override val spo2SensorInfo: StateFlow<BluetoothInfo> = _spo2SensorInfo.asStateFlow()
     private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
     override val eegSensorInfo: StateFlow<BluetoothInfo> = _eegSensorInfo.asStateFlow()
-    var bleName: String = ""
-    var bleAddress: String = ""
-    var check: Boolean = false
     override suspend fun listenRegisterSBSensor() {
 
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
             .zip(dataManager.getBluetoothDeviceAddress(_sbSensorInfo.value.sbBluetoothDevice.type.toString()))
             { name, address ->
-                _sbSensorInfo.value.let {
-                    it.bluetoothName = name
-                    it.bluetoothAddress = address
-                    if (bleName != name || bleAddress != address) {
-                        bleName = name.toString()
-                        bleAddress = address.toString()
-                        check = true
-                    }
-                }
-//                !name.isNullOrEmpty() && !address.isNullOrEmpty()
-                check && !name.isNullOrEmpty() && !address.isNullOrEmpty()
+                _sbSensorInfo.update { it.copy(bluetoothName = name, bluetoothAddress = address) }
+                !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
                 val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
                 Log.d(TAG, "listenRegisterSBSensor: $result")
@@ -84,6 +79,8 @@ class BluetoothNetworkRepository @Inject constructor(
 //                    insertLog(it.bluetoothState)
 //                }
             }
+
+
     }
 
     override suspend fun listenRegisterSpO2Sensor() {
@@ -655,6 +652,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                                     writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
                                                     Log.d(TAG, "DataFlow: 코골이 종료 ")
                                                 }
+
                                                 else -> {
                                                     writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                                     Log.d(TAG, "DataFlow: 호흡 종료 ")

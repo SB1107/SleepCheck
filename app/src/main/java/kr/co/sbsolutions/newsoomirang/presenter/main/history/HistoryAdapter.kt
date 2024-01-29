@@ -120,19 +120,19 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             binding.actionType.resultApena60TextView.text = "${result.apnea60} 회"
 
             binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout(result.straightPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
+            percentLayout((result.straightPosition.toDouble() / (result.sleepTime ).toDouble()) ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
 
             binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
+            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
 
             binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
+            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
 
             binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
+            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
 
             binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
+            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
             initChart(binding.actionType.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
@@ -148,9 +148,9 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
 
     @SuppressLint("SetTextI18n")
     private fun percentLayout(percent: Double, textView : AppCompatTextView, cardView: MaterialCardView){
-        textView.text = String.format("%.1f", percent) + "%"
+        textView.text = String.format("%.1f", percent  * 100)+ "%"
         cardView.layoutParams =  (cardView.layoutParams as RelativeLayout.LayoutParams).apply {
-            width = context.toDp2Px((percent * 2).toFloat()).toInt()
+            width = context.toDp2Px((percent * 2 * 100).toFloat()).toInt()
         }
 
     }
@@ -183,19 +183,19 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             binding.actionType.snoreTimeTextView.text = (result.snoreTime * 60).toHourMinute()
 
             binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout(result.straightPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
+            percentLayout(result.straightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
 
             binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
+            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
 
             binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
+            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
 
             binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
+            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
 
             binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime * 100).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
+            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
             initChart(binding.actionType.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
