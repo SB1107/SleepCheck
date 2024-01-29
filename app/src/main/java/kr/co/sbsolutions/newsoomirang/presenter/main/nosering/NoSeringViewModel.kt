@@ -191,9 +191,6 @@ class NoSeringViewModel @Inject constructor(
 
 
     fun setMotorCheckBox(isChecked: Boolean) {
-        viewModelScope.launch {
-            tokenManager.saveNewToken(isChecked.toString())
-        }
         this.motorCheckBok = isChecked
         viewModelScope.launch(Dispatchers.IO) {
             settingDataRepository.setSnoringOnOff(isChecked)
