@@ -12,19 +12,6 @@ class TokenManager(private val context: Context) {
         private val KEY_TOKEN = stringPreferencesKey("jwt_token")
         private val KEY_FCM_TOKEN = stringPreferencesKey("fcm_token")
         private val KEY_IS_TOKEN_CHECK = booleanPreferencesKey("is_token_check")
-        private val KEY_NEW_FCM_TOKEN = stringPreferencesKey("new_fcm_token")
-    }
-
-    suspend fun saveNewToken(newToken: String) {
-        context.tokenStore.edit { preferences ->
-            preferences[KEY_NEW_FCM_TOKEN] = newToken
-        }
-    }
-
-    fun getNewToken(): Flow<String?> {
-        return context.tokenStore.data.map { preferences ->
-            preferences[KEY_NEW_FCM_TOKEN]
-        }
     }
 
     fun getToken(): Flow<String?> {
