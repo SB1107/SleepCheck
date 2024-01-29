@@ -118,7 +118,7 @@ class LoginActivity : AppCompatActivity() {
                 mAuth.signInWithCredential(credential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Log.d(TAG, "onActivityResult: 성공")
+//                            Log.d(TAG, "onActivityResult: 성공")
                             // 로그인에 성공했습니다.
                             val user = task.result?.user
 

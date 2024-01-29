@@ -22,6 +22,7 @@ import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
@@ -83,7 +84,18 @@ abstract class BaseServiceActivity : BaseActivity() {
                         if (info.bluetoothState == BluetoothState.Registered) {
                             service.get()?.connectDevice(info)
                         } else if (info.bluetoothState == BluetoothState.Connected.Finish) {
-                            changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
+                            when(info.cancelCheck){
+                                true -> {
+                                    changeServiceViewModel()?.setCommend(ServiceCommend.CANCEL)
+                                    Log.d(TAG, "onServiceAvailable!!!!!!: true")
+                                }
+                                false -> {
+                                    changeServiceViewModel()?.setCommend(ServiceCommend.STOP)
+                                    Log.d(TAG, "onServiceAvailable!!!!!!: false")
+                                }
+                            }
+
+
                         }
                         ApplicationManager.setBluetoothInfo(info)
                     }

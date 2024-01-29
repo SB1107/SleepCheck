@@ -71,7 +71,6 @@ class BluetoothNetworkRepository @Inject constructor(
                 !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
                 val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
-                Log.d(TAG, "listenRegisterSBSensor: $result")
                 insertLog(result.bluetoothState)
 //                _sbSensorInfo.value.let {
 //                    it.bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered
@@ -81,6 +80,12 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
 
+    }
+
+    override fun setSBSensorCancel(isCancel: Boolean) {
+        _sbSensorInfo.update {
+            it.copy(cancelCheck = isCancel)
+        }
     }
 
     override suspend fun listenRegisterSpO2Sensor() {
@@ -240,7 +245,7 @@ class BluetoothNetworkRepository @Inject constructor(
             value.let {
                 if (it.bluetoothState != BluetoothState.Unregistered) {
                     it.bluetoothState = BluetoothState.DisconnectedByUser
-                    Log.d(TAG, "disconnectedDevice: 1")
+//                    Log.d(TAG, "disconnectedDevice: 1")
                     tryEmit(it)
                     insertLog(it.bluetoothState)
                 }
@@ -252,7 +257,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _sbSensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
-                Log.d(TAG, "disconnectedDevice: 2")
+//                Log.d(TAG, "disconnectedDevice: 2")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -265,7 +270,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _spo2SensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
-                Log.d(TAG, "disconnectedDevice: 3")
+//                Log.d(TAG, "disconnectedDevice: 3")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -279,7 +284,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _eegSensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
-                Log.d(TAG, "disconnectedDevice: 4")
+//                Log.d(TAG, "disconnectedDevice: 4")
             }
             bluetoothGatt?.let {
                 it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -308,7 +313,6 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun endNetworkSBSensor(isForcedClose: Boolean) {
-        Log.d(TAG, "endNetworkSBSensor: end  $isForcedClose")
         val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (isForcedClose) BluetoothState.Connected.ForceEnd else BluetoothState.Connected.End) }
         insertLog(result.bluetoothState)
 //        _sbSensorInfo.value.let {
@@ -499,7 +503,7 @@ class BluetoothNetworkRepository @Inject constructor(
         private val coroutine = CoroutineScope(Dispatchers.IO)
 
         init {
-            Log.d(TAG, "getCallback: Connecting ")
+//            Log.d(TAG, "getCallback: Connecting ")
             innerData.value.let {
                 it.bluetoothState = BluetoothState.Connecting
                 innerData.tryEmit(it)
@@ -895,6 +899,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 downloadContinueCount = 0
                                 lastDownloadCompleteCallback?.invoke(BLEService.FinishState.FinishNormal)
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.FinishDownload) }
+                                Log.d(TAG, "readData: finish 먼저!!")
 //                                it.bluetoothState = BluetoothState.Connected.FinishDownload
 //                                innerData.tryEmit(it)
                                 insertLog(info.bluetoothState)

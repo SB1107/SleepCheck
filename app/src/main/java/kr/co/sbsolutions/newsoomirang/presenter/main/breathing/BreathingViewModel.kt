@@ -28,6 +28,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -84,7 +85,8 @@ class BreathingViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
-            getService()?.stopSBSensor()
+            getService()?.stopSBSensor(true)
+            setCommend(ServiceCommend.CANCEL)
         }
     }
 
@@ -154,7 +156,7 @@ class BreathingViewModel @Inject constructor(
                             )
                         )
                         viewModelScope.launch(Dispatchers.IO) {
-                            delay(2000)
+                            delay(4000)
                             if (_measuringState.value == MeasuringState.Analytics) {
                                 sleepDataResult()
                             }

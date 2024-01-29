@@ -40,5 +40,5 @@ class MainViewModel @Inject constructor(private  val dataManager: DataManager, p
 }
 
 enum class ServiceCommend {
-    START,STOP
+    START,STOP,CANCEL
 }

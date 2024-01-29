@@ -82,6 +82,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
     init {
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getUserName().first()?.let {
+                Log.d(TAG, "INIT $it ")
                 _userName.emit(it)
             }
         }

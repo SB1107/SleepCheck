@@ -106,7 +106,7 @@ class SensorViewModel @Inject constructor(
 
 
     fun disconnectDevice() {
-        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
+//        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
 
         viewModelScope.launch(Dispatchers.IO) {
             _disconnected.emit(dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name))

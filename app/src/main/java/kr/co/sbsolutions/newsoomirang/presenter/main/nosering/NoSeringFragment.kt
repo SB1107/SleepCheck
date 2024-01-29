@@ -118,7 +118,7 @@ class NoSeringFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch {
-                    viewModel.userName.collectLatest {
+                    viewModel.userName.collect {
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }

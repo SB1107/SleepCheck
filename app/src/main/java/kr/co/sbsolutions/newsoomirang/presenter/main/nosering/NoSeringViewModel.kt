@@ -169,7 +169,7 @@ class NoSeringViewModel @Inject constructor(
                             )
                         )
                         viewModelScope.launch(Dispatchers.IO) {
-                            delay(2000)
+                            delay(4000)
                             if (_measuringState.value == MeasuringState.Analytics) {
                                 noSeringResult()
                             }

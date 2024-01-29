@@ -61,6 +61,7 @@ class MainActivity : BaseServiceActivity() {
                     when(it) {
                         ServiceCommend.START -> startSBService(ActionMessage.StartSBService)
                         ServiceCommend.STOP -> startSBService(ActionMessage.StopSBService)
+                        ServiceCommend.CANCEL -> startSBService(ActionMessage.CancelSbService)
                     }
 
                 }

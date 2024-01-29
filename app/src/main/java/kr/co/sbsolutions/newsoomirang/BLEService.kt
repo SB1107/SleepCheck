@@ -154,6 +154,7 @@ class BLEService : LifecycleService() {
         createNotificationChannel()
 
         requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
+        mJob = requestHelper.getNetWorkJob()
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -201,7 +202,7 @@ class BLEService : LifecycleService() {
     }
 
     fun connectDevice(bluetoothInfo: BluetoothInfo) {
-        Log.d(TAG, "getCallback: ConnectDevice ")
+//        Log.d(TAG, "getCallback: ConnectDevice ")
         val device = bluetoothAdapter.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt = device.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
@@ -254,7 +255,7 @@ class BLEService : LifecycleService() {
 
     }
 
-    private fun stopTimer() {
+    fun stopTimer() {
         timeHelper.stopTimer()
     }
 
@@ -391,6 +392,13 @@ class BLEService : LifecycleService() {
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
             }
 
+            ActionMessage.CancelSbService -> {
+                stopScheduler()
+                finishService(-1, false)
+                sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
+
+            }
+
             ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
                 stopScheduler()
@@ -472,7 +480,8 @@ class BLEService : LifecycleService() {
         audioHelper.stopAudioClassification()
     }
 
-    fun stopSBSensor() {
+    fun stopSBSensor(isCancel: Boolean = false) {
+        bluetoothNetworkRepository.setSBSensorCancel(isCancel)
         if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
             stopAudioClassification()
             bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())

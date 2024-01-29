@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
@@ -77,7 +78,8 @@ class BreathingFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch {
-                    viewModel.userName.collectLatest {
+                    viewModel.userName.collect {
+                        Log.d(TAG, "setObservers: $it ")
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }

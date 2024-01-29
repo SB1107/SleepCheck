@@ -41,6 +41,7 @@ class SettingViewModel @Inject constructor(
                         launch {
                             _logoutResult.emit(true)
                             tokenManager.deleteToken()
+                            dataManager.deleteUserName()
                             Firebase.auth.signOut()
                             deleteDeviceName()
                         }

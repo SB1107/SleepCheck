@@ -42,6 +42,8 @@ interface IBluetoothNetworkRepository {
     fun stopNetworkEEGSensor()
     fun callVibrationNotifications(Intensity : Int)
 
+    fun setSBSensorCancel(isCancel: Boolean)
+
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>
     val eegSensorInfo : StateFlow<BluetoothInfo>

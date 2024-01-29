@@ -15,6 +15,7 @@ data class BluetoothInfo(
     var dataId: Int? = null,
     var batteryInfo: String? = null,
     var canMeasurement: Boolean = true,
+    var cancelCheck: Boolean = false,
 
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,

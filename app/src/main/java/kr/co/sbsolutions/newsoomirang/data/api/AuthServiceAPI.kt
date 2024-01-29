@@ -18,6 +18,7 @@ import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -31,8 +32,9 @@ interface AuthServiceAPI {
     @POST("joinagree")
     suspend fun postJoinAgree(@Body policyModel : PolicyModel): Response<UserEntity>
 
+    @FormUrlEncoded
     @POST("fcmupdate")
-    suspend fun postFcmUpdate(@Body newToken : String): Response<UserEntity>
+    suspend fun postFcmUpdate(@Field("fcm_key") newToken : String): Response<UserEntity>
 
     //로그 아웃
     @POST("logout")
