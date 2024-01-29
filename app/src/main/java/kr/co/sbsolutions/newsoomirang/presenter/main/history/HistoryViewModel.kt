@@ -19,8 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val dataManager: DataManager,
-    private val tokenManager: TokenManager,
+    dataManager: DataManager,
+    tokenManager: TokenManager,
     private val authDataSource: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager , tokenManager) {
     private val _sleepWeekData: MutableSharedFlow<SleepDateEntity> = MutableSharedFlow()

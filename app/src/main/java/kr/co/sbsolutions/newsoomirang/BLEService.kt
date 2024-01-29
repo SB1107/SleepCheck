@@ -23,8 +23,11 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.NetworkHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
+import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
@@ -99,6 +102,9 @@ class BLEService : LifecycleService() {
     lateinit var dataManager: DataManager
 
     @Inject
+    lateinit var tokenManager: TokenManager
+
+    @Inject
     lateinit var bluetoothAdapter: BluetoothAdapter
 
     @Inject
@@ -115,22 +121,22 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var timeHelper: TimeHelper
+
     @Inject
     lateinit var noseRingHelper: NoseRingHelper
+
+
+    lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "onCreate: 호출호출~~~~~~~~~₩")
-
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch {
-
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
                     callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
                 }
-
             }
         }
         bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
@@ -146,6 +152,8 @@ class BLEService : LifecycleService() {
             bluetoothNetworkRepository.listenRegisterEEGSensor()
         }
         createNotificationChannel()
+
+        requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -229,14 +237,14 @@ class BLEService : LifecycleService() {
             launch {
                 timeHelper.measuringTimer.collectLatest {
                     notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
+                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
 
                 }
             }
         }
     }
 
-    private fun notVibrationNotifyChannelCreate(){
+    private fun notVibrationNotifyChannelCreate() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
         ).apply {
@@ -456,18 +464,19 @@ class BLEService : LifecycleService() {
         }
         startTimer()
         if (sleepType == SleepType.NoSering) {
-           audioHelper.startAudioClassification()
+            audioHelper.startAudioClassification()
         }
     }
 
-    private fun stopAudioClassification(){
+    private fun stopAudioClassification() {
         audioHelper.stopAudioClassification()
     }
+
     fun stopSBSensor() {
         if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
             stopAudioClassification()
             bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
-        }else{
+        } else {
             bluetoothNetworkRepository.stopNetworkSBSensor()
         }
         createNotificationChannel()
@@ -646,36 +655,8 @@ class BLEService : LifecycleService() {
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
 
-    private suspend fun <T> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler) = callbackFlow {
-        mJob = lifecycleScope.launch(IO + CoroutineExceptionHandler { _, error ->
-            lifecycleScope.launch(Dispatchers.Main) {
-//                finishService()
-                errorHandler.onError(error.localizedMessage ?: "Error occured! Please try again.")
-            }
-        }) {
-            request().collect {
-                when (it) {
-                    is ApiResponse.Failure -> {
-                        errorHandler.onError(it.errorCode.msg)
-                    }
-
-                    ApiResponse.Loading -> {
-                    }
-
-                    ApiResponse.ReAuthorize -> {
-                    }
-
-                    is ApiResponse.Success -> {
-                        trySend(it.data)
-                        cancel()
-                    }
-                }
-            }
-        }
-        awaitClose()
+    private suspend fun <T> request(request: () -> Flow<ApiResponse<T>>, errorHandler: RequestHelper.CoroutinesErrorHandler): Flow<T> {
+        return requestHelper.request(request, errorHandler)
     }
 
-    fun interface CoroutinesErrorHandler {
-        fun onError(message: String)
-    }
 }

@@ -22,18 +22,18 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import javax.inject.Inject
 
 
-class NetworkHelper(tokenManager: TokenManager, authAPIRepository: RemoteAuthDataSource) {
-
-
+class NetworkHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource) {
     init {
-
         CoroutineScope(Dispatchers.IO).launch {
             tokenManager.getFcmToken().collect {
                 Log.d(TAG, "토큰 생성 발생!!: ")
                 CoroutineScope(Dispatchers.IO).launch {
-                    request { authAPIRepository.postNewFcmToken(it!!) }.collectLatest {
-                        Log.d(TAG, "$it")
-                    }
+                    RequestHelper(this, tokenManager = tokenManager, dataManager = dataManager)
+                        .request({
+                            authAPIRepository.postNewFcmToken(it!!)
+                        }).collectLatest {
+                            Log.d(TAG, "$it")
+                        }
 
                 }
 
@@ -41,31 +41,6 @@ class NetworkHelper(tokenManager: TokenManager, authAPIRepository: RemoteAuthDat
         }
     }
 
-    protected suspend fun <T : Any> request(request: () -> Flow<ApiResponse<T>>) = callbackFlow {
-
-                request().collect {
-                    when (it) {
-                        is ApiResponse.Failure -> {
-                            Log.d(TAG, "request: ${it.errorCode}")
-                        }
-
-                        ApiResponse.Loading -> {
-                        }
-
-                        ApiResponse.ReAuthorize -> {
-                        }
-
-                        is ApiResponse.Success -> {
-                            trySend(it.data)
-                            cancel()
-                        }
-                    }
-                }
-
-
-
-        awaitClose()
-    }
 
 
 }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NetworkHelper
 import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
@@ -32,11 +33,8 @@ class ApplicationManager : Application() {
     private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
 
-
     @Inject
-    lateinit var tokenManager: TokenManager
-    @Inject
-    lateinit var authAPIRepository: RemoteAuthDataSource
+    lateinit var networkHelper: NetworkHelper
 
     init {
         instance = this
@@ -71,7 +69,6 @@ class ApplicationManager : Application() {
         super.onCreate()
         createNotificationChannel()
         NetworkUtil.registerNetworkCallback(getSystemService(ConnectivityManager::class.java), networkCallback)
-        NetworkHelper(tokenManager, authAPIRepository)
     }
     // 네트워크 체크를 위한 Callback 함수
     private val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
