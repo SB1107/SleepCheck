@@ -27,11 +27,7 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
     )
 
     fun cancelJob() {
-        requestHelper.getNetWorkJob()?.let {
-            if (it.isActive) {
-                it.cancel()
-            }
-        }
+        requestHelper.netWorkCancel()
     }
 
     fun sendErrorMessage(message: String) {

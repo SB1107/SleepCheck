@@ -15,7 +15,6 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
@@ -23,7 +22,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.common.NetworkHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
@@ -154,7 +152,6 @@ class BLEService : LifecycleService() {
         createNotificationChannel()
 
         requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
-        mJob = requestHelper.getNetWorkJob()
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -654,14 +651,10 @@ class BLEService : LifecycleService() {
             get() = this@BLEService
     }
 
-    private var mJob: Job? = null
 
     private fun cancelJob() {
-        mJob?.let {
-            if (it.isActive) {
-                it.cancel()
-            }
-        }
+        requestHelper.netWorkCancel()
+
     }
 
     fun isForegroundServiceRunning(): Boolean {
