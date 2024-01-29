@@ -45,7 +45,7 @@ class HistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        viewModel.getWeekSleepData()
         bindViews()
         setObservers()
     }
@@ -55,6 +55,7 @@ class HistoryFragment : Fragment() {
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.VERTICAL, false)
         //adpter 작업 필요함
         binding.historyRecyclerView.adapter = adapter
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -114,7 +115,9 @@ class HistoryFragment : Fragment() {
                     binding.dateTextView.text = firstDate.year.toString() + "." + firstDate.monthValue + " ~ " + lastDate.year + "." + lastDate.monthValue
                 }
             }
-
+        mSelectedDate?.let {
+            viewModel.getDetailSleepData(it)
+        }
     }
 
 

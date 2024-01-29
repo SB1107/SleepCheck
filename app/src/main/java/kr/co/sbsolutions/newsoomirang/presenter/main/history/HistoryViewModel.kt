@@ -28,13 +28,7 @@ class HistoryViewModel @Inject constructor(
     private  val _sleepDataDetailData : MutableSharedFlow<List<SleepDetailResult>> = MutableSharedFlow()
       val sleepDataDetailData : SharedFlow<List<SleepDetailResult>> = _sleepDataDetailData
 
-    init {
-        getWeekSleepData()
-    }
-
-
-
-    private fun getWeekSleepData() {
+     fun getWeekSleepData() {
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getWeek() }
                 .collectLatest {
