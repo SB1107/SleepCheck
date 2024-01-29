@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -42,8 +45,8 @@ class NoSeringViewModel @Inject constructor(
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
-    private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
-    val measuringState: SharedFlow<MeasuringState> = _measuringState
+    private val _measuringState: MutableStateFlow<MeasuringState> = MutableStateFlow(MeasuringState.InIt)
+    val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
@@ -145,6 +148,9 @@ class NoSeringViewModel @Inject constructor(
             request { authAPIRepository.getNoSeringDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
+                        if (_measuringState.value == MeasuringState.Result) {
+                            return@let
+                        }
                         _measuringState.emit(if (result.state == 0) MeasuringState.Analytics else MeasuringState.Result)
                         val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
                         val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -162,6 +168,12 @@ class NoSeringViewModel @Inject constructor(
                                 apneaState = result.apneaState
                             )
                         )
+                        viewModelScope.launch(Dispatchers.IO) {
+                            delay(2000)
+                            if (_measuringState.value == MeasuringState.Analytics) {
+                                noSeringResult()
+                            }
+                        }
                     } ?: _measuringState.emit(MeasuringState.InIt)
                 }
         }

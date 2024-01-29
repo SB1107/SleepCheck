@@ -4,9 +4,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -38,8 +41,8 @@ class BreathingViewModel @Inject constructor(
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
     private val _showMeasurementCancelAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
-    private val _measuringState: MutableSharedFlow<MeasuringState> = MutableSharedFlow()
-    val measuringState: SharedFlow<MeasuringState> = _measuringState
+    private val _measuringState: MutableStateFlow<MeasuringState> = MutableStateFlow(MeasuringState.InIt)
+    val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
     val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
@@ -133,6 +136,9 @@ class BreathingViewModel @Inject constructor(
             request { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
+                        if (_measuringState.value == MeasuringState.Result) {
+                            return@let
+                        }
                         _measuringState.emit(if (result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
                         val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
                         val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -147,6 +153,13 @@ class BreathingViewModel @Inject constructor(
                                 endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState
                             )
                         )
+                        viewModelScope.launch(Dispatchers.IO) {
+                            delay(2000)
+                            if (_measuringState.value == MeasuringState.Analytics) {
+                                sleepDataResult()
+                            }
+                        }
+
                     } ?: _measuringState.emit(MeasuringState.InIt)
                 }
         }

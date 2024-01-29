@@ -615,6 +615,11 @@ class BLEService : LifecycleService() {
                 }
                 sbSensorDBRepository.deleteUploadedList(list)
                 file.delete()
+                Intent().also { intent ->
+                    intent.setAction(Cons.NOTIFICATION_ACTION)
+                    intent.setPackage(baseContext.packageName)
+                    sendBroadcast(intent)
+                }
             }
         }
     }
