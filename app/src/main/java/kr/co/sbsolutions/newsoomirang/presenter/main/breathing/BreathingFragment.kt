@@ -235,7 +235,7 @@ class BreathingFragment : Fragment() {
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
-                                binding.startButton.visibility = View.GONE
+                                binding.startButton.visibility = View.INVISIBLE
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
@@ -247,7 +247,7 @@ class BreathingFragment : Fragment() {
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
-                                binding.startButton.visibility = View.GONE
+                                binding.startButton.visibility = View.INVISIBLE
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
@@ -258,7 +258,7 @@ class BreathingFragment : Fragment() {
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
-                                binding.startButton.visibility = View.GONE
+                                binding.startButton.visibility = View.INVISIBLE
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.GONE
                                 binding.actionMeasurer.analyLayout.visibility = View.VISIBLE

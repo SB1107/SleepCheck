@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.history
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +18,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
+import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResultData
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
+import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -32,6 +37,9 @@ class HistoryFragment : Fragment() {
     private val viewModel: HistoryViewModel by viewModels()
     private val binding: FragmentHistoryBinding by lazy {
         FragmentHistoryBinding.inflate(layoutInflater)
+    }
+    private val noDataBinding: RowHistoryNoDataItemBinding by lazy {
+        RowHistoryNoDataItemBinding.inflate(layoutInflater)
     }
     private var mSelectedDate: LocalDate? = null
     private val adapter = HistoryAdapter()
@@ -53,6 +61,7 @@ class HistoryFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun bindViews() {
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(requireContext().applicationContext, LinearLayoutManager.VERTICAL, false)
+
         //adpter 작업 필요함
         binding.historyRecyclerView.adapter = adapter
 
@@ -75,6 +84,7 @@ class HistoryFragment : Fragment() {
                     mSelectedDate?.let {
                         viewModel.getDetailSleepData(it)
                     }
+//                        ?: adapter.ItemSleepViewHolder(binding)
 
                 }
                 val dateString: String = data.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -131,6 +141,7 @@ class HistoryFragment : Fragment() {
                 }
                 launch {
                     viewModel.sleepDataDetailData.collectLatest {
+                        Log.d(TAG, "setObservers: $it")
                         adapter.submitList(it.toMutableList())
                     }
                 }

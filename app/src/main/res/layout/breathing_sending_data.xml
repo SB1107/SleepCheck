@@ -116,7 +116,8 @@
         android:textColor="@color/color_78899F"
         android:textSize="18dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view"
+        android:visibility="gone"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/result_real_text_view"
@@ -129,7 +130,9 @@
         android:textColor="@color/color_FFFFFF"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view"
+        android:visibility="gone"
+        />
 
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -157,15 +160,66 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/result_real_text_view" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="깊은 잠 시간"
+        android:textColor="@color/color_78899F"
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_asleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_deep_sleep_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="40분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_asleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="뒤척임 횟수"
+        android:textColor="@color/color_78899F"
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_deep_sleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_sleep_move_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="40분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_deep_sleep_text_view" />
+
+
     <View
         android:id="@+id/v_line"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:background="@color/color_1F3046"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_asleep_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/result_sleep_move_text_view" />
 
 
     <androidx.appcompat.widget.AppCompatTextView

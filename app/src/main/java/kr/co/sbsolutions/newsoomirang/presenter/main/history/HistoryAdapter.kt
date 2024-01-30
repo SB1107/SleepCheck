@@ -19,6 +19,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.card.MaterialCardView
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
@@ -26,6 +27,7 @@ import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSleepBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSnoreBinding
+import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
 import java.util.concurrent.TimeUnit
 
 class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(object : DiffUtil.ItemCallback<SleepDetailResult>() {
@@ -42,19 +44,31 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         val inflater = LayoutInflater.from(context)
-        return if (viewType == 0) {
-            ItemSleepViewHolder(RowHistoryItemSleepBinding.inflate(inflater, parent, false))
-        } else {
-            ItemSnoreViewHolder(RowHistoryItemSnoreBinding.inflate(inflater, parent, false))
+        return when (viewType) {
+            0 -> {
+                ItemSleepViewHolder(RowHistoryItemSleepBinding.inflate(inflater, parent, false))
+            }
+            1 -> {
+                ItemSnoreViewHolder(RowHistoryItemSnoreBinding.inflate(inflater, parent, false))
+            }
+            else -> {
+                ItemNotDataViewHolder(RowHistoryNoDataItemBinding.inflate(inflater, parent, false))
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position).let {
-            if (it.type == 0) {
-                (holder as ItemSleepViewHolder).bind(it)
-            } else {
-                (holder as ItemSnoreViewHolder).bind(it)
+            when (it.type) {
+                0 -> {
+                    (holder as ItemSleepViewHolder).bind(it)
+                }
+                1 -> {
+                    (holder as ItemSnoreViewHolder).bind(it)
+                }
+                else -> {
+                    (holder as ItemNotDataViewHolder)
+                }
             }
         }
     }
@@ -62,6 +76,10 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     override fun getItemViewType(position: Int): Int {
         return getItem(position).type
     }
+
+    inner class ItemNotDataViewHolder(
+        private val binding: RowHistoryNoDataItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {}
 
     inner class ItemSleepViewHolder(
         private val binding: RowHistoryItemSleepBinding
@@ -120,26 +138,26 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             binding.actionType.resultApena60TextView.text = "${result.apnea60} 회"
 
             binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout((result.straightPosition.toDouble() / (result.sleepTime ).toDouble()) ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
+            percentLayout((result.straightPosition.toDouble() / (result.sleepTime).toDouble()), binding.actionType.pose1PercentTextView, binding.actionType.pose1ProgressView)
 
             binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
+            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose2PercentTextView, binding.actionType.pose2ProgressView)
 
             binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
+            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose3PercentTextView, binding.actionType.pose3ProgressView)
 
             binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
+            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose4PercentTextView, binding.actionType.pose4ProgressView)
 
             binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
+            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose5PercentTextView, binding.actionType.pose5ProgressView)
             initChart(binding.actionType.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
                     .filter { it.trim() != "" }
                     .forEach { value ->
-                    addEntry(binding.actionType.chart , value.toDouble())
-                }
+                        addEntry(binding.actionType.chart, value.toDouble())
+                    }
             }
 
 
@@ -147,9 +165,9 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     }
 
     @SuppressLint("SetTextI18n")
-    private fun percentLayout(percent: Double, textView : AppCompatTextView, cardView: MaterialCardView){
-        textView.text = String.format("%.1f", percent  * 100)+ "%"
-        cardView.layoutParams =  (cardView.layoutParams as RelativeLayout.LayoutParams).apply {
+    private fun percentLayout(percent: Double, textView: AppCompatTextView, cardView: MaterialCardView) {
+        textView.text = String.format("%.1f", percent * 100) + "%"
+        cardView.layoutParams = (cardView.layoutParams as RelativeLayout.LayoutParams).apply {
             width = context.toDp2Px((percent * 2 * 100).toFloat()).toInt()
         }
 
@@ -183,25 +201,25 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             binding.actionType.snoreTimeTextView.text = (result.snoreTime * 60).toHourMinute()
 
             binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout(result.straightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose1PercentTextView , binding.actionType.pose1ProgressView )
+            percentLayout(result.straightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose1PercentTextView, binding.actionType.pose1ProgressView)
 
             binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose2PercentTextView , binding.actionType.pose2ProgressView )
+            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose2PercentTextView, binding.actionType.pose2ProgressView)
 
             binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose3PercentTextView , binding.actionType.pose3ProgressView )
+            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose3PercentTextView, binding.actionType.pose3ProgressView)
 
             binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose4PercentTextView , binding.actionType.pose4ProgressView )
+            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose4PercentTextView, binding.actionType.pose4ProgressView)
 
             binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble() ,  binding.actionType.pose5PercentTextView , binding.actionType.pose5ProgressView )
+            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose5PercentTextView, binding.actionType.pose5ProgressView)
             initChart(binding.actionType.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
                     .filter { it.trim() != "" }
                     .forEach { value ->
-                        addEntry(binding.actionType.chart , value.toDouble())
+                        addEntry(binding.actionType.chart, value.toDouble())
                     }
             }
         }

@@ -392,7 +392,9 @@ class BLEService : LifecycleService() {
             ActionMessage.CancelSbService -> {
                 stopScheduler()
                 finishService(-1, false)
-                sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
+                lifecycleScope.launch(Dispatchers.IO) {
+                    sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
+                }
 
             }
 

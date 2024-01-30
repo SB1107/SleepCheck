@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -22,13 +24,13 @@ class HistoryViewModel @Inject constructor(
     dataManager: DataManager,
     tokenManager: TokenManager,
     private val authDataSource: RemoteAuthDataSource
-) : BaseServiceViewModel(dataManager , tokenManager) {
+) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _sleepWeekData: MutableSharedFlow<SleepDateEntity> = MutableSharedFlow()
     val sleepWeekData: SharedFlow<SleepDateEntity> = _sleepWeekData
-    private  val _sleepDataDetailData : MutableSharedFlow<List<SleepDetailResult>> = MutableSharedFlow()
-      val sleepDataDetailData : SharedFlow<List<SleepDetailResult>> = _sleepDataDetailData
+    private val _sleepDataDetailData: MutableSharedFlow<List<SleepDetailResult>> = MutableSharedFlow()
+    val sleepDataDetailData: SharedFlow<List<SleepDetailResult>> = _sleepDataDetailData
 
-     fun getWeekSleepData() {
+    fun getWeekSleepData() {
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getWeek() }
                 .collectLatest {
@@ -39,19 +41,31 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-     fun getDetailSleepData(localDate: LocalDate) {
+    fun getDetailSleepData(localDate: LocalDate) {
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getSleepDataDetail(localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))) }
                 .collectLatest { sleepData ->
                     sleepData.result?.data?.let {
-                        _sleepDataDetailData.emit(it)
+                        if (it.isEmpty()) {
+                            _sleepDataDetailData.emit(
+                                listOf(
+                                    SleepDetailResult(id = 1, userId = 1, number = "", dirName = "", fileName = "", asleepTime = 1, type = 2, snoreTime = 1, apneaState = null, apneaCount = 0, apnea10 = 0, apnea30 = 0, apnea60 = 0, straightPosition = 0, leftPosition = 0, rightPosition = 0, downPosition = 0, wakeTime = 0,
+                                        sleepPattern = "", startedAt = "", endedAt = "", sleepTime = 0, state = 0)
+                                )
+                            )
+
+                        } else {
+                            _sleepDataDetailData.emit(it)
+                            Log.d(TAG, "getDetailSleepData: $it")
+                        }
+
                     }
                 }
         }
     }
 
     override fun whereTag(): String {
-        return  "History"
+        return "History"
     }
 
 //    fun test(sleepModel: SleepModel) {

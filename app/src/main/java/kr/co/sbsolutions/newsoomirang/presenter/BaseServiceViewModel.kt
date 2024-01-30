@@ -51,8 +51,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     setBatteryInfo()
                     if (it.bluetoothState == BluetoothState.Unregistered) {
                         _bluetoothButtonState.emit("연결")
-                    }
-                    if (it.bluetoothState == BluetoothState.Registered) {
+                    } else {
                         _bluetoothButtonState.emit("시작")
                     }
                 }

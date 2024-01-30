@@ -200,7 +200,7 @@
       <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="총 무호흡 횟수"
+        android:text="총 이상호흡 횟수"
         android:textColor="@color/color_78899F"
         android:textSize="18dp" />
 
@@ -226,7 +226,7 @@
       <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="10초이상 무호흡 횟수"
+        android:text="10초이상 이상호흡 횟수"
         android:textColor="@color/color_78899F"
         android:textSize="18dp" />
 
@@ -252,7 +252,7 @@
       <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="30초이상 무호흡 횟수"
+        android:text="30초이상 이상호흡 횟수"
         android:textColor="@color/color_78899F"
         android:textSize="18dp" />
 
@@ -278,7 +278,7 @@
       <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="60초이상 무호흡 횟수"
+        android:text="60초이상 이상호흡 횟수"
         android:textColor="@color/color_78899F"
         android:textSize="18dp" />
 

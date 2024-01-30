@@ -102,7 +102,7 @@ class NoSeringViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
-            getService()?.stopSBSensor()
+            getService()?.stopSBSensor(true)
         }
     }
 
