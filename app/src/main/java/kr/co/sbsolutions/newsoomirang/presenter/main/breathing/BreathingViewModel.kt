@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
@@ -135,6 +136,10 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun sleepDataResult() {
+        if (_measuringState.value ==MeasuringState.Charging) {
+            showCharging()
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
@@ -151,11 +156,12 @@ class BreathingViewModel @Inject constructor(
                         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
                         val sleepTime = (result.sleepTime * 60).toHourMinute()
                         val resultAsleep = (result.asleepTime * 60).toHourMinute()
-                        val moveCount = (result.moveCount)
-                        val deepSleepTime = (result.deepSleepTime)
+                        val deepSleepTime = (result.deepSleepTime * 60).toHourMinute()
+                        val moveCount = (result.moveCount).toString()
                         _sleepDataResultFlow.emit(
                             SleepDataResultModel(
-                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState, deepSleepTime =deepSleepTime.toString()  ,moveCount =moveCount.toString()
+                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState
+                                , moveCount = moveCount , deepSleepTime = deepSleepTime
                             )
                         )
                         viewModelScope.launch(Dispatchers.IO) {
@@ -194,5 +200,5 @@ class BreathingViewModel @Inject constructor(
 }
 
 enum class MeasuringState {
-    InIt, FiveRecode, Record, Analytics, Result
+    InIt, FiveRecode, Record, Analytics, Result,Charging
 }

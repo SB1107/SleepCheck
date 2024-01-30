@@ -134,8 +134,9 @@ class BreathingFragment : Fragment() {
                 //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
                 launch {
                     viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "아직 호흡정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다."
+                        binding.tvNameDes2.text = if (it) "아직 호흡정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
+                        viewModel.setMeasuringState(MeasuringState.Charging)
                     }
                 }
                 //시작버튼 누를시 팝업 이벤트
@@ -229,7 +230,14 @@ class BreathingFragment : Fragment() {
                                 binding.startButton.visibility = View.VISIBLE
                                 binding.stopButton.visibility = View.GONE
                                 chartSetting()
-
+                            }
+                            MeasuringState.Charging ->{
+                                binding.initGroup.visibility = View.VISIBLE
+                                binding.actionMeasurer.root.visibility = View.GONE
+                                binding.actionResult.root.visibility = View.GONE
+                                binding.startButton.visibility = View.GONE
+                                binding.stopButton.visibility = View.GONE
+                                chartSetting()
                             }
 
                             MeasuringState.FiveRecode -> {

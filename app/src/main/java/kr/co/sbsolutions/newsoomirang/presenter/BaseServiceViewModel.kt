@@ -78,6 +78,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
             bluetoothInfo.batteryInfo?.let { _batteryState.emit(it) }
             _canMeasurement.emit(bluetoothInfo.canMeasurement)
         }
+    }
+    fun showCharging(){
+        viewModelScope.launch {
+            _canMeasurement.emit(true)
+        }
 
     }
 

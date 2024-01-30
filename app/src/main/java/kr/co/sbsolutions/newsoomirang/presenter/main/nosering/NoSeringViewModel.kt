@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
@@ -46,7 +47,7 @@ class NoSeringViewModel @Inject constructor(
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
     private val _measuringState: MutableStateFlow<MeasuringState> = MutableStateFlow(MeasuringState.InIt)
-    val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
+    val measuringState: StateFlow<MeasuringState> = _measuringState
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
@@ -143,6 +144,10 @@ class NoSeringViewModel @Inject constructor(
     }
 
     fun noSeringResult() {
+        if (_measuringState.value ==MeasuringState.Charging) {
+            showCharging()
+            return
+        }
         Log.d(TAG, "noSeringResult: $ 측정 완료 결과 보기")
         viewModelScope.launch {
             request { authAPIRepository.getNoSeringDataResult() }

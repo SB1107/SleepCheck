@@ -53,7 +53,7 @@ class NoSeringFragment : Fragment() {
                 viewModel.connectClick()
             }
             connectInfoBinding.btLater.setOnClickListener {
-              this.dismiss()
+                this.dismiss()
             }
         }
     }
@@ -67,12 +67,13 @@ class NoSeringFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.noSeringResult()
+        viewModel.noSeringResultData()
+        viewModel.setBatteryInfo()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.batteryTextView.visibility =View.GONE
+        binding.batteryTextView.visibility = View.GONE
         isPermission()
         setObservers()
         binding.motorCheckBox.setOnCheckedChangeListener { _, isChecked ->
@@ -172,8 +173,9 @@ class NoSeringFragment : Fragment() {
                 //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
                 launch {
                     viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "아직 코골이정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다."
+                        binding.tvNameDes2.text = if (it) "아직 코골이정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
+                        viewModel.setMeasuringState(MeasuringState.Charging)
                     }
                 }
                 //시작버튼 누를시 팝업 이벤트
@@ -240,8 +242,8 @@ class NoSeringFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.isProgressBar.collect{
-                        binding.actionProgress.clProgress.visibility = if(it)  View.VISIBLE  else View.GONE
+                    viewModel.isProgressBar.collect {
+                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
                 //UI 변경
@@ -253,6 +255,14 @@ class NoSeringFragment : Fragment() {
                                 binding.actionMeasurer.root.visibility = View.GONE
                                 binding.actionResult.root.visibility = View.GONE
                                 binding.startButton.visibility = View.VISIBLE
+                                binding.stopButton.visibility = View.GONE
+                            }
+
+                            MeasuringState.Charging -> {
+                                binding.initGroup.visibility = View.VISIBLE
+                                binding.actionMeasurer.root.visibility = View.GONE
+                                binding.actionResult.root.visibility = View.GONE
+                                binding.startButton.visibility = View.GONE
                                 binding.stopButton.visibility = View.GONE
                             }
 
@@ -290,6 +300,7 @@ class NoSeringFragment : Fragment() {
             }
         }
     }
+
     private fun showConnectDialog() {
         if (connectInfoDialog.isShowing) {
             connectInfoDialog.dismiss()
