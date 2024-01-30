@@ -4,42 +4,62 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.lang.ref.WeakReference
 
-abstract class BaseServiceViewModel(private val dataManager: DataManager , private  val tokenManager: TokenManager) : BaseViewModel(dataManager,tokenManager) {
+abstract class BaseServiceViewModel(private val dataManager: DataManager, private val tokenManager: TokenManager) : BaseViewModel(dataManager, tokenManager) {
     private lateinit var service: WeakReference<BLEService>
     private val _serviceCommend: MutableSharedFlow<ServiceCommend> = MutableSharedFlow()
     val serviceCommend: SharedFlow<ServiceCommend> = _serviceCommend
-    private val _userName: MutableSharedFlow<String> = MutableSharedFlow()
-    val userName: SharedFlow<String> = _userName
+    private val _userName: MutableStateFlow<String> = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName
     private val _gotoScan: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val gotoScan: SharedFlow<Boolean> = _gotoScan
-    private val _batteryState: MutableSharedFlow<String> = MutableSharedFlow(replay = 1)
-    val batteryState: SharedFlow<String> = _batteryState
+
+    private val _connectAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val connectAlert: SharedFlow<Boolean> = _connectAlert
+
+    private val _batteryState: MutableStateFlow<String> = MutableStateFlow("")
+    val batteryState: StateFlow<String> = _batteryState
 
     private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val canMeasurement: SharedFlow<Boolean> = _canMeasurement
-    protected  var bluetoothInfo = ApplicationManager.getBluetoothInfo()
-    abstract fun whereTag() : String
+    private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
+    val bluetoothButtonState: StateFlow<String> = _bluetoothButtonState
+    protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
+    abstract fun whereTag(): String
 
     init {
+
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collect {
                     Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
                     setBatteryInfo()
+                    if (it.bluetoothState == BluetoothState.Unregistered) {
+                        _bluetoothButtonState.emit("연결")
+                    }
+                    if (it.bluetoothState == BluetoothState.Registered) {
+                        _bluetoothButtonState.emit("시작")
+                    }
                 }
+            }
+            launch {
+                val name = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+                _bluetoothButtonState.emit(if (name.isNullOrEmpty()) "연결" else "시작")
             }
             launch {
                 service = ApplicationManager.getService().value
@@ -51,8 +71,9 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
             }
         }
     }
-    open fun serviceSettingCall(){}
-    fun setBatteryInfo(){
+
+    open fun serviceSettingCall() {}
+    fun setBatteryInfo() {
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
             bluetoothInfo.batteryInfo?.let { _batteryState.emit(it) }
@@ -61,28 +82,34 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager , priva
 
     }
 
-//    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
+    //    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
 //    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}
     fun setCommend(serviceCommend: ServiceCommend) {
         viewModelScope.launch {
             _serviceCommend.emit(serviceCommend)
         }
     }
-    fun  isRegistered() : Boolean{
+
+    fun connectClick(){
+        viewModelScope.launch{
+            _gotoScan.emit(true)
+        }
+    }
+    fun isRegistered(): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             viewModelScope.launch {
-                _gotoScan.emit(true)
+                _connectAlert.emit(true)
+
             }
             return false
         }
-        return  true
+        return true
     }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getUserName().first()?.let {
-                Log.d(TAG, "INIT $it ")
                 _userName.emit(it)
             }
         }

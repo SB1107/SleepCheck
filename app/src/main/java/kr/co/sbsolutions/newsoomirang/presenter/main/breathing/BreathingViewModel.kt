@@ -54,12 +54,13 @@ class BreathingViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
+                ApplicationManager.getBluetoothInfoFlow().collect { info ->
                     if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                         info.currentData.collectLatest {
                             _capacitanceFlow.emit(it)
                         }
                     }
+
                 }
             }
         }

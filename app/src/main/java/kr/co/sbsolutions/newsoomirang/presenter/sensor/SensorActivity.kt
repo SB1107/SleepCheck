@@ -19,7 +19,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
@@ -81,6 +80,11 @@ class SensorActivity : BaseServiceActivity() {
         onBluetoothActive()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.checkDeviceScan()
+    }
+
     private fun bindViews() {
         with(binding) {
             deviceRecyclerView.apply {
@@ -93,6 +97,9 @@ class SensorActivity : BaseServiceActivity() {
                 btSearch.text = "스캔"
                 deviceNameTextView.text = "연결된 기기가 없습니다."
                 viewModel.scanBLEDevices()
+            }
+            actionBar.backButton.setOnClickListener {
+                finish()
             }
 
             /*disconnectButton.setOnClickListener {

@@ -79,6 +79,15 @@ class SensorViewModel @Inject constructor(
                 }
             }
 
+
+        }
+    }
+    fun checkDeviceScan(){
+        viewModelScope.launch {
+                val name = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+                if (name.isNullOrEmpty()) {
+                    scanBLEDevices()
+                }
         }
     }
 

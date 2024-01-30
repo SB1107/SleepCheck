@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.plusAssign
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +42,11 @@ class MainActivity : BaseServiceActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Cons.NOTIFICATION_ACTION) {
-                    getBroadcastData()
+                getBroadcastData()
             }
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -57,24 +59,24 @@ class MainActivity : BaseServiceActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.serviceCommend.collectLatest {
-                    when(it) {
-                        ServiceCommend.START -> startSBService(ActionMessage.StartSBService)
-                        ServiceCommend.STOP -> startSBService(ActionMessage.StopSBService)
-                        ServiceCommend.CANCEL -> startSBService(ActionMessage.CancelSbService)
-                    }
+                launch {
+                    viewModel.serviceCommend.collectLatest {
+                        when (it) {
+                            ServiceCommend.START -> startSBService(ActionMessage.StartSBService)
+                            ServiceCommend.STOP -> startSBService(ActionMessage.StopSBService)
+                            ServiceCommend.CANCEL -> startSBService(ActionMessage.CancelSbService)
+                        }
 
+                    }
                 }
+
             }
         }
 
     }
+
     fun getBroadcastData() {
-        Log.e("Adsf","getBroadcastData")
-            viewModel.sendMeasurementResults()
-//            viewModel.addLastDataID(data.toInt())
-        // viewModel.getDataIdResult(data.toInt())
-//        Log.d(TAG, "[MAIN] getBroadcastData() : $data")
+        viewModel.sendMeasurementResults()
     }
 
 }

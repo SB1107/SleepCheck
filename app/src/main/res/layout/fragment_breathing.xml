@@ -71,28 +71,34 @@
         android:visibility="gone"/>
 
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
-        android:clickable="true"
-        android:src="@drawable/btn_start"
+        android:text="시작"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="24sp"
+        android:fontFamily="@font/nanumsquarebold"
+        android:background="@drawable/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/stop_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:text="종료"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="24sp"
+        android:fontFamily="@font/nanumsquarebold"
         android:layout_marginBottom="30dp"
-        android:clickable="true"
-        android:src="@drawable/btn_close"
+        android:background="@drawable/button"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

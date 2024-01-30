@@ -17,8 +17,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
@@ -38,8 +39,23 @@ import java.util.Locale
 class BreathingFragment : Fragment() {
     private val viewModel: BreathingViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
+
     private val binding: FragmentBreathingBinding by lazy {
         FragmentBreathingBinding.inflate(layoutInflater)
+    }
+    private val connectInfoBinding: DialogConnectInfoBinding by lazy {
+        DialogConnectInfoBinding.inflate(layoutInflater)
+    }
+    private val connectInfoDialog by lazy {
+        BottomSheetDialog(requireContext()).apply {
+            setContentView(connectInfoBinding.root, null)
+            connectInfoBinding.btConnect.setOnClickListener {
+                viewModel.connectClick()
+            }
+            connectInfoBinding.btLater.setOnClickListener {
+                this.dismiss()
+            }
+        }
     }
     private val queueList = LimitedQueue<Entry>(50)
     private val dataSetList = LineDataSet(queueList.toList(), "Label")
@@ -87,6 +103,12 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
+                    }
+                }
+                // 블루투스 연결 팝업
+                launch {
+                    viewModel.connectAlert.collect{
+                        showConnectDialog()
                     }
                 }
 
@@ -181,6 +203,11 @@ class BreathingFragment : Fragment() {
 
                             viewModel.cancelClick()
                         })
+                    }
+                }
+                launch {
+                    viewModel.bluetoothButtonState.collect{
+                        binding.startButton.text = it
                     }
                 }
                 //UI 변경
@@ -292,7 +319,14 @@ class BreathingFragment : Fragment() {
         dataSetList.setDrawCircles(false)
     }
 
+    private  fun showConnectDialog(){
+        if (connectInfoDialog.isShowing) {
+            connectInfoDialog.dismiss()
+        }
+        connectInfoDialog.show()
+    }
     private fun showChargingDialog() {
+
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
                 lifecycleScope.launch {
@@ -308,6 +342,9 @@ class BreathingFragment : Fragment() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setBatteryInfo(batteryInfo: String) {
+        if (batteryInfo.isEmpty()) {
+            return
+        }
         binding.batteryTextView.visibility = View.VISIBLE
         if (batteryInfo.toInt() <= 25) {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_1), null)

@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,15 +26,14 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
-import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
-import org.tensorflow.lite.support.label.Category
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -42,6 +42,20 @@ class NoSeringFragment : Fragment() {
     private val activityViewModel: MainViewModel by activityViewModels()
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
+    }
+    private val connectInfoBinding: DialogConnectInfoBinding by lazy {
+        DialogConnectInfoBinding.inflate(layoutInflater)
+    }
+    private val connectInfoDialog by lazy {
+        BottomSheetDialog(requireContext()).apply {
+            setContentView(connectInfoBinding.root, null)
+            connectInfoBinding.btConnect.setOnClickListener {
+                viewModel.connectClick()
+            }
+            connectInfoBinding.btLater.setOnClickListener {
+              this.dismiss()
+            }
+        }
     }
 
     override fun onCreateView(
@@ -58,9 +72,10 @@ class NoSeringFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.batteryTextView.visibility =View.GONE
         isPermission()
         setObservers()
-        binding.motorCheckBox.setOnCheckedChangeListener{ _ , isChecked ->
+        binding.motorCheckBox.setOnCheckedChangeListener { _, isChecked ->
             run {
                 viewModel.setMotorCheckBox(isChecked)
             }
@@ -93,11 +108,12 @@ class NoSeringFragment : Fragment() {
         }
 
     }
-    private  fun isPermission(){
-        if(ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) ==  PackageManager.PERMISSION_DENIED){
+
+    private fun isPermission() {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
             binding.startButton.visibility = View.GONE
             TedPermission.create()
-                .setPermissionListener(object  : PermissionListener{
+                .setPermissionListener(object : PermissionListener {
                     override fun onPermissionGranted() {
                         binding.startButton.visibility = View.VISIBLE
                     }
@@ -108,7 +124,7 @@ class NoSeringFragment : Fragment() {
                 }).setPermissions(Manifest.permission.RECORD_AUDIO)
                 .setDeniedMessage("권한을 설정해주셔야 합니다.")
                 .check()
-        }else{
+        } else {
             binding.startButton.visibility = View.VISIBLE
         }
     }
@@ -146,6 +162,12 @@ class NoSeringFragment : Fragment() {
                         setBatteryInfo(it)
                     }
                 }
+                // 블루투스 연결 팝업
+                launch {
+                    viewModel.connectAlert.collectLatest {
+                        showConnectDialog()
+                    }
+                }
 
                 //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
                 launch {
@@ -180,8 +202,8 @@ class NoSeringFragment : Fragment() {
                 //300미만 취소 시
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
-                        requireActivity().showAlertDialogWithCancel(R.string.common_title,"측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?",confirmAction ={
-                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0 ,0)
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
+                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
                             viewModel.cancelClick()
                         })
                     }
@@ -197,11 +219,24 @@ class NoSeringFragment : Fragment() {
 
                 launch {
                     viewModel.intensity.collectLatest {
-                        when(it){
-                            0 -> {binding.type0Chip.performClick()}
-                            1 -> {binding.type1Chip.performClick()}
-                            2 -> {binding.type2Chip.performClick()}
+                        when (it) {
+                            0 -> {
+                                binding.type0Chip.performClick()
+                            }
+
+                            1 -> {
+                                binding.type1Chip.performClick()
+                            }
+
+                            2 -> {
+                                binding.type2Chip.performClick()
+                            }
                         }
+                    }
+                }
+                launch {
+                    viewModel.bluetoothButtonState.collect {
+                        binding.startButton.text = it
                     }
                 }
                 //UI 변경
@@ -247,10 +282,14 @@ class NoSeringFragment : Fragment() {
                         }
                     }
                 }
-
             }
-
         }
+    }
+    private fun showConnectDialog() {
+        if (connectInfoDialog.isShowing) {
+            connectInfoDialog.dismiss()
+        }
+        connectInfoDialog.show()
     }
 
     private fun showChargingDialog() {
@@ -269,6 +308,9 @@ class NoSeringFragment : Fragment() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setBatteryInfo(batteryInfo: String) {
+        if (batteryInfo.isEmpty()) {
+            return
+        }
         binding.batteryTextView.visibility = View.VISIBLE
         if (batteryInfo.toInt() <= 25) {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_1), null)
