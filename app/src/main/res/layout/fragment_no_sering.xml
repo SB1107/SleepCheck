@@ -7,74 +7,94 @@
     android:background="@color/color_061629"
     tools:context=".presenter.main.nosering.NoSeringFragment">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/init_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:constraint_referenced_ids="tv_name ,tv_name_des1 ,tv_name_des2" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="100dp"
-        android:fontFamily="@font/nanumsquarebold"
-        android:text="고객"
-        android:textColor="@color/color_FFFFFF"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_name_des1"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
-        android:fontFamily="@font/nanumsquarebold"
-        android:text="님"
-        android:textColor="@color/color_78899F"
-        android:textSize="24sp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/v_line"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/tv_name"
-        app:layout_constraintTop_toTopOf="@+id/tv_name" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_weight="7">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_name_des2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
-        android:fontFamily="@font/nanumsquareregular"
-        android:text="아직 코골이정보가 없습니다.\n시작을 눌러주세요."
-        android:textColor="@color/color_78899F"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
-        app:layout_constraintStart_toStartOf="@id/tv_name"
-        app:layout_constraintTop_toBottomOf="@id/tv_name_des1" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/action_measurer"
-        layout="@layout/no_sering_measure"
-        android:visibility="gone"/>
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/init_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:constraint_referenced_ids="tv_name ,tv_name_des1 ,tv_name_des2" />
 
-    <include
-        android:id="@+id/action_result"
-        layout="@layout/no_sering_result"
-        android:visibility="gone"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="100dp"
+                android:fontFamily="@font/nanumsquarebold"
+                android:text="고객"
+                android:textColor="@color/color_FFFFFF"
+                android:textSize="24sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_name_des1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:fontFamily="@font/nanumsquarebold"
+                android:text="님"
+                android:textColor="@color/color_78899F"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/tv_name"
+                app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_name_des2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:fontFamily="@font/nanumsquareregular"
+                android:text="아직 코골이정보가 없습니다.\n시작을 눌러주세요."
+                android:textColor="@color/color_78899F"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
+                app:layout_constraintStart_toStartOf="@id/tv_name"
+                app:layout_constraintTop_toBottomOf="@id/tv_name_des1" />
+
+            <include
+                android:id="@+id/action_measurer"
+                layout="@layout/no_sering_measure"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/action_result"
+                layout="@layout/no_sering_result"
+                android:visibility="gone" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
     <View
         android:id="@+id/v_line"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@color/color_1F3046"
         android:layout_marginTop="20dp"
+        android:background="@color/color_1F3046"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -180,11 +200,11 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
         android:fontFamily="@font/nanumsquareregular"
         android:text="진동 세기"
         android:textColor="@color/color_78899F"
         android:textSize="18sp"
-        android:layout_marginStart="30dp"
         app:layout_constraintBottom_toBottomOf="@+id/cv_v"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/cv_v" />
@@ -197,11 +217,11 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumsquarebold"
         android:text="시작"
         android:textColor="@color/color_FFFFFF"
         android:textSize="24sp"
-        android:fontFamily="@font/nanumsquarebold"
-        android:background="@drawable/button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -213,13 +233,13 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
+        android:background="@drawable/button"
+        android:fontFamily="@font/nanumsquarebold"
         android:src="@drawable/btn_close"
-        android:visibility="gone"
         android:text="종료"
         android:textColor="@color/color_FFFFFF"
         android:textSize="24sp"
-        android:fontFamily="@font/nanumsquarebold"
-        android:background="@drawable/button"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

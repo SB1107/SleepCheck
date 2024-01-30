@@ -151,9 +151,11 @@ class BreathingViewModel @Inject constructor(
                         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
                         val sleepTime = (result.sleepTime * 60).toHourMinute()
                         val resultAsleep = (result.asleepTime * 60).toHourMinute()
+                        val moveCount = (result.moveCount)
+                        val deepSleepTime = (result.deepSleepTime)
                         _sleepDataResultFlow.emit(
                             SleepDataResultModel(
-                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState
+                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState, deepSleepTime =deepSleepTime.toString()  ,moveCount =moveCount.toString()
                             )
                         )
                         viewModelScope.launch(Dispatchers.IO) {

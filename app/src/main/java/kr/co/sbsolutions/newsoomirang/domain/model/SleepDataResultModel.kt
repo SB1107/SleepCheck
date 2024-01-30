@@ -7,4 +7,6 @@ data class SleepDataResultModel(
       val resultReal : String,
       val resultAsleep : String,
       val apneaState : Int,
+      var deepSleepTime: String,
+      var moveCount: String
 )

@@ -26,5 +26,9 @@ data class NoSeringResult(
     var asleepTime: Int = 0,
     @SerializedName("apnea_state")
     var apneaState: Int = 0,
+    @SerializedName("deep_sleep_time")
+    var deepSleepTime: Int = 0,
+    @SerializedName("move_count")
+    var moveCount: Int = 0
 
 )

@@ -171,6 +171,8 @@ class BreathingFragment : Fragment() {
                         binding.actionResult.resultRealTextView.text = it.resultReal
                         binding.actionResult.resultAsleepTextView.text = it.resultAsleep
                         binding.actionResult.resultDurationTextView.text = it.duration
+                        binding.actionResult.resultDeepSleepTextView.text = it.deepSleepTime
+                        binding.actionResult.resultSleepMoveTextView.text = it.moveCount
                         when (it.apneaState) {
                             3 -> {
                                 binding.actionResult.IndicatorsLeft.visibility = View.GONE

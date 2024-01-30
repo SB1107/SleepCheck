@@ -65,4 +65,8 @@ data class SleepDetailResult(
     var sleepTime: Int = 0,
     @SerializedName("state")
     var state: Int? = null,
+    @SerializedName("deep_sleep_time")
+    var deepSleepTime: Int = 0,
+    @SerializedName("move_count")
+    var moveCount: Int = 0
 )
