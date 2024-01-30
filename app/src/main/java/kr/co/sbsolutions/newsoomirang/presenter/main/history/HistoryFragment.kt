@@ -139,6 +139,11 @@ class HistoryFragment : Fragment() {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
+                launch {
+                    viewModel.isProgressBar.collect{
+                        binding.actionProgress.clProgress.visibility = if(it)  View.VISIBLE  else View.GONE
+                    }
+                }
             }
         }
     }

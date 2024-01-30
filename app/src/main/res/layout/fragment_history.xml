@@ -69,4 +69,8 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <include
+        android:id="@+id/action_progress"
+        layout="@layout/row_progress"
+        android:visibility="gone" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

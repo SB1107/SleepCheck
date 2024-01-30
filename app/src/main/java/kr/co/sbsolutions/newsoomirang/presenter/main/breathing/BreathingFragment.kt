@@ -19,6 +19,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -208,6 +209,11 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect{
                         binding.startButton.text = it
+                    }
+                }
+                launch {
+                    viewModel.isProgressBar.collect{
+                        binding.actionProgress.clProgress.visibility = if(it)  View.VISIBLE  else View.GONE
                     }
                 }
                 //UI 변경

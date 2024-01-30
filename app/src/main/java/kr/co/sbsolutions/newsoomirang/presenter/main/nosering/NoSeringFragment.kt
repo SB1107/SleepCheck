@@ -239,6 +239,11 @@ class NoSeringFragment : Fragment() {
                         binding.startButton.text = it
                     }
                 }
+                launch {
+                    viewModel.isProgressBar.collect{
+                        binding.actionProgress.clProgress.visibility = if(it)  View.VISIBLE  else View.GONE
+                    }
+                }
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {
