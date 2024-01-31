@@ -186,59 +186,30 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            val reuslt = updateAndGet { it.copy(
-                bluetoothState =      when (it.bluetoothState) {
-                    BluetoothState.Connected.ReceivingDelayed,
-                    BluetoothState.Connected.Reconnected,
-                    BluetoothState.Connected.ReceivingRealtime,
-                    BluetoothState.Connected.SendDelayed,
-                    BluetoothState.Connected.SendDelete,
-                    BluetoothState.Connected.SendDownload,
-                    BluetoothState.Connected.SendDownloadContinue,
-                    BluetoothState.Connected.SendRealtime,
-                    BluetoothState.Connected.SendStart,
-                    BluetoothState.Connected.SendStop,
-                    BluetoothState.Connected.WaitStart -> {
-                        BluetoothState.DisconnectedNotIntent
+            value.let { bi ->
+                    when (bi.bluetoothState) {
+                        BluetoothState.Connected.ReceivingDelayed,
+                        BluetoothState.Connected.Reconnected,
+                        BluetoothState.Connected.ReceivingRealtime,
+                        BluetoothState.Connected.SendDelayed,
+                        BluetoothState.Connected.SendDelete,
+                        BluetoothState.Connected.SendDownload,
+                        BluetoothState.Connected.SendDownloadContinue,
+                        BluetoothState.Connected.SendRealtime,
+                        BluetoothState.Connected.SendStart,
+                        BluetoothState.Connected.SendStop,
+                        BluetoothState.Connected.WaitStart -> {
+                            update {it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
+                            insertLog(BluetoothState.DisconnectedNotIntent)
+                        }
+                        else -> {
+                            gatt.disconnect()
+                            gatt.close()
+                            update {it.copy(bluetoothGatt = null , bluetoothState =  BluetoothState.DisconnectedByUser) }
+                            insertLog(BluetoothState.DisconnectedByUser)
+                        }
                     }
-
-                    else -> {
-                        gatt.disconnect()
-                        gatt.close()
-                        it.bluetoothGatt = null
-                        BluetoothState.DisconnectedByUser
-                    }
-                }
-            ) }
-//            value.let { bi ->
-//                bi.bluetoothState =
-//                    when (bi.bluetoothState) {
-//                        BluetoothState.Connected.ReceivingDelayed,
-//                        BluetoothState.Connected.Reconnected,
-//                        BluetoothState.Connected.ReceivingRealtime,
-//                        BluetoothState.Connected.SendDelayed,
-//                        BluetoothState.Connected.SendDelete,
-//                        BluetoothState.Connected.SendDownload,
-//                        BluetoothState.Connected.SendDownloadContinue,
-//                        BluetoothState.Connected.SendRealtime,
-//                        BluetoothState.Connected.SendStart,
-//                        BluetoothState.Connected.SendStop,
-//                        BluetoothState.Connected.WaitStart -> {
-//                            BluetoothState.DisconnectedNotIntent
-//                        }
-//
-//                        else -> {
-//                            Log.e("Aa","disconnect")
-//                            gatt.disconnect()
-//                            gatt.close()
-//                            bi.bluetoothGatt = null
-//                            BluetoothState.DisconnectedByUser
-//                        }
-//                    }
-////                tryEmit(bi)
-//
-//            }
-            insertLog(reuslt.bluetoothState)
+            }
         }
     }
 

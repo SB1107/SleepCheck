@@ -120,7 +120,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
     }
 
     fun isRegistered(): Boolean {
-        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
+        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             if(bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser){
                 viewModelScope.launch {
