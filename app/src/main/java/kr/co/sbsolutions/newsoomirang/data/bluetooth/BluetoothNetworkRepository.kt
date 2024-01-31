@@ -183,6 +183,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
             else -> {
+                Log.d(TAG ,"disconnectedDevice = 없음")
                 return
             }
         }.apply {
@@ -205,6 +206,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         else -> {
                             gatt.disconnect()
                             gatt.close()
+                            Log.d(TAG ,"disconnect = disconnect")
                             update {it.copy(bluetoothGatt = null , bluetoothState =  BluetoothState.DisconnectedByUser) }
                             insertLog(BluetoothState.DisconnectedByUser)
                         }
@@ -506,19 +508,20 @@ class BluetoothNetworkRepository @Inject constructor(
             super.onConnectionStateChange(gatt, status, newState)
 
             if (status == BluetoothGatt.GATT_FAILURE) {
-//                Log.d(TAG, "[NR] onConnectionStateChange: GATT_FAILURE ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onConnectionStateChange: GATT_FAILURE ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
-//                Log.d(TAG, "[NR] onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 gatt.discoverServices()
+                innerData.update { it.copy(bluetoothGatt = gatt)}
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-//                Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }
@@ -528,12 +531,12 @@ class BluetoothNetworkRepository @Inject constructor(
             super.onServicesDiscovered(gatt, status)
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                //Log.d(TAG, "[NR] onServicesDiscovered: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onServicesDiscovered: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }
 
-            //Log.d(TAG, "[NR] onServicesDiscovered: SUCCESS ${gatt.device.name} / ${gatt.device.address}")
+            Log.d(TAG, "[NR] onServicesDiscovered: SUCCESS ${gatt.device.name} / ${gatt.device.address}")
             startNotification(gatt)
         }
 
@@ -542,6 +545,7 @@ class BluetoothNetworkRepository @Inject constructor(
             val respCharacteristic = BluetoothUtils.findResponseCharacteristic(bleGatt)
 
             if (respCharacteristic == null) {
+                Log.d(TAG, "[NR] orespCharacteristic")
                 disconnectedDevice(bleGatt)
                 return
             }
