@@ -53,11 +53,10 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     setBatteryInfo()
                     if (it.bluetoothState == BluetoothState.Unregistered) {
                         _bluetoothButtonState.emit("연결")
-                    }else if(it.bluetoothState == BluetoothState.DisconnectedByUser || it.bluetoothGatt == null){
+                    } else if (it.bluetoothState == BluetoothState.DisconnectedByUser || it.bluetoothGatt == null) {
                         _bluetoothButtonState.emit("연결")
                         _batteryState.emit("")
-                    }
-                    else {
+                    } else {
                         _bluetoothButtonState.emit("시작")
                     }
                 }
@@ -82,18 +81,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
             bluetoothInfo.batteryInfo?.let { _batteryState.emit(it) }
-            when(bluetoothInfo.bluetoothState){
-                BluetoothState.Connected.SendStart,
-                BluetoothState.Connected.WaitStart,
-                BluetoothState.Connected.ReceivingRealtime,
-                BluetoothState.Connected.SendDownloadContinue,
-                BluetoothState.Connected.SendRealtime,
-                BluetoothState.Connected.SendDownload,
-                BluetoothState.Connected.FinishDownload,
-                -> {}
-                else -> {
-                    _canMeasurement.emit(bluetoothInfo.canMeasurement)
-                }
+            when (bluetoothInfo.bluetoothState) {
+                //충전 상태를 알아야하는 상태
+                BluetoothState.Connected.Ready ->
+                    { _canMeasurement.emit(bluetoothInfo.canMeasurement) }
+                else -> {}
             }
         }
     }
@@ -102,7 +94,6 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
         viewModelScope.launch {
             _canMeasurement.emit(true)
         }
-
     }
 
     //    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
@@ -122,7 +113,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
     fun isRegistered(): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
-            if(bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser){
+            if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
                 viewModelScope.launch {
                     dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }

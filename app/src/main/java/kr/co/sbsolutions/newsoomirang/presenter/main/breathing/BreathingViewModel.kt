@@ -31,6 +31,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -54,17 +55,42 @@ class BreathingViewModel @Inject constructor(
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
+    private val _deviceBatteryState: MutableStateFlow<Boolean?> = MutableStateFlow(true)
+    val deviceBatteryState: SharedFlow<Boolean?> = _deviceBatteryState.asSharedFlow()
+
+
     init {
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collect { info ->
-                    if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
+                    if (info.bluetoothState == BluetoothState.Connected.SendRealtime ||
+                        info.bluetoothState == BluetoothState.Connected.ReceivingRealtime &&
+                        info.sleepType == SleepType.Breathing
+                    ) {
                         info.currentData.collectLatest {
 //                            Log.d(TAG, ": $it")
                             _capacitanceFlow.emit(it)
                         }
+                    } else if (info.bluetoothState == BluetoothState.Connected.Ready ||
+                        info.bluetoothState == BluetoothState.Connected.Init ||
+                        info.bluetoothState == BluetoothState.Connected.End
+                    ) {
+                        Log.d(TAG, "${info.batteryInfo}: ")
+                        setBatteryState(info)
                     }
 
+                }
+            }
+        }
+    }
+
+    private suspend fun setBatteryState(info: BluetoothInfo) {
+        info.batteryInfo?.toInt().let { it ->
+            it?.let {
+                if (it <= 20) {
+                    _deviceBatteryState.emit(false)
+                } else {
+                    _deviceBatteryState.emit(true)
                 }
             }
         }
@@ -80,7 +106,7 @@ class BreathingViewModel @Inject constructor(
                 viewModelScope.launch {
                     _showMeasurementAlert.emit(true)
                 }
-            } else if(bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
+            } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                 sendErrorMessage("코걸이 측정중 입니다. 종료후 사용해 주세요")
             }
         }
@@ -117,7 +143,7 @@ class BreathingViewModel @Inject constructor(
         }
     }
 
-    fun sleepDataCreate() : Flow<Boolean>  = callbackFlow{
+    fun sleepDataCreate(): Flow<Boolean> = callbackFlow {
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
@@ -163,8 +189,14 @@ class BreathingViewModel @Inject constructor(
                         val moveCount = (result.moveCount).toString()
                         _sleepDataResultFlow.emit(
                             SleepDataResultModel(
-                                endDate = endedAtString, duration = "$durationString 수면", resultTotal = min, resultReal = sleepTime, resultAsleep = resultAsleep, apneaState = result.apneaState
-                                , moveCount = moveCount , deepSleepTime = deepSleepTime
+                                endDate = endedAtString,
+                                duration = "$durationString 수면",
+                                resultTotal = min,
+                                resultReal = sleepTime,
+                                resultAsleep = resultAsleep,
+                                apneaState = result.apneaState,
+                                moveCount = moveCount,
+                                deepSleepTime = deepSleepTime
                             )
                         )
                         viewModelScope.launch(Dispatchers.IO) {
@@ -203,5 +235,5 @@ class BreathingViewModel @Inject constructor(
 }
 
 enum class MeasuringState {
-    InIt, FiveRecode, Record, Analytics, Result,Charging
+    InIt, FiveRecode, Record, Analytics, Result, Charging
 }

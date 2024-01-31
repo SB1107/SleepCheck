@@ -95,6 +95,22 @@ class BreathingFragment : Fragment() {
     private fun setObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                launch {
+                    viewModel.deviceBatteryState.collectLatest { it ->
+                        it?.let {
+                            Log.d(TAG, "데이터 : $it")
+                            when(it){
+                                true -> {binding.startButton.visibility = View.VISIBLE}
+                                false -> {
+                                    binding.startButton.visibility = View.GONE
+                                    binding.tvNameDes2.text = "센서를 충전 후에 측정해주세요."
+                                }
+                            }
+                        }
+                    }
+                }
+
                 //유저이름 전달
                 launch {
                     viewModel.userName.collect {
@@ -226,6 +242,7 @@ class BreathingFragment : Fragment() {
                     viewModel.measuringState.collectLatest {
                         when (it) {
                             MeasuringState.InIt -> {
+//                                Log.d(TAG, "setObservers: Init")
                                 binding.initGroup.visibility = View.VISIBLE
                                 binding.actionMeasurer.root.visibility = View.GONE
                                 binding.actionResult.root.visibility = View.GONE
@@ -233,7 +250,8 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.GONE
                                 chartSetting()
                             }
-                            MeasuringState.Charging ->{
+                            MeasuringState.Charging -> {
+//                                Log.d(TAG, "setObservers: Charging")
                                 binding.initGroup.visibility = View.VISIBLE
                                 binding.actionMeasurer.root.visibility = View.GONE
                                 binding.actionResult.root.visibility = View.GONE
@@ -242,7 +260,7 @@ class BreathingFragment : Fragment() {
                             }
 
                             MeasuringState.FiveRecode -> {
-
+//                                Log.d(TAG, "setObservers: FiveRecode")
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
@@ -255,6 +273,7 @@ class BreathingFragment : Fragment() {
                             }
 
                             MeasuringState.Record -> {
+//                                Log.d(TAG, "setObservers: Recode")
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
@@ -266,6 +285,7 @@ class BreathingFragment : Fragment() {
                             }
 
                             MeasuringState.Analytics -> {
+//                                Log.d(TAG, "setObservers: Analytics")
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
@@ -277,6 +297,7 @@ class BreathingFragment : Fragment() {
                             }
 
                             MeasuringState.Result -> {
+//                                Log.d(TAG, "setObservers: Result")
                                 binding.initGroup.visibility = View.GONE
                                 binding.actionMeasurer.root.visibility = View.GONE
                                 binding.actionResult.root.visibility = View.VISIBLE

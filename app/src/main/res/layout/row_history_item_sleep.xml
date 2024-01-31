@@ -12,6 +12,12 @@
         android:layout_height="125dp"
         android:background="@color/color_061629">
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/result_date_text_view"
             android:layout_width="0dp"
