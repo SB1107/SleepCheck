@@ -13,7 +13,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -52,8 +54,8 @@ class SensorViewModel @Inject constructor(
     private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
     val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
 
-    private val _bleName: MutableSharedFlow<String?> = MutableSharedFlow(extraBufferCapacity = 1)
-    val bleName: SharedFlow<String?> = _bleName
+    private val _bleName: MutableStateFlow<String?> = MutableStateFlow(null)
+    val bleName: SharedFlow<String?> = _bleName.asSharedFlow()
 
     private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
@@ -95,7 +97,7 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()?.let {
                 _bleName.emit(it)
-//                Log.d(TAG, "디바이스 이름: $it")
+                Log.d(TAG, "디바이스 이름: $it")
             }
         }
     }
@@ -104,7 +106,7 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(info.sbBluetoothDevice.type.name).first()?.let {
                 _bleName.emit(it)
-//                Log.d(TAG, "changeStatus: $it")
+                Log.d(TAG, "changeStatus: $it")
             }
         }
 

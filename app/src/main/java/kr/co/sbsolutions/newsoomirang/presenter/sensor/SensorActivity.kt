@@ -114,13 +114,16 @@ class SensorActivity : BaseServiceActivity() {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                     launch {
-                        viewModel.bleName.collectLatest { bleName ->
+                        viewModel.bleName.collect { bleName ->
                             Log.d(TAG, "bindViews: $bleName")
-                            binding.apply {
-                                deviceNameTextView.text = bleName
-                                btSearch.text = "연결끊기"
+                            bleName?.let {
+                                binding.apply {
+                                    deviceNameTextView.text = bleName
+                                    btSearch.text = "연결끊기"
 
+                                }
                             }
+
                         }
                     }
 
