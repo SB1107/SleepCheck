@@ -159,15 +159,12 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            value.let { bi ->
-                if (bi.bluetoothState == BluetoothState.DisconnectedNotIntent) {
-                    bi.bluetoothState = BluetoothState.Connected.Reconnected
-                } else {
-                    bi.bluetoothState = BluetoothState.Connected.Init
-                }
-                tryEmit(bi)
-                insertLog(bi.bluetoothState)
-            }
+            val reulst = updateAndGet{ it.copy(bluetoothState =
+            if (it.bluetoothState == BluetoothState.DisconnectedNotIntent){
+                BluetoothState.Connected.Reconnected
+            } else { BluetoothState.Connected.Init }
+            ) }
+            insertLog(reulst.bluetoothState)
         }
     }
 
@@ -189,41 +186,67 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            value.let { bi ->
-                bi.bluetoothState =
-                    when (bi.bluetoothState) {
-                        BluetoothState.Connected.ReceivingDelayed,
-                        BluetoothState.Connected.Reconnected,
-                        BluetoothState.Connected.ReceivingRealtime,
-                        BluetoothState.Connected.SendDelayed,
-                        BluetoothState.Connected.SendDelete,
-                        BluetoothState.Connected.SendDownload,
-                        BluetoothState.Connected.SendDownloadContinue,
-                        BluetoothState.Connected.SendRealtime,
-                        BluetoothState.Connected.SendStart,
-                        BluetoothState.Connected.SendStop,
-                        BluetoothState.Connected.WaitStart -> {
-                            BluetoothState.DisconnectedNotIntent
-                        }
-
-                        else -> {
-                            gatt.disconnect()
-                            gatt.close()
-                            bi.bluetoothGatt = null
-                            BluetoothState.DisconnectedByUser
-                        }
+            val reuslt = updateAndGet { it.copy(
+                bluetoothState =      when (it.bluetoothState) {
+                    BluetoothState.Connected.ReceivingDelayed,
+                    BluetoothState.Connected.Reconnected,
+                    BluetoothState.Connected.ReceivingRealtime,
+                    BluetoothState.Connected.SendDelayed,
+                    BluetoothState.Connected.SendDelete,
+                    BluetoothState.Connected.SendDownload,
+                    BluetoothState.Connected.SendDownloadContinue,
+                    BluetoothState.Connected.SendRealtime,
+                    BluetoothState.Connected.SendStart,
+                    BluetoothState.Connected.SendStop,
+                    BluetoothState.Connected.WaitStart -> {
+                        BluetoothState.DisconnectedNotIntent
                     }
-                tryEmit(bi)
-                insertLog(bi.bluetoothState)
-            }
+
+                    else -> {
+                        gatt.disconnect()
+                        gatt.close()
+                        it.bluetoothGatt = null
+                        BluetoothState.DisconnectedByUser
+                    }
+                }
+            ) }
+//            value.let { bi ->
+//                bi.bluetoothState =
+//                    when (bi.bluetoothState) {
+//                        BluetoothState.Connected.ReceivingDelayed,
+//                        BluetoothState.Connected.Reconnected,
+//                        BluetoothState.Connected.ReceivingRealtime,
+//                        BluetoothState.Connected.SendDelayed,
+//                        BluetoothState.Connected.SendDelete,
+//                        BluetoothState.Connected.SendDownload,
+//                        BluetoothState.Connected.SendDownloadContinue,
+//                        BluetoothState.Connected.SendRealtime,
+//                        BluetoothState.Connected.SendStart,
+//                        BluetoothState.Connected.SendStop,
+//                        BluetoothState.Connected.WaitStart -> {
+//                            BluetoothState.DisconnectedNotIntent
+//                        }
+//
+//                        else -> {
+//                            Log.e("Aa","disconnect")
+//                            gatt.disconnect()
+//                            gatt.close()
+//                            bi.bluetoothGatt = null
+//                            BluetoothState.DisconnectedByUser
+//                        }
+//                    }
+////                tryEmit(bi)
+//
+//            }
+            insertLog(reuslt.bluetoothState)
         }
     }
 
     override fun changeBluetoothState(isOn: Boolean) {
         BluetoothInfo.isOn = isOn
-        _sbSensorInfo.apply { tryEmit(value) }
-        _spo2SensorInfo.apply { tryEmit(value) }
-        _eegSensorInfo.apply { tryEmit(value) }
+        _sbSensorInfo.apply { update { it.copy() } }
+        _spo2SensorInfo.apply {  update { it.copy() } }
+        _eegSensorInfo.apply {  update { it.copy() } }
 
         releaseResource()
     }
@@ -242,12 +265,10 @@ class BluetoothNetworkRepository @Inject constructor(
                 _eegSensorInfo
             }
         }.apply {
-            value.let {
-                if (it.bluetoothState != BluetoothState.Unregistered) {
-                    it.bluetoothState = BluetoothState.DisconnectedByUser
-//                    Log.d(TAG, "disconnectedDevice: 1")
-                    tryEmit(it)
-                    insertLog(it.bluetoothState)
+            value.let {info ->
+                if (info.bluetoothState != BluetoothState.Unregistered) {
+                    val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser) }
+                    insertLog(result.bluetoothState)
                 }
             }
         }
@@ -504,11 +525,10 @@ class BluetoothNetworkRepository @Inject constructor(
 
         init {
 //            Log.d(TAG, "getCallback: Connecting ")
-            innerData.value.let {
-                it.bluetoothState = BluetoothState.Connecting
-                innerData.tryEmit(it)
-                insertLog(it.bluetoothState)
+            val result = innerData.updateAndGet {
+                it.copy(bluetoothState = BluetoothState.Connecting)
             }
+            insertLog(result.bluetoothState)
         }
 
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {

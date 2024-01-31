@@ -51,6 +51,7 @@ class NoSeringFragment : Fragment() {
             setContentView(connectInfoBinding.root, null)
             connectInfoBinding.btConnect.setOnClickListener {
                 viewModel.connectClick()
+                this.dismiss()
             }
             connectInfoBinding.btLater.setOnClickListener {
                 this.dismiss()
@@ -325,6 +326,7 @@ class NoSeringFragment : Fragment() {
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
+            binding.batteryTextView.visibility = View.GONE
             return
         }
         binding.batteryTextView.visibility = View.VISIBLE

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -51,7 +52,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     setBatteryInfo()
                     if (it.bluetoothState == BluetoothState.Unregistered) {
                         _bluetoothButtonState.emit("연결")
-                    } else {
+                    }else if(it.bluetoothState == BluetoothState.DisconnectedByUser){
+                        _bluetoothButtonState.emit("연결")
+                        _batteryState.emit("")
+                    }
+                    else {
                         _bluetoothButtonState.emit("시작")
                     }
                 }
@@ -79,7 +84,8 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
             _canMeasurement.emit(bluetoothInfo.canMeasurement)
         }
     }
-    fun showCharging(){
+
+    fun showCharging() {
         viewModelScope.launch {
             _canMeasurement.emit(true)
         }
@@ -94,17 +100,22 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
         }
     }
 
-    fun connectClick(){
-        viewModelScope.launch{
+    fun connectClick() {
+        viewModelScope.launch {
             _gotoScan.emit(true)
         }
     }
+
     fun isRegistered(): Boolean {
-        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered) {
+        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
+            if(bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser){
+                viewModelScope.launch {
+                    dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
+                }
+            }
             viewModelScope.launch {
                 _connectAlert.emit(true)
-
             }
             return false
         }

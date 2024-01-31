@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -66,8 +67,11 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch {
             launch {
                 getName()
-                if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {
+                if (bluetoothInfo.bluetoothState == BluetoothState.Registered ) {
                     changeStatus(bluetoothInfo)
+                }
+                if(bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser){
+                    dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }
             }
             launch {
@@ -110,7 +114,7 @@ class SensorViewModel @Inject constructor(
             }
         }
 
-        if (info.bluetoothState == BluetoothState.Registered) {
+        if (info.bluetoothState == BluetoothState.Registered ) {
             deviceConnect(info)
         }
     }
@@ -207,6 +211,11 @@ class SensorViewModel @Inject constructor(
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
             _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address))
+        }
+    }
+    private  fun registerBluetoothDevice(deviceName : String , deviceAddress : String){
+        viewModelScope.launch(Dispatchers.IO) {
+            _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, deviceName, deviceAddress))
         }
     }
 
