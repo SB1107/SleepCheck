@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
@@ -58,6 +60,7 @@ class BreathingViewModel @Inject constructor(
                 ApplicationManager.getBluetoothInfoFlow().collect { info ->
                     if (info.bluetoothState == BluetoothState.Connected.SendRealtime || info.bluetoothState == BluetoothState.Connected.ReceivingRealtime && info.sleepType == SleepType.Breathing) {
                         info.currentData.collectLatest {
+//                            Log.d(TAG, ": $it")
                             _capacitanceFlow.emit(it)
                         }
                     }
@@ -136,7 +139,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun sleepDataResult() {
-        if (_measuringState.value ==MeasuringState.Charging) {
+        if (_measuringState.value == MeasuringState.Charging) {
             showCharging()
             return
         }

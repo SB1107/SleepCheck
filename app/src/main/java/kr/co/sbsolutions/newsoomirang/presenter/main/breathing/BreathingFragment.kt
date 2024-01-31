@@ -35,6 +35,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
+import kotlin.math.log
 
 @AndroidEntryPoint
 class BreathingFragment : Fragment() {
@@ -97,7 +98,7 @@ class BreathingFragment : Fragment() {
                 //유저이름 전달
                 launch {
                     viewModel.userName.collect {
-                        Log.d(TAG, "setObservers: $it ")
+//                        Log.d(TAG, "setObservers: $it ")
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }
@@ -238,7 +239,6 @@ class BreathingFragment : Fragment() {
                                 binding.actionResult.root.visibility = View.GONE
                                 binding.startButton.visibility = View.GONE
                                 binding.stopButton.visibility = View.GONE
-                                chartSetting()
                             }
 
                             MeasuringState.FiveRecode -> {
