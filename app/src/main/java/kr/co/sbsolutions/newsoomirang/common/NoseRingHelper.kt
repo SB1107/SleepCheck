@@ -36,4 +36,9 @@ class NoseRingHelper {
     fun  setCallVibrationNotifications(callback: (() -> Unit)){
         this.callback = callback
     }
+    fun clearData(){
+         mSnoreTime  = 0
+         mLastEventTime  = 0
+         mContSnoringTime = 0
+    }
 }
