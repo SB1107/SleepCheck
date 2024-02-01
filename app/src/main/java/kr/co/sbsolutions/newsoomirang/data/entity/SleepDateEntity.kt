@@ -3,15 +3,9 @@ package kr.co.sbsolutions.newsoomirang.data.entity
 import com.google.gson.annotations.SerializedName
 
 data class SleepDateEntity (
-    @SerializedName("success")
-    val success: Boolean,
-
-    @SerializedName("message")
-    val message: String,
-
     @SerializedName("result")
     val result: SleepDateResultData?
-)
+): BaseEntity()
 data class SleepDateResultData(
     @SerializedName("data")
     var data: List<SleepDateResult> = arrayListOf(),

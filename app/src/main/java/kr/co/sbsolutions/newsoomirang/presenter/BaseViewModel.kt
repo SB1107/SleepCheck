@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 
 
@@ -46,7 +47,7 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         cancelJob()
     }
 
-    protected suspend fun <T> request(request: () -> Flow<ApiResponse<T>>): Flow<T> {
+    protected suspend fun <T: BaseEntity> request(request: () -> Flow<ApiResponse<T>>): Flow<T> {
         return requestHelper.request(request)
     }
 }

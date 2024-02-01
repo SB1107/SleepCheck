@@ -1,14 +1,9 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
 data class UserEntity(
-    // API 성공 여부
-    val success: Boolean = false,
-    // API 메세지
-    val message: String = "",
-    // 사용자 아이디
     // 결과
     val result: UserResultData? = null,
-)
+) : BaseEntity()
 data class UserResultData(
     // 토큰
     val access_token: String? = null,

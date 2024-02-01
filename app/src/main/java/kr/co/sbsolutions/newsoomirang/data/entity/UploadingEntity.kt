@@ -3,15 +3,9 @@ package kr.co.sbsolutions.newsoomirang.data.entity
 import com.google.gson.annotations.SerializedName
 
 data class UploadingEntity (
-    @SerializedName("success")
-    val success: Boolean,
-
-    @SerializedName("message")
-    val message: String,
-
     @SerializedName("result")
     val result: Result
-)
+): BaseEntity()
 
 data class Result(
     @SerializedName("data")

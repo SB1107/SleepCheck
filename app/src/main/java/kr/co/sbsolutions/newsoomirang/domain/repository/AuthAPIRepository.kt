@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
+import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -62,7 +63,7 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.sleepDataDetail(endedAt)
     }
 
-    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<ResponseBody>> = apiRequestFlow {
+    override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
         api.postSleepDataDelete(sleepDataRemoveModel)
     }
 

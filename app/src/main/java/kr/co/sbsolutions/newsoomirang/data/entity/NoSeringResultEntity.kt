@@ -3,15 +3,10 @@ package kr.co.sbsolutions.newsoomirang.data.entity
 import com.google.gson.annotations.SerializedName
 
 data class NoSeringResultEntity(
-    @SerializedName("success")
-    val success: Boolean,
-
-    @SerializedName("message")
-    val message: String,
 
     @SerializedName("result")
     val result: NoSeringResult?
-)
+) : BaseEntity()
 
 data class NoSeringResult(
     @SerializedName("started_at")

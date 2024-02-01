@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.domain.repository
 
 import kotlinx.coroutines.flow.Flow
+import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -28,7 +29,7 @@ interface RemoteAuthDataSource{
      fun getWeek(): Flow<ApiResponse<SleepDateEntity>>
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
      fun getSleepDataDetail(endedAt: String): Flow<ApiResponse<SleepDetailEntity>>
-     fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<ResponseBody>>
+     fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<BaseEntity>>
      fun getNoSeringDataResult() : Flow<ApiResponse<NoSeringResultEntity>>
 
      fun postNewFcmToken(newToken: String) : Flow<ApiResponse<UserEntity>>

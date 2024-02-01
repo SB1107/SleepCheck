@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withTimeoutOrNull
+import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.data.server.ErrorResponse
 import kr.co.sbsolutions.newsoomirang.data.server.ResultError
@@ -13,7 +14,7 @@ import retrofit2.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
-fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
+fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
     emit(ApiResponse.Loading)
 
     withTimeoutOrNull(20000L) {
@@ -22,7 +23,13 @@ fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = f
         try {
             if (response.isSuccessful) {
                 response.body()?.let { data ->
-                    emit(ApiResponse.Success(data))
+                    // FIXME: 메세지 회원정보 에러 캐칭
+                    if (data.message.contains("에러")) {
+                        emit(ApiResponse.ReAuthorize)
+                    }else{
+                        emit(ApiResponse.Success(data))
+                    }
+
                 }
             } else {
                 if(response.code() == HTTP_UNAUTHORIZED || response.code() == HTTP_FORBIDDEN) {
