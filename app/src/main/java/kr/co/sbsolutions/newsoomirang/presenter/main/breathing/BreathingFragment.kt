@@ -96,21 +96,6 @@ class BreathingFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                launch {
-                    viewModel.deviceBatteryState.collectLatest { it ->
-                        it?.let {
-                            Log.d(TAG, "데이터 : $it")
-                            when(it){
-                                true -> {binding.startButton.visibility = View.VISIBLE}
-                                false -> {
-                                    binding.startButton.visibility = View.GONE
-                                    binding.tvNameDes2.text = "센서를 충전 후에 측정해주세요."
-                                }
-                            }
-                        }
-                    }
-                }
-
                 //유저이름 전달
                 launch {
                     viewModel.userName.collect {
@@ -154,7 +139,9 @@ class BreathingFragment : Fragment() {
                     viewModel.canMeasurement.collectLatest {
                         binding.tvNameDes2.text = if (it) "아직 호흡정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
-                        viewModel.setMeasuringState(MeasuringState.Charging)
+                        if (!it) {
+                            viewModel.setMeasuringState(MeasuringState.Charging)
+                        }
                     }
                 }
                 //시작버튼 누를시 팝업 이벤트
@@ -230,6 +217,9 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect{
                         binding.startButton.text = it
+                        if (it.contains("시작").not()) {
+                            binding.tvNameDes2.text = "숨이랑 기기와 연결이 되지않았습니다.\n기기와 연결해주세요"
+                        }
                     }
                 }
                 launch {

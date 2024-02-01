@@ -55,9 +55,6 @@ class BreathingViewModel @Inject constructor(
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
-    private val _deviceBatteryState: MutableStateFlow<Boolean?> = MutableStateFlow(true)
-    val deviceBatteryState: SharedFlow<Boolean?> = _deviceBatteryState.asSharedFlow()
-
 
     init {
         viewModelScope.launch {
@@ -71,26 +68,8 @@ class BreathingViewModel @Inject constructor(
 //                            Log.d(TAG, ": $it")
                             _capacitanceFlow.emit(it)
                         }
-                    } else if (info.bluetoothState == BluetoothState.Connected.Ready ||
-                        info.bluetoothState == BluetoothState.Connected.Init ||
-                        info.bluetoothState == BluetoothState.Connected.End
-                    ) {
-                        Log.d(TAG, "${info.batteryInfo}: ")
-                        setBatteryState(info)
                     }
 
-                }
-            }
-        }
-    }
-
-    private suspend fun setBatteryState(info: BluetoothInfo) {
-        info.batteryInfo?.toInt().let { it ->
-            it?.let {
-                if (it <= 20) {
-                    _deviceBatteryState.emit(false)
-                } else {
-                    _deviceBatteryState.emit(true)
                 }
             }
         }
