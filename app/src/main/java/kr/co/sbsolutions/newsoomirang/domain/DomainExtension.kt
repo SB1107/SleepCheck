@@ -12,6 +12,7 @@ import kr.co.sbsolutions.newsoomirang.data.server.ErrorResponse
 import kr.co.sbsolutions.newsoomirang.data.server.ResultError
 import retrofit2.Response
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
@@ -33,6 +34,8 @@ fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiRes
                 }
             } else {
                 if(response.code() == HTTP_UNAUTHORIZED || response.code() == HTTP_FORBIDDEN) {
+                    emit(ApiResponse.ReAuthorize)
+                }else if (response.code() == HTTP_INTERNAL_ERROR){
                     emit(ApiResponse.ReAuthorize)
                 } else {
                     response.errorBody()?.let { error ->

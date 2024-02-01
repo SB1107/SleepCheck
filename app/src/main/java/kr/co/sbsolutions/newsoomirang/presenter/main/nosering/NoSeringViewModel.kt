@@ -145,6 +145,7 @@ class NoSeringViewModel @Inject constructor(
 
     fun noSeringResult() {
         if (_measuringState.value ==MeasuringState.Charging) {
+            Log.d(TAG, "noSeringResult: $ 1111111111111")
             showCharging()
             return
         }
@@ -216,7 +217,7 @@ class NoSeringViewModel @Inject constructor(
 
     }
 
-    fun noSeringResultData() {
+/*    fun noSeringResultData() {
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
@@ -224,7 +225,7 @@ class NoSeringViewModel @Inject constructor(
                 }
         }
 
-    }
+    }*/
 
 
 

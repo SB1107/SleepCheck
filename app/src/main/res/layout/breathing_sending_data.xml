@@ -11,10 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:text="고객"
         android:layout_marginTop="20dp"
-        android:textColor="@color/color_FFFFFF"
         android:fontFamily="@font/nanumsquarebold"
+        android:text="고객"
+        android:textColor="@color/color_FFFFFF"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,10 +25,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquarebold"
         android:text="님"
         android:textColor="@color/color_78899F"
         android:textSize="24sp"
-        android:fontFamily="@font/nanumsquarebold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_name"
         app:layout_constraintTop_toTopOf="@+id/tv_name" />
@@ -38,9 +38,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
         android:text="호흡결과를 확인하세요."
         android:textColor="@color/color_78899F"
-        android:fontFamily="@font/nanumsquareregular"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@id/tv_name_des1"
         app:layout_constraintStart_toStartOf="@id/tv_name"
@@ -57,7 +57,7 @@
         android:fontFamily="@font/nanumsquarebold"
         android:gravity="center"
         android:text="3월 23일 목요일"
-        android:textColor="@color/color_78899F"
+        android:textColor="@color/color_FFFFFF"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -76,11 +76,10 @@
         android:text="23:55~6:23 수면"
         android:textColor="@color/color_FFFFFF"
         android:textSize="26dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/result_date_text_view"
-        android:visibility="gone"
-        />
+        app:layout_constraintTop_toBottomOf="@id/result_date_text_view" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -117,9 +116,9 @@
         android:text="실제 수면 시간"
         android:textColor="@color/color_78899F"
         android:textSize="18dp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/result_real_text_view"
@@ -131,10 +130,9 @@
         android:text="7시간 50분"
         android:textColor="@color/color_FFFFFF"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view"
         android:visibility="gone"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view" />
 
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -233,7 +231,7 @@
         android:layout_marginRight="30dp"
         android:gravity="center"
         android:text="수면중 호흡 상태"
-        android:textColor="@color/color_78899F"
+        android:textColor="@color/color_FFFFFF"
         android:textSize="18dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -265,14 +263,14 @@
         android:id="@+id/Indicators_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="mv_left,v_left"/>
+        app:constraint_referenced_ids="mv_left,v_left" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mv_left"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        app:cardCornerRadius="20dp"
         android:layout_marginStart="40dp"
+        app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toTopOf="@+id/progress_background"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -280,16 +278,16 @@
         android:id="@+id/v_left"
         android:layout_width="2dp"
         android:layout_height="20dp"
-        android:background="@color/color_FFFFFF"
         android:layout_marginStart="50dp"
+        android:background="@color/color_FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progress_background" />
 
-        <androidx.constraintlayout.widget.Group
+    <androidx.constraintlayout.widget.Group
         android:id="@+id/Indicators_center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="mv_center,v_center"/>
+        app:constraint_referenced_ids="mv_center,v_center" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mv_center"
@@ -313,14 +311,14 @@
         android:id="@+id/Indicators_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="mv_end,v_end"/>
+        app:constraint_referenced_ids="mv_end,v_end" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mv_end"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        app:cardCornerRadius="20dp"
         android:layout_marginEnd="40dp"
+        app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toTopOf="@+id/progress_background"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -328,8 +326,8 @@
         android:id="@+id/v_end"
         android:layout_width="2dp"
         android:layout_height="20dp"
-        android:background="@color/color_FFFFFF"
         android:layout_marginEnd="49dp"
+        android:background="@color/color_FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/progress_background" />
 
@@ -341,9 +339,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
+        android:layout_marginTop="8dp"
         android:text="좋음"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="18dp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_background" />
 
@@ -351,20 +350,22 @@
         android:id="@+id/tv_state_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="위험"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="18dp"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_background" />
-
+    
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="40dp"
         android:text="심각"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="18dp"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_background" />
 

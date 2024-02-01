@@ -452,7 +452,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     Log.d("<--- App To Device", strBuilder.toString())
                 }
             } while (!result)
-        } ?: stateCallback?.invoke(BluetoothState.Connected.Ready)
+        } ?: stateCallback?.invoke(BluetoothState.Connected.Init)
     }
 
     override fun stopNetworkSpO2Sensor() {}
