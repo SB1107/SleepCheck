@@ -53,8 +53,8 @@ class NoSeringViewModel @Inject constructor(
 
     private var motorCheckBok: Boolean = true
     private var type: Int = 2
-    private val _noSeringDataResultFlow: MutableSharedFlow<NoSeringDataResultModel> = MutableSharedFlow()
-    val noSeringDataResult: SharedFlow<NoSeringDataResultModel> = _noSeringDataResultFlow
+    private val _noSeringDataResultFlow: MutableStateFlow<NoSeringDataResultModel?> = MutableStateFlow(null)
+    val noSeringDataResult: SharedFlow<NoSeringDataResultModel?> = _noSeringDataResultFlow.asSharedFlow()
 
 
     private val _motorCheckBox: MutableSharedFlow<Boolean> = MutableSharedFlow()
@@ -145,7 +145,6 @@ class NoSeringViewModel @Inject constructor(
 
     fun noSeringResult() {
         if (_measuringState.value ==MeasuringState.Charging) {
-            Log.d(TAG, "noSeringResult: $ 1111111111111")
             showCharging()
             return
         }

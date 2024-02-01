@@ -196,12 +196,14 @@ class NoSeringFragment : Fragment() {
                 }
                 launch {
                     viewModel.noSeringDataResult.collectLatest {
-                        binding.actionResult.resultDateTextView.text = it.endDate
-                        binding.actionResult.resultTotalTextView.text = it.resultTotal
+                        it?.let {
+                            binding.actionResult.resultDateTextView.text = it.endDate
+                            binding.actionResult.resultTotalTextView.text = it.resultTotal
 //                        binding.actionResult.resultRealTextView.text = it.resultReal
 //                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
-                        binding.actionResult.snoreTimeTextView.text = it.resultReal
-                        binding.actionResult.resultDurationTextView.text = it.duration
+                            binding.actionResult.snoreTimeTextView.text = it.resultReal
+                            binding.actionResult.resultDurationTextView.text = it.duration
+                        }
                     }
                 }
                 //300미만 취소 시
