@@ -401,8 +401,7 @@ class BLEService : LifecycleService() {
 
             ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
-                stopScheduler()
-                forcedFlow()
+                stopSBServiceForced()
             }
 
 
@@ -481,16 +480,34 @@ class BLEService : LifecycleService() {
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
-        bluetoothNetworkRepository.setSBSensorCancel(isCancel)
-        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
-            stopAudioClassification()
-            bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
-        } else {
-            bluetoothNetworkRepository.stopNetworkSBSensor()
-        }
         createNotificationChannel()
         stopTimer()
 
+        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
+            stopAudioClassification()
+        }
+
+        if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+            stopSBServiceForced()
+            return
+        }else{
+                bluetoothNetworkRepository.setSBSensorCancel(isCancel)
+                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
+        }
+
+
+//        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
+//            stopAudioClassification()
+//            bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
+//        } else {
+//            bluetoothNetworkRepository.stopNetworkSBSensor()
+//        }
+
+    }
+
+    private fun stopSBServiceForced() {
+        stopScheduler()
+        forcedFlow()
     }
 
     private fun callVibrationNotifications(Intensity: Int) {
@@ -665,7 +682,7 @@ class BLEService : LifecycleService() {
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
 
-    private suspend fun <T: BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: RequestHelper.CoroutinesErrorHandler): Flow<T> {
+    private suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: RequestHelper.CoroutinesErrorHandler): Flow<T> {
         return requestHelper.request(request, errorHandler)
     }
 
