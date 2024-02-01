@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
+import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 import android.os.Build
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
@@ -159,11 +160,16 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            val reulst = updateAndGet{ it.copy(bluetoothState =
-            if (it.bluetoothState == BluetoothState.DisconnectedNotIntent){
-                BluetoothState.Connected.Reconnected
-            } else { BluetoothState.Connected.Init }
-            ) }
+            val reulst = updateAndGet {
+                it.copy(
+                    bluetoothState =
+                    if (it.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+                        BluetoothState.Connected.Reconnected
+                    } else {
+                        BluetoothState.Connected.Init
+                    }
+                )
+            }
             insertLog(reulst.bluetoothState)
         }
     }
@@ -183,34 +189,35 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
             else -> {
-                Log.d(TAG ,"disconnectedDevice = 없음")
+                Log.d(TAG, "disconnectedDevice = 없음")
                 return
             }
         }.apply {
             value.let { bi ->
-                    when (bi.bluetoothState) {
-                        BluetoothState.Connected.ReceivingDelayed,
-                        BluetoothState.Connected.Reconnected,
-                        BluetoothState.Connected.ReceivingRealtime,
-                        BluetoothState.Connected.SendDelayed,
-                        BluetoothState.Connected.SendDelete,
-                        BluetoothState.Connected.SendDownload,
-                        BluetoothState.Connected.SendDownloadContinue,
-                        BluetoothState.Connected.SendRealtime,
-                        BluetoothState.Connected.SendStart,
-                        BluetoothState.Connected.SendStop,
-                        BluetoothState.Connected.WaitStart -> {
-                            update {it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
-                            insertLog(BluetoothState.DisconnectedNotIntent)
-                        }
-                        else -> {
-                            gatt.disconnect()
-                            gatt.close()
-                            Log.d(TAG ,"disconnect = disconnect")
-                            update {it.copy(bluetoothGatt = null , bluetoothState =  BluetoothState.DisconnectedByUser) }
-                            insertLog(BluetoothState.DisconnectedByUser)
-                        }
+                when (bi.bluetoothState) {
+                    BluetoothState.Connected.ReceivingDelayed,
+                    BluetoothState.Connected.Reconnected,
+                    BluetoothState.Connected.ReceivingRealtime,
+                    BluetoothState.Connected.SendDelayed,
+                    BluetoothState.Connected.SendDelete,
+                    BluetoothState.Connected.SendDownload,
+                    BluetoothState.Connected.SendDownloadContinue,
+                    BluetoothState.Connected.SendRealtime,
+                    BluetoothState.Connected.SendStart,
+                    BluetoothState.Connected.SendStop,
+                    BluetoothState.Connected.WaitStart -> {
+                        update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
+                        insertLog(BluetoothState.DisconnectedNotIntent)
                     }
+
+                    else -> {
+                        gatt.disconnect()
+                        gatt.close()
+                        Log.d(TAG, "disconnect = disconnect")
+                        update { it.copy(bluetoothGatt = null, bluetoothState = BluetoothState.DisconnectedByUser) }
+                        insertLog(BluetoothState.DisconnectedByUser)
+                    }
+                }
             }
         }
     }
@@ -218,8 +225,8 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun changeBluetoothState(isOn: Boolean) {
         BluetoothInfo.isOn = isOn
         _sbSensorInfo.apply { update { it.copy() } }
-        _spo2SensorInfo.apply {  update { it.copy() } }
-        _eegSensorInfo.apply {  update { it.copy() } }
+        _spo2SensorInfo.apply { update { it.copy() } }
+        _eegSensorInfo.apply { update { it.copy() } }
 
         releaseResource()
     }
@@ -238,7 +245,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 _eegSensorInfo
             }
         }.apply {
-            value.let {info ->
+            value.let { info ->
                 if (info.bluetoothState != BluetoothState.Unregistered) {
                     val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser) }
                     insertLog(result.bluetoothState)
@@ -397,17 +404,20 @@ class BluetoothNetworkRepository @Inject constructor(
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
 
         val byteArr = command.getCommandByteArr()
-        cmd.value = byteArr
 
         strBuilder.clear()
         strBuilder.append("[ ")
-        for (v in cmd.value) {
+        for (v in byteArr) {
             strBuilder.append(String.format("%02X ", v))
         }
         strBuilder.append("]\n")
         Log.d("<--- App To Device", strBuilder.toString())
-
-        gatt.writeCharacteristic(cmd)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
+        } else {
+            cmd.value = byteArr
+            gatt.writeCharacteristic(cmd)
+        }
     }
 
     private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
@@ -421,16 +431,21 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
             val byteArr = command.getCommandByteArr()
-            cmd.value = byteArr
+//            cmd.value = byteArr
 
             var result: Boolean
             do {
-                result = gatt.writeCharacteristic(cmd, byteArr,BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result =    gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
+                } else {
+                    cmd.value = byteArr
+                    result =  gatt.writeCharacteristic(cmd)
+                }
 
                 if (result) {
                     strBuilder.clear()
                     strBuilder.append("[ ")
-                    for (v in cmd.value) {
+                    for (v in byteArr) {
                         strBuilder.append(String.format("%02X ", v))
                     }
                     strBuilder.append("]\n")
@@ -519,7 +534,7 @@ class BluetoothNetworkRepository @Inject constructor(
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 gatt.discoverServices()
-                innerData.update { it.copy(bluetoothGatt = gatt)}
+                innerData.update { it.copy(bluetoothGatt = gatt) }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
