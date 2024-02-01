@@ -242,9 +242,7 @@ class NoSeringFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        if (it.contains("시작").not()) {
-                            binding.tvNameDes2.text = "숨이랑 기기와 연결이 되지않았습니다.\n기기와 연결해주세요"
-                        }
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
                     }
                 }
                 launch {

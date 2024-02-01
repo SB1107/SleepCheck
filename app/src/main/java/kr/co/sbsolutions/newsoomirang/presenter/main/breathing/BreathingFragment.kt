@@ -111,7 +111,7 @@ class BreathingFragment : Fragment() {
                 }
                 // 블루투스 연결 팝업
                 launch {
-                    viewModel.connectAlert.collect{
+                    viewModel.connectAlert.collect {
                         showConnectDialog()
                     }
                 }
@@ -205,7 +205,7 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 시간이 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
-                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0 ,0)
+                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
                             graphCount = 0f
                             queueList.clear()
                             lineDataList.notifyDataChanged()
@@ -215,16 +215,14 @@ class BreathingFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.bluetoothButtonState.collect{
+                    viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        if (it.contains("시작").not()) {
-                            binding.tvNameDes2.text = "숨이랑 기기와 연결이 되지않았습니다.\n기기와 연결해주세요"
-                        }
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
                     }
                 }
                 launch {
-                    viewModel.isProgressBar.collect{
-                        binding.actionProgress.clProgress.visibility = if(it)  View.VISIBLE  else View.GONE
+                    viewModel.isProgressBar.collect {
+                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
                 //UI 변경
@@ -240,6 +238,7 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.GONE
                                 chartSetting()
                             }
+
                             MeasuringState.Charging -> {
 //                                Log.d(TAG, "setObservers: Charging")
                                 binding.initGroup.visibility = View.VISIBLE
@@ -347,18 +346,19 @@ class BreathingFragment : Fragment() {
         dataSetList.setDrawCircles(false)
     }
 
-    private  fun showConnectDialog(){
+    private fun showConnectDialog() {
         if (connectInfoDialog.isShowing) {
             connectInfoDialog.dismiss()
         }
         connectInfoDialog.show()
     }
+
     private fun showChargingDialog() {
 
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
                 lifecycleScope.launch {
-                    viewModel.sleepDataCreate().collect{
+                    viewModel.sleepDataCreate().collect {
                         if (it) {
                             activityViewModel.setCommend(ServiceCommend.START)
                         }
