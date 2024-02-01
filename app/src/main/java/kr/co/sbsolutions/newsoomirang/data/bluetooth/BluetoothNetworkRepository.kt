@@ -425,7 +425,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
             var result: Boolean
             do {
-                result = gatt.writeCharacteristic(cmd)
+                result = gatt.writeCharacteristic(cmd, byteArr,BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
 
                 if (result) {
                     strBuilder.clear()

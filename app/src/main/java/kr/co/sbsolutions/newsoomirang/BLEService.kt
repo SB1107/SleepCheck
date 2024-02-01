@@ -488,11 +488,11 @@ class BLEService : LifecycleService() {
         }
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
-            stopSBServiceForced()
+            stopSBServiceForced(isCancel)
             return
-        }else{
-                bluetoothNetworkRepository.setSBSensorCancel(isCancel)
-                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
+        } else {
+            bluetoothNetworkRepository.setSBSensorCancel(isCancel)
+            bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
         }
 
 
@@ -505,9 +505,13 @@ class BLEService : LifecycleService() {
 
     }
 
-    private fun stopSBServiceForced() {
+    private fun stopSBServiceForced(isCancel: Boolean = false) {
         stopScheduler()
-        forcedFlow()
+        if (isCancel) {
+            finishService(-1, true)
+        } else {
+            forcedFlow()
+        }
     }
 
     private fun callVibrationNotifications(Intensity: Int) {
