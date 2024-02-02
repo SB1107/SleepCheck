@@ -20,7 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
@@ -92,12 +94,6 @@ class SensorActivity : BaseServiceActivity() {
                 adapter = bleAdapter
             }
 
-            btSearch.setOnClickListener {
-                viewModel.disconnectDevice()
-                btSearch.text = "스캔"
-                deviceNameTextView.text = "연결된 기기가 없습니다."
-                viewModel.scanBLEDevices()
-            }
             actionBar.backButton.setOnClickListener {
                 finish()
             }
@@ -114,16 +110,24 @@ class SensorActivity : BaseServiceActivity() {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                     launch {
-                        viewModel.bleName.collect { bleName ->
-                            Log.d(TAG, "bindViews: $bleName")
-                            bleName?.let {
-                                binding.apply {
-                                    deviceNameTextView.text = bleName
-                                    btSearch.text = "연결끊기"
-
-                                }
+                        viewModel.bleName.collectLatest { text ->
+                            text?.let {
+                                binding.deviceNameTextView.text = text
                             }
+                        }
+                    }
 
+                    launch {
+                        viewModel.searchBtnName.collectLatest { text->
+                            text?.let {
+                                binding.btSearch.text = text
+                            }
+                        }
+                    }
+
+                    launch {
+                        binding.btSearch.setOnClickListener {
+                            viewModel.bleConnectOrDisconnect()
                         }
                     }
 
@@ -158,6 +162,12 @@ class SensorActivity : BaseServiceActivity() {
                     launch {
                         scanList.collectLatest { list ->
                             bleAdapter.submitList(list)
+                        }
+                    }
+
+                    launch {
+                        viewModel.errorMessage.collectLatest {
+                            showAlertDialog(R.string.common_title, it)
                         }
                     }
                 }
