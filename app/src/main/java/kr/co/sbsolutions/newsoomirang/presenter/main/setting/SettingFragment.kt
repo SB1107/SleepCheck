@@ -9,20 +9,17 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.WebType
-import kr.co.sbsolutions.newsoomirang.common.addFlag
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
-import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
-import kr.co.sbsolutions.newsoomirang.presenter.webview.WebViewActivity
 
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
@@ -57,7 +54,6 @@ class SettingFragment : Fragment() {
             }
             //회원 탈퇴
             binding.clLeave.setOnClickListener {
-
             }
 
             //디바이스 연결시에 디바이스 이름
@@ -70,6 +66,11 @@ class SettingFragment : Fragment() {
                     viewModel.logoutResult.collect {
                         startActivity(Intent(activity, LoginActivity::class.java))
                     }
+                }
+            }
+            launch {
+                viewModel.errorMessage.collectLatest {
+                    requireActivity().showAlertDialog(R.string.common_title, it)
                 }
             }
         }
