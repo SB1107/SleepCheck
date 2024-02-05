@@ -32,7 +32,7 @@ class RequestHelper(
         this.reAuthorizeCallBack = reAuthorizeCallBack
     }
 
-    suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null) = callbackFlow {
+    suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null , showProgressBar : Boolean = true) = callbackFlow {
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 errorMessage?.emit("네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요")
@@ -56,16 +56,22 @@ class RequestHelper(
                 request().collect {
                     when (it) {
                         is ApiResponse.Failure -> {
-                            isProgressBar?.emit(false)
+                            if (showProgressBar) {
+                                isProgressBar?.emit(false)
+                            }
                             errorMessage?.emit(it.errorCode.msg)
                         }
 
                         ApiResponse.Loading -> {
-                            isProgressBar?.emit(true)
+                            if (showProgressBar) {
+                                isProgressBar?.emit(true)
+                            }
                         }
 
                         ApiResponse.ReAuthorize -> {
-                            isProgressBar?.emit(false)
+                            if (showProgressBar) {
+                                isProgressBar?.emit(false)
+                            }
                             reAuthorizeCallBack?.reLogin()
                             scope.launch(Dispatchers.IO) {
                                 tokenManager.deleteToken()
@@ -75,7 +81,9 @@ class RequestHelper(
                         }
 
                         is ApiResponse.Success -> {
-                            isProgressBar?.emit(false)
+                            if (showProgressBar) {
+                                isProgressBar?.emit(false)
+                            }
                             trySend(it.data)
                             cancel()
                         }

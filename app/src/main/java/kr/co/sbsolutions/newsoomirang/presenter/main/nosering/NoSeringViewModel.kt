@@ -56,6 +56,8 @@ class NoSeringViewModel @Inject constructor(
     private val _noSeringDataResultFlow: MutableStateFlow<NoSeringDataResultModel?> = MutableStateFlow(null)
     val noSeringDataResult: SharedFlow<NoSeringDataResultModel?> = _noSeringDataResultFlow.asSharedFlow()
 
+    private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     private val _motorCheckBox: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val motorCheckBox: SharedFlow<Boolean> = _motorCheckBox
@@ -150,7 +152,8 @@ class NoSeringViewModel @Inject constructor(
         }
         Log.d(TAG, "noSeringResult: $ 측정 완료 결과 보기")
         viewModelScope.launch {
-            request { authAPIRepository.getNoSeringDataResult() }
+            _isResultProgressBar.emit(true)
+            request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
                         if (_measuringState.value == MeasuringState.Result) {
@@ -173,13 +176,16 @@ class NoSeringViewModel @Inject constructor(
                                 apneaState = result.apneaState
                             )
                         )
+                        _isResultProgressBar.emit(result.state == 1)
                         viewModelScope.launch(Dispatchers.IO) {
                             delay(4000)
                             if (_measuringState.value == MeasuringState.Analytics) {
                                 noSeringResult()
                             }
                         }
-                    } ?: _measuringState.emit(MeasuringState.InIt)
+                    } ?: _measuringState.emit(MeasuringState.InIt).run {
+                        _isResultProgressBar.emit(false)
+                    }
                 }
         }
 

@@ -47,7 +47,7 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         cancelJob()
     }
 
-    protected suspend fun <T: BaseEntity> request(request: () -> Flow<ApiResponse<T>>): Flow<T> {
-        return requestHelper.request(request)
+    protected suspend fun <T : BaseEntity> request(showProgressBar: Boolean = true, request: () -> Flow<ApiResponse<T>>): Flow<T> {
+        return requestHelper.request(request, showProgressBar = showProgressBar)
     }
 }

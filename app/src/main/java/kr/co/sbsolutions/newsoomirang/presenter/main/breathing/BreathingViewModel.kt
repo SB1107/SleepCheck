@@ -55,6 +55,8 @@ class BreathingViewModel @Inject constructor(
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
+    private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     init {
         viewModelScope.launch {
@@ -149,7 +151,8 @@ class BreathingViewModel @Inject constructor(
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
-            request { authAPIRepository.getSleepDataResult() }
+            _isResultProgressBar.emit(true)
+            request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
                         if (_measuringState.value == MeasuringState.Result) {
@@ -178,6 +181,7 @@ class BreathingViewModel @Inject constructor(
                                 deepSleepTime = deepSleepTime
                             )
                         )
+                        _isResultProgressBar.emit(result.state == 1)
                         viewModelScope.launch(Dispatchers.IO) {
                             delay(4000)
                             if (_measuringState.value == MeasuringState.Analytics) {
@@ -185,32 +189,34 @@ class BreathingViewModel @Inject constructor(
                             }
                         }
 
-                    } ?: _measuringState.emit(MeasuringState.InIt)
-                }
-        }
-
-
-    }
-
-    fun setMeasuringState(state: MeasuringState) {
-        viewModelScope.launch {
-            _measuringState.emit(state)
+                    } ?: _measuringState.emit(MeasuringState.InIt).run {
+                        _isResultProgressBar.emit(false)
+                    }
         }
     }
 
-    override fun whereTag(): String {
-        return SleepType.Breathing.name
-    }
 
-    override fun serviceSettingCall() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getService()?.timeHelper?.measuringTimer?.collectLatest {
-                if (bluetoothInfo.sleepType == SleepType.Breathing) {
-                    _measuringTimer.emit(it)
-                }
+}
+
+fun setMeasuringState(state: MeasuringState) {
+    viewModelScope.launch {
+        _measuringState.emit(state)
+    }
+}
+
+override fun whereTag(): String {
+    return SleepType.Breathing.name
+}
+
+override fun serviceSettingCall() {
+    viewModelScope.launch(Dispatchers.IO) {
+        getService()?.timeHelper?.measuringTimer?.collectLatest {
+            if (bluetoothInfo.sleepType == SleepType.Breathing) {
+                _measuringTimer.emit(it)
             }
         }
     }
+}
 }
 
 enum class MeasuringState {
