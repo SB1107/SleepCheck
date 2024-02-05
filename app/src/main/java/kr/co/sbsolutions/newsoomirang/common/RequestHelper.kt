@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -25,14 +26,17 @@ class RequestHelper(
     private val errorMessage: MutableSharedFlow<String>? = null,
     private val isProgressBar: MutableSharedFlow<Boolean>? = null,
 ) {
-    private var reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack? = null
+    companion object {
+        var reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack? = null
+    }
+
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
 
     fun setReAuthorizeCallBack(reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack) {
-        this.reAuthorizeCallBack = reAuthorizeCallBack
+        RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
 
-    suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null , showProgressBar : Boolean = true) = callbackFlow {
+    suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 errorMessage?.emit("네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요")
