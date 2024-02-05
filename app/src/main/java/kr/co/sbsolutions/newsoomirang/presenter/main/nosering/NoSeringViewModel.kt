@@ -150,13 +150,13 @@ class NoSeringViewModel @Inject constructor(
             showCharging()
             return
         }
-        Log.d(TAG, "noSeringResult: $ 측정 완료 결과 보기")
         viewModelScope.launch {
             _isResultProgressBar.emit(true)
             request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
                         if (_measuringState.value == MeasuringState.Result) {
+                            _isResultProgressBar.emit(false)
                             return@let
                         }
                         _measuringState.emit(if (result.state == 0) MeasuringState.Analytics else MeasuringState.Result)

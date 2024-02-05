@@ -156,6 +156,7 @@ class BreathingViewModel @Inject constructor(
                 .collectLatest {
                     it.result?.let { result ->
                         if (_measuringState.value == MeasuringState.Result) {
+                            _isResultProgressBar.emit(false)
                             return@let
                         }
                         _measuringState.emit(if (result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
