@@ -14,10 +14,13 @@ class TimeHelper {
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
-      fun startTimer(scope : CoroutineScope) {
+    fun startTimer(scope: CoroutineScope) {
         time = 0
         if (::timerJob.isInitialized) {
             timerJob.cancel()
+        }
+        runBlocking {
+            _measuringTimer.emit(Triple(0, 0, 0))
         }
         timerJob = scope.launch {
             while (true) {
@@ -30,20 +33,19 @@ class TimeHelper {
             }
         }
     }
-     private fun timerJobCancel(){
+
+    private fun timerJobCancel() {
         if (::timerJob.isInitialized) {
             timerJob.cancel()
         }
     }
-     fun getTime() : Int {
-        return  time
+
+    fun getTime(): Int {
+        return time
     }
-      fun stopTimer() {
+
+    fun stopTimer() {
         time = 0
         timerJobCancel()
-          runBlocking {
-              _measuringTimer.emit(Triple(0,0,0))
-          }
-
     }
 }

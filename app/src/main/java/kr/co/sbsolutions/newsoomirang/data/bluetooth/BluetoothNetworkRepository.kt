@@ -8,15 +8,11 @@ import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -26,27 +22,23 @@ import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
-import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.LogData
 import kr.co.sbsolutions.soomirang.db.SBSensorData
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
-import kotlin.math.log
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
-    private val tokenManager: TokenManager,
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
     private val logDBDataRepository: LogDBDataRepository

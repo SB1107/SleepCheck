@@ -1,7 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.common
 
 import org.tensorflow.lite.support.label.Category
-import javax.inject.Inject
 
 class NoseRingHelper {
     private var mSnoreTime: Long = 0
@@ -26,7 +25,9 @@ class NoseRingHelper {
                     mContSnoringTime = 0
                 }
                 mLastEventTime = currentTime
-                mSnoreTime += inferenceTime ?: 0
+                inferenceTime?.let {
+                    mSnoreTime += it
+                }
             }
         }
     }

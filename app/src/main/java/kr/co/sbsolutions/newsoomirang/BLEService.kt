@@ -500,7 +500,7 @@ class BLEService : LifecycleService() {
             return
         } else {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
-            bluetoothNetworkRepository.stopNetworkSBSensor(noseRingHelper.getSnoreTime())
+            bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
         }
 
 
