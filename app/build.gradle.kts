@@ -57,6 +57,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
+    //스플레시 스크린
+    implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
 
     //라이프 사이클
     val lifecycle_version = "2.6.2"
