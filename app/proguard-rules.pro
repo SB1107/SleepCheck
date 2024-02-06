@@ -107,7 +107,6 @@
 
  ##---------------End: proguard configuration for Gson  ----------
 
- -keep class kr.co.sbsolutions.newsoomirang.data.entity.*
  -keep class com.google.android.*
  -keep class com.opencsv.*
  -keep class com.kizitonwose.*
@@ -121,3 +120,4 @@
  -keep public class com.google.firebase.** {*;}
  -keep class com.google.android.gms.internal.** { *; }
  -keepclasseswithmembers class com.google.firebase.FirebaseException
+ -keep @androidx.annotation.Keep public class *

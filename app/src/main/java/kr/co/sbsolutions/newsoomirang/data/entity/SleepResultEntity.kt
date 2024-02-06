@@ -1,12 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-
+@Keep
 data class SleepResultEntity(
     @SerializedName("result")
     val result: SleepResult?
 ): BaseEntity()
-
+@Keep
 data class SleepResult(
     @SerializedName("started_at")
     val startedAt: String? = null,

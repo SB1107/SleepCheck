@@ -1,13 +1,15 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class NoSeringResultEntity(
 
     @SerializedName("result")
     val result: NoSeringResult?
 ) : BaseEntity()
-
+@Keep
 data class NoSeringResult(
     @SerializedName("started_at")
     var startedAt: String? = null,
@@ -25,5 +27,4 @@ data class NoSeringResult(
     var deepSleepTime: Int = 0,
     @SerializedName("move_count")
     var moveCount: Int = 0
-
 )

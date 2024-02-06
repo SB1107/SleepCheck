@@ -1,17 +1,20 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-
+@Keep
 data class SleepDetailEntity (
     @SerializedName("result")
     val result: SleepDetailResultData?
 ): BaseEntity()
+@Keep
 data class SleepDetailResultData(
     @SerializedName("data")
     var data: List<SleepDetailResult> = arrayListOf(),
     @SerializedName("count")
     var count : Int = 0
 )
+@Keep
 data class SleepDetailResult(
     @SerializedName("id")
     var id: Int = 0,

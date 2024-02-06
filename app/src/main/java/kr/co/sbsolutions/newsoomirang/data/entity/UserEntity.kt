@@ -1,9 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
+import androidx.annotation.Keep
+
+@Keep
 data class UserEntity(
     // 결과
     val result: UserResultData? = null,
 ) : BaseEntity()
+@Keep
 data class UserResultData(
     // 토큰
     val access_token: String? = null,
@@ -13,6 +17,7 @@ data class UserResultData(
     val user: UserData? = null,
     val member: String = "N"
 )
+@Keep
 data class UserData(
     val id: Int? = null,
     // 이메일

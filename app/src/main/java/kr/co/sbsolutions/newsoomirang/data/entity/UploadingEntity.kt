@@ -1,12 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.data.entity
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-
+@Keep
 data class UploadingEntity (
     @SerializedName("result")
     val result: Result
 ): BaseEntity()
-
+@Keep
 data class Result(
     @SerializedName("data")
     val data: List<DetailData>,
@@ -14,6 +15,7 @@ data class Result(
     @SerializedName("count")
     val count: Int
 )
+@Keep
 data class DetailData(
     @SerializedName("day")
     val day: String,
