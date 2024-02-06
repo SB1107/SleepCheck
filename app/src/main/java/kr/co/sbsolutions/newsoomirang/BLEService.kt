@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.*
 import android.os.Binder
 import android.os.Build
@@ -103,8 +104,11 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var tokenManager: TokenManager
 
-    @Inject
-    lateinit var bluetoothAdapter: BluetoothAdapter
+    private val bluetoothAdapter: BluetoothAdapter? by lazy {
+        this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
+            return@run adapter
+        }
+    }
 
     @Inject
     lateinit var bluetoothNetworkRepository: IBluetoothNetworkRepository
@@ -138,7 +142,10 @@ class BLEService : LifecycleService() {
                 }
             }
         }
-        bluetoothNetworkRepository.changeBluetoothState(bluetoothAdapter.isEnabled)
+        bluetoothAdapter?.let {
+            bluetoothNetworkRepository.changeBluetoothState(it.isEnabled)
+        }
+
         registerReceiver(mReceiver, mFilter)
 
         lifecycleScope.launch {
@@ -201,9 +208,9 @@ class BLEService : LifecycleService() {
 
     fun connectDevice(bluetoothInfo: BluetoothInfo) {
 //        Log.d(TAG, "getCallback: ConnectDevice ")
-        val device = bluetoothAdapter.getRemoteDevice(bluetoothInfo.bluetoothAddress)
+        val device = bluetoothAdapter?.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
-        bluetoothInfo.bluetoothGatt = device.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
+        bluetoothInfo.bluetoothGatt = device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
 
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
