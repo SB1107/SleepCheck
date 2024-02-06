@@ -46,7 +46,7 @@ class SettingFragment : Fragment() {
             }
             //개인정보 방침
             binding.clPolicy.setOnClickListener {
-                startActivity(Intent(requireContext(), PolicyActivity::class.java))
+                startActivity(Intent(requireContext(), PolicyActivity::class.java).putExtra("where", "setting"))
             }
             //로그아웃
             binding.clLogout.setOnClickListener {

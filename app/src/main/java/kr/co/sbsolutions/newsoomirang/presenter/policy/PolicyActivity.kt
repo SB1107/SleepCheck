@@ -15,8 +15,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.WebType
 import kr.co.sbsolutions.newsoomirang.common.addFlag
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
@@ -32,13 +34,15 @@ class PolicyActivity : AppCompatActivity() {
     }
     private val viewModel: PolicyViewModel by viewModels()
 
-    lateinit var accessToken: String
+    private var accessToken: String? = null
+    private var where: String? = "login"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         intent?.let {
-            accessToken = it.getStringExtra("accessToken").toString()
+            accessToken = it.getStringExtra("accessToken")
+            where = it.getStringExtra("where")
         }
         bindViews()
     }
@@ -84,6 +88,15 @@ class PolicyActivity : AppCompatActivity() {
         }
         lifecycleScope.launch {
             launch {
+                if (where != "login" && where != null) {
+                    binding.apply {
+                        delay(100)
+                        cbEssentialTermsService.visibility = View.GONE
+                        cbEssentialTermsService.performClick()
+                    }
+                }
+            }
+            launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.userName.collect { name ->
                         binding.tvName.text = buildString {
@@ -110,24 +123,30 @@ class PolicyActivity : AppCompatActivity() {
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.policyResult.collect {
-                        startActivity(Intent(this@PolicyActivity, MainActivity::class.java).addFlag())
+                        if (where != "login" && where != null) {
+                            finish()
+                        } else {
+                            startActivity(Intent(this@PolicyActivity, MainActivity::class.java).addFlag())
+                        }
                     }
                 }
             }
         }
     }
 
-        private fun setSystemBarColor(act: Activity, @ColorRes color: Int) {
-            val window = act.window
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            window.statusBarColor = act.resources.getColor(color)
-        }
 
-        private fun webViewActivity(webType: WebType) {
-            startActivity(Intent(this, WebViewActivity::class.java).apply {
-                putExtra("webTypeUrl", webType.url)
-                putExtra("webTypeTitle", webType.title)
-            })
-        }
+
+    private fun setSystemBarColor(act: Activity, @ColorRes color: Int) {
+        val window = act.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = act.resources.getColor(color)
     }
+
+    private fun webViewActivity(webType: WebType) {
+        startActivity(Intent(this, WebViewActivity::class.java).apply {
+            putExtra("webTypeUrl", webType.url)
+            putExtra("webTypeTitle", webType.title)
+        })
+    }
+}

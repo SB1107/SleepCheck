@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:fontFamily="@font/nanumsquareregular"
-        android:text="코걸이결과를 확인하세요."
+        android:text="코골이결과를 확인하세요."
         android:textColor="@color/color_78899F"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@id/tv_name_des1"

@@ -21,7 +21,7 @@ import java.io.File
 interface RemoteLoginDataSource {
      fun postLogin(loginModel: SnsLoginModel): Flow<ApiResponse<UserEntity>>
 }
-interface RemoteAuthDataSource{
+interface RemoteAuthDataSource {
      fun postPolicy(policyModel: PolicyModel): Flow<ApiResponse<UserEntity>>
      fun postLogout(): Flow<ApiResponse<UserEntity>>
      fun postSleepDataCreate(sleepCreateModel: SleepCreateModel) : Flow<ApiResponse<SleepCreateEntity>>

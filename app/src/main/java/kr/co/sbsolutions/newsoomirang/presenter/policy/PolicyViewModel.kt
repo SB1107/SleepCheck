@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.policy
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.booleanToInt
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
@@ -53,10 +55,14 @@ class PolicyViewModel @Inject constructor(
         _checkAppDataFlow.tryEmit(isChecked.booleanToInt())
     }
 
-    fun joinAgree(token : String) {
+    fun joinAgree(token: String?) {
+        runBlocking {
+            token?.let {
+                tokenManager.saveToken(it)
+            }
+        }
         viewModelScope.launch(Dispatchers.IO) {
             request { policyRepository.postPolicy(PolicyModel(_checkServerDataFlow.value, _checkAppDataFlow.value)) }.collectLatest {
-                tokenManager.saveToken(token)
                 _policyResult.emit(true)
             }
         }
