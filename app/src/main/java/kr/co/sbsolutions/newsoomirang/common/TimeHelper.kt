@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class TimeHelper {
     lateinit var timerJob: Job
@@ -40,5 +41,9 @@ class TimeHelper {
       fun stopTimer() {
         time = 0
         timerJobCancel()
+          runBlocking {
+              _measuringTimer.emit(Triple(0,0,0))
+          }
+
     }
 }

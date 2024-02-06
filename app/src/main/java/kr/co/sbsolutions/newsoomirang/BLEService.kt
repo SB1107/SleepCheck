@@ -135,7 +135,7 @@ class BLEService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         noseRingHelper.setCallVibrationNotifications {
-            lifecycleScope.launch {
+            lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
                     callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
@@ -401,7 +401,7 @@ class BLEService : LifecycleService() {
             ActionMessage.CancelSbService -> {
                 stopScheduler()
                 finishService(-1, false)
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(IO) {
                     sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
                 }
 
@@ -622,6 +622,7 @@ class BLEService : LifecycleService() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
+        noseRingHelper.clearData()
     }
 
     /*private fun endMeasure(dataId: Int) {
@@ -657,6 +658,7 @@ class BLEService : LifecycleService() {
                     intent.setAction(Cons.NOTIFICATION_ACTION)
                     intent.setPackage(baseContext.packageName)
                     sendBroadcast(intent)
+                    noseRingHelper.clearData()
                 }
             }
         }
