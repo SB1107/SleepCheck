@@ -20,7 +20,23 @@
         <item name="android:checkboxStyle">@style/NanumCheckboxStyle</item>
         <item name="android:textViewStyle">@style/NanumTextViewStyle</item>
         <item name="android:actionMenuTextColor">@color/colorPrimary</item>
-
     </style>
+
+    <style name="Base.Theme.SplashScreen." parent="Theme.SplashScreen">
+        <!-- Set the splash screen background to black -->
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
+             drawable. -->
+        <!--        <item name="windowSplashScreenAnimatedIcon"></item>-->
+        <!-- Set the theme of the Activity that follows your splash screen. -->
+        <item name="postSplashScreenTheme">@style/Theme.MyApplication</item>
+    </style>
+
+
+
+    <!--<item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+    <item name="android:windowDisablePreview">true</item>
+    <item name="android:windowIsTranslucent">true</item>-->
+
 
 </resources>
