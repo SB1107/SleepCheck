@@ -308,6 +308,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkSBSensor(snoreTime: Long) {
         val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+            Log.d(TAG, "stopNetworkSBSensor snoreTime: $snoreTime")
             _sbSensorInfo.update { it.copy(bluetoothState = state, snoreTime = snoreTime) }
             insertLog(state)
         }
