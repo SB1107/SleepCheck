@@ -32,7 +32,7 @@
         android:layout_marginTop="30dp"
         android:text="@string/privacy_data_storage"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/tvName" />
 
     <com.google.android.material.button.MaterialButton
@@ -47,7 +47,7 @@
         android:insetBottom="0dp"
         android:text="@string/privacy_terms_service"
         android:textColor="@color/color_0F63C8"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:cornerRadius="10dp"
         app:layout_constraintTop_toBottomOf="@id/tvDetail"
         app:strokeColor="@color/color_0F63C8"
@@ -65,7 +65,7 @@
         android:insetBottom="0dp"
         android:text="@string/privacy_personal_information_collection_usage_policy"
         android:textColor="@color/color_0F63C8"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:cornerRadius="10dp"
         app:layout_constraintTop_toBottomOf="@id/btnServiceTerms"
         app:strokeColor="@color/color_0F63C8"
@@ -114,7 +114,7 @@
         android:insetBottom="0dp"
         android:textColor="@color/color_FFFFFF"
         android:text="@string/privacy_agree"
-        android:textSize="16dp"
+        android:textSize="16sp"
         app:cornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         />

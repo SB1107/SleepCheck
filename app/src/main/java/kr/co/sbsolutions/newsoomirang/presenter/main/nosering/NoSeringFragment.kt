@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
@@ -28,6 +29,7 @@ import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
+import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
@@ -46,6 +48,11 @@ class NoSeringFragment : Fragment() {
     private val connectInfoBinding: DialogConnectInfoBinding by lazy {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
+
+    private val resultBinding: RowProgressResultBinding by lazy {
+        RowProgressResultBinding.inflate(layoutInflater)
+    }
+
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
@@ -56,6 +63,15 @@ class NoSeringFragment : Fragment() {
             connectInfoBinding.btLater.setOnClickListener {
                 this.dismiss()
             }
+        }
+    }
+
+    private val resultDialog by lazy {
+        BottomSheetDialog(requireContext()).apply {
+            setContentView(resultBinding.root)
+            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isDraggable = false
         }
     }
 
@@ -254,7 +270,12 @@ class NoSeringFragment : Fragment() {
                 }
                 launch {
                     viewModel.isResultProgressBar.collectLatest {
-                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+//                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                        if (!it){
+                            resultDialog.dismiss()
+                        } else {
+                            resultDialog.show()
+                        }
                     }
                 }
                 //UI 변경

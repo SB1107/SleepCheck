@@ -155,7 +155,9 @@ class BreathingViewModel @Inject constructor(
             request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
+                        Log.d(TAG, "sleepDataResult: $result")
                         if (_measuringState.value == MeasuringState.Result) {
+                            Log.d(TAG, "sleepDataResult: 11111")
                             _isResultProgressBar.emit(false)
                             return@let
                         }
@@ -183,6 +185,7 @@ class BreathingViewModel @Inject constructor(
                             )
                         )
                         _isResultProgressBar.emit(result.state == 1)
+                        Log.d(TAG, "sleepDataResult: 22222 ${result.state == 1}")
                         viewModelScope.launch(Dispatchers.IO) {
                             delay(4000)
                             if (_measuringState.value == MeasuringState.Analytics) {
@@ -191,6 +194,7 @@ class BreathingViewModel @Inject constructor(
                         }
 
                     } ?: _measuringState.emit(MeasuringState.InIt).run {
+                        Log.d(TAG, "sleepDataResult: 33333")
                         _isResultProgressBar.emit(false)
                     }
         }

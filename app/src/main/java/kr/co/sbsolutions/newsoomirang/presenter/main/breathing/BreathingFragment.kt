@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -17,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -29,6 +31,7 @@ import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
+import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
@@ -48,6 +51,11 @@ class BreathingFragment : Fragment() {
     private val connectInfoBinding: DialogConnectInfoBinding by lazy {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
+
+    private val resultBinding: RowProgressResultBinding by lazy {
+        RowProgressResultBinding.inflate(layoutInflater)
+    }
+
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
@@ -58,6 +66,15 @@ class BreathingFragment : Fragment() {
             connectInfoBinding.btLater.setOnClickListener {
                 this.dismiss()
             }
+        }
+    }
+
+    private val resultDialog by lazy {
+        BottomSheetDialog(requireContext()).apply {
+            setContentView(resultBinding.root)
+            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isDraggable = false
         }
     }
     private val queueList = LimitedQueue<Entry>(50)
@@ -225,11 +242,19 @@ class BreathingFragment : Fragment() {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
+
                 launch {
                     viewModel.isResultProgressBar.collectLatest {
-                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                        /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
+                        Log.d(TAG, "setObservers: $it")
+                        if (!it){
+                            resultDialog.dismiss()
+                        } else {
+                            resultDialog.show()
+                        }
                     }
                 }
+
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {

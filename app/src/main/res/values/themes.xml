@@ -22,16 +22,16 @@
         <item name="android:actionMenuTextColor">@color/colorPrimary</item>
     </style>
 
-    <style name="Base.Theme.SplashScreen." parent="Theme.SplashScreen">
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Set the splash screen background to black -->
         <item name="windowSplashScreenBackground">@android:color/black</item>
         <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
              drawable. -->
         <!--        <item name="windowSplashScreenAnimatedIcon"></item>-->
         <!-- Set the theme of the Activity that follows your splash screen. -->
+        <item name="windowSplashScreenAnimationDuration">1</item>
         <item name="postSplashScreenTheme">@style/Theme.MyApplication</item>
     </style>
-
 
 
     <!--<item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
