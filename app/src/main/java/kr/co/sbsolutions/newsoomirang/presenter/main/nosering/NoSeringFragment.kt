@@ -70,8 +70,9 @@ class NoSeringFragment : Fragment() {
         BottomSheetDialog(requireContext()).apply {
             setContentView(resultBinding.root)
             (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
             behavior.isDraggable = false
+            setCanceledOnTouchOutside(false)
         }
     }
 

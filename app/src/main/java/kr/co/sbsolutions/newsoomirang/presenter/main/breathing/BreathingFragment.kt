@@ -73,8 +73,9 @@ class BreathingFragment : Fragment() {
         BottomSheetDialog(requireContext()).apply {
             setContentView(resultBinding.root)
             (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
             behavior.isDraggable = false
+            setCanceledOnTouchOutside(false)
         }
     }
     private val queueList = LimitedQueue<Entry>(50)
@@ -246,7 +247,6 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.isResultProgressBar.collectLatest {
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
-                        Log.d(TAG, "setObservers: $it")
                         if (!it){
                             resultDialog.dismiss()
                         } else {
