@@ -22,6 +22,7 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -270,12 +271,10 @@ class NoSeringFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.isResultProgressBar.collectLatest {
+                    viewModel.isResultProgressBar.drop(1).collectLatest {
 //                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-                        if (!it){
-                            resultDialog.dismiss()
-                        } else {
-                            resultDialog.show()
+                        resultDialog.run {
+                            if (it) show() else dismiss()
                         }
                     }
                 }

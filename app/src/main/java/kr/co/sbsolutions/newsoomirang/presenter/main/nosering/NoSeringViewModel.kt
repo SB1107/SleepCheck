@@ -150,7 +150,7 @@ class NoSeringViewModel @Inject constructor(
             showCharging()
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isResultProgressBar.emit(true)
             request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
                 .collectLatest {
@@ -239,7 +239,7 @@ class NoSeringViewModel @Inject constructor(
     }
 
     override fun serviceSettingCall() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
                 getService()?.timeHelper?.measuringTimer?.collectLatest {
                     if (bluetoothInfo.sleepType == SleepType.NoSering) {
                     _measuringTimer.emit(it)

@@ -148,13 +148,13 @@ class BLEService : LifecycleService() {
 
         registerReceiver(mReceiver, mFilter)
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.listenRegisterSBSensor()
         }
-        lifecycleScope.launch {
+        lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.listenRegisterSpO2Sensor()
         }
-        lifecycleScope.launch {
+        lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.listenRegisterEEGSensor()
         }
         createNotificationChannel()
@@ -478,9 +478,9 @@ class BLEService : LifecycleService() {
             settingDataRepository.setSleepType(sleepType)
         }
         startTimer()
-        if (sleepType == SleepType.NoSering) {
-            audioHelper.startAudioClassification()
-        }
+        audioHelper.startAudioClassification()
+//        if (sleepType == SleepType.NoSering) {
+//        }
     }
 
     private fun stopAudioClassification() {
@@ -491,9 +491,9 @@ class BLEService : LifecycleService() {
         createNotificationChannel()
         stopTimer()
 
-        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
-            stopAudioClassification()
-        }
+        stopAudioClassification()
+//        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
+//        }
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             stopSBServiceForced(isCancel)

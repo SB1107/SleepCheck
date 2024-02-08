@@ -110,7 +110,7 @@ class BreathingViewModel @Inject constructor(
             return
         }
         setMeasuringState(MeasuringState.Analytics)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getService()?.stopSBSensor()
         }
     }
@@ -172,6 +172,7 @@ class BreathingViewModel @Inject constructor(
                         val resultAsleep = (result.asleepTime * 60).toHourMinute()
                         val deepSleepTime = (result.deepSleepTime * 60).toHourMinute()
                         val moveCount = (result.moveCount).toString()
+
                         _sleepDataResultFlow.emit(
                             SleepDataResultModel(
                                 endDate = endedAtString,

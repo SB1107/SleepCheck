@@ -23,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -72,7 +73,7 @@ class BreathingFragment : Fragment() {
     private val resultDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(resultBinding.root)
-            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
+            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
             behavior.isDraggable = false
             setCanceledOnTouchOutside(false)
@@ -245,12 +246,10 @@ class BreathingFragment : Fragment() {
                 }
 
                 launch {
-                    viewModel.isResultProgressBar.collectLatest {
+                    viewModel.isResultProgressBar.drop(1).collectLatest {
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
-                        if (!it){
-                            resultDialog.dismiss()
-                        } else {
-                            resultDialog.show()
+                        resultDialog.run {
+                            if (it) show() else dismiss()
                         }
                     }
                 }
