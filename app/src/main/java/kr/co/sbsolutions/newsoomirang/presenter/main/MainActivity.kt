@@ -1,10 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -12,6 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -68,7 +73,22 @@ class MainActivity : BaseServiceActivity() {
                 }
             }
         }
+        isPermission()
+    }
+    private fun isPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+            TedPermission.create()
+                .setPermissionListener(object : PermissionListener {
+                    override fun onPermissionGranted() {
+                    }
 
+                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                        finish()
+                    }
+                }).setPermissions(Manifest.permission.RECORD_AUDIO)
+                .setDeniedMessage("권한을 설정해주셔야 합니다.")
+                .check()
+        }
     }
 
     fun getBroadcastData() {

@@ -1,9 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.nosering
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,8 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -93,7 +89,6 @@ class NoSeringFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
-        isPermission()
         setObservers()
         binding.motorCheckBox.setOnCheckedChangeListener { _, isChecked ->
             run {
@@ -121,32 +116,11 @@ class NoSeringFragment : Fragment() {
 
         binding.startButton.setOnClickListener {
             viewModel.startClick()
-            Log.d(TAG, "onViewCreated: 클릭")
         }
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
         }
 
-    }
-
-    private fun isPermission() {
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-            binding.startButton.visibility = View.GONE
-            TedPermission.create()
-                .setPermissionListener(object : PermissionListener {
-                    override fun onPermissionGranted() {
-                        binding.startButton.visibility = View.VISIBLE
-                    }
-
-                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                        binding.startButton.visibility = View.GONE
-                    }
-                }).setPermissions(Manifest.permission.RECORD_AUDIO)
-                .setDeniedMessage("권한을 설정해주셔야 합니다.")
-                .check()
-        } else {
-            binding.startButton.visibility = View.VISIBLE
-        }
     }
 
     private fun setObservers() {

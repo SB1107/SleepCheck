@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,12 +20,10 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
@@ -39,7 +36,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
-import kotlin.math.log
 
 @AndroidEntryPoint
 class BreathingFragment : Fragment() {
@@ -94,6 +90,7 @@ class BreathingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
+
         setObservers()
         binding.startButton.setOnClickListener {
             viewModel.startClick()

@@ -395,22 +395,23 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private fun writeResponse(gatt: BluetoothGatt, command: AppToModuleResponse) {
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
-
         val byteArr = command.getCommandByteArr()
-
-        strBuilder.clear()
-        strBuilder.append("[ ")
-        for (v in byteArr) {
-            strBuilder.append(String.format("%02X ", v))
-        }
-        strBuilder.append("]\n")
-        Log.d("<--- App To Device", strBuilder.toString())
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
         } else {
             cmd.value = byteArr
             gatt.writeCharacteristic(cmd)
         }
+        logCoroutine.launch {
+            strBuilder.clear()
+            strBuilder.append("[ ")
+            for (v in byteArr) {
+                strBuilder.append(String.format("%02X ", v))
+            }
+            strBuilder.append("]\n")
+            Log.d("<--- App To Device", strBuilder.toString())
+        }
+
     }
 
     private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
@@ -429,21 +430,24 @@ class BluetoothNetworkRepository @Inject constructor(
             var result: Boolean
             do {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    result =    gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
+                    result = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
                 } else {
                     cmd.value = byteArr
-                    result =  gatt.writeCharacteristic(cmd)
+                    result = gatt.writeCharacteristic(cmd)
                 }
 
-                if (result) {
-                    strBuilder.clear()
-                    strBuilder.append("[ ")
-                    for (v in byteArr) {
-                        strBuilder.append(String.format("%02X ", v))
+                logCoroutine.launch {
+                    if (result) {
+                        strBuilder.clear()
+                        strBuilder.append("[ ")
+                        for (v in byteArr) {
+                            strBuilder.append(String.format("%02X ", v))
+                        }
+                        strBuilder.append("]\n")
+                        Log.d("<--- App To Device", strBuilder.toString())
                     }
-                    strBuilder.append("]\n")
-                    Log.d("<--- App To Device", strBuilder.toString())
                 }
+
             } while (!result)
         } ?: stateCallback?.invoke(BluetoothState.Connected.Init)
     }
