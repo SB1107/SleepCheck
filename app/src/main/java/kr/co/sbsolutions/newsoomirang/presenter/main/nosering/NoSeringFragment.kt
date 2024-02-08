@@ -1,7 +1,9 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.nosering
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,7 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -115,7 +122,13 @@ class NoSeringFragment : Fragment() {
         }
 
         binding.startButton.setOnClickListener {
-            viewModel.startClick()
+            lifecycleScope.launch {
+                isPermission().collectLatest {
+                    if (it) {
+                        viewModel.startClick()
+                    }
+                }
+            }
         }
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
@@ -328,7 +341,29 @@ class NoSeringFragment : Fragment() {
             }
         }).show(requireActivity().supportFragmentManager, "")
     }
+    private fun isPermission(): Flow<Boolean> = callbackFlow {
 
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+            TedPermission.create()
+                .setPermissionListener(object : PermissionListener {
+                    override fun onPermissionGranted() {
+                        trySend(true)
+                        close()
+                    }
+
+                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
+                        trySend(false)
+                        close()
+                    }
+                }).setPermissions(Manifest.permission.RECORD_AUDIO)
+                .setDeniedMessage("코골이 분석을 위해 권한을 설정해 주세요")
+                .check()
+        }else{
+            trySend(true)
+            close()
+        }
+        awaitClose()
+    }
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {

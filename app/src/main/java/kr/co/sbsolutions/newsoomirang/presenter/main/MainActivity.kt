@@ -73,22 +73,6 @@ class MainActivity : BaseServiceActivity() {
                 }
             }
         }
-        isPermission()
-    }
-    private fun isPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
-            TedPermission.create()
-                .setPermissionListener(object : PermissionListener {
-                    override fun onPermissionGranted() {
-                    }
-
-                    override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                        finish()
-                    }
-                }).setPermissions(Manifest.permission.RECORD_AUDIO)
-                .setDeniedMessage("권한을 설정해주셔야 합니다.")
-                .check()
-        }
     }
 
     fun getBroadcastData() {
