@@ -395,14 +395,15 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private fun writeResponse(gatt: BluetoothGatt, command: AppToModuleResponse) {
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
-        val byteArr = command.getCommandByteArr()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
-        } else {
-            cmd.value = byteArr
-            gatt.writeCharacteristic(cmd)
-        }
         logCoroutine.launch {
+            val byteArr = command.getCommandByteArr()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
+            } else {
+                cmd.value = byteArr
+                gatt.writeCharacteristic(cmd)
+            }
+
             strBuilder.clear()
             strBuilder.append("[ ")
             for (v in byteArr) {
@@ -423,20 +424,20 @@ class BluetoothNetworkRepository @Inject constructor(
                 stateCallback?.invoke(BluetoothState.Connected.Ready)
                 return
             }
-
-            val byteArr = command.getCommandByteArr()
+            logCoroutine.launch {
+                val byteArr = command.getCommandByteArr()
 //            cmd.value = byteArr
 
-            var result: Boolean
-            do {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    result = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
-                } else {
-                    cmd.value = byteArr
-                    result = gatt.writeCharacteristic(cmd)
-                }
+                var result: Boolean
+                do {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        result = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
+                    } else {
+                        cmd.value = byteArr
+                        result = gatt.writeCharacteristic(cmd)
+                    }
 
-                logCoroutine.launch {
+
                     if (result) {
                         strBuilder.clear()
                         strBuilder.append("[ ")
@@ -446,10 +447,11 @@ class BluetoothNetworkRepository @Inject constructor(
                         strBuilder.append("]\n")
                         Log.d("<--- App To Device", strBuilder.toString())
                     }
-                }
 
-            } while (!result)
+                } while (!result)
+            }
         } ?: stateCallback?.invoke(BluetoothState.Connected.Init)
+
     }
 
     override fun stopNetworkSpO2Sensor() {}
@@ -590,6 +592,9 @@ class BluetoothNetworkRepository @Inject constructor(
         }
 
         private fun readData(gatt: BluetoothGatt, value: ByteArray) {
+            logCoroutine.launch {
+
+
             strBuilder.clear()
             strBuilder.append("[ ")
             for (v in value) {
@@ -970,6 +975,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
 
                 else -> {}
+            }
             }
         }
     }
