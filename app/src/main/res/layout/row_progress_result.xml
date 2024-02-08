@@ -25,7 +25,8 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:textColor="@color/white"
-        android:text="결과 분석중 ...."
+        android:text="측정 결과를 분석하고있습니다.\n잠시만 기다려 주세요..."
+        android:gravity="center"
         android:textSize="24sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
