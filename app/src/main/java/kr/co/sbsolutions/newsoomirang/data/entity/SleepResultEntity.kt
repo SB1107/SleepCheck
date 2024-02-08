@@ -24,5 +24,7 @@ data class SleepResult(
     @SerializedName("deep_sleep_time")
     val deepSleepTime : Int = 0,
     @SerializedName("move_count")
-    val moveCount :Int =0
+    val moveCount :Int =0,
+    @SerializedName("snore_time")
+    var noSeringTime: Int = 0
 )
