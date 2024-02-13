@@ -70,8 +70,8 @@ class BLEService : LifecycleService() {
         const val TIME_OUT_NOTIFICATION_ID = 1002
         private const val INTERVAL_UPLOAD_TIME = 15L
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
-        const val  UPLOADING : String  = "uploading"
-        const val  FINISH : String  = "uploading"
+        const val UPLOADING: String = "uploading"
+        const val FINISH: String = "finish"
 
     }
 
@@ -643,7 +643,9 @@ class BLEService : LifecycleService() {
         /*lifecycleScope.launch(IO) {
               sbSensorDBRepository.deleteRemainList(dataId)
         }*/
-
+        lifecycleScope.launch(IO) {
+            _resultMessage.emit(null)
+        }
         timerOfTimeout?.cancel()
         timerOfTimeout = null
 

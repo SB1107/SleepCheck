@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
@@ -152,44 +153,55 @@ class NoSeringViewModel @Inject constructor(
         }
         viewModelScope.launch(Dispatchers.IO) {
             _isResultProgressBar.emit(true)
-            request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
-                .collectLatest {
-                    it.result?.let { result ->
-                        if (_measuringState.value == MeasuringState.Result) {
-                            _isResultProgressBar.emit(false)
-                            return@let
-                        }
-                        _measuringState.emit(if (result.state == 0) MeasuringState.Analytics else MeasuringState.Result)
-                        val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                        val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                        val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
-                        val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
-                        val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-                        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
-                        val snoreTime = (result.noSeringTime * 60).toHourMinute()
-                        _noSeringDataResultFlow.emit(
-                            NoSeringDataResultModel(
-                                endDate = endedAtString,
-                                duration = "$durationString 수면",
-                                resultTotal = min,
-                                resultReal = snoreTime,
-                                apneaState = result.apneaState
-                            )
-                        )
-                        _isResultProgressBar.emit(result.state == 1)
-                        viewModelScope.launch(Dispatchers.IO) {
-                            delay(4000)
-                            if (_measuringState.value == MeasuringState.Analytics) {
-                                noSeringResult()
-                            }
-                        }
-                    } ?: _measuringState.emit(MeasuringState.InIt).run {
-                        _isResultProgressBar.emit(false)
-                    }
+            getResultMessage()?.let {
+                if (it != BLEService.FINISH) {
+                    delay(2000)
+                    noSeringResult()
+                }else{
+                    snoSeringResultRequest()
                 }
+            } ?: snoSeringResultRequest()
         }
 
 
+    }
+
+    private suspend fun snoSeringResultRequest() {
+        request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
+            .collectLatest {
+                it.result?.let { result ->
+                    if (_measuringState.value == MeasuringState.Result) {
+                        _isResultProgressBar.emit(false)
+                        return@let
+                    }
+                    _measuringState.emit(if (result.state == 0) MeasuringState.Analytics else MeasuringState.Result)
+                    val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
+                    val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
+                    val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
+                    val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
+                    val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
+                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+                    val snoreTime = (result.noSeringTime * 60).toHourMinute()
+                    _noSeringDataResultFlow.emit(
+                        NoSeringDataResultModel(
+                            endDate = endedAtString,
+                            duration = "$durationString 수면",
+                            resultTotal = min,
+                            resultReal = snoreTime,
+                            apneaState = result.apneaState
+                        )
+                    )
+                    _isResultProgressBar.emit(result.state == 1)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        delay(4000)
+                        if (_measuringState.value == MeasuringState.Analytics) {
+                            noSeringResult()
+                        }
+                    }
+                } ?: _measuringState.emit(MeasuringState.InIt).run {
+                    _isResultProgressBar.emit(false)
+                }
+            }
     }
 
     fun stopClick() {

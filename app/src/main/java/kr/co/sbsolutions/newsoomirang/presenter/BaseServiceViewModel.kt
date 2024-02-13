@@ -109,6 +109,9 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
             _gotoScan.emit(true)
         }
     }
+    fun getResultMessage() : String? {
+        return getService()?.getResultMessage()
+    }
 
     fun isRegistered(): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
