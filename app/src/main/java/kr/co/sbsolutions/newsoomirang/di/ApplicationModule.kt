@@ -2,6 +2,8 @@ package kr.co.sbsolutions.newsoomirang.di
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import androidx.work.WorkManager
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,4 +31,9 @@ object  ApplicationModule {
     @Provides
     fun provideBluetoothAdapter(@ApplicationContext context: Context) = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
 
+    @Provides
+    fun provideFirebaseFireStore() = FirebaseFirestore.getInstance()
+
+    @Provides
+    fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 }

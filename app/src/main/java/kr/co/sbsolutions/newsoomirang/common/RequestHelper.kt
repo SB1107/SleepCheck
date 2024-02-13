@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.common
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,11 +12,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 
 class RequestHelper(
     private val scope: CoroutineScope,
@@ -27,12 +24,12 @@ class RequestHelper(
     private val isProgressBar: MutableSharedFlow<Boolean>? = null,
 ) {
     companion object {
-        var reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack? = null
+        var reAuthorizeCallBack: ReAuthorizeCallBack? = null
     }
 
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
 
-    fun setReAuthorizeCallBack(reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack) {
+    fun setReAuthorizeCallBack(reAuthorizeCallBack: ReAuthorizeCallBack) {
         RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
 
@@ -64,6 +61,7 @@ class RequestHelper(
                                 isProgressBar?.emit(false)
                             }
                             errorMessage?.emit(it.errorCode.msg)
+                            errorHandler?.onError(it.errorCode.msg)
                         }
 
                         ApiResponse.Loading -> {
@@ -114,5 +112,8 @@ class RequestHelper(
 
     fun interface CoroutinesErrorHandler {
         fun onError(message: String)
+    }
+    interface ReAuthorizeCallBack {
+        fun reLogin()
     }
 }

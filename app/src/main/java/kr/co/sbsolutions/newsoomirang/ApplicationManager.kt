@@ -8,24 +8,22 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.common.NetworkHelper
+import kr.co.sbsolutions.newsoomirang.common.FCMTokenUpdateHelper
 import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
-import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 @HiltAndroidApp
-class ApplicationManager : Application() {
+class ApplicationManager()  : Application()  , Configuration.Provider  {
+
+
     private val _bluetoothInfoFlow: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
     private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
@@ -34,11 +32,14 @@ class ApplicationManager : Application() {
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
 
     @Inject
-    lateinit var networkHelper: NetworkHelper
+    lateinit var fcmTokenUpdateHelper: FCMTokenUpdateHelper
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
 
     init {
         instance = this
     }
+
 
     companion object {
         lateinit var instance: ApplicationManager
@@ -64,7 +65,6 @@ class ApplicationManager : Application() {
             return instance.networkCheck.value
         }
     }
-
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -105,4 +105,9 @@ class ApplicationManager : Application() {
 
         notificationManager.createNotificationChannel(channel)
     }
+
+    override val workManagerConfiguration: Configuration
+        =  Configuration.Builder()
+            .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .build()
 }

@@ -69,6 +69,7 @@ dependencies {
     implementation ("androidx.activity:activity-ktx:1.8.2")
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
 
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     //리사이클러뷰
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
@@ -104,9 +105,12 @@ dependencies {
 
     //주입
     val hiltVersion = "2.50"
+    implementation("androidx.hilt:hilt-work:1.1.0")
     implementation("com.google.dagger:hilt-android:$hiltVersion")
 //    ksp ("com.google.dagger:dagger-compiler:$hiltVersion") // Dager
     ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    ksp("androidx.hilt:hilt-compiler:1.1.0")
+
 
     //통신
     val retrofitVersion = "2.9.0"

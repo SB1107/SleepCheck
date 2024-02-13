@@ -6,11 +6,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.*
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import androidx.lifecycle.*
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
@@ -132,6 +134,7 @@ class BLEService : LifecycleService() {
     lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
+    private val errorMessage: MutableSharedFlow<String> = MutableSharedFlow()
     override fun onCreate() {
         super.onCreate()
         noseRingHelper.setCallVibrationNotifications {
@@ -159,7 +162,14 @@ class BLEService : LifecycleService() {
         }
         createNotificationChannel()
 
-        requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
+        requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager, errorMessage = errorMessage)
+        lifecycleScope.launch(IO) {
+            errorMessage.collectLatest {
+                if (it.isEmpty().not()) {
+
+                }
+            }
+        }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -240,13 +250,13 @@ class BLEService : LifecycleService() {
             launch {
                 timeHelper.startTimer(this)
             }
-            launch {
-                timeHelper.measuringTimer.collectLatest {
-                    notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-
-                }
-            }
+//            launch {
+//                timeHelper.measuringTimer.collectLatest {
+//                    notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
+//                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+//
+//                }
+//            }
         }
     }
 
@@ -378,8 +388,9 @@ class BLEService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
+                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                 noseRingHelper.clearData()
-                notificationBuilder.setContentTitle("측정 중")
+                notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
 //                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
                 listenChannelMessage()
@@ -387,11 +398,28 @@ class BLEService : LifecycleService() {
                 registerDownloadCallback()
                 // uploadStart()
                 //startNotification()
-                startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build()).apply { startTimer() }
+                try {
+                    ServiceCompat.startForeground(
+                        this, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+                        } else {
+                            0
+                        },
+                    ).apply { startTimer() }
+                } catch (e: Exception) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                        && e is ForegroundServiceStartNotAllowedException
+                    ) {
+                        bluetoothNetworkRepository.insertLog("서비스 시작 오류")
+                    }
+                }
+
             }
 
             ActionMessage.StopSBService -> {
                 notificationBuilder.setContentTitle("측정 종료")
+                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 종료")
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
 //                unregisterListenSBSensorState()
                 stopScheduler()
@@ -399,6 +427,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.CancelSbService -> {
+                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소")
                 stopScheduler()
                 finishService(-1, false)
                 lifecycleScope.launch(IO) {
@@ -409,6 +438,7 @@ class BLEService : LifecycleService() {
 
             ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
+                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 강제 종료")
                 stopSBServiceForced()
             }
 
@@ -645,13 +675,13 @@ class BLEService : LifecycleService() {
     }*/
     private fun uploading(dataId: Int, file: File, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) {
         lifecycleScope.launch(IO) {
-
-            request({ remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }) {
-                finishService(dataId, isForcedClose)
-            }.flowOn(IO).collectLatest {
+            bluetoothNetworkRepository.insertLog("서버 업로드 시작")
+            request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }
+            ) { uploading(dataId, file, list, isLast, isForcedClose, sleepType, snoreTime) }.flowOn(IO).collectLatest {
                 if (isLast) {
                     finishService(dataId, isForcedClose)
                 }
+                bluetoothNetworkRepository.insertLog("서버 업로드 종료")
                 sbSensorDBRepository.deleteUploadedList(list)
                 file.delete()
                 Intent().also { intent ->

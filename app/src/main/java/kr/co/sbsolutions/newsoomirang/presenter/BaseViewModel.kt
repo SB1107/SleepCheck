@@ -20,7 +20,7 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
     private val _isProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isProgressBar: SharedFlow<Boolean> = _isProgressBar
 
-    private lateinit var reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack
+    private lateinit var reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack
     private val requestHelper: RequestHelper = RequestHelper(
         scope = viewModelScope,
         tokenManager = tokenManager, dataManager = dataManager, errorMessage = _errorMessage,
@@ -37,7 +37,7 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         }
     }
 
-    fun setReAuthorizeCallBack(reAuthorizeCallBack: BaseActivity.ReAuthorizeCallBack) {
+    fun setReAuthorizeCallBack(reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack) {
         this.reAuthorizeCallBack = reAuthorizeCallBack
         requestHelper.setReAuthorizeCallBack(this.reAuthorizeCallBack)
     }

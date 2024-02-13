@@ -82,7 +82,7 @@ abstract class BaseServiceActivity : BaseActivity() {
         Intent(this, BLEService::class.java).apply {
             action = am.msg
             dataId?.let { putExtra(DATA_ID, it) }
-            service.get()?.startForegroundService(this)
+            baseContext.startForegroundService(this)
         }
     }
 

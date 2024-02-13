@@ -41,7 +41,7 @@ import javax.inject.Inject
 class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
-    private val logDBDataRepository: LogDBDataRepository
+    private val logDBDataRepository: LogDBDataRepository,
 ) : IBluetoothNetworkRepository {
     private val strBuilder = StringBuilder()
 
@@ -152,7 +152,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            val reulst = updateAndGet {
+            val result = updateAndGet {
                 it.copy(
                     bluetoothState =
                     if (it.bluetoothState == BluetoothState.DisconnectedNotIntent) {
@@ -162,7 +162,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
                 )
             }
-            insertLog(reulst.bluetoothState)
+            insertLog(result.bluetoothState)
         }
     }
 
@@ -197,6 +197,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     BluetoothState.Connected.SendRealtime,
                     BluetoothState.Connected.SendStart,
                     BluetoothState.Connected.SendStop,
+                    BluetoothState.Connected.MotCtrlSet,
                     BluetoothState.Connected.WaitStart -> {
                         update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
                         insertLog(BluetoothState.DisconnectedNotIntent)
@@ -450,7 +451,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
                 } while (!result)
             }
-        } ?: stateCallback?.invoke(BluetoothState.Connected.Init)
+        } ?: stateCallback?.invoke(BluetoothState.DisconnectedNotIntent)
 
     }
 
@@ -471,11 +472,13 @@ class BluetoothNetworkRepository @Inject constructor(
                 AppToModule.VibrationNotificationsWeak
             }
         }
-
-        writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-            _sbSensorInfo.update { it.copy(bluetoothState = state) }
-            insertLog(state)
+        if (sbSensorInfo.value.sleepType == SleepType.NoSering) {
+            writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+                _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                insertLog(state)
+            }
         }
+
     }
 
     override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback = getCallback(sbBluetoothDevice)
@@ -593,8 +596,6 @@ class BluetoothNetworkRepository @Inject constructor(
 
         private fun readData(gatt: BluetoothGatt, value: ByteArray) {
             logCoroutine.launch {
-
-
             strBuilder.clear()
             strBuilder.append("[ ")
             for (v in value) {
@@ -982,11 +983,11 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private var count: Int = 0
 
-    private fun insertLog(state: BluetoothState) {
+     private  fun insertLog(state: BluetoothState) {
         LogData(0, SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), state.toString()).log()
     }
 
-    private fun insertLog(msg: String) {
+     override fun insertLog(msg: String) {
         LogData(0, SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), msg).log()
     }
 

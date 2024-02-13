@@ -15,6 +15,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -23,7 +24,7 @@ abstract class BaseActivity : AppCompatActivity() {
             newBackPressed()
         }
     }
-    private val reAuthorizeCallBack = object : ReAuthorizeCallBack {
+    private val reAuthorizeCallBack = object : RequestHelper.ReAuthorizeCallBack {
         override fun reLogin() {
             endAndStartActivity(Intent(this@BaseActivity, SplashActivity::class.java))
         }
@@ -97,9 +98,5 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun getViewModel(): BaseViewModel {
         return _viewModel
-    }
-
-    interface ReAuthorizeCallBack {
-        fun reLogin()
     }
 }
