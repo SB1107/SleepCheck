@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.toDate
@@ -150,8 +152,14 @@ class BreathingViewModel @Inject constructor(
             showCharging()
             return
         }
+
         viewModelScope.launch(Dispatchers.IO) {
+
             _isResultProgressBar.emit(true)
+            if (getService()?.getResultMessage() == BLEService.UPLOADING) {
+                 cancel(BLEService.UPLOADING)
+                return@launch
+            }
             request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
                 .collectLatest {
                     it.result?.let { result ->
