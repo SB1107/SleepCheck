@@ -416,7 +416,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.StopSBService -> {
-                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"}  측정 종료"
+                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
                 notificationBuilder.setContentTitle(message)
                 bluetoothNetworkRepository.insertLog(message)
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
@@ -426,7 +426,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.CancelSbService -> {
-                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"}  측정 취소"
+                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
                 bluetoothNetworkRepository.insertLog(message)
                 stopScheduler()
                 finishService(-1, false)

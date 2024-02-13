@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -247,7 +248,7 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았습니다.\n기기와 연결해 주세요" else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
                     }
                 }
                 launch {

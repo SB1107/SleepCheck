@@ -105,7 +105,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if (getService()?.timeHelper?.getTime() ?: 0 < 300) {
+        if (getService()?.timeHelper?.getTime() ?: 0 < 30) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
@@ -158,10 +158,10 @@ class BreathingViewModel @Inject constructor(
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
-                    Log.d(TAG, "sleepDataResult: ${getResultMessage()}")
+                    Log.d(TAG, "sleepDataResult1: ${getResultMessage()}")
                     sleepDataResult()
                 } else {
-                    Log.d(TAG, "sleepDataResult: ${getResultMessage()}")
+                    Log.d(TAG, "sleepDataResult2: ${getResultMessage()}")
                     sleepDataResultRequest()
                 }
             } ?: sleepDataResultRequest()
@@ -207,6 +207,7 @@ class BreathingViewModel @Inject constructor(
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (_measuringState.value == MeasuringState.Analytics) {
+                            Log.d(TAG, "sleepDataResultRequest3: ${_measuringState.value}")
                             sleepDataResult()
                         }
                     }
