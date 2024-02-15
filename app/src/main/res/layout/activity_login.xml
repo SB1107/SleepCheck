@@ -33,39 +33,61 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btGoogle"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="48dp"
         android:layout_marginRight="30dp"
-        android:background="@drawable/launch_transparent"
-        android:src="@drawable/login_google"
+        android:background="@drawable/google_login_box"
         android:fontFamily="@font/nanumsquarebold"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvText"
         android:scaleType="centerInside"
         android:text="구글 로그인"
+        android:textColor="@color/md_black_1000"
         android:textSize="16sp"
-        app:cornerRadius="5dp" />
+        android:textStyle="bold"
+        app:cornerRadius="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvText" />
 
-    <androidx.appcompat.widget.AppCompatImageButton
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="23dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:src="@drawable/google_logo"
+        app:layout_constraintBottom_toBottomOf="@id/btGoogle"
+        app:layout_constraintStart_toStartOf="@id/btGoogle"
+        app:layout_constraintTop_toTopOf="@id/btGoogle" />
+
+
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btKakao"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="30dp"
         android:layout_marginHorizontal="30dp"
-        android:background="@drawable/launch_transparent"
-        android:src="@drawable/kakao_login_large_wide"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btGoogle"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/kakao_login_box"
         android:scaleType="centerInside"
-        android:text="구글 로그인"
-        android:textSize="16sp" />
+        android:text="카카오 로그인"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btGoogle" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="23dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:src="@drawable/kakao_logo"
+        app:layout_constraintBottom_toBottomOf="@id/btKakao"
+        app:layout_constraintStart_toStartOf="@id/btKakao"
+        app:layout_constraintTop_toTopOf="@id/btKakao"
+
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
