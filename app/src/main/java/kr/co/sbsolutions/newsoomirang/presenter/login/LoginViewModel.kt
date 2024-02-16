@@ -24,31 +24,27 @@ class LoginViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val loginRepository: RemoteLoginDataSource,
     private val kaKaoLoginHelper: KaKaoLoginHelper,
-    private  val googleLoginHelper: GoogleLoginHelper
+    private val googleLoginHelper: GoogleLoginHelper
 
 ) : BaseViewModel(dataManager, tokenManager) {
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
     val whereActivity: SharedFlow<WHERE> = _whereActivity
     lateinit var accessToken: String
 
-    fun socialLogin(type: SocialType , data: Intent? = null){
-        when (type) {
-            SocialType.GOOGLE -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    googleLoginHelper.login(data).collectLatest {
-                        login(it.socialType ,it.socialToken, it.name)
-                    }
-                }
+    fun socialLogin(type: SocialType, data: Intent? = null) {
+        val socialType: SocialLogin =
+            if (type == SocialType.GOOGLE) {
+                googleLoginHelper
+            } else {
+                kaKaoLoginHelper
             }
-            SocialType.KAKAO -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    kaKaoLoginHelper.login().collectLatest {
-                        login(it.socialType ,it.socialToken, it.name)
-                    }
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            socialType.login(data).collectLatest {
+                login(it.socialType ,it.socialToken, it.name)
             }
         }
     }
+
     private fun login(snsType: String, token: String, name: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
