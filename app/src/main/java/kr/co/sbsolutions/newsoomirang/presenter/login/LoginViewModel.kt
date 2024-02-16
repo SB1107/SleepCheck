@@ -1,6 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.login
 
-import android.util.Log
+import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteLoginDataSource
@@ -23,13 +22,34 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
-    private val loginRepository: RemoteLoginDataSource
+    private val loginRepository: RemoteLoginDataSource,
+    private val kaKaoLoginHelper: KaKaoLoginHelper,
+    private  val googleLoginHelper: GoogleLoginHelper
+
 ) : BaseViewModel(dataManager, tokenManager) {
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
     val whereActivity: SharedFlow<WHERE> = _whereActivity
     lateinit var accessToken: String
 
-    fun login(snsType: String, token: String, name: String) {
+    fun socialLogin(type: SocialType , data: Intent? = null){
+        when (type) {
+            SocialType.GOOGLE -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    googleLoginHelper.login(data).collectLatest {
+                        login(it.socialType ,it.socialToken, it.name)
+                    }
+                }
+            }
+            SocialType.KAKAO -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    kaKaoLoginHelper.login().collectLatest {
+                        login(it.socialType ,it.socialToken, it.name)
+                    }
+                }
+            }
+        }
+    }
+    private fun login(snsType: String, token: String, name: String) {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 tokenManager.getFcmToken().first()?.let { fcmToken ->

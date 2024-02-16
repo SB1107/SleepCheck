@@ -18,6 +18,7 @@ android {
         versionCode = 9
         versionName = "1.0.1"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
+        buildConfigField ("String", "KAKAO","\"e20714ce376e41e7c1d8c98a309e98e3\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -151,4 +152,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation ("com.airbnb.android:lottie:6.3.0")                            // Lottie
+
+    implementation ("com.kakao.sdk:v2-user:2.19.0") // 카카오 로그인 API 모듈
 }

@@ -46,7 +46,7 @@
           android:layout_marginTop="40dp"
           android:text="그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요."
           android:textColor="@color/color_FFFFFF"
-          android:textSize="20dp" />
+          android:textSize="20sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bt_done"

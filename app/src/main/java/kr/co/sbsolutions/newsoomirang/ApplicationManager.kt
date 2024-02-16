@@ -10,6 +10,8 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import android.util.Log
+import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +42,6 @@ class ApplicationManager()  : Application()  , Configuration.Provider  {
         instance = this
     }
 
-
     companion object {
         lateinit var instance: ApplicationManager
         fun getBluetoothInfo(): BluetoothInfo {
@@ -65,9 +66,12 @@ class ApplicationManager()  : Application()  , Configuration.Provider  {
             return instance.networkCheck.value
         }
     }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        // Kakao SDK 초기화
+        KakaoSdk.init(this, BuildConfig.KAKAO)
         NetworkUtil.registerNetworkCallback(getSystemService(ConnectivityManager::class.java), networkCallback)
     }
     // 네트워크 체크를 위한 Callback 함수
