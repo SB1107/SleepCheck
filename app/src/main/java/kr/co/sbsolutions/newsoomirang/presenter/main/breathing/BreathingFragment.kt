@@ -5,7 +5,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -238,7 +243,18 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았습니다.\n기기와 연결해 주세요" else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요.".let {
+                            SpannableString(it).apply {
+                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                setSpan(StyleSpan(Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                setSpan(StyleSpan(Typeface.BOLD), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                setSpan(StyleSpan(Typeface.BOLD), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                        } else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
                     }
                 }
                 launch {
