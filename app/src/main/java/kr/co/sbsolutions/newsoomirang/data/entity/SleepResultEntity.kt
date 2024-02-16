@@ -26,5 +26,7 @@ data class SleepResult(
     @SerializedName("move_count")
     val moveCount :Int =0,
     @SerializedName("snore_time")
-    var noSeringTime: Int = 0
+    var noSeringTime: Int = 0,
+    @SerializedName("apnea_count")
+    var totalApneaCount: Int = 0
 )

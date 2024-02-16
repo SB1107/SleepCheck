@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -210,26 +211,15 @@ class BreathingFragment : Fragment() {
                         binding.actionResult.resultDeepSleepTextView.text = it.deepSleepTime
                         binding.actionResult.resultSleepMoveTextView.text = it.moveCount
                         binding.actionResult.resultSnoreTimeTextView.text = it.resultSnoreTime
-                        when (it.apneaState) {
-                            3 -> {
-                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
-                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
-                                binding.actionResult.IndicatorsEnd.visibility = View.VISIBLE
-                            }
 
-                            2 -> {
-                                binding.actionResult.IndicatorsLeft.visibility = View.GONE
-                                binding.actionResult.IndicatorsCenter.visibility = View.VISIBLE
-                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
-                            }
+                        binding.actionResult.tvTotalApnea.text = it.totalApneaCount
 
-                            else -> {
-                                binding.actionResult.IndicatorsLeft.visibility = View.VISIBLE
-                                binding.actionResult.IndicatorsCenter.visibility = View.GONE
-                                binding.actionResult.IndicatorsEnd.visibility = View.GONE
-                            }
-                        }
-//                        binding.actionResult.tvState.
+                        val params2 = binding.actionResult.vLeft.layoutParams as ConstraintLayout.LayoutParams
+
+                        params2.horizontalBias = it.totalApneaCount.toInt() * 0.01f
+
+                        binding.actionResult.vLeft.layoutParams = params2
+
                     }
                 }
                 //300미만 취소 시
@@ -434,7 +424,7 @@ class BreathingFragment : Fragment() {
     }
 
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
     private fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
             binding.batteryTextView.visibility = View.GONE
@@ -450,6 +440,6 @@ class BreathingFragment : Fragment() {
         } else {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery), null)
         }
-        binding.batteryTextView.text = "배터리 $batteryInfo%"
+        binding.batteryTextView.text = "$batteryInfo%"
     }
 }

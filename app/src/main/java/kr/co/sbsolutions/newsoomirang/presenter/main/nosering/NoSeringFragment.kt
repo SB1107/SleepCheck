@@ -364,7 +364,7 @@ class NoSeringFragment : Fragment() {
         }
         awaitClose()
     }
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
     private fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
             binding.batteryTextView.visibility = View.GONE
@@ -380,6 +380,6 @@ class NoSeringFragment : Fragment() {
         } else {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery), null)
         }
-        binding.batteryTextView.text = "배터리 $batteryInfo%"
+        binding.batteryTextView.text = "$batteryInfo%"
     }
 }

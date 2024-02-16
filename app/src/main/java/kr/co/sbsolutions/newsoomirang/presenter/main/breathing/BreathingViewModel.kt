@@ -188,8 +188,9 @@ class BreathingViewModel @Inject constructor(
                     val sleepTime = (result.sleepTime * 60).toHourMinute()
                     val resultAsleep = (result.asleepTime * 60).toHourMinute()
                     val deepSleepTime = (result.deepSleepTime * 60).toHourMinute()
-                    val moveCount = (result.moveCount).toString()
+                    val moveCount = (result.moveCount).toString() + "회"
                     val snoreTime = (result.noSeringTime * 60).toHourMinute()
+                    val apneaCount = result.totalApneaCount
                     _sleepDataResultFlow.emit(
                         SleepDataResultModel(
                             endDate = endedAtString,
@@ -200,7 +201,8 @@ class BreathingViewModel @Inject constructor(
                             apneaState = result.apneaState,
                             moveCount = moveCount,
                             deepSleepTime = deepSleepTime,
-                            resultSnoreTime = snoreTime
+                            resultSnoreTime = snoreTime,
+                            totalApneaCount = apneaCount.toString()
                         )
                     )
                     _isResultProgressBar.emit(result.state == 1)

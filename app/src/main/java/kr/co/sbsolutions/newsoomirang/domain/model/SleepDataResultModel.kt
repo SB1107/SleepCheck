@@ -9,5 +9,6 @@ data class SleepDataResultModel(
       val apneaState : Int,
       val moveCount :String,
       val deepSleepTime :String,
-      val resultSnoreTime : String
+      val resultSnoreTime : String,
+      val totalApneaCount : String
 )
