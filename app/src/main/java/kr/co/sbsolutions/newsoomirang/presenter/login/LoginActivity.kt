@@ -52,9 +52,11 @@ class LoginActivity : AppCompatActivity() {
     private fun bindView() {
         binding.apply {
             btGoogle.setOnClickListener {
-
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
+            }
+            btKakao.setOnClickListener {
+                viewModel.socialLogin(SocialType.KAKAO)
             }
         }
         lifecycleScope.launch {
@@ -100,44 +102,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-
         if (requestCode == RC_SIGN_IN) {
-            // Google Sign In 결과를 처리합니다.
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            try {
-                // Google Sign In에 성공했습니다.
-                val account = task.getResult(ApiException::class.java)
-                val idToken = account.idToken
-                Log.d(TAG, "[LOGIN] GoogleToken1: $idToken")
-//                Log.d(TAG, "[LOGIN] FCM_TOKEN: $fcmToken")
-//                Log.d(TAG, "[LOGIN] FIREBASE_UID: ${firebaseAuth.uid}")
-
-                // Firebase Auth에 사용자를 등록합니다.
-                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                mAuth.signInWithCredential(credential)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-//                            Log.d(TAG, "onActivityResult: 성공")
-                            // 로그인에 성공했습니다.
-                            val user = task.result?.user
-
-                            //로그인 API
-//                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
-                            viewModel.login(snsType = "G", token = user?.uid.toString(), name = user?.displayName.toString())
-                            Log.d(TAG, "user: ${user?.uid}")
-
-                        } else {
-                            // 로그인에 실패했습니다.
-                            task.exception?.let {
-//                                Log.e(TAG, "로그인 실패: ${it}")
-                            }
-                        }
-                    }
-            } catch (e: ApiException) {
-                // Google Sign In에 실패했습니다.
-//                Log.e(TAG, "Google Sign In 실패: ${e.message}")
-            }
+            viewModel.socialLogin(SocialType.GOOGLE , data)
         }
     }
 }
