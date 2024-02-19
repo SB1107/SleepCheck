@@ -82,16 +82,6 @@ class MainActivity : BaseServiceActivity() {
         binding.navBottomView.apply {
             setupWithNavController(fragment.navController)
             itemIconTintList = null
-            //측정중일시 화면이동 방지 처리
-            setOnItemSelectedListener {
-                val (canMove , sleepType) = viewModel.canMove()
-                if (canMove) {
-                    it.onNavDestinationSelected(fragment.navController)
-                }else{
-                    showAlertDialog(R.string.common_title, "${if(sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정중 일경우\n 화면 이동이 불가 합니다.")
-                }
-                false
-            }
         }
 
 

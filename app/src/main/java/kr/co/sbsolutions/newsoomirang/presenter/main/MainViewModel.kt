@@ -59,9 +59,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun canMove(): Pair<Boolean, SleepType> {
-        return Pair(bluetoothInfo.bluetoothState != BluetoothState.Connected.ReceivingRealtime, bluetoothInfo.sleepType)
-    }
 
     private fun sleepDataResult() {
         viewModelScope.launch(Dispatchers.IO) {

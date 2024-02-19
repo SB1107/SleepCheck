@@ -53,9 +53,9 @@ class NoSeringFragment : Fragment() {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
 
-    private val resultBinding: RowProgressResultBinding by lazy {
-        RowProgressResultBinding.inflate(layoutInflater)
-    }
+//    private val resultBinding: RowProgressResultBinding by lazy {
+//        RowProgressResultBinding.inflate(layoutInflater)
+//    }
 
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
@@ -70,15 +70,15 @@ class NoSeringFragment : Fragment() {
         }
     }
 
-    private val resultDialog by lazy {
-        BottomSheetDialog(requireContext()).apply {
-            setContentView(resultBinding.root)
-            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            behavior.isDraggable = false
-            setCanceledOnTouchOutside(false)
-        }
-    }
+//    private val resultDialog by lazy {
+//        BottomSheetDialog(requireContext()).apply {
+//            setContentView(resultBinding.root)
+//            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
+//            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+//            behavior.isDraggable = false
+//            setCanceledOnTouchOutside(false)
+//        }
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -268,6 +268,13 @@ class NoSeringFragment : Fragment() {
 //                        }
 //                    }
 //                }
+                launch {
+                    activityViewModel.isResultProgressBar.collectLatest {
+                        if (it.not()) {
+                            viewModel.setMeasuringState(MeasuringState.InIt)
+                        }
+                    }
+                }
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {

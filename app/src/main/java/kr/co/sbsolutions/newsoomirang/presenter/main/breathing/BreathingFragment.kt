@@ -63,10 +63,10 @@ class BreathingFragment : Fragment() {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
 
-    private val resultBinding: RowProgressResultBinding by lazy {
-        RowProgressResultBinding.inflate(layoutInflater)
-    }
-
+//    private val resultBinding: RowProgressResultBinding by lazy {
+//        RowProgressResultBinding.inflate(layoutInflater)
+//    }
+//
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
@@ -80,15 +80,15 @@ class BreathingFragment : Fragment() {
         }
     }
 
-    private val resultDialog by lazy {
-        BottomSheetDialog(requireContext()).apply {
-            setContentView(resultBinding.root)
-            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            behavior.isDraggable = false
-            setCanceledOnTouchOutside(false)
-        }
-    }
+//    private val resultDialog by lazy {
+//        BottomSheetDialog(requireContext()).apply {
+//            setContentView(resultBinding.root)
+//            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(), android.R.color.transparent))
+//            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+//            behavior.isDraggable = false
+//            setCanceledOnTouchOutside(false)
+//        }
+//    }
     private val queueList = LimitedQueue<Entry>(50)
     private val dataSetList = LineDataSet(queueList.toList(), "Label")
     private val lineDataList = LineData(dataSetList).apply { setDrawValues(false) }
@@ -273,6 +273,13 @@ class BreathingFragment : Fragment() {
 //                        }
 //                    }
 //                }
+                launch {
+                    activityViewModel.isResultProgressBar.collectLatest {
+                        if (it.not()) {
+                            viewModel.setMeasuringState(MeasuringState.InIt)
+                        }
+                    }
+                }
 
                 //UI 변경
                 launch {
@@ -434,7 +441,7 @@ class BreathingFragment : Fragment() {
                 }).setPermissions(Manifest.permission.RECORD_AUDIO)
                 .setDeniedMessage("코골이 분석을 위해 권한을 설정해 주세요")
                 .check()
-        }else{
+        } else {
             trySend(true)
             close()
         }
