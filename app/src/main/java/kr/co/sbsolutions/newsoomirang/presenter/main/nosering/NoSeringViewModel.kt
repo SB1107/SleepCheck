@@ -39,7 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoSeringViewModel @Inject constructor(
     private val dataManager: DataManager,
-    private val tokenManager: TokenManager,
+    tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
     private val settingDataRepository: SettingDataRepository
 ) : BaseServiceViewModel(dataManager, tokenManager) {
@@ -69,6 +69,10 @@ class NoSeringViewModel @Inject constructor(
     private val _intensity: MutableSharedFlow<Int> = MutableSharedFlow()
     val intensity: SharedFlow<Int> = _intensity
 
+    private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
+    val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
+
+
 
     init {
 
@@ -85,14 +89,12 @@ class NoSeringViewModel @Inject constructor(
                     _intensity.emit(it)
                 }
             }
-
-
         }
 
     }
     fun startClick() {
-        Log.d(TAG, "startClick: ${isRegistered()}")
-        if (isRegistered()) {
+//        Log.d(TAG, "startClick: ${isRegistered()}")
+        if (isRegistered(isConnectAlertShow = false)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
@@ -102,7 +104,19 @@ class NoSeringViewModel @Inject constructor(
                 }else if(bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
                     sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
                 }
+        }else{
+            viewModelScope.launch {
+                _isRegisteredMessage.emit("숨이랑 기기와 연결이 되지 않았습니다.\n코골이 만 측정하겠습니까?")
+            }
         }
+    }
+    fun forceStartClick(){
+        viewModelScope.launch {
+            _showMeasurementAlert.emit(true)
+        }
+    }
+    fun bluetoothConnect(){
+        showConnectAlert()
     }
 
     fun cancelClick() {
@@ -124,7 +138,7 @@ class NoSeringViewModel @Inject constructor(
 
     fun sleepDataCreate() : Flow<Boolean> = callbackFlow {
         viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
+            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first().let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it, type = SleepType.NoSering.ordinal.toString())) }
                     .catch {
                         trySend(false)

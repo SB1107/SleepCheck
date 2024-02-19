@@ -84,7 +84,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun startClick() {
-        if (isRegistered()) {
+        if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||

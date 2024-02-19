@@ -36,8 +36,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postSleepDataCreate(createModel = sleepCreateModel)
     }
 
-    override fun postUploading(file: File, dataId: Int, sleepType: SleepType, snoreTime: Long): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
-        val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
+    override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
+
+
         val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
         val appKind = MultipartBody.Part.createFormData("app_kind", "C")
 //        val list = if (sleepType == SleepType.Breathing) {
@@ -46,8 +47,10 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
             val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
 //            arrayListOf(body, dataId, appKind, snoreTime)
 //        }
-
-        api.postUploading( arrayListOf(body, dataId, appKind, snoreTime))
+        file?.let {
+            val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
+            api.postUploading( arrayListOf(body, dataId, appKind, snoreTime))
+        } ?:  api.postUploading( arrayListOf( dataId, appKind, snoreTime))
     }
 
 

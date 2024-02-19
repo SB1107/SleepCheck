@@ -269,6 +269,15 @@ class NoSeringFragment : Fragment() {
 //                    }
 //                }
                 launch {
+                    viewModel.isRegisteredMessage.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(message = it,  confirmButtonText = R.string.main_measuring_text, confirmAction = {
+                            viewModel.forceStartClick()
+                        }, cancelButtonText = R.string.setting_general_bluetooth_text , cancelAction = {
+                            viewModel.bluetoothConnect()
+                        })
+                    }
+                }
+                launch {
                     activityViewModel.isResultProgressBar.collectLatest {
                         if (it.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
