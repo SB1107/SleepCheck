@@ -61,7 +61,10 @@ class MainViewModel @Inject constructor(
 
 
     private fun sleepDataResult() {
-        viewModelScope.launch(Dispatchers.IO) {
+        if (::job.isInitialized) {
+            job.cancel()
+        }
+        job = viewModelScope.launch(Dispatchers.IO) {
             _isResultProgressBar.emit(true)
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
