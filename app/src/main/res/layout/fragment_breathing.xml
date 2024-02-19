@@ -67,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="30dp"
                 android:fontFamily="@font/nanumsquareregular"
-                android:text="아직 호흡정보가 없습니다.\n시작을 눌러주세요."
+                android:text="시작버튼을 눌러\n호흡을 측정해 보세요"
                 android:textColor="@color/color_78899F"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="@id/tv_name_des1"

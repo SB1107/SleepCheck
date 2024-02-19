@@ -97,6 +97,9 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             binding.clLayout.setOnClickListener {
                 binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             }
+            if (bindingAdapterPosition == 0) {
+                binding.clLayout.performClick()
+            }
 
             val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
             val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()

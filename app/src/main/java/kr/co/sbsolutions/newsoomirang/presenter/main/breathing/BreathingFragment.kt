@@ -124,7 +124,7 @@ class BreathingFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         chartSetting()
-        viewModel.sleepDataResult()
+//        viewModel.sleepDataResult()
         viewModel.setBatteryInfo()
     }
 
@@ -151,12 +151,12 @@ class BreathingFragment : Fragment() {
                         showConnectDialog()
                     }
                 }
-
-                launch {
-                    activityViewModel.breathingResults.collectLatest {
-                        viewModel.sleepDataResult()
-                    }
-                }
+                // TODO: 메인에서 결과 처리 함
+//                launch {
+//                    activityViewModel.breathingResults.collectLatest {
+//                        viewModel.sleepDataResult()
+//                    }
+//                }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
@@ -173,7 +173,7 @@ class BreathingFragment : Fragment() {
                 //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
                 launch {
                     viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "아직 호흡정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
+                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
                         if (!it) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
@@ -206,27 +206,28 @@ class BreathingFragment : Fragment() {
                         binding.actionMeasurer.chart.invalidate()
                     }
                 }
-                launch {
-                    viewModel.sleepDataResultFlow.collectLatest {
-                        binding.actionResult.resultDateTextView.text = it.endDate
-                        binding.actionResult.resultTotalTextView.text = it.resultTotal
-                        binding.actionResult.resultRealTextView.text = it.resultReal
-                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
-                        binding.actionResult.resultDurationTextView.text = it.duration
-                        binding.actionResult.resultDeepSleepTextView.text = it.deepSleepTime
-                        binding.actionResult.resultSleepMoveTextView.text = it.moveCount
-                        binding.actionResult.resultSnoreTimeTextView.text = it.resultSnoreTime
-
-                        binding.actionResult.tvTotalApnea.text = it.totalApneaCount
-
-                        val params2 = binding.actionResult.vLeft.layoutParams as ConstraintLayout.LayoutParams
-
-                        params2.horizontalBias = it.totalApneaCount.toInt() * 0.01f
-
-                        binding.actionResult.vLeft.layoutParams = params2
-
-                    }
-                }
+                // TODO: 메인에서 결과처리
+//                launch {
+//                    viewModel.sleepDataResultFlow.collectLatest {
+//                        binding.actionResult.resultDateTextView.text = it.endDate
+//                        binding.actionResult.resultTotalTextView.text = it.resultTotal
+//                        binding.actionResult.resultRealTextView.text = it.resultReal
+//                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
+//                        binding.actionResult.resultDurationTextView.text = it.duration
+//                        binding.actionResult.resultDeepSleepTextView.text = it.deepSleepTime
+//                        binding.actionResult.resultSleepMoveTextView.text = it.moveCount
+//                        binding.actionResult.resultSnoreTimeTextView.text = it.resultSnoreTime
+//
+//                        binding.actionResult.tvTotalApnea.text = it.totalApneaCount
+//
+//                        val params2 = binding.actionResult.vLeft.layoutParams as ConstraintLayout.LayoutParams
+//
+//                        params2.horizontalBias = it.totalApneaCount.toInt() * 0.01f
+//
+//                        binding.actionResult.vLeft.layoutParams = params2
+//
+//                    }
+//                }
                 //300미만 취소 시
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
@@ -254,7 +255,7 @@ class BreathingFragment : Fragment() {
                                 setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                                 setSpan(StyleSpan(Typeface.BOLD), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }
-                        } else "아직 호흡 정보가 없습니다.\n시작을 눌러 주세요."
+                        } else "시작버튼을 눌러\n호흡을 측정해 보세요"
                     }
                 }
                 launch {
@@ -263,14 +264,15 @@ class BreathingFragment : Fragment() {
                     }
                 }
 
-                launch {
-                    viewModel.isResultProgressBar.drop(1).collectLatest {
-                        /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
-                        resultDialog.run {
-                            if (it) show() else dismiss()
-                        }
-                    }
-                }
+                // TODO: 메인에서결과처리
+//                launch {
+//                    viewModel.isResultProgressBar.drop(1).collectLatest {
+//                        /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
+//                        resultDialog.run {
+//                            if (it) show() else dismiss()
+//                        }
+//                    }
+//                }
 
                 //UI 변경
                 launch {

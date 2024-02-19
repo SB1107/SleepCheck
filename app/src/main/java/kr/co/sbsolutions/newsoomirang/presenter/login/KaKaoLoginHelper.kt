@@ -19,24 +19,21 @@ class KaKaoLoginHelper @Inject constructor(
 ) : SocialLogin {
     override fun login(data: Intent?): Flow<SocialTypeModel> = callbackFlow {
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
-            if (error != null) {
-//            Log.e(TAG, "카카오계정으로 로그인 실패", error)
+            error?.let {
                 close(error)
-            } else if (token != null) { 
+            } ?: token?.let {
                 getKAKAOInfo()
-//            Log.i(TAG, "카카오계정으로 로그인 성공 ${token.accessToken}")
             }
         }
         if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
             UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
-                if (error != null) {
-//                            Log.d(TAG, "bindView: $error")
+                error?.let {
                     if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                         close(error)
                         return@loginWithKakaoTalk
                     }
-                    UserApiClient.instance.loginWithKakaoAccount(context,callback = callback)
-                } else if (token != null) {
+                    UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+                } ?: token?.let {
                     getKAKAOInfo()
                 }
             }
@@ -62,6 +59,7 @@ class KaKaoLoginHelper @Inject constructor(
 interface SocialLogin {
     fun login(data: Intent? = null): Flow<SocialTypeModel>
 }
-enum class SocialType(val typeName : String) {
-    GOOGLE("G") , KAKAO("K")
+
+enum class SocialType(val typeName: String) {
+    GOOGLE("G"), KAKAO("K")
 }

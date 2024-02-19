@@ -52,12 +52,16 @@ class BreathingViewModel @Inject constructor(
     val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
     val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
+    @Deprecated("메인에서 결과처리")
     private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
+    @Deprecated("메인에서 결과처리")
     val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
+    @Deprecated("메인에서 결과처리")
     private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    @Deprecated("메인에서 결과처리")
     val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     init {
@@ -166,8 +170,6 @@ class BreathingViewModel @Inject constructor(
                 }
             } ?: sleepDataResultRequest()
         }
-
-
     }
 
     private suspend fun sleepDataResultRequest() {

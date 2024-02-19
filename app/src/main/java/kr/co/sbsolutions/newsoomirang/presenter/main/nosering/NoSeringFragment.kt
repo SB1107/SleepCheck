@@ -89,7 +89,7 @@ class NoSeringFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.noSeringResult()
+//        viewModel.noSeringResult()
         viewModel.setBatteryInfo()
     }
 
@@ -152,11 +152,12 @@ class NoSeringFragment : Fragment() {
                     }
                 }
 
-                launch {
-                    activityViewModel.noSeringResults.collectLatest {
-                        viewModel.noSeringResult()
-                    }
-                }
+                // TODO: 메인에서 결과처리
+//                launch {
+//                    activityViewModel.noSeringResults.collectLatest {
+//                        viewModel.noSeringResult()
+//                    }
+//                }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
@@ -179,7 +180,7 @@ class NoSeringFragment : Fragment() {
                 //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
                 launch {
                     viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "아직 코골이정보가 없습니다.\n시작을 눌러주세요." else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
+                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
                         if (!it) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
@@ -199,18 +200,19 @@ class NoSeringFragment : Fragment() {
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
-                launch {
-                    viewModel.noSeringDataResult.collectLatest {
-                        it?.let {
-                            binding.actionResult.resultDateTextView.text = it.endDate
-                            binding.actionResult.resultTotalTextView.text = it.resultTotal
-//                        binding.actionResult.resultRealTextView.text = it.resultReal
-//                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
-                            binding.actionResult.snoreTimeTextView.text = it.resultReal
-                            binding.actionResult.resultDurationTextView.text = it.duration
-                        }
-                    }
-                }
+                // TODO: 메인에서 결과 처리
+//                launch {
+//                    viewModel.noSeringDataResult.collectLatest {
+//                        it?.let {
+//                            binding.actionResult.resultDateTextView.text = it.endDate
+//                            binding.actionResult.resultTotalTextView.text = it.resultTotal
+////                        binding.actionResult.resultRealTextView.text = it.resultReal
+////                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
+//                            binding.actionResult.snoreTimeTextView.text = it.resultReal
+//                            binding.actionResult.resultDurationTextView.text = it.duration
+//                        }
+//                    }
+//                }
                 //300미만 취소 시
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
@@ -249,7 +251,7 @@ class NoSeringFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "아직 코골이 정보가 없습니다.\n시작을 눌러 주세요."
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "시작버튼을 눌러\n코골이을 측정해 보세요"
                     }
                 }
                 launch {
@@ -257,14 +259,15 @@ class NoSeringFragment : Fragment() {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
-                launch {
-                    viewModel.isResultProgressBar.drop(1).collectLatest {
-//                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-                        resultDialog.run {
-                            if (it) show() else dismiss()
-                        }
-                    }
-                }
+                // TODO: 메인에서 결과처리
+//                launch {
+//                    viewModel.isResultProgressBar.drop(1).collectLatest {
+////                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+//                        resultDialog.run {
+//                            if (it) show() else dismiss()
+//                        }
+//                    }
+//                }
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {

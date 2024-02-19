@@ -54,10 +54,13 @@ class NoSeringViewModel @Inject constructor(
 
     private var motorCheckBok: Boolean = true
     private var type: Int = 2
+    @Deprecated("메인에서 결과처리")
     private val _noSeringDataResultFlow: MutableStateFlow<NoSeringDataResultModel?> = MutableStateFlow(null)
+    @Deprecated("메인에서 결과처리")
     val noSeringDataResult: SharedFlow<NoSeringDataResultModel?> = _noSeringDataResultFlow.asSharedFlow()
-
+    @Deprecated("메인에서 결과처리")
     private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    @Deprecated("메인에서 결과처리")
     val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     private val _motorCheckBox: MutableSharedFlow<Boolean> = MutableSharedFlow()
@@ -162,8 +165,6 @@ class NoSeringViewModel @Inject constructor(
                 }
             } ?: snoSeringResultRequest()
         }
-
-
     }
 
     private suspend fun snoSeringResultRequest() {
