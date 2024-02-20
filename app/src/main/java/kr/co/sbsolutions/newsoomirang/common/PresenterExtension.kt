@@ -154,7 +154,7 @@ fun Int.toHourMinute(): String {
     return if (hours > 0) {
         String.format("%d시간 %d분", hours, minutes)
     } else {
-        String.format("%d분", minutes)
+        String.format("%d 분",minutes)
     }
 }
 

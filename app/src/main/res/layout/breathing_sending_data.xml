@@ -82,7 +82,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="수면중 호흡 상태"
+        android:text="수면중 호흡 불안정 횟수"
         android:textColor="@color/color_FFFFFF"
         android:textSize="18dp"
         app:layout_constraintEnd_toEndOf="parent"
