@@ -50,19 +50,11 @@ class BreathingViewModel @Inject constructor(
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
     private val _measuringState: MutableStateFlow<MeasuringState> = MutableStateFlow(MeasuringState.InIt)
     val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
-    val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
+    private val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
-    @Deprecated("메인에서 결과처리")
-    private val _sleepDataResultFlow: MutableSharedFlow<SleepDataResultModel> = MutableSharedFlow()
-    @Deprecated("메인에서 결과처리")
-    val sleepDataResultFlow: SharedFlow<SleepDataResultModel> = _sleepDataResultFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
 
-    @Deprecated("메인에서 결과처리")
-    private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    @Deprecated("메인에서 결과처리")
-    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     init {
         viewModelScope.launch {
@@ -109,7 +101,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if (getService()?.timeHelper?.getTime() ?: 0 < 30) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 30) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
@@ -149,76 +141,6 @@ class BreathingViewModel @Inject constructor(
             }
         }
         awaitClose()
-    }
-
-    fun sleepDataResult() {
-        if (_measuringState.value == MeasuringState.Charging) {
-            showCharging()
-            return
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(true)
-            getResultMessage()?.let {
-                if (it != BLEService.FINISH) {
-                    delay(2000)
-                    Log.d(TAG, "sleepDataResult1: ${getResultMessage()}")
-                    sleepDataResult()
-                } else {
-                    Log.d(TAG, "sleepDataResult2: ${getResultMessage()}")
-                    sleepDataResultRequest()
-                }
-            } ?: sleepDataResultRequest()
-        }
-    }
-
-    private suspend fun sleepDataResultRequest() {
-        request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
-            .collectLatest {
-                it.result?.let { result ->
-                    if (_measuringState.value == MeasuringState.Result) {
-                        _isResultProgressBar.emit(false)
-                        return@let
-                    }
-                    _measuringState.emit(if (result.state == 1) MeasuringState.Analytics else MeasuringState.Result)
-                    val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                    val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                    val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
-                    val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
-                    val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
-                    val sleepTime = (result.sleepTime * 60).toHourMinute()
-                    val resultAsleep = (result.asleepTime * 60).toHourMinute()
-                    val deepSleepTime = (result.deepSleepTime * 60).toHourMinute()
-                    val moveCount = (result.moveCount).toString() + "회"
-                    val snoreTime = (result.noSeringTime * 60).toHourMinute()
-                    val apneaCount = result.totalApneaCount
-                    _sleepDataResultFlow.emit(
-                        SleepDataResultModel(
-                            endDate = endedAtString,
-                            duration = "$durationString 수면",
-                            resultTotal = min,
-                            resultReal = sleepTime,
-                            resultAsleep = resultAsleep,
-                            apneaState = result.apneaState,
-                            moveCount = moveCount,
-                            deepSleepTime = deepSleepTime,
-                            resultSnoreTime = snoreTime,
-                            totalApneaCount = apneaCount.toString()
-                        )
-                    )
-                    _isResultProgressBar.emit(result.state == 1)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        delay(4000)
-                        if (_measuringState.value == MeasuringState.Analytics) {
-                            Log.d(TAG, "sleepDataResultRequest3: ${_measuringState.value}")
-                            sleepDataResult()
-                        }
-                    }
-                } ?: _measuringState.emit(MeasuringState.InIt).run {
-                    _isResultProgressBar.emit(false)
-                }
-            }
     }
 
     fun setMeasuringState(state: MeasuringState) {

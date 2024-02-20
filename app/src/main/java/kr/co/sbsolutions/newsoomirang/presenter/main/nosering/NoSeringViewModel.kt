@@ -39,7 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NoSeringViewModel @Inject constructor(
     private val dataManager: DataManager,
-    private val tokenManager: TokenManager,
+    tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
     private val settingDataRepository: SettingDataRepository
 ) : BaseServiceViewModel(dataManager, tokenManager) {
@@ -54,14 +54,6 @@ class NoSeringViewModel @Inject constructor(
 
     private var motorCheckBok: Boolean = true
     private var type: Int = 2
-    @Deprecated("메인에서 결과처리")
-    private val _noSeringDataResultFlow: MutableStateFlow<NoSeringDataResultModel?> = MutableStateFlow(null)
-    @Deprecated("메인에서 결과처리")
-    val noSeringDataResult: SharedFlow<NoSeringDataResultModel?> = _noSeringDataResultFlow.asSharedFlow()
-    @Deprecated("메인에서 결과처리")
-    private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    @Deprecated("메인에서 결과처리")
-    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
 
     private val _motorCheckBox: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val motorCheckBox: SharedFlow<Boolean> = _motorCheckBox
@@ -73,7 +65,6 @@ class NoSeringViewModel @Inject constructor(
     init {
 
         viewModelScope.launch(Dispatchers.IO) {
-
             launch {
                 settingDataRepository.getSnoringOnOff().let {
                     _motorCheckBox.emit(it)
@@ -149,64 +140,9 @@ class NoSeringViewModel @Inject constructor(
         }
     }
 
-    fun noSeringResult() {
-        if (_measuringState.value ==MeasuringState.Charging) {
-            showCharging()
-            return
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(true)
-            getResultMessage()?.let {
-                if (it != BLEService.FINISH) {
-                    delay(2000)
-                    noSeringResult()
-                }else{
-                    snoSeringResultRequest()
-                }
-            } ?: snoSeringResultRequest()
-        }
-    }
-
-    private suspend fun snoSeringResultRequest() {
-        request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
-            .collectLatest {
-                it.result?.let { result ->
-                    if (_measuringState.value == MeasuringState.Result) {
-                        _isResultProgressBar.emit(false)
-                        return@let
-                    }
-                    _measuringState.emit(if (result.state == 0) MeasuringState.Analytics else MeasuringState.Result)
-                    val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                    val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-                    val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
-                    val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
-                    val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
-                    val snoreTime = (result.noSeringTime * 60).toHourMinute()
-                    _noSeringDataResultFlow.emit(
-                        NoSeringDataResultModel(
-                            endDate = endedAtString,
-                            duration = "$durationString 수면",
-                            resultTotal = min,
-                            resultReal = snoreTime,
-                            apneaState = result.apneaState
-                        )
-                    )
-                    _isResultProgressBar.emit(result.state == 1)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        delay(4000)
-                        if (_measuringState.value == MeasuringState.Analytics) {
-                            noSeringResult()
-                        }
-                    }
-                } ?: _measuringState.emit(MeasuringState.InIt).run {
-                    _isResultProgressBar.emit(false)
-                }
-            }
-    }
 
     fun stopClick() {
-        if (getService()?.timeHelper?.getTime() ?: 0 < 300) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }

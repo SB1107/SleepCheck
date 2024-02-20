@@ -53,10 +53,6 @@ class NoSeringFragment : Fragment() {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
 
-//    private val resultBinding: RowProgressResultBinding by lazy {
-//        RowProgressResultBinding.inflate(layoutInflater)
-//    }
-
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
@@ -69,16 +65,6 @@ class NoSeringFragment : Fragment() {
             }
         }
     }
-
-//    private val resultDialog by lazy {
-//        BottomSheetDialog(requireContext()).apply {
-//            setContentView(resultBinding.root)
-//            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(requireContext(),android.R.color.transparent))
-//            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-//            behavior.isDraggable = false
-//            setCanceledOnTouchOutside(false)
-//        }
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -152,12 +138,6 @@ class NoSeringFragment : Fragment() {
                     }
                 }
 
-                // TODO: 메인에서 결과처리
-//                launch {
-//                    activityViewModel.noSeringResults.collectLatest {
-//                        viewModel.noSeringResult()
-//                    }
-//                }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
@@ -200,19 +180,6 @@ class NoSeringFragment : Fragment() {
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
-                // TODO: 메인에서 결과 처리
-//                launch {
-//                    viewModel.noSeringDataResult.collectLatest {
-//                        it?.let {
-//                            binding.actionResult.resultDateTextView.text = it.endDate
-//                            binding.actionResult.resultTotalTextView.text = it.resultTotal
-////                        binding.actionResult.resultRealTextView.text = it.resultReal
-////                        binding.actionResult.resultAsleepTextView.text = it.resultAsleep
-//                            binding.actionResult.snoreTimeTextView.text = it.resultReal
-//                            binding.actionResult.resultDurationTextView.text = it.duration
-//                        }
-//                    }
-//                }
                 //300미만 취소 시
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
@@ -259,15 +226,6 @@ class NoSeringFragment : Fragment() {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
-                // TODO: 메인에서 결과처리
-//                launch {
-//                    viewModel.isResultProgressBar.drop(1).collectLatest {
-////                        binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-//                        resultDialog.run {
-//                            if (it) show() else dismiss()
-//                        }
-//                    }
-//                }
                 launch {
                     activityViewModel.isResultProgressBar.collectLatest {
                         if (it.not()) {

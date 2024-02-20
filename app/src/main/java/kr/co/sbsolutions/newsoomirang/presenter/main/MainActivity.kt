@@ -64,11 +64,15 @@ class MainActivity : BaseServiceActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
+        gotoFragment(intent)
+        super.onNewIntent(intent)
+    }
+
+    private fun gotoFragment(intent: Intent?) {
         val value = intent?.getIntExtra("data", -1)
         if (value == 1) {
             binding.navBottomView.selectedItemId = R.id.navigation_no_sering
         }
-        super.onNewIntent(intent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,11 +84,7 @@ class MainActivity : BaseServiceActivity() {
             setupWithNavController(fragment.navController)
             itemIconTintList = null
         }
-         intent?.getIntExtra("data", -1)?.let {
-             if (it == 1) {
-                 binding.navBottomView.selectedItemId = R.id.navigation_no_sering
-             }
-         }
+        gotoFragment(intent)
 
         lifecycleScope.launch(Dispatchers.IO) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
