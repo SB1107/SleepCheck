@@ -14,6 +14,12 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.*
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -26,6 +32,8 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogWorker
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
@@ -134,6 +142,8 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var noseRingHelper: NoseRingHelper
 
+    @Inject
+    lateinit var  logWorkerHelper: LogWorkerHelper
 
     lateinit var requestHelper: RequestHelper
 
@@ -388,14 +398,15 @@ class BLEService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
-                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
+                    logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
+//                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                 noseRingHelper.clearData()
                 notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
-                val pendingIntent =  PendingIntent.getActivity(
+                val pendingIntent = PendingIntent.getActivity(
                     this, NOTIFICATION_ID, Intent(this, SplashActivity::class.java).apply {
                         this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                         putExtra("data", sbSensorInfo.value.sleepType.ordinal)
-                    },          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     else PendingIntent.FLAG_UPDATE_CURRENT
                 )
                 notificationBuilder.setContentIntent(pendingIntent)
@@ -420,7 +431,7 @@ class BLEService : LifecycleService() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                         && e is ForegroundServiceStartNotAllowedException
                     ) {
-                        bluetoothNetworkRepository.insertLog("서비스 시작 오류")
+                        logWorkerHelper.insertLog("서비스 시작 오류")
                     }
                 }
 
@@ -429,7 +440,7 @@ class BLEService : LifecycleService() {
             ActionMessage.StopSBService -> {
                 val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
                 notificationBuilder.setContentTitle(message)
-                bluetoothNetworkRepository.insertLog(message)
+                logWorkerHelper.insertLog(message)
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
 //                unregisterListenSBSensorState()
                 stopScheduler()
@@ -438,7 +449,7 @@ class BLEService : LifecycleService() {
 
             ActionMessage.CancelSbService -> {
                 val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
-                bluetoothNetworkRepository.insertLog(message)
+                logWorkerHelper.insertLog(message)
                 stopScheduler()
                 finishService(-1, false)
                 lifecycleScope.launch(IO) {
@@ -449,7 +460,7 @@ class BLEService : LifecycleService() {
 
             ActionMessage.StopSBServiceForced -> {
 //                unregisterListenSBSensorState()
-                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 강제 종료")
+                logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 강제 종료")
                 stopSBServiceForced()
             }
 
@@ -690,7 +701,7 @@ class BLEService : LifecycleService() {
 
         lifecycleScope.launch(IO) {
             _resultMessage.emit(UPLOADING)
-            bluetoothNetworkRepository.insertLog("서버 업로드 시작")
+            logWorkerHelper.insertLog("서버 업로드 시작")
             Intent().also { intent ->
                 intent.setAction(Cons.NOTIFICATION_ACTION)
                 intent.setPackage(baseContext.packageName)
@@ -701,7 +712,7 @@ class BLEService : LifecycleService() {
                 if (isLast) {
                     finishService(dataId, isForcedClose)
                 }
-                bluetoothNetworkRepository.insertLog("서버 업로드 종료")
+                logWorkerHelper.insertLog("서버 업로드 종료")
                 sbSensorDBRepository.deleteUploadedList(list)
                 file.delete()
                 _resultMessage.emit(FINISH)

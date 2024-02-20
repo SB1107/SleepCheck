@@ -8,9 +8,9 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import android.util.Log
 import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,9 +23,7 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 @HiltAndroidApp
-class ApplicationManager()  : Application()  , Configuration.Provider  {
-
-
+class ApplicationManager : Application() ,  Configuration.Provider  {
     private val _bluetoothInfoFlow: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
     private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
@@ -35,8 +33,9 @@ class ApplicationManager()  : Application()  , Configuration.Provider  {
 
     @Inject
     lateinit var fcmTokenUpdateHelper: FCMTokenUpdateHelper
-    @Inject lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     init {
         instance = this
@@ -109,9 +108,9 @@ class ApplicationManager()  : Application()  , Configuration.Provider  {
 
         notificationManager.createNotificationChannel(channel)
     }
+    override fun getWorkManagerConfiguration() = Configuration.Builder()
+        .setWorkerFactory(workerFactory)
+        .setMinimumLoggingLevel(Log.DEBUG)
+        .build()
 
-    override val workManagerConfiguration: Configuration
-        =  Configuration.Builder()
-            .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .build()
 }

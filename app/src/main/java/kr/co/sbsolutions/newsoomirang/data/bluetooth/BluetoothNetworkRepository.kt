@@ -22,6 +22,7 @@ import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -41,13 +42,11 @@ import javax.inject.Inject
 class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
-    private val logDBDataRepository: LogDBDataRepository,
+    private val logWorkerHelper: LogWorkerHelper,
 ) : IBluetoothNetworkRepository {
     private val strBuilder = StringBuilder()
 
     private val logCoroutine = CoroutineScope(Dispatchers.IO)
-    private val ff = FirebaseFirestore.getInstance()
-    private val timeID = SimpleDateFormat("yy-MM-dd HH:mm:ss.S", Locale.getDefault()).format(System.currentTimeMillis())
 
     private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     override val sbSensorInfo: StateFlow<BluetoothInfo> = _sbSensorInfo.asStateFlow()
@@ -981,25 +980,10 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    private var count: Int = 0
-
      private  fun insertLog(state: BluetoothState) {
-        LogData(0, SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), state.toString()).log()
+         logWorkerHelper.insertLog(state.toString())
     }
-
-     override fun insertLog(msg: String) {
-        LogData(0, SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), msg).log()
-    }
-
-    private fun LogData.log() {
-        logCoroutine.launch {
-            logDBDataRepository.insertLogData(this@log)
-            dataManager.getUserName().first()?.let { name ->
-                val logCollection = ff.collection("B2C").document(name).collection(timeID)
-                val logDocument = logCollection.document("${this@log.time} - ${this@log.log}")
-
-                logDocument.set(hashMapOf<Void, Void>())
-            }
-        }
+      fun insertLog(msg: String) {
+          logWorkerHelper.insertLog(msg)
     }
 }

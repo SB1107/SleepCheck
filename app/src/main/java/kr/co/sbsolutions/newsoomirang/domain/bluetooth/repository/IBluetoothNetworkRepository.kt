@@ -47,5 +47,4 @@ interface IBluetoothNetworkRepository {
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>
     val eegSensorInfo : StateFlow<BluetoothInfo>
-    fun insertLog(msg : String)
 }
