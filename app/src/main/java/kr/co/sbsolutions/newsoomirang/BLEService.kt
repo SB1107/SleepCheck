@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.*
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
+import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
@@ -42,6 +43,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
+import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import org.tensorflow.lite.support.label.Category
 import java.io.File
@@ -389,6 +391,15 @@ class BLEService : LifecycleService() {
                 bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                 noseRingHelper.clearData()
                 notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
+                val pendingIntent =  PendingIntent.getActivity(
+                    this, NOTIFICATION_ID, Intent(this, SplashActivity::class.java).apply {
+                        this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        putExtra("data", sbSensorInfo.value.sleepType.ordinal)
+                    },          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    else PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                notificationBuilder.setContentIntent(pendingIntent)
+
 //                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
                 listenChannelMessage()

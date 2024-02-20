@@ -36,15 +36,22 @@ class MainViewModel @Inject constructor(
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
+    @Deprecated("메인에서 처리 하게됨")
     private val _breathingResults: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1)
+
+    @Deprecated("메인에서 처리 하게됨")
     private val _noSeringResults: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1)
+
     @Deprecated("메인에서 처리 하게됨")
     val breathingResults: SharedFlow<Int> = _breathingResults
+
     @Deprecated("메인에서 처리 하게됨")
     val noSeringResults: SharedFlow<Int> = _noSeringResults
+
     private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
-    private  lateinit var  job: Job
+
+    private lateinit var job: Job
     fun sendMeasurementResults() {
         viewModelScope.launch(Dispatchers.IO) {
             if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
@@ -130,6 +137,12 @@ class MainViewModel @Inject constructor(
         return "Main"
     }
 
+    fun getGotoWhere(): SleepType {
+        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
+            bluetoothInfo.sleepType
+        }
+        return SleepType.Breathing
+    }
 }
 
 enum class ServiceCommend {

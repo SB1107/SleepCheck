@@ -39,22 +39,14 @@ abstract class ServiceModule {
 @Module
 @InstallIn(ServiceComponent::class)
 class ServiceModuleNotification {
-    @ServiceScoped
-    @Provides
-    fun provideMainActivityPendingIntent(
-        @ApplicationContext context: Context
-    ) = PendingIntent.getActivity(
-        context, NOTIFICATION_ID, Intent(context, SplashActivity::class.java).apply {
-            this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
 
     @ServiceScoped
     @Provides
     fun provideNotificationBuilder(
-        @ApplicationContext context: Context, pendingIntent: PendingIntent
+        @ApplicationContext context: Context
     ) = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID).setAutoCancel(true).setOngoing(true).setSmallIcon(R.mipmap.ic_launcher) // TODO: Notification 아이콘 작업
-        .setContentTitle("숨이랑 기기 연결 대기 중").setPriority(NotificationCompat.PRIORITY_HIGH).setContentIntent(pendingIntent)
+        .setContentTitle("숨이랑 기기 연결 대기 중").setPriority(NotificationCompat.PRIORITY_HIGH)
+
 
     @ServiceScoped
     @Provides
