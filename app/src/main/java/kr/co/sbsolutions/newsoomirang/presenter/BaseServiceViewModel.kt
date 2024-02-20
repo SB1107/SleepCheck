@@ -113,7 +113,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
         return getService()?.getResultMessage()
     }
 
-    fun isRegistered(): Boolean {
+    fun isRegistered(isConnectAlertShow  : Boolean): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
@@ -121,8 +121,10 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }
             }
-            viewModelScope.launch {
-                _connectAlert.emit(true)
+                viewModelScope.launch {
+                    if (isConnectAlertShow) {
+                    _connectAlert.emit(true)
+                }
             }
             return false
         }
@@ -134,6 +136,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
             dataManager.getUserName().first()?.let {
                 _userName.emit(it)
             }
+        }
+    }
+    fun  showConnectAlert() {
+        viewModelScope.launch {
+            _connectAlert.emit(true)
         }
     }
 

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +29,9 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSleepBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSnoreBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
+import java.time.Duration
 import java.util.concurrent.TimeUnit
+import kotlin.math.log
 
 class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(object : DiffUtil.ItemCallback<SleepDetailResult>() {
     override fun areItemsTheSame(oldItem: SleepDetailResult, newItem: SleepDetailResult): Boolean {
@@ -45,12 +48,10 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
         context = parent.context
         val inflater = LayoutInflater.from(context)
         return when (viewType) {
-            0 -> {
+            0,1 -> {
                 ItemSleepViewHolder(RowHistoryItemSleepBinding.inflate(inflater, parent, false))
             }
-            1 -> {
-                ItemSnoreViewHolder(RowHistoryItemSnoreBinding.inflate(inflater, parent, false))
-            }
+
             else -> {
                 ItemNotDataViewHolder(RowHistoryNoDataItemBinding.inflate(inflater, parent, false))
             }
@@ -60,12 +61,12 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getItem(position).let {
             when (it.type) {
-                0 -> {
-                    (holder as ItemSleepViewHolder).bind(it)
+                0,1 -> {
+                    (holder as ItemSleepViewHolder).apply {
+                        bind(it)
+                    }
                 }
-                1 -> {
-                    (holder as ItemSnoreViewHolder).bind(it)
-                }
+
                 else -> {
                     (holder as ItemNotDataViewHolder)
                 }
@@ -84,84 +85,124 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     inner class ItemSleepViewHolder(
         private val binding: RowHistoryItemSleepBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.clLayout.setOnClickListener { binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE }
+        }
+
         @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
         fun bind(result: SleepDetailResult) {
-            val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-            val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-            val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
-            val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
-            binding.resultDateTextView.text = endedAtString
-            binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_1_off), null, null, null)
-            binding.resultDurationTextView.text = "$durationString 수면"
-            binding.actionType.root.visibility = View.GONE
-            binding.clLayout.setOnClickListener {
-                binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+//            Log.d(TAG, "type: ${result.type}, 시작: ${result.startedAt} $result")
+
+            if (result.type == 1) {
+                binding.resultDateTextView.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_2_off),null,null,null)
+            } else if(result.type == 0 ){
+                binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_1_off), null, null, null)
             }
+
+            binding.actionType.root.visibility = View.GONE
+
             if (bindingAdapterPosition == 0) {
                 binding.clLayout.performClick()
             }
 
-            val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-            val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
-            val sleepTime = (result.sleepTime * 60).toHourMinute()
-            val resultAsleep = (result.asleepTime * 60).toHourMinute()
-            binding.actionType.resultTotalTextView.text = min
-            binding.actionType.resultRealTextView.text = sleepTime
-            binding.actionType.resultAsleepTextView.text = resultAsleep
-            //
-            // apnea_state = 3 : 나쁨, 2 : 중간, 1: 좋음, 0: 측정불가
-            binding.actionType.indicatorLayout.layoutParams = when (result.apneaState) {
-                3 -> {
-                    RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-                        .apply {
-                            setMargins(0, 40, 0, 0)
-                            addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-                        }
+            //list View
+            result.endedAt?.let { it ->
+                val endedAt = it.toDate("yyyy-MM-dd HH:mm:ss")
+                binding.resultDateTextView.text = endedAt?.toDayString("M월 d일 E요일")
+
+                result.startedAt?.let { itStartedAt ->
+                    val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                    val durationString = (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
+
+                    val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
+                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+
+                    //총 수면 시간
+                    setResultUi(binding.actionType.actionNewResult.resultTotalTextView ,binding.actionType.actionNewResult.resultTotalTitleTextView ,min)
+
+                    binding.resultDurationTextView.text = "$durationString 수면"
+                } ?:run {
+                    binding.resultDurationTextView.visibility = View.GONE
                 }
 
-                2 -> {
-                    RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-                        .apply {
-                            setMargins(0, 40, 0, 0)
-                            addRule(RelativeLayout.CENTER_HORIZONTAL)
-                        }
-                }
-
-                else -> {
-                    RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-                        .apply {
-                            setMargins(0, 40, 0, 0)
-                            addRule(RelativeLayout.ALIGN_PARENT_LEFT)
-                        }
-                }
+            } ?:run {
+                binding.resultDateTextView.visibility = View.GONE
+                binding.resultDurationTextView.visibility = View.GONE
             }
-            binding.actionType.resultTotalApenaTextView.text = "${result.apneaCount} 회"
-            binding.actionType.resultApena10TextView.text = "${result.apnea10} 회"
-            binding.actionType.resultApena30TextView.text = "${result.apnea30} 회"
-            binding.actionType.resultApena60TextView.text = "${result.apnea60} 회"
 
-            binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout((result.straightPosition.toDouble() / (result.sleepTime).toDouble()), binding.actionType.pose1PercentTextView, binding.actionType.pose1ProgressView)
 
-            binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose2PercentTextView, binding.actionType.pose2ProgressView)
+            //잠들 때까지 걸린 시간
+            setResultUi(binding.actionType.actionNewResult.resultAsleepTextView,binding.actionType.actionNewResult.resultAsleepTitleTextView ,  (result.asleepTime?.times(60))?.toHourMinute())
 
-            binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose3PercentTextView, binding.actionType.pose3ProgressView)
+            //코골이 시간
+            setResultUi(binding.actionType.actionNewResult.resultSnoreTimeTextView, binding.actionType.actionNewResult.snoreTimeTitleTextView,  (result.snoreTime?.times(60))?.toHourMinute())
 
-            binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose4PercentTextView, binding.actionType.pose4ProgressView)
+            /*Log.d(TAG, "bind 잠들때 까지 걸린 시간: ${result.asleepTime}")
+            Log.d(TAG, "bind 코골이 시간: ${result.snoreTime}")
+            Log.d(TAG, "bind 깊은잠 시간: ${result.deepSleepTime}")
+            Log.d(TAG, "bind 뒤척임 시간: ${result.moveCount}")*/
 
-            binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose5PercentTextView, binding.actionType.pose5ProgressView)
-            initChart(binding.actionType.chart, arrayListOf())
+            //깊은잠 시간
+            setResultUi(binding.actionType.actionNewResult.resultDeepSleepTextView, binding.actionType.actionNewResult.resultDeepSleepTitleTextView, (result.deepSleepTime?.times(60))?.toHourMinute())
+
+            //뒤척임 횟수
+            setResultUi(binding.actionType.actionNewResult.resultSleepMoveTextView, binding.actionType.actionNewResult.resultSleepMoveTitleTextView ,result.moveCount," 회")
+
+//            Log.d(TAG, "bind1: ${result.apneaCount}")
+
+            result.apneaCount?.let { apneaCount ->
+                val params2 = binding.actionType.actionSleepingGraph.vLeft.layoutParams as ConstraintLayout.LayoutParams
+                params2.horizontalBias = apneaCount * 0.01f
+
+
+                binding.actionType.actionSleepingGraph.tvTotalApnea.text = apneaCount.toString()
+                binding.actionType.actionSleepingGraph.vLeft.layoutParams = params2
+                binding.actionType.actionApneaResult.resultTotalApneaTextView.text = "$apneaCount 회"
+
+            } ?:run {
+                binding.actionType.actionSleepingGraph.root.visibility = View.GONE
+                binding.actionType.actionApneaResult.resultTotalApneaTextView.visibility= View.GONE
+                binding.actionType.actionApneaResult.resultTotalApneaTitleTextView.visibility = View.GONE
+            }
+
+
+
+            //무호흡 횟수
+            setResultUi(binding.actionType.actionApneaResult.resultApnea10TextView, binding.actionType.actionApneaResult.resultApnea10TitleTextView ,result.apnea10," 회")
+
+            setResultUi(binding.actionType.actionApneaResult.resultApnea30TextView, binding.actionType.actionApneaResult.resultApnea30TitleTextView ,result.apnea30," 회")
+
+            setResultUi(binding.actionType.actionApneaResult.resultApnea60TextView, binding.actionType.actionApneaResult.resultApnea60TitleTextView ,result.apnea60," 회")
+
+
+            //자세
+            setPositionUi(binding.actionType.actionSleepPosition.pose1PercentTextView, binding.actionType.actionSleepPosition.pose1TextView, binding.actionType.actionSleepPosition.pose1ProgressView, result.straightPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose2PercentTextView,binding.actionType.actionSleepPosition.pose2TextView, binding.actionType.actionSleepPosition.pose2ProgressView, result.leftPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose3PercentTextView,binding.actionType.actionSleepPosition.pose3TextView, binding.actionType.actionSleepPosition.pose3ProgressView, result.rightPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose4PercentTextView,binding.actionType.actionSleepPosition.pose4TextView, binding.actionType.actionSleepPosition.pose4ProgressView, result.downPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose5PercentTextView,binding.actionType.actionSleepPosition.pose5TextView, binding.actionType.actionSleepPosition.pose5ProgressView, result.wakeTime, result.sleepTime)
+
+            /*binding.actionType.actionSleepPosition.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
+            percentLayout(
+                result.wakeTime.toDouble() / (result.sleepTime).toDouble(),
+                binding.actionType.actionSleepPosition.pose5PercentTextView,
+                binding.actionType.actionSleepPosition.pose5ProgressView
+            )*/
+
+            //수면 패턴
+            initChart(binding.actionType.actionSleepPatten.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
                     .filter { it.trim() != "" }
                     .forEach { value ->
-                        addEntry(binding.actionType.chart, value.toDouble())
+                        addEntry(binding.actionType.actionSleepPatten.chart, value.toDouble())
                     }
-            }
+            }?:run {binding.actionType.actionSleepPatten.root.visibility = View.GONE }
 
 
         }
@@ -176,57 +217,145 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
 
     }
 
-    inner class ItemSnoreViewHolder(
-        private val binding: RowHistoryItemSnoreBinding
+    /*inner class ItemSnoreViewHolder(
+        private val binding: RowHistoryItemSleepBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+
+            binding.clLayout.setOnClickListener { binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE }
+        }
 
         @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
         fun bind(result: SleepDetailResult) {
-            val startedAt = result.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-            val endedAt = result.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-            val endedAtString = endedAt?.toDayString("M월 d일 E요일") ?: ""
-            val durationString: String = (startedAt?.toDayString("HH:mm") + "~" + endedAt?.toDayString("HH:mm"))
-            binding.resultDateTextView.text = endedAtString
-            binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_2_off), null, null, null)
-            binding.resultDurationTextView.text = "$durationString 수면"
-            binding.actionType.root.visibility = View.GONE
-            binding.clLayout.setOnClickListener {
-                binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+            //list View
+            result.endedAt?.let { it ->
+                val endedAt = it.toDate("yyyy-MM-dd HH:mm:ss")
+                binding.resultDateTextView.text = endedAt?.toDayString("M월 d일 E요일")
+
+                result.startedAt?.let { itStartedAt ->
+                    val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                    val durationString = (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
+
+                    val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
+                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+
+                    //총 수면 시간
+                    setResultUi(binding.actionType.actionNewResult.resultTotalTextView ,binding.actionType.actionNewResult.resultTotalTitleTextView ,min)
+
+                    binding.resultDurationTextView.text = "$durationString 수면"
+                } ?: {
+                    binding.resultDurationTextView.visibility = View.GONE
+                }
+
+            } ?: {
+                binding.resultDateTextView.visibility = View.GONE
+                binding.resultDurationTextView.visibility = View.GONE
             }
 
-            val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-            val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
-            val sleepTime = (result.sleepTime * 60).toHourMinute()
-            val resultAsleep = (result.asleepTime * 60).toHourMinute()
-            binding.actionType.resultTotalTextView.text = min
-            binding.actionType.resultRealTextView.text = sleepTime
-            binding.actionType.resultAsleepTextView.text = resultAsleep
-            binding.actionType.snoreTimeTextView.text = (result.snoreTime * 60).toHourMinute()
 
-            binding.actionType.pose1TextView.text = (result.straightPosition * 60).toHourMinute()
-            percentLayout(result.straightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose1PercentTextView, binding.actionType.pose1ProgressView)
+            //잠들 때까지 걸린 시간
+            setResultUi(binding.actionType.actionNewResult.resultAsleepTextView,binding.actionType.actionNewResult.resultAsleepTitleTextView , result.asleepTime?.times(60)," 분")
 
-            binding.actionType.pose2TextView.text = (result.leftPosition * 60).toHourMinute()
-            percentLayout(result.leftPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose2PercentTextView, binding.actionType.pose2ProgressView)
+            //코골이 시간
+            setResultUi(binding.actionType.actionNewResult.resultSnoreTimeTextView, binding.actionType.actionNewResult.snoreTimeTitleTextView, result.snoreTime?.times(60)," 분")
 
-            binding.actionType.pose3TextView.text = (result.rightPosition * 60).toHourMinute()
-            percentLayout(result.rightPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose3PercentTextView, binding.actionType.pose3ProgressView)
+            Log.d(TAG, "bind 코골이 시간: ${result.snoreTime?.times(60)}")
 
-            binding.actionType.pose4TextView.text = (result.downPosition * 60).toHourMinute()
-            percentLayout(result.downPosition.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose4PercentTextView, binding.actionType.pose4ProgressView)
+            //깊은잠 시간
+            setResultUi(binding.actionType.actionNewResult.resultDeepSleepTextView, binding.actionType.actionNewResult.resultDeepSleepTitleTextView, result.deepSleepTime?.times(60)," 분")
 
-            binding.actionType.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
-            percentLayout(result.wakeTime.toDouble() / (result.sleepTime).toDouble(), binding.actionType.pose5PercentTextView, binding.actionType.pose5ProgressView)
-            initChart(binding.actionType.chart, arrayListOf())
+            //뒤척임 횟수
+            setResultUi(binding.actionType.actionNewResult.resultSleepMoveTextView, binding.actionType.actionNewResult.resultSleepMoveTitleTextView ,result.moveCount," 회")
+
+
+
+
+            binding.resultDateTextView.setCompoundDrawablesRelativeWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_1_off), null, null, null)
+            binding.actionType.root.visibility = View.GONE
+
+            if (bindingAdapterPosition == 0) {
+                binding.clLayout.performClick()
+            }
+
+//            binding.actionType.resultRealTextView.text = sleepTime
+
+
+            // apnea_state = 3 : 나쁨, 2 : 중간, 1: 좋음, 0: 측정불가
+
+            result.apneaCount?.let { apneaCount ->
+
+                val params2 = binding.actionType.actionSleepingGraph.vLeft.layoutParams as ConstraintLayout.LayoutParams
+                params2.horizontalBias = apneaCount * 0.01f
+
+                binding.actionType.actionSleepingGraph.tvTotalApnea.text = apneaCount.toString()
+                binding.actionType.actionSleepingGraph.vLeft.layoutParams = params2
+                binding.actionType.actionApneaResult.resultTotalApneaTextView.text = "$apneaCount 회"
+
+            } ?: {
+                binding.actionType.actionSleepingGraph.root.visibility = View.GONE
+//                binding.actionType.actionNewResult.resultSnoreTimeTextView.visibility = View.GONE
+                binding.actionType.actionApneaResult.resultTotalApneaTextView.visibility= View.GONE
+            }
+
+
+
+            result.apnea10?.let {apnea10 ->
+                binding.actionType.actionApneaResult.resultApnea10TextView.text = "$apnea10 회"
+            } ?: {
+                binding.actionType.actionApneaResult.resultApnea10TextView.visibility = View.GONE
+            }
+
+
+            result.apnea10?.let {apnea30 ->
+                binding.actionType.actionApneaResult.resultApnea30TextView.text = "$apnea30 회"
+            } ?: {
+                binding.actionType.actionApneaResult.resultApnea30TextView.visibility = View.GONE
+            }
+
+            result.apnea10?.let {apnea60 ->
+                binding.actionType.actionApneaResult.resultApnea60TextView.text = "$apnea60 회"
+            } ?: {
+                binding.actionType.actionApneaResult.resultApnea60TextView.visibility = View.GONE
+            }
+
+
+
+
+
+            result.sleepTime?.let {}
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose1PercentTextView, binding.actionType.actionSleepPosition.pose1TextView, binding.actionType.actionSleepPosition.pose1ProgressView, result.straightPosition,
+                result.sleepTime)
+
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose2PercentTextView,binding.actionType.actionSleepPosition.pose2TextView, binding.actionType.actionSleepPosition.pose2ProgressView, result.leftPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose3PercentTextView,binding.actionType.actionSleepPosition.pose3TextView, binding.actionType.actionSleepPosition.pose3ProgressView, result.rightPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose4PercentTextView,binding.actionType.actionSleepPosition.pose4TextView, binding.actionType.actionSleepPosition.pose4ProgressView, result.downPosition, result.sleepTime)
+
+            setPositionUi(binding.actionType.actionSleepPosition.pose5PercentTextView,binding.actionType.actionSleepPosition.pose5TextView, binding.actionType.actionSleepPosition.pose5ProgressView, result.wakeTime, result.sleepTime)
+
+            *//*binding.actionType.actionSleepPosition.pose5TextView.text = (result.wakeTime * 60).toHourMinute()
+            percentLayout(
+                result.wakeTime.toDouble() / (result.sleepTime).toDouble(),
+                binding.actionType.actionSleepPosition.pose5PercentTextView,
+                binding.actionType.actionSleepPosition.pose5ProgressView
+            )*//*
+
+            initChart(binding.actionType.actionSleepPatten.chart, arrayListOf())
             result.sleepPattern?.let {
                 it.split("")
                     .filter { it.trim() != "" }
                     .forEach { value ->
-                        addEntry(binding.actionType.chart, value.toDouble())
+                        addEntry(binding.actionType.actionSleepPatten.chart, value.toDouble())
                     }
             }
+
+
         }
-    }
+    }*/
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initChart(lineChart: LineChart, values: ArrayList<Entry>) {
@@ -322,6 +451,33 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
         lineDataSet.valueTextColor = context.getColor(R.color.clear)
         lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
         return lineDataSet
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun <T> setResultUi(textView: AppCompatTextView, pairView: AppCompatTextView, value: T?, unit: String = "") {
+        if (value == null) {
+            textView.visibility = View.GONE
+            pairView.visibility = View.GONE
+        }
+        value?.let { data ->
+            textView.text = "${data}$unit"
+        }
+    }
+
+    private fun <T, U> setPositionUi(tvPosePercent: AppCompatTextView ,tvPoseTime: AppCompatTextView ,poseProgressView: MaterialCardView, positionValue: T?, sleepValue: U? ) {
+        if (positionValue == null) {
+            tvPoseTime.text = "0 분"
+            percentLayout(0.0,tvPosePercent, poseProgressView)
+        }
+
+        if (bothNotNull(positionValue, positionValue)){
+            percentLayout((positionValue.toString().toDouble() / sleepValue.toString().toDouble()),tvPosePercent, poseProgressView)
+            tvPoseTime.text = (positionValue.toString().toInt() * 60).toHourMinute()
+        }
+    }
+
+    private fun <T> bothNotNull(value1: T?, value2: T?): Boolean {
+        return value1 != null && value2 != null
     }
 }
 

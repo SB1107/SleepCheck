@@ -25,20 +25,24 @@ class KaKaoLoginHelper @Inject constructor(
                 getKAKAOInfo()
             }
         }
-        if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
-            UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
-                error?.let {
-                    if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
-                        close(error)
-                        return@loginWithKakaoTalk
+
+        when (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+            true -> {
+                UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+                    error?.let {
+                        if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                            close(error)
+                            return@loginWithKakaoTalk
+                        }
+                        UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+                    } ?: token?.let {
+                        getKAKAOInfo()
                     }
-                    UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
-                } ?: token?.let {
-                    getKAKAOInfo()
                 }
             }
-        } else {
-            UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+
+            false -> { UserApiClient.instance.loginWithKakaoAccount(context, callback = callback) }
+
         }
         awaitClose()
     }
