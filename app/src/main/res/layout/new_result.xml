@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_061629">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_total_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="총 수면 시간"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_total_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="8시간 30분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_asleep_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="잠들때까지 걸린 시간"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_total_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_asleep_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="40분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/result_total_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/snore_time_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="코골이 시간"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_asleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_snore_time_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="10분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_asleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_deep_sleep_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="깊은 잠 시간"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_snore_time_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_deep_sleep_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="40분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_snore_time_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_sleep_move_title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="뒤척임 횟수"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_deep_sleep_text_view" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/result_sleep_move_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="40분"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result_deep_sleep_text_view" />
+
+
+    <View
+        android:id="@+id/v_2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+        android:background="@color/color_1F3046"
+        app:layout_constraintTop_toBottomOf="@id/result_sleep_move_text_view" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -584,8 +584,8 @@ class BLEService : LifecycleService() {
         }
     }
 
-    private fun callVibrationNotifications(Intensity: Int) {
-        bluetoothNetworkRepository.callVibrationNotifications(Intensity)
+    private fun callVibrationNotifications(intensity: Int) {
+        bluetoothNetworkRepository.callVibrationNotifications(intensity)
     }
 
 

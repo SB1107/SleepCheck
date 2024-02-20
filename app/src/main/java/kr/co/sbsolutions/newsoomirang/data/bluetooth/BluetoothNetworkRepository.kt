@@ -462,8 +462,8 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkSpO2Sensor() {}
 
     override fun stopNetworkEEGSensor() {}
-    override fun callVibrationNotifications(Intensity: Int) {
-        val module = when (Intensity) {
+    override fun callVibrationNotifications(intensity: Int) {
+        val module = when (intensity) {
             3 -> {
                 AppToModule.VibrationNotificationsStrong
             }
@@ -477,10 +477,13 @@ class BluetoothNetworkRepository @Inject constructor(
             }
         }
         if (sbSensorInfo.value.sleepType == SleepType.NoSering) {
-            writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-                _sbSensorInfo.update { it.copy(bluetoothState = state) }
-                insertLog(state)
+            if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
+                writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+                    _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                    insertLog(state)
+                }
             }
+
         }
 
     }

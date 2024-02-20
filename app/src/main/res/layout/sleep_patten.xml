@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_061629">
+
+    <!-- 수면 패턴 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sleep_patten_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center"
+        android:text="수면 패턴"
+        android:textColor="@color/color_78899F"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/color_061629"
+        android:paddingHorizontal="30dp"
+        app:layout_constraintTop_toBottomOf="@id/sleep_patten_title">
+
+        <View
+            android:id="@+id/v_5"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_line1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="22dp"
+            android:gravity="right|center_vertical"
+            android:text="깨어남"
+            android:textColor="@color/color_78899F"
+            app:layout_constraintBottom_toTopOf="@id/v_6"
+            app:layout_constraintTop_toBottomOf="@id/v_5" />
+
+        <View
+            android:id="@+id/v_6"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintBottom_toTopOf="@id/tv_line2"
+            app:layout_constraintTop_toBottomOf="@id/tv_line1" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_line2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="22dp"
+            android:gravity="right|center_vertical"
+            android:text="램수면"
+            android:textColor="@color/color_78899F"
+            app:layout_constraintBottom_toTopOf="@id/v_7"
+            app:layout_constraintTop_toBottomOf="@id/v_6" />
+
+        <View
+            android:id="@+id/v_7"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintBottom_toTopOf="@id/tv_line3"
+            app:layout_constraintTop_toBottomOf="@id/tv_line2" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_line3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="22dp"
+            android:gravity="right|center_vertical"
+            android:text="얕은수면"
+            android:textColor="@color/color_78899F"
+            app:layout_constraintBottom_toTopOf="@id/v_8"
+            app:layout_constraintTop_toBottomOf="@id/v_7" />
+
+        <View
+            android:id="@+id/v_8"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintBottom_toTopOf="@id/tv_line4"
+            app:layout_constraintTop_toBottomOf="@id/tv_line3" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_line4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="22dp"
+            android:gravity="right|center_vertical"
+            android:text="깊은수면"
+            android:textColor="@color/color_78899F"
+            app:layout_constraintTop_toBottomOf="@id/v_8"
+            app:layout_constraintBottom_toTopOf="@id/v_9"/>
+
+        <View
+            android:id="@+id/v_9"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_1F3046"
+            app:layout_constraintTop_toBottomOf="@id/tv_line4"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="@id/v_5"
+            app:layout_constraintTop_toTopOf="@id/v_5"
+            app:layout_constraintBottom_toBottomOf="@id/v_9"
+            app:layout_constraintEnd_toEndOf="@id/v_5"
+            android:layout_marginRight="80dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_061629">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_state"
+        android:layout_width="351dp"
+        android:layout_height="23dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center"
+        android:text="수면중 호흡 불안정 횟수"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 백그라운드 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/progress_background"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="40dp"
+        android:elevation="0dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_state">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/progress_gradient" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/Indicators_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="mv_left,v_left" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/mv_left"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/result_count_box"
+        app:cardCornerRadius="20dp"
+        app:layout_constraintBottom_toTopOf="@id/v_left"
+        app:layout_constraintEnd_toEndOf="@id/v_left"
+        app:layout_constraintStart_toStartOf="@id/v_left" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_total_apnea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/md_black_1000"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/mv_left"
+        app:layout_constraintEnd_toEndOf="@id/mv_left"
+        app:layout_constraintStart_toStartOf="@id/mv_left"
+        app:layout_constraintTop_toTopOf="@id/mv_left" />
+
+    <View
+        android:id="@+id/v_left"
+        android:layout_width="2dp"
+        android:layout_height="20dp"
+        android:layout_marginHorizontal="2dp"
+        android:background="@color/color_FFFFFF"
+        app:layout_constraintEnd_toEndOf="@id/progress_background"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@id/progress_background"
+        app:layout_constraintTop_toTopOf="@+id/progress_background" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="8dp"
+        android:text="0"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_background" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_state_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="50"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_background" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="40dp"
+        android:text="100+"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_background" />
+
+    <View
+        android:id="@+id/v_1"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/color_666666"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_state_text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
