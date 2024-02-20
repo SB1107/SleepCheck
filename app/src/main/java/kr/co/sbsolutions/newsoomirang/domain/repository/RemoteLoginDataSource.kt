@@ -25,7 +25,7 @@ interface RemoteAuthDataSource {
      fun postPolicy(policyModel: PolicyModel): Flow<ApiResponse<UserEntity>>
      fun postLogout(): Flow<ApiResponse<UserEntity>>
      fun postSleepDataCreate(sleepCreateModel: SleepCreateModel) : Flow<ApiResponse<SleepCreateEntity>>
-     fun postUploading(file : File, dataId : Int, sleepType: SleepType, snoreTime: Long = 0) : Flow<ApiResponse<UploadingEntity>>
+     fun postUploading(file : File?, dataId : Int, sleepType: SleepType, snoreTime: Long = 0) : Flow<ApiResponse<UploadingEntity>>
      fun getWeek(): Flow<ApiResponse<SleepDateEntity>>
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
      fun getSleepDataDetail(endedAt: String): Flow<ApiResponse<SleepDetailEntity>>

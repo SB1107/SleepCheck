@@ -118,6 +118,7 @@
     <string name="main_bluetooth_try_reconnected">재연결 처리중</string>
     <string name="main_bluetooth_cancel_reconnect">현재 기기와의 연결이 의도치않게 종료되어 재연결 시도중에 있습니다. 재연결 시도를 취소하고 연결을 끊으시겠습니까?\n(측정중인 데이터가 모두 사라질 수 있습니다)</string>
     <string name="main_measuring">측정중</string>
+    <string name="main_measuring_text">측정 진행</string>
     <string name="main_measure_require">최소 1회 이상\n측정이 필요합니다</string>
     <string name="main_measure_level_good">좋음</string>
     <string name="main_measure_level_normal">보통</string>
@@ -126,6 +127,7 @@
     <string name="setting_general_title">설정</string>
     <string name="setting_general_vibrator">진동</string>
     <string name="setting_general_bluetooth">숨이랑 기기 설정</string>
+    <string name="setting_general_bluetooth_text">기기 연결</string>
     <string name="setting_general_logout">로그아웃</string>
     <string name="setting_general_logout_message">로그아웃하시겠습니까?</string>
     <string name="setting_general_logout_error_message">측정 종료 후 로그아웃을 시도해 주세요.</string>

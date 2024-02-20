@@ -219,11 +219,25 @@ class NoSeringFragment : Fragment() {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
                         binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "시작버튼을 눌러\n코골이을 측정해 보세요"
+                        val isEnabled = it.contains("시작")
+                            binding.motorCheckBox.isEnabled = isEnabled
+                            binding.type0Chip.isEnabled = isEnabled
+                            binding.type1Chip.isEnabled = isEnabled
+                            binding.type2Chip.isEnabled = isEnabled
                     }
                 }
                 launch {
                     viewModel.isProgressBar.collect {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+                launch {
+                    viewModel.isRegisteredMessage.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(message = it,  confirmButtonText = R.string.main_measuring_text, confirmAction = {
+                            viewModel.forceStartClick()
+                        }, cancelButtonText = R.string.setting_general_bluetooth_text , cancelAction = {
+                            viewModel.bluetoothConnect()
+                        })
                     }
                 }
                 launch {

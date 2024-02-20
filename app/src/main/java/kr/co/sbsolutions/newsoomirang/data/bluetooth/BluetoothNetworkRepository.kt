@@ -292,10 +292,15 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
         val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
-        writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-            _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
-            insertLog(state)
+        if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered) {
+            _sbSensorInfo.update { it.copy(dataId = dataId, sleepType = sleepType, snoreTime = 0) }
+        }else{
+            writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+                _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
+                insertLog(state)
+            }
         }
+
     }
 
     override fun stopNetworkSBSensor(snoreTime: Long) {

@@ -541,7 +541,17 @@ class BLEService : LifecycleService() {
             return
         } else {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
-            bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+            if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
+                bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+            } else {
+                sbSensorInfo.value.let {
+                    it.dataId?.let { dataId ->
+                        lifecycleScope.launch(IO) {
+                            uploading(dataId, file = null, list = emptyList(), false, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -686,7 +696,7 @@ class BLEService : LifecycleService() {
             }
         }) { apneaUploadRepository.uploadEnd(UploadDataId(dataId)) }*//*
     }*/
-    private fun uploading(dataId: Int, file: File, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) {
+    private fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) {
 
         lifecycleScope.launch(IO) {
             _resultMessage.emit(UPLOADING)
@@ -703,7 +713,7 @@ class BLEService : LifecycleService() {
                 }
                 bluetoothNetworkRepository.insertLog("서버 업로드 종료")
                 sbSensorDBRepository.deleteUploadedList(list)
-                file.delete()
+                file?.delete()
                 _resultMessage.emit(FINISH)
                 noseRingHelper.clearData()
             }

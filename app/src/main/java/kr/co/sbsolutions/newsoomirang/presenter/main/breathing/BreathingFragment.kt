@@ -204,14 +204,14 @@ class BreathingFragment : Fragment() {
                         binding.startButton.text = it
                         binding.tvNameDes2.text = if (it.contains("시작").not()) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요.".let {
                             SpannableString(it).apply {
-                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                setSpan(StyleSpan(Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                setSpan(StyleSpan(Typeface.BOLD), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                setSpan(StyleSpan(Typeface.BOLD), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                                setSpan(StyleSpan(Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//
+//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                                setSpan(StyleSpan(Typeface.BOLD), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//
+//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                                setSpan(StyleSpan(Typeface.BOLD), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }
                         } else "시작버튼을 눌러\n호흡을 측정해 보세요"
                     }
