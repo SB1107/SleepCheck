@@ -18,7 +18,6 @@ class DataManager(private val context: Context) {
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
         private val MOVE_VIEW = booleanPreferencesKey("move_view")
-        private val SLEEP_TYPE = stringPreferencesKey("sleep_type")
 
         private const val ADDRESS = "_address"
         private const val NAME = "_name"
@@ -128,17 +127,6 @@ class DataManager(private val context: Context) {
         }
     }
 
-    suspend fun setSleepType(sleepType: SleepType) {
-        context.moveStore.edit { preferences ->
-            preferences[SLEEP_TYPE] = sleepType.name
-        }
-    }
-
-    fun getSleepType(): Flow<String> {
-        return context.moveStore.data.map { preferences ->
-            preferences[SLEEP_TYPE] ?: SleepType.Breathing.name
-        }
-    }
 
     suspend fun saveUpdateVersionCheck(version: String) {
         context.dataStore.edit { preferences ->

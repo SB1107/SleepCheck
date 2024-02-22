@@ -727,7 +727,6 @@ class BLEService : LifecycleService() {
                 file?.delete()
                 _resultMessage.emit(FINISH)
                 noseRingHelper.clearData()
-                dataManager.setSleepType(sleepType)
                 dataManager.setMoveView()
             }
         }

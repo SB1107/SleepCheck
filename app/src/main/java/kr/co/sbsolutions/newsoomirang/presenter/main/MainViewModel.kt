@@ -38,9 +38,7 @@ class MainViewModel @Inject constructor(
     private lateinit var job: Job
     fun sendMeasurementResults() {
         viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                val typeName  = dataManager.getSleepType().first()
-                    if (typeName== SleepType.Breathing.name) {
+                    if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
                         Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                    _breathingResults.emit(0)
                         sleepDataResult()
@@ -49,10 +47,7 @@ class MainViewModel @Inject constructor(
 //                _noSeringResults.emit(0)
                         noSeringResult()
                 }
-
             }
-
-        }
     }
 
      fun isMoveHistory() {

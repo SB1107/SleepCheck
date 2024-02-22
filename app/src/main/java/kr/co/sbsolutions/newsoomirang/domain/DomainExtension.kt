@@ -15,7 +15,7 @@ import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
-fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
+fun <T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
     emit(ApiResponse.Loading)
 
     withTimeoutOrNull(20000L) {
@@ -27,22 +27,22 @@ fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiRes
                     // FIXME: 메세지 회원정보 에러 캐칭
                     if (data.message.contains("에러")) {
                         emit(ApiResponse.ReAuthorize)
-                    }else{
+                    } else {
                         emit(ApiResponse.Success(data))
                     }
 
                 }
             } else {
-                if(response.code() == HTTP_UNAUTHORIZED || response.code() == HTTP_FORBIDDEN) {
+                if (response.code() == HTTP_UNAUTHORIZED || response.code() == HTTP_FORBIDDEN) {
                     emit(ApiResponse.ReAuthorize)
-                }else if (response.code() == HTTP_INTERNAL_ERROR){
+                } else if (response.code() == HTTP_INTERNAL_ERROR) {
                     emit(ApiResponse.ReAuthorize)
                 } else {
                     response.errorBody()?.let { error ->
                         val parsedError = if (error.contentType()?.subtype == "html") {
-                             ErrorResponse(message =  "서버  통신이  에러\n 조금 뒤에 시도해 주세요",success = false , code = response.code().toString())
-                        }else{
-                              ErrorResponse(message =  error.charStream().toString(),success = false , code = response.code().toString())
+                            ErrorResponse(message = "서버  통신  에러\n 조금 뒤에 시도해 주세요", success = false, code = response.code().toString())
+                        } else {
+                            Gson().fromJson(error.charStream(), ErrorResponse::class.java)
                         }
 //
                         emit(ApiResponse.Failure(ResultError.ErrorCustom(parsedError.message)))
