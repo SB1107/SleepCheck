@@ -75,6 +75,7 @@ class SplashActivity : AppCompatActivity() {
                                     putExtra("data",intent.getIntExtra("data", -1))
                                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                                 })
+                                finish()
                             }
                         }
                     }
