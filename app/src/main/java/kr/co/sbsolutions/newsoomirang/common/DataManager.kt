@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 
 class DataManager(private val context: Context) {
     companion object {
@@ -16,8 +17,12 @@ class DataManager(private val context: Context) {
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
+        private val MOVE_VIEW = booleanPreferencesKey("move_view")
+        private val SLEEP_TYPE = stringPreferencesKey("sleep_type")
+
         private const val ADDRESS = "_address"
         private const val NAME = "_name"
+
     }
 
     suspend fun setDataId(dataId: Int) {
@@ -108,6 +113,30 @@ class DataManager(private val context: Context) {
     suspend fun deleteUserName() {
         context.dataStore.edit { preferences ->
             preferences.remove(USER_NAME)
+        }
+    }
+
+    suspend fun setMoveView(isMove: Boolean = true) {
+        context.moveStore.edit { preferences ->
+            preferences[MOVE_VIEW] = isMove
+        }
+    }
+
+    fun getMoveView(): Flow<Boolean> {
+        return context.moveStore.data.map { preferences ->
+            preferences[MOVE_VIEW] ?: false
+        }
+    }
+
+    suspend fun setSleepType(sleepType: SleepType) {
+        context.moveStore.edit { preferences ->
+            preferences[SLEEP_TYPE] = sleepType.name
+        }
+    }
+
+    fun getSleepType(): Flow<String> {
+        return context.moveStore.data.map { preferences ->
+            preferences[SLEEP_TYPE] ?: SleepType.Breathing.name
         }
     }
 

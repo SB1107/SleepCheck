@@ -24,6 +24,7 @@ import java.util.Locale
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "data_store")
 val Context.tokenStore: DataStore<Preferences> by preferencesDataStore(name = "token_store")
+val Context.moveStore: DataStore<Preferences> by preferencesDataStore(name = "moveStore")
 fun ContextWrapper.getPermissionResult(): ArrayList<String> {
     val deniedPermissions = arrayListOf<String>()
 

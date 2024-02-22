@@ -11,46 +11,55 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
-import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
-import kr.co.sbsolutions.newsoomirang.common.toDate
-import kr.co.sbsolutions.newsoomirang.common.toDayString
-import kr.co.sbsolutions.newsoomirang.common.toHourMinute
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.newsoomirang.domain.model.NoSeringDataResultModel
-import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataResultModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
-import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
-import java.util.concurrent.TimeUnit
+import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    dataManager: DataManager,
+    private val dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _isResultProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar
+    private val _isResultProgressBar: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar.asSharedFlow()
+    private val _moveHistory: MutableSharedFlow<Boolean> = MutableSharedFlow()
+     val moveHistory: SharedFlow<Boolean> = _moveHistory
 
     private lateinit var job: Job
     fun sendMeasurementResults() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
-                Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
+            launch {
+                val typeName  = dataManager.getSleepType().first()
+                    if (typeName== SleepType.Breathing.name) {
+                        Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                    _breathingResults.emit(0)
-                sleepDataResult()
-            } else {
-                Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
+                        sleepDataResult()
+                    } else {
+                        Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                _noSeringResults.emit(0)
-                noSeringResult()
+                        noSeringResult()
+                }
+
+            }
+
+        }
+    }
+
+     fun isMoveHistory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (dataManager.getMoveView().first()) {
+                _moveHistory.emit(true)
+                dataManager.setMoveView(false)
             }
         }
     }

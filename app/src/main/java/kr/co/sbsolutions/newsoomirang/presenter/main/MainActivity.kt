@@ -104,8 +104,13 @@ class MainActivity : BaseServiceActivity() {
                             if (it) show() else dismiss()
                         }
                         if (it.not()) {
-                            binding.navBottomView.selectedItemId = R.id.navigation_history
+                            viewModel.isMoveHistory()
                         }
+                    }
+                }
+                launch(Dispatchers.Main) {
+                    viewModel.moveHistory.collectLatest {
+                        binding.navBottomView.selectedItemId = R.id.navigation_history
                     }
                 }
             }
