@@ -61,6 +61,7 @@ dependencies {
 
     //스플레시 스크린
     implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     //라이프 사이클
     val lifecycle_version = "2.6.2"
