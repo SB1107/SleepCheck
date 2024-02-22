@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.addFlag
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
@@ -74,7 +75,11 @@ class LoginActivity : AppCompatActivity() {
                                 startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
                             }
                         }
-
+                    }
+                }
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        showAlertDialog(message = it)
                     }
                 }
 

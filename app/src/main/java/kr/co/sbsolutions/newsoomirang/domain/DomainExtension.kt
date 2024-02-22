@@ -39,10 +39,14 @@ fun<T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiRes
                     emit(ApiResponse.ReAuthorize)
                 } else {
                     response.errorBody()?.let { error ->
-                        error.close()
-//                        val parsedError: ErrorResponse = Gson().fromJson(error.string(), ErrorResponse::class.java)
-                        val parsedError: ErrorResponse = Gson().fromJson(error.charStream(), ErrorResponse::class.java)
+                        val parsedError = if (error.contentType()?.subtype == "html") {
+                             ErrorResponse(message =  "서버  통신이  에러\n 조금 뒤에 시도해 주세요",success = false , code = response.code().toString())
+                        }else{
+                              ErrorResponse(message =  error.charStream().toString(),success = false , code = response.code().toString())
+                        }
+//
                         emit(ApiResponse.Failure(ResultError.ErrorCustom(parsedError.message)))
+                        error.close()
                     }
                 }
             }
