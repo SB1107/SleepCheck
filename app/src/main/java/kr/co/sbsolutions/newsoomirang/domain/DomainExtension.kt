@@ -35,8 +35,6 @@ fun <T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiRe
             } else {
                 if (response.code() == HTTP_UNAUTHORIZED || response.code() == HTTP_FORBIDDEN) {
                     emit(ApiResponse.ReAuthorize)
-                } else if (response.code() == HTTP_INTERNAL_ERROR) {
-                    emit(ApiResponse.ReAuthorize)
                 } else {
                     response.errorBody()?.let { error ->
                         val parsedError = if (error.contentType()?.subtype == "html") {
