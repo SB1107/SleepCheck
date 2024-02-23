@@ -143,7 +143,7 @@ class BLEService : LifecycleService() {
     lateinit var noseRingHelper: NoseRingHelper
 
     @Inject
-    lateinit var  logWorkerHelper: LogWorkerHelper
+    lateinit var logWorkerHelper: LogWorkerHelper
 
     lateinit var requestHelper: RequestHelper
 
@@ -398,7 +398,7 @@ class BLEService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
-                    logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
+                logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
 //                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                 noseRingHelper.clearData()
                 notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
@@ -555,13 +555,18 @@ class BLEService : LifecycleService() {
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
-                sbSensorInfo.value.let {
-                    it.dataId?.let { dataId ->
-                        lifecycleScope.launch(IO) {
-                            uploading(dataId, file = null, list = emptyList(), false, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
+                if (isCancel.not()) {
+                    sbSensorInfo.value.let {
+                        it.dataId?.let { dataId ->
+                            lifecycleScope.launch(IO) {
+                                uploading(dataId, file = null, list = emptyList(), false, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
+                            }
                         }
                     }
+                } else {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
                 }
+
             }
         }
 
@@ -719,15 +724,16 @@ class BLEService : LifecycleService() {
             }
             request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }
             ) { uploading(dataId, file, list, isLast, isForcedClose, sleepType, snoreTime) }.flowOn(IO).collectLatest {
-                if (isLast) {
-                    finishService(dataId, isForcedClose)
-                }
                 logWorkerHelper.insertLog("서버 업로드 종료")
                 sbSensorDBRepository.deleteUploadedList(list)
                 file?.delete()
                 _resultMessage.emit(FINISH)
                 noseRingHelper.clearData()
                 dataManager.setMoveView()
+
+                if (isLast) {
+                    finishService(dataId, isForcedClose)
+                }
             }
         }
     }
