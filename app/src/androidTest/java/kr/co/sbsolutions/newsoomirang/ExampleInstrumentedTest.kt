@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
+import kr.co.sbsolutions.newsoomirang.common.hexToString
+import kr.co.sbsolutions.newsoomirang.common.prefixToHex
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,19 +61,39 @@ class ExampleInstrumentedTest {
             0x00.toByte()
         )
         val decry = AESHelper().decryptAES128(data)
-        val encryt = AESHelper().encryptAES128(decry)
-        val strBuilder = StringBuilder()
-        for (v in decry) {
-            strBuilder.append(String.format("%02X ", v))
-        }
-        Log.e("JJ", "복호화: $strBuilder" )
-        strBuilder.clear()
-        for (v in encryt) {
-            strBuilder.append(String.format("%02X ", v))
-        }
-        Log.e("JJ", "암호화: $strBuilder" )
+        val encry = AESHelper().encryptAES128(decry)
+
+        Log.e("JJ", "복호화: ${decry.hexToString()}" )
+        Log.e("JJ", "암호화: ${encry.hexToString()}" )
 
 //        assertEquals("FE 9B 80 03 FA 01 1E C7 00 00 00 00 00 00 00", strBuilder.toString())
 //        assertEquals(resultByte.toHexString(HexFormat.Default), reulst)
+    }
+    @Test
+    fun `암호화테스트`(){
+
+
+        val data = byteArrayOf(
+            0x30.toByte(),
+            0xB0.toByte(),
+            0x75.toByte(),
+            0x67.toByte(),
+            0x46.toByte(),
+            0x56.toByte(),
+            0xD9.toByte(),
+            0xD3.toByte(),
+            0xCE.toByte(),
+            0x3E.toByte(),
+            0x70.toByte(),
+            0xA1.toByte(),
+            0x8A.toByte(),
+            0x1D.toByte(),
+            0x3F.toByte(),
+            0xEE.toByte()
+        )
+
+        val prefix = data.hexToString().prefixToHex()
+        assertEquals(prefix,"30B07567")
+
     }
 }

@@ -1,3 +1,6 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +8,10 @@ plugins {
     id ("com.google.gms.google-services")
     id ("com.google.firebase.crashlytics")
     id("com.google.devtools.ksp")
+}
+
+fun getProperties(key  : String) : String {
+    return  gradleLocalProperties(rootDir).getProperty(key)
 }
 
 android {
@@ -18,7 +25,9 @@ android {
         versionCode = 9
         versionName = "1.0.1"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
-        buildConfigField ("String", "KAKAO","\"e20714ce376e41e7c1d8c98a309e98e3\"")
+        buildConfigField ("String", "KAKAO",getProperties("kakao"))
+        buildConfigField ("String", "ivData",getProperties("ivData"))
+        buildConfigField ("String", "key",getProperties("key"))
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
