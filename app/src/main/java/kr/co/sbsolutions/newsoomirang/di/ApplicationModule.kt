@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.BuildConfig
+import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorker
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
@@ -49,4 +50,7 @@ object ApplicationModule {
 
     @Provides
     fun provideTimeId() = "앱 버전 : ${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
+
+    @Provides
+    fun provideAESHelper() = AESHelper()
 }

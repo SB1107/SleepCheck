@@ -46,6 +46,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
     private val logWorkerHelper: LogWorkerHelper,
+    private val aESHelper: AESHelper
 ) : IBluetoothNetworkRepository {
     private val strBuilder = StringBuilder()
 
@@ -486,7 +487,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private fun encryptByteArray(isEncrypt: Boolean, value: ByteArray): ByteArray {
         Log.d(TAG, "encryptByteArray: $isEncrypt")
         Log.d(TAG, "encryptByteArray: ${value.hexToString()}")
-        return if (isEncrypt.not()) AESHelper().encryptAES128(value) else value
+        return if (isEncrypt.not()) aESHelper.encryptAES128(value) else value
     }
 
     private fun decryptByteArray( value: ByteArray): ByteArray {
@@ -494,7 +495,7 @@ class BluetoothNetworkRepository @Inject constructor(
         Log.d(TAG, "value: ${value.hexToString().prefixToHex()}")
         Log.d(TAG, "encryptPrefix: ${defaultPrefix}")
         Log.d(TAG, "decryptByteArray: $isEncrypt")
-        return if (isEncrypt.not()) AESHelper().decryptAES128(value) else value
+        return if (isEncrypt.not()) aESHelper.decryptAES128(value) else value
     }
 
 
