@@ -1,14 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.common
 
 import android.util.Base64
-import java.security.DigestException
-import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
+
 class AESHelper {
-    private val iv = byteArrayOf(
+    private val ivData = byteArrayOf(
         0x00.toByte(),
         0x01.toByte(),
         0x02.toByte(),
@@ -45,30 +44,26 @@ private val key = byteArrayOf(
         0x4F.toByte(),
         0x3C.toByte()
     )
-    fun encryptAES128(plainText: String): ByteArray {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
-        val secretKey = SecretKeySpec(key, "AES")
-        val spec = IvParameterSpec(iv)
-
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, spec)
-
-        return cipher.doFinal(plainText.toByteArray())
+    fun encryptAES128(plainText: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("AES/CBC/NoPadding")
+            .apply {
+                init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"), IvParameterSpec(ivData))
+            }
+        return cipher.doFinal(plainText)
     }
 
-    fun decryptAES128(encryptedText: ByteArray): String {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
-        val secretKey = SecretKeySpec(key, "AES")
-        val spec = IvParameterSpec(iv)
+    fun decryptAES128(encryptedText: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("AES/CBC/NoPadding")
+            .apply {
+              init(Cipher.DECRYPT_MODE, SecretKeySpec(key, "AES"),
+                  IvParameterSpec(ivData)
+                  )
+            }
 
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
-
-        return String(cipher.doFinal(encryptedText))
+        return cipher.doFinal(encryptedText)
     }
 //
-    fun sha256(data: ByteArray): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        return digest.digest(data)
-    }
+
 //    private fun hashSHA256(): ByteArray  {
 //        val hash: ByteArray
 //        try {
