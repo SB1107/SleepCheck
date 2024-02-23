@@ -551,6 +551,8 @@ class BLEService : LifecycleService() {
             stopSBServiceForced(isCancel)
             return
         } else {
+            logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
+//            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
