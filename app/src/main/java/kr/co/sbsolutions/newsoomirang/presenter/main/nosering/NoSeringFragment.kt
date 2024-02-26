@@ -218,7 +218,7 @@ class NoSeringFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "숨이랑 기기와 연결이 되지 않았 습니다.\n기기와 연결해 주세요" else "시작버튼을 눌러\n코골이을 측정해 보세요"
+                        binding.tvNameDes2.text = if (it.contains("시작").not()) "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n코골이을 측정해 보세요"
                         val isEnabled = it.contains("시작")
                             binding.motorCheckBox.isEnabled = isEnabled
                             binding.type0Chip.isEnabled = isEnabled
