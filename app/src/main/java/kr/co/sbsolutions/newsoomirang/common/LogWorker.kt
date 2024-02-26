@@ -47,6 +47,7 @@ class LogWorker @AssistedInject constructor(
 
     private suspend fun LogData.log() {
         logDBDataRepository.insertLogData(this@log)
+        Log.d(TAG, "log: ${this@log}")
         dataManager.getUserName().first()?.let { name ->
             val logCollection = ff.collection("B2C").document(name).collection(timeId)
             val logDocument = logCollection.document("${this@log.time} - ${this@log.log}")

@@ -17,7 +17,7 @@ class LogWorkerHelper @Inject constructor(
                     .build()
             })
             addTag("log")
-            setInputData(workDataOf("log" to  message.plus( " To Worker")))
+            setInputData(workDataOf("log" to  message))
         }.build()
         workManager.enqueue(worker)
     }

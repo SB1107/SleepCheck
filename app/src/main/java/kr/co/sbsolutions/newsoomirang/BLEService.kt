@@ -561,7 +561,7 @@ class BLEService : LifecycleService() {
                     sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                uploading(dataId, file = null, list = emptyList(), false, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
+                                uploading(dataId, file = null, list = emptyList(), true, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
                             }
                         }
                     }

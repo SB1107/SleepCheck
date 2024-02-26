@@ -341,11 +341,6 @@ class BluetoothNetworkRepository @Inject constructor(
         writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessDelayed) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             insertLog(state)
-//            _sbSensorInfo.value.let {
-//                it.bluetoothState = state
-//                _sbSensorInfo.tryEmit(it)
-//                insertLog(it.bluetoothState)
-//            }
         }
     }
 
@@ -353,11 +348,6 @@ class BluetoothNetworkRepository @Inject constructor(
         writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             insertLog(state)
-//            _sbSensorInfo.value.let {
-//                it.bluetoothState = state
-//                _sbSensorInfo.tryEmit(it)
-//                insertLog(it.bluetoothState)
-//            }
         }
     }
 
@@ -381,11 +371,6 @@ class BluetoothNetworkRepository @Inject constructor(
         writeData(_sbSensorInfo.value.bluetoothGatt, if (isAllDelete) AppToModule.OperateDeleteAll else AppToModule.OperateDeleteSector) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             insertLog(state)
-//            _sbSensorInfo.value.let {
-//                it.bluetoothState = state
-//                _sbSensorInfo.tryEmit(it)
-//                insertLog(it.bluetoothState)
-//            }
         }
     }
 
@@ -525,7 +510,7 @@ class BluetoothNetworkRepository @Inject constructor(
             val result = innerData.updateAndGet {
                 it.copy(bluetoothState = BluetoothState.Connecting)
             }
-            insertLog(result.bluetoothState)
+            insertLog("BluetoothNetwork = ${result.bluetoothState}" )
         }
 
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -621,7 +606,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.WaitStart) }
 //                                it.bluetoothState = BluetoothState.Connected.WaitStart
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> WaitStart")
                             }
 
                             BluetoothState.Connected.SendStop -> {
@@ -629,7 +614,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Finish) }
 //                                it.bluetoothState = BluetoothState.Connected.Finish
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> Finish")
                             }
 
                             BluetoothState.Connected.DataFlow -> {
@@ -637,7 +622,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
 //                                it.bluetoothState = BluetoothState.Connected.SendDelete
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> Ready")
                             }
 
                             else -> {
@@ -654,7 +639,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> ReceivingRealtime")
 
                                 startTime = System.currentTimeMillis()
                             }
@@ -664,7 +649,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> ReceivingRealtime")
                             }
 
                             BluetoothState.Connected.Init -> {
@@ -695,7 +680,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
                             }
 
                             BluetoothState.Connected.SendDownloadContinue -> {
@@ -705,7 +690,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                         innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                        it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                        innerData.tryEmit(it)
-                                        insertLog(info.bluetoothState)
+                                        insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                         downloadContinueCount = 0
                                     } else {
                                         writeData(gatt, AppToModule.OperateDownloadContinue) { state ->
@@ -744,7 +729,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
 
                                 val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
-                                info.currentData.tryEmit(capacitance1)
+                                info.currentData.emit(capacitance1)
 //                                info.currentData?.postValue(capacitance1)
 
                                 val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
@@ -761,7 +746,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
 
 //                                info.currentData?.postValue(capacitance2)
-                                info.currentData.tryEmit(capacitance2)
+                                info.currentData.emit(capacitance2)
                                 val quotient = index1 / UPLOAD_COUNT_INTERVAL
                                 if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
                                     uploadCallback?.let { cb ->
@@ -792,14 +777,14 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> ReceivingDelayed")
                             }
 
                             BluetoothState.Connected.ReceivingRealtime -> {
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> ReceivingDelayed")
                             }
 
                             BluetoothState.Connected.ReceivingDelayed -> {
@@ -854,14 +839,14 @@ class BluetoothNetworkRepository @Inject constructor(
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                    it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                    innerData.tryEmit(it)
-                                    insertLog(info.bluetoothState)
+                                    insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                 }
 
                                 BluetoothState.Connected.SendDelayed -> {
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
 //                                    it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
 //                                    innerData.tryEmit(it)
-                                    insertLog(info.bluetoothState)
+                                    insertLog("${info.bluetoothState} -> ReceivingDelayed")
                                 }
 
                                 else -> {
@@ -922,7 +907,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 Log.d(TAG, "readData: finish 먼저!!")
 //                                it.bluetoothState = BluetoothState.Connected.FinishDownload
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> FinishDownload")
                             }
 
                             BluetoothState.Connected.SendDownloadContinue -> {
@@ -931,7 +916,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
-                                insertLog(info.bluetoothState)
+                                insertLog("${info.bluetoothState} -> ReceivingRealtime")
                             }
 
                             else -> {
