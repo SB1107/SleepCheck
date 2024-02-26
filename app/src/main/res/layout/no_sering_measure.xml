@@ -72,7 +72,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:fontFamily="@font/nanumsquarebold"
-            android:text="서버에서 데이터 분석중입니다."
+            android:text="데이터 분석중입니다."
             android:textColor="@color/color_FFFFFF"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/v_center"

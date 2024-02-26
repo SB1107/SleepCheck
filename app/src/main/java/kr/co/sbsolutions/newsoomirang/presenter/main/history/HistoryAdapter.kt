@@ -491,29 +491,36 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             return false
 //            Log.d(TAG, "isCheckSumVis: 1")
         }
-        if (totalTime == list.filterNotNull().sum()) {
-            Log.d(TAG, "$totalTime == ${list.filterNotNull().sum()}")
-            try {
-                list.filterNotNull().forEachIndexed { index, value ->
-                    val percent = (value / totalTime).toDouble() * 100
+//        if (totalTime == list.filterNotNull().sum()) {
+//            Log.d(TAG, "$totalTime == ${list.filterNotNull().sum()}")
+        try {
+            list.forEachIndexed { index, value ->
+                value?.let { value ->
+                    val percent = (value.toDouble() / totalTime.toDouble()) * 100
+                    /*Log.d(TAG, "percent: $percent")
+                    Log.d(TAG, "totalTime: $totalTime")
+                    Log.d(TAG, "value: $value")*/
                     views[index].first.text = String.format("%.1f", percent) + "%"
                     views[index].second.text = (value * 60).toHourMinute()
                     views[index].third.layoutParams = (views[index].third.layoutParams as RelativeLayout.LayoutParams).apply {
                         width = context.toDp2Px((percent * 2).toFloat()).toInt()
+//                        Log.d(TAG, "width: $width ")
                     }
-//                    Log.d(TAG, "isCheckSumVis: $index")
                 }
 
-            } catch (e: Exception) {
-//                Log.d(TAG, "isCheckSumVis: 2 ${e.message}")
-                return false
+//                    Log.d(TAG, "isCheckSumVis: $index")
             }
 
-//            Log.d(TAG, "isCheckSumVis: 3")
-            return true
+        } catch (e: Exception) {
+//                Log.d(TAG, "isCheckSumVis: 2 ${e.message}")
+            return false
         }
+
+//            Log.d(TAG, "isCheckSumVis: 3")
+        return true
+//        }
 //        Log.d(TAG, "isCheckSumVis: 4")
-        return false
+//        return false
     }
 
     private fun <T> bothNotNull(value1: T?, value2: T?): Boolean {
