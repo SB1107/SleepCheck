@@ -48,5 +48,5 @@ object ApplicationModule {
     fun provideLogWorkHelper(workManager: WorkManager) = LogWorkerHelper(workManager)
 
     @Provides
-    fun provideTimeId() = "앱 버전 : ${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
+    fun provideTimeId() = "${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
 }
