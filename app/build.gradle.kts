@@ -45,7 +45,12 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
 
 }
 
@@ -53,14 +58,33 @@ android {
 
 
 dependencies {
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
+    implementation (composeBom)
+    androidTestImplementation (composeBom)
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation ("androidx.compose.material3:material3")
+    implementation ("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation ("androidx.compose.ui:ui-tooling")
+    implementation ("androidx.compose.material:material-icons-core")
+    // Optional - Add full set of material icons
+    implementation ("androidx.compose.material:material-icons-extended")
+    // Optional - Add window size utils
+    implementation ("androidx.compose.material3:material3-window-size-class")
+
+    // Optional - Integration with activities
+    implementation ("androidx.activity:activity-compose:1.8.2")
+    // Optional - Integration with ViewModels
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
 
     //스플레시 스크린
     implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
+    implementation("androidx.activity:activity:1.8.0")
 
     //라이프 사이클
     val lifecycle_version = "2.6.2"
