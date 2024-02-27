@@ -55,10 +55,12 @@ class LogWorker @AssistedInject constructor(
             task.addOnCompleteListener{
                 Log.d(TAG, "log 기록 Result.success()")
                 trySend(Result.success())
+                close()
             }
             task.addOnFailureListener {
                 Log.d(TAG, "log 기록 Result.retry()")
                 trySend(Result.retry())
+                close()
             }
         }
         awaitClose()

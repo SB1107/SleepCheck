@@ -23,8 +23,8 @@ class LogWorkerHelper @Inject constructor(
             setInputData(workDataOf("log" to  message))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
-              100
-                ,TimeUnit.SECONDS
+              1
+                ,TimeUnit.MINUTES
             )
         }.build()
         workManager.enqueue(worker)
