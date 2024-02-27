@@ -292,6 +292,7 @@ sealed interface ModuleToApp {
     object StartStopACK : ModuleToApp
     object NoSeringStopACK : ModuleToApp
     object RealtimeData : ModuleToApp
+    @Deprecated("사라짐")
     object DelayedData : ModuleToApp
     object OperateACK : ModuleToApp
     object MOTCtrlSetACK : ModuleToApp
