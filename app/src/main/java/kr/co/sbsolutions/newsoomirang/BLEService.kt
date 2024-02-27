@@ -335,6 +335,7 @@ class BLEService : LifecycleService() {
 
     private fun registerDownloadCallback() {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback {
+            logWorkerHelper.insertLog("setOnDownloadCompleteCallback")
             sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -342,15 +343,17 @@ class BLEService : LifecycleService() {
                         logWorkerHelper.insertLog("uploading: register")
                         exportFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), it.sleepType, it.snoreTime)
                     }
-                }
+                }?: logWorkerHelper.insertLog("sbSensorInfo.dataId is null")
             }
         }
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
+            logWorkerHelper.insertLog("setOnLastDownloadCompleteCallback")
             sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
+                        logWorkerHelper.insertLog("uploading: register")
                         exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                     }
                 } ?: finishService(-1, forceClose)
@@ -606,10 +609,11 @@ class BLEService : LifecycleService() {
             val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
 
             Log.d(TAG, "exportFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
+            logWorkerHelper.insertLog("exportLastFile - Size : $size")
 
             if (size < 1000) {
                 Log.d(TAG, "exportFile - data size 1000 미만 $size")
-                logWorkerHelper.insertLog("exportFile - data size 1000 미만 $size")
+                logWorkerHelper.insertLog("exportFile -  size 1000 미만 $size")
                 return@launch
             }
 
@@ -634,23 +638,17 @@ class BLEService : LifecycleService() {
     }
 
     private fun exportLastFile(dataId: Int, max: Int, isForcedClose: Boolean, sleepType: SleepType, snoreTime: Long = 0) {
-        /*filesDir.listFiles { _, name ->
-            name.endsWith(".csv")
-        }?.map {
-            Log.d(TAG, "delete File: ${it.name}")
-            it.delete()
-        }*/
 
         lifecycleScope.launch(IO) {
             val min = sbSensorDBRepository.getMinIndex(dataId)
             val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
 
             Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-            logWorkerHelper.insertLog("exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
+            logWorkerHelper.insertLog("exportLastFile - Size : $size")
             if (size < 100) {
                 Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                 finishService(dataId, isForcedClose)
-                logWorkerHelper.insertLog("exportLastFile - data size 100 미만 : $size")
+                logWorkerHelper.insertLog("exportLastFile -  size 100 미만 : $size")
                 return@launch
             }
 
@@ -668,6 +666,7 @@ class BLEService : LifecycleService() {
                     }
                 }
             }
+            logWorkerHelper.insertLog("uploading: exportFile")
             uploading(dataId, file, sbList, true, isForcedClose, sleepType, snoreTime)
         }
     }
@@ -752,7 +751,6 @@ class BLEService : LifecycleService() {
                     sbSensorDBRepository.insert(it)
                 }
             }
-
         }
     }
 
