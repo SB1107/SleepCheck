@@ -15,10 +15,6 @@ class LogWorkerHelper @Inject constructor(
 ) {
     fun insertLog(message : String) {
         val  worker = OneTimeWorkRequestBuilder<LogWorker>().apply {
-            setConstraints(Constraints.Builder().run {
-                setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            })
             addTag("log")
             setInputData(workDataOf("log" to  message))
             setBackoffCriteria(

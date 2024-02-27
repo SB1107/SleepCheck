@@ -650,7 +650,7 @@ class BLEService : LifecycleService() {
             if (size < 100) {
                 Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                 finishService(dataId, isForcedClose)
-                logWorkerHelper.insertLog("exportLastFile - data size 1000 미만 : $size")
+                logWorkerHelper.insertLog("exportLastFile - data size 100 미만 : $size")
                 return@launch
             }
 
