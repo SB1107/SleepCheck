@@ -352,6 +352,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override var downloadCompleteCallback: (() -> Unit)? = null
+    @Deprecated("사용안함", ReplaceWith("downloadCompleteCallback = callback"))
     override fun setOnDownloadCompleteCallback(callback: (() -> Unit)?) {
         downloadCompleteCallback = callback
     }

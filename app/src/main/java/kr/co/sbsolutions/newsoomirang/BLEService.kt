@@ -349,7 +349,8 @@ class BLEService : LifecycleService() {
 
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback { state ->
             val forceClose = notifyPowerOff(state)
-            logWorkerHelper.insertLog("setOnLastDownloadCompleteCallback")
+            logWorkerHelper.insertLog("LastCallback -> $forceClose")
+            logWorkerHelper.insertLog("LastCallback -> dataID: ${sbSensorInfo.value.dataId}")
             sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -528,6 +529,7 @@ class BLEService : LifecycleService() {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
             settingDataRepository.setSleepType(sleepType)
+            logWorkerHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
         }
         startTimer()
         audioHelper.startAudioClassification()
@@ -609,7 +611,7 @@ class BLEService : LifecycleService() {
             val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
 
             Log.d(TAG, "exportFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-            logWorkerHelper.insertLog("exportLastFile - Size : $size")
+            logWorkerHelper.insertLog("exportFile - Size : $size")
 
             if (size < 1000) {
                 Log.d(TAG, "exportFile - data size 1000 미만 $size")

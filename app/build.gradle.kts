@@ -15,8 +15,8 @@ android {
         applicationId = "kr.co.sbsolutions.newsoomirang"
         minSdk = 26
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.1.1"
+        versionCode = 12
+        versionName = "1.1.2"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
         buildConfigField ("String", "KAKAO","\"e20714ce376e41e7c1d8c98a309e98e3\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

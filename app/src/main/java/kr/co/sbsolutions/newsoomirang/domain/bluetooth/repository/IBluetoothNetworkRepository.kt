@@ -10,6 +10,8 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 
 interface IBluetoothNetworkRepository {
     var downloadCompleteCallback: (() -> Unit)?
+
+    @Deprecated("사용안함")
     fun setOnDownloadCompleteCallback(callback: (() -> Unit)?)
 
     var lastDownloadCompleteCallback: ((state: BLEService.FinishState) -> Unit)?
