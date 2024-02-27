@@ -25,6 +25,7 @@ class RequestHelper(
 ) {
     companion object {
         var reAuthorizeCallBack: ReAuthorizeCallBack? = null
+        var logWorkerHelper : LogWorkerHelper? = null
     }
 
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
@@ -32,11 +33,16 @@ class RequestHelper(
     fun setReAuthorizeCallBack(reAuthorizeCallBack: ReAuthorizeCallBack) {
         RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
+    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper){
+        RequestHelper.logWorkerHelper = logWorkerHelper
+    }
 
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
-                errorMessage?.emit("네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요")
+                val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
+                errorMessage?.emit(errorMSG)
+                logWorkerHelper?.insertLog(errorMSG)
                 cancel("네트워크 오류")
             }
         } else {
@@ -47,10 +53,10 @@ class RequestHelper(
 
             val job = scope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, error ->
                 scope.launch(Dispatchers.Main) {
-                    if (error.message != "Unable to create instance of class okhttp3.RequestBody. Registering an InstanceCreator or a TypeAdapter for this type, or adding a no-args constructor may fix this problem.") {
-                        errorMessage?.emit(error.localizedMessage ?: "Error occured! Please try again.")
-                        errorHandler?.onError(error.localizedMessage ?: "Error occured! Please try again.")
-                    }
+                    val errorMSG =  error.localizedMessage ?: "Error occured! Please try again."
+                        errorMessage?.emit(errorMSG)
+                        errorHandler?.onError(errorMSG)
+                        logWorkerHelper?.insertLog(errorMSG)
                 }
             }) {
                 yield()

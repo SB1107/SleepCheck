@@ -14,12 +14,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.*
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -32,7 +26,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
-import kr.co.sbsolutions.newsoomirang.common.LogWorker
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
@@ -180,6 +173,9 @@ class BLEService : LifecycleService() {
         createNotificationChannel()
 
         requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
+            .apply {
+                setLogWorkerHelper(logWorkerHelper)
+            }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -343,6 +339,7 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         Log.d(TAG, "uploading: register")
+                        logWorkerHelper.insertLog("uploading: register")
                         exportFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), it.sleepType, it.snoreTime)
                     }
                 }
@@ -612,6 +609,7 @@ class BLEService : LifecycleService() {
 
             if (size < 1000) {
                 Log.d(TAG, "exportFile - data size 1000 미만 $size")
+                logWorkerHelper.insertLog("exportFile - data size 1000 미만 $size")
                 return@launch
             }
 
@@ -630,6 +628,7 @@ class BLEService : LifecycleService() {
                 }
             }
             Log.d(TAG, "uploading: exportFile")
+            logWorkerHelper.insertLog("uploading: exportFile")
             uploading(dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime)
         }
     }
@@ -647,10 +646,11 @@ class BLEService : LifecycleService() {
             val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
 
             Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-
+            logWorkerHelper.insertLog("exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
             if (size < 100) {
                 Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                 finishService(dataId, isForcedClose)
+                logWorkerHelper.insertLog("exportLastFile - data size 1000 미만 : $size")
                 return@launch
             }
 
@@ -694,6 +694,7 @@ class BLEService : LifecycleService() {
         stopSelf()
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
         noseRingHelper.clearData()
+        logWorkerHelper.insertLog("finishService")
     }
 
     /*private fun endMeasure(dataId: Int) {

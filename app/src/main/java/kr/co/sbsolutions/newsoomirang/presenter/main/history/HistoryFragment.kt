@@ -22,8 +22,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResultData
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
 import java.time.DayOfWeek

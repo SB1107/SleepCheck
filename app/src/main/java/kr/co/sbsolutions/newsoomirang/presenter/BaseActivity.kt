@@ -13,11 +13,15 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint
 abstract class BaseActivity : AppCompatActivity() {
     private val callback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -29,6 +33,8 @@ abstract class BaseActivity : AppCompatActivity() {
             endAndStartActivity(Intent(this@BaseActivity, SplashActivity::class.java))
         }
     }
+    @Inject
+    lateinit var  logWorkerHelper: LogWorkerHelper
 
     protected fun twiceBackPressed() {
         if (backPressedTime + 2000L > System.currentTimeMillis()) {
@@ -69,6 +75,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, callback)
         _viewModel.setReAuthorizeCallBack(reAuthorizeCallBack)
+        _viewModel.setLogWorkerHelper(logWorkerHelper)
     }
 
     protected fun showProgress() {

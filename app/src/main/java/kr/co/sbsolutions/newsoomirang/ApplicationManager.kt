@@ -34,12 +34,11 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
     private  val service : StateFlow<WeakReference<BLEService>> = _service
     private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
     lateinit var fcmTokenUpdateHelper: FCMTokenUpdateHelper
-
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
     init {
         instance = this
     }

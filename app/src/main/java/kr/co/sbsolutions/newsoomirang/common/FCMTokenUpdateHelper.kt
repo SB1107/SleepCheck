@@ -10,7 +10,7 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import javax.inject.Inject
 
 
-class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource) {
+class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource , logWorkerHelper: LogWorkerHelper) {
     init {
         CoroutineScope(Dispatchers.IO).launch {
             tokenManager.getFcmToken().collect(){
@@ -18,6 +18,7 @@ class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, data
                 it?.let {
                     CoroutineScope(Dispatchers.IO).launch {
                         RequestHelper(this, tokenManager = tokenManager, dataManager = dataManager)
+                            .apply { setLogWorkerHelper(logWorkerHelper)}
                             .request({
                                 authAPIRepository.postNewFcmToken(it)
                             }).collectLatest { userEntity ->

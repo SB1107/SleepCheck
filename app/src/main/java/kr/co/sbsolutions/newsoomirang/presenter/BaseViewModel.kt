@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
@@ -40,6 +41,9 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
     fun setReAuthorizeCallBack(reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack) {
         this.reAuthorizeCallBack = reAuthorizeCallBack
         requestHelper.setReAuthorizeCallBack(this.reAuthorizeCallBack)
+    }
+    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper){
+        requestHelper.setLogWorkerHelper(logWorkerHelper)
     }
 
     override fun onCleared() {

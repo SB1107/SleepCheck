@@ -2,8 +2,6 @@ package kr.co.sbsolutions.newsoomirang.di
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -12,7 +10,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.BuildConfig
-import kr.co.sbsolutions.newsoomirang.common.LogWorker
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao
