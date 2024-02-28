@@ -22,7 +22,7 @@ class UploadWorkerHelper @Inject constructor(
             setId(uuid)
             setInputData(workDataOf("dataId" to  dataId))
             setInputData(workDataOf("isForcedClose" to  isForcedClose))
-            setInputData(workDataOf("sleepType" to  sleepType))
+            setInputData(workDataOf("sleepType" to  sleepType.ordinal))
             setInputData(workDataOf("snoreTime" to  snoreTime))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
