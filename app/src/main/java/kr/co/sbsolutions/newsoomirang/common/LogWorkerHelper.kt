@@ -16,7 +16,7 @@ class LogWorkerHelper @Inject constructor(
     fun insertLog(message : String) {
         val  worker = OneTimeWorkRequestBuilder<LogWorker>().apply {
             addTag("log")
-            setInputData(workDataOf("log" to  message))
+            setInputData(workDataOf("log" to message))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
               1
