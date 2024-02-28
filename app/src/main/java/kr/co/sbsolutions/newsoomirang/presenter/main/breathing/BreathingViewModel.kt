@@ -65,8 +65,7 @@ class BreathingViewModel @Inject constructor(
 
     fun startClick() {
         if (isRegistered(isConnectAlertShow = true)) {
-            if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
+            if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
             ) {
@@ -89,7 +88,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 30) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }

@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -180,11 +182,13 @@ class LeaveActivity : AppCompatActivity() {
                 }
             },
         ) { innerPadding ->
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(color = colorResource(id = R.color.color_061629))
+                    .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
                 TextHeader("회원탈퇴 전 아래 내용을 확인해주세요.")
@@ -223,6 +227,7 @@ class LeaveActivity : AppCompatActivity() {
                             unfocusedBorderColor = colorResource(id = R.color.color_0F63C8)
                         )
                     )
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         }

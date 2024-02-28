@@ -51,7 +51,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     bluetoothInfo = it
 
                     setBatteryInfo()
-                    if (it.bluetoothState == BluetoothState.Unregistered) {
+                    if (it.bluetoothState == BluetoothState.Unregistered ||it.bluetoothState == BluetoothState.Connected.Init) {
                         _bluetoothButtonState.emit("연결")
                     } else if (it.bluetoothState == BluetoothState.DisconnectedByUser || it.bluetoothGatt == null) {
                         _bluetoothButtonState.emit("연결")
@@ -61,10 +61,10 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, privat
                     }
                 }
             }
-            launch {
+            /*launch {
                 val name = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
                 _bluetoothButtonState.emit(if (name.isNullOrEmpty()) "연결" else "시작")
-            }
+            }*/
             launch {
                 service = ApplicationManager.getService().value
                 serviceSettingCall()

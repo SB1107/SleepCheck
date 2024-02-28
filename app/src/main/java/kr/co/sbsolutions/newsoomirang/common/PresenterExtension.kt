@@ -171,3 +171,27 @@ fun Intent.addFlag() = this.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Int
 fun ContextWrapper.isIgnoringBatteryOptimizations() = (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)
 // 배터리 최적화 이슈로 인해 현재 처리하지 않음
 //fun ContextWrapper.isIgnoringBatteryOptimizations() = true
+
+fun String.hexToBytes(): ByteArray {
+    val len = this.length / 2
+    val data = ByteArray(len)
+    for (i in 0 until len) {
+        data[i] = ((Character.digit(this[i * 2], 16) shl 4) or
+                Character.digit(this[i * 2 + 1], 16)).toByte()
+    }
+    return data
+}
+
+fun ByteArray.hexToString(): String{
+    val strBuilder = StringBuffer()
+    strBuilder.append("[ ")
+    for (v in this) {
+        strBuilder.append(String.format("%02X ", v))
+    }
+    strBuilder.append("]\n")
+    return strBuilder.toString()
+}
+
+fun String.prefixToHex(): String{
+    return this.replace("[","").replace("]","").replace(" ","").substring(0,8)
+}

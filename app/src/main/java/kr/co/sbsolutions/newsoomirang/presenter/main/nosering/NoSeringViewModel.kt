@@ -76,8 +76,7 @@ class NoSeringViewModel @Inject constructor(
     fun startClick() {
 //        Log.d(TAG, "startClick: ${isRegistered()}")
         if (isRegistered(isConnectAlertShow = false)) {
-            if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Init ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
+            if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd)
                 viewModelScope.launch {
