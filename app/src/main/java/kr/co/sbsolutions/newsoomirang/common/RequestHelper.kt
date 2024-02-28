@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.common
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -38,11 +40,13 @@ class RequestHelper(
     }
 
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
+        val clazzName = request.javaClass.name.replace("1", "").split(".").last().replace("$", " ").split(" ").last { it != "" }
+        Log.e(TAG, "request: $clazzName" )
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
                 errorMessage?.emit(errorMSG)
-                logWorkerHelper?.insertLog(errorMSG)
+                logWorkerHelper?.insertLog("$clazzName = 네트워크 연결 오류")
                 cancel("네트워크 오류")
             }
         } else {
