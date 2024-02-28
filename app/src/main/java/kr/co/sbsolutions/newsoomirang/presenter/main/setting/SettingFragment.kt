@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.WebType
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
@@ -24,6 +25,8 @@ import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
 import kr.co.sbsolutions.newsoomirang.presenter.question.QuestionActivity
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
+import kr.co.sbsolutions.newsoomirang.presenter.webview.WebViewActivity
+
 
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
@@ -47,6 +50,10 @@ class SettingFragment : Fragment() {
         //내센서 클릭
         binding.clSensor.setOnClickListener {
             startActivity(Intent(requireContext(), SensorActivity::class.java))
+        }
+        //센서 설명서
+        binding.clGuide.setOnClickListener {
+            webViewActivity(WebType.TERMS2)
         }
         //개인정보 방침
         binding.clPolicy.setOnClickListener {
@@ -87,5 +94,11 @@ class SettingFragment : Fragment() {
                 }
             }
         }
+    }
+    private fun webViewActivity(webType: WebType) {
+        startActivity(Intent(requireContext(), WebViewActivity::class.java).apply {
+            putExtra("webTypeUrl", webType.url)
+            putExtra("webTypeTitle", webType.title)
+        })
     }
 }

@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.webview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -23,10 +24,10 @@ class WebViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-            intent?.let {
-                mWebTypeUrl = it.getStringExtra("webTypeUrl").toString()
-               binding.actionBar.toolbarTitle.text =  it.getStringExtra("webTypeTitle").toString()
-            }
+        intent?.let {
+            mWebTypeUrl = it.getStringExtra("webTypeUrl").toString()
+            binding.actionBar.toolbarTitle.text = it.getStringExtra("webTypeTitle").toString()
+        }
         initWebView()
         binding.actionBar.backButton.setOnClickListener {
             finish()
@@ -37,23 +38,46 @@ class WebViewActivity : AppCompatActivity() {
     // MARK : Local functions
     //--------------------------------------------------------------------------------------------
     private fun initWebView() {
-        binding.webView.addJavascriptInterface(AndroidBridge(), "sbsolutions")
-        val webSettings = binding.webView.settings
-        webSettings.defaultTextEncodingName = "utf-8"
-        webSettings.cacheMode = WebSettings.LOAD_NO_CACHE
-        webSettings.useWideViewPort = true
-        webSettings.javaScriptEnabled = true
-        binding.webView.webChromeClient = WebChromeClient()
-        binding.webView.webViewClient = WebViewClient()
-        binding.webView.setVerticalScrollbarOverlay(true) //스크롤설정
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //혼합콘텐츠,타사쿠키사용
-            webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            val cookieManager = CookieManager.getInstance()
-            cookieManager.setAcceptCookie(true)
-            cookieManager.setAcceptThirdPartyCookies(binding.webView, true)
+        setWebView()
+        when (mWebTypeUrl) {
+            WebType.TERMS0.url,
+            WebType.TERMS1.url -> {
+                binding.webView.loadUrl(BuildConfig.SERVER_URL + mWebTypeUrl)
+            }
+
+            WebType.TERMS2.url -> {
+                binding.webView.loadUrl(mWebTypeUrl)
+            }
         }
-        binding.webView.loadUrl(BuildConfig.SERVER_URL + mWebTypeUrl)
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setWebView() {
+        // 웹뷰 설정
+        binding.webView.settings.apply {
+            supportZoom() // 확대/축소 기능 활성화
+            defaultTextEncodingName = "utf-8"
+            cacheMode = WebSettings.LOAD_NO_CACHE
+            useWideViewPort = true
+            javaScriptEnabled = true
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            builtInZoomControls = true // 확대/축소 버튼 표시
+            displayZoomControls = false // 확대/축소 아이콘 표시 안 함
+        }
+
+        // 웹뷰 초기화
+        binding.webView.apply {
+            addJavascriptInterface(AndroidBridge(), "sbsolutions")
+            setInitialScale(1) // 화면 크기에 맞게 웹뷰 크기 조절
+            webChromeClient = WebChromeClient()
+            webViewClient = WebViewClient()
+        }
+
+        // 쿠키 설정
+        CookieManager.getInstance().apply {
+            setAcceptCookie(true)
+            setAcceptThirdPartyCookies(binding.webView, true)
+        }
     }
 
     private class AndroidBridge {
