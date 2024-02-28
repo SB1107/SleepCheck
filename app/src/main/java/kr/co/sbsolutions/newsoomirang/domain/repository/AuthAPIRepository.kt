@@ -77,4 +77,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun postNewFcmToken(newToken: String): Flow<ApiResponse<UserEntity>> = apiRequestFlow{
         api.postFcmUpdate(newToken)
     }
+
+    override fun postLeave(leaveReason: String): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow{
+        api.postLeave(leaveReason)
+    }
 }

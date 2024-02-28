@@ -33,4 +33,5 @@ interface RemoteAuthDataSource {
      fun getNoSeringDataResult() : Flow<ApiResponse<NoSeringResultEntity>>
 
      fun postNewFcmToken(newToken: String) : Flow<ApiResponse<UserEntity>>
+     fun postLeave(leaveReason : String) : Flow<ApiResponse<BaseEntity>>
 }

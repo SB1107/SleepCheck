@@ -1,7 +1,5 @@
-package kr.co.sbsolutions.newsoomirang.presenter.main.setting
+package kr.co.sbsolutions.newsoomirang.presenter.leave
 
-import android.bluetooth.BluetoothAdapter
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -12,49 +10,34 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
-import kr.co.sbsolutions.newsoomirang.common.TokenManager
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingViewModel @Inject constructor(
+class LeaveViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
-    private val remoteAuthDataSource: RemoteAuthDataSource
-) : BaseServiceViewModel(dataManager, tokenManager) , DataRemove {
-
+    private val authDataSource: RemoteAuthDataSource
+) : BaseServiceViewModel(dataManager, tokenManager), DataRemove {
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
-
-    //로그아웃
-    fun logout() {
-        if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime ||
-            bluetoothInfo.bluetoothState == BluetoothState.Connected.SendDownloadContinue
-        ) {
-            sendErrorMessage("호흡 측정중 입니다.\n종료후 로그아웃을 시도해주세요")
-        } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                launch {
-                    request { remoteAuthDataSource.postLogout() }.collectLatest {
-                        Log.d(TAG, "logout 결과: ${it.success}")
-                        if (it.success) {
-                            dataRemove()
-                        }
-                    }
+    fun leaveButtonClick(reason: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            request { authDataSource.postLeave(reason) }.collectLatest {
+                if (it.success) {
+                    dataRemove()
                 }
             }
         }
     }
 
     override fun dataRemove() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             tokenManager.deleteToken()
             dataManager.deleteUserName()
             Firebase.auth.signOut()
@@ -71,8 +54,6 @@ class SettingViewModel @Inject constructor(
     }
 
     override fun whereTag(): String {
-        return "Setting"
+        return "leave"
     }
-
-
 }

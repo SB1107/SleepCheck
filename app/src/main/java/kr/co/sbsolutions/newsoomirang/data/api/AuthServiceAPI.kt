@@ -44,7 +44,7 @@ interface AuthServiceAPI {
     //회원 탈퇴
     @FormUrlEncoded
     @POST
-    suspend fun postLeave(@Body userModel : UserEntity): Response<UserEntity>
+    suspend fun postLeave(@Field("leave_reason")  leaveReason : String): Response<BaseEntity>
 
     //수면 데이터 결과
     @GET("sleepdata/result")
