@@ -22,6 +22,7 @@ import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
+import kr.co.sbsolutions.newsoomirang.presenter.question.QuestionActivity
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 
 @AndroidEntryPoint
@@ -51,10 +52,15 @@ class SettingFragment : Fragment() {
         binding.clPolicy.setOnClickListener {
             startActivity(Intent(requireContext(), PolicyActivity::class.java).putExtra("where", "setting"))
         }
+        //문의하기
+        binding.clQuestion.setOnClickListener {
+            startActivity(Intent(requireContext(), QuestionActivity::class.java))
+        }
         //로그아웃
         binding.clLogout.setOnClickListener {
             viewModel.logout()
         }
+
 
         //회원 탈퇴
         binding.clLeave.setOnClickListener {

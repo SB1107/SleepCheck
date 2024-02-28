@@ -54,6 +54,11 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name=".presenter.question.QuestionActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name=".presenter.splash.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">

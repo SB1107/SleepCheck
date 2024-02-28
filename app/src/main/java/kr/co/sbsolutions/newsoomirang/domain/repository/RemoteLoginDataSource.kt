@@ -15,7 +15,6 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
-import okhttp3.ResponseBody
 import java.io.File
 
 interface RemoteLoginDataSource {
