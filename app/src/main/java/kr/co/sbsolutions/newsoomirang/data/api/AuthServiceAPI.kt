@@ -43,7 +43,7 @@ interface AuthServiceAPI {
 
     //회원 탈퇴
     @FormUrlEncoded
-    @POST
+    @POST("leave")
     suspend fun postLeave(@Field("leave_reason")  leaveReason : String): Response<BaseEntity>
 
     //수면 데이터 결과

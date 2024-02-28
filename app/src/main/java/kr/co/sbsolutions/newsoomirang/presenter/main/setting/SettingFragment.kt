@@ -19,6 +19,7 @@ import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
+import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
@@ -56,8 +57,9 @@ class SettingFragment : Fragment() {
         }
 
         //회원 탈퇴
-        /*binding.clLeave.setOnClickListener {
-        }*/
+        binding.clLeave.setOnClickListener {
+            startActivity(Intent(requireContext(), LeaveActivity::class.java))
+        }
 
         //디바이스 연결시에 디바이스 이름
         binding.cvDeviceName.visibility = View.GONE
