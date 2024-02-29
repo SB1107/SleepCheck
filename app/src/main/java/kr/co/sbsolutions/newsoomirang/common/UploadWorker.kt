@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
@@ -51,30 +52,33 @@ class UploadWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
-        Log.d(Cons.TAG, "error =  ${throwable.message}")
+        Log.d(TAG, "error =  ${throwable.message}")
     }
     private val ioDispatchers = Dispatchers.IO + coroutineExceptionHandler
 
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val dataId = inputData.getInt("dataId", -1)
-            val isForcedClose = inputData.getBoolean("isForcedClose", false)
             val sleepType = inputData.getInt("sleepType", 0)
             val snoreTime = inputData.getLong("snoreTime", 0)
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
-            exportLastFile(dataId, isForcedClose, type, snoreTime).first()
+            if(dataId == -1){
+                Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
+            }
+            exportLastFile(dataId, type, snoreTime).first()
         }
     }
 
-    private suspend fun exportLastFile(dataId: Int, isForcedClose: Boolean, sleepType: SleepType, snoreTime: Long = 0)  = callbackFlow{
+    private suspend fun exportLastFile(dataId: Int, sleepType: SleepType, snoreTime: Long = 0)  = callbackFlow{
         withContext(ioDispatchers) {
+            Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
             val min = sbSensorDBRepository.getMinIndex(dataId)
             val max = sbSensorDBRepository.getMaxIndex(dataId)
             val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
-            Log.d(Cons.TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
+            Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
             logWorkerHelper.insertLog("exportLastFile - Size : $size")
             if (size < 100) {
-                Log.d(Cons.TAG, "exportLastFile - data size 1000 미만 : $size")
+                Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                 logWorkerHelper.insertLog("exportLastFile -  size 100 미만 : $size")
                 Result.failure(Data.Builder().apply { putString("reason", "size 100 미만") }.build())
             }
@@ -82,7 +86,7 @@ class UploadWorker @AssistedInject constructor(
             val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
             val filePath = "${context.filesDir}/${time}($dataId).csv"
             val file = File(filePath)
-            Log.d(Cons.TAG, "exportLastFile - make Start ${time}.csv")
+            Log.d(TAG, "exportLastFile - make Start ${time}.csv")
             FileWriter(file).use { fw ->
                 CSVWriter(fw).use { cw ->
 //                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
@@ -93,7 +97,7 @@ class UploadWorker @AssistedInject constructor(
                 }
             }
             logWorkerHelper.insertLog("uploading: exportFile")
-            uploading(dataId, file, sbList, isLast = true, isForcedClose = isForcedClose, sleepType = sleepType, snoreTime = snoreTime).collectLatest {
+            uploading(dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime).collectLatest {
                 trySend(it)
                 close()
             }
@@ -101,10 +105,10 @@ class UploadWorker @AssistedInject constructor(
         awaitClose()
     }
 
-    private suspend fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0) =
+    private suspend fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, sleepType: SleepType, snoreTime: Long = 0) =
         callbackFlow {
             withContext(ioDispatchers) {
-                val requestHelper = RequestHelper(this, dataManager = dataManager, tokenManager = tokenManager)
+                val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
                     .apply {
                         setLogWorkerHelper(logWorkerHelper)
                     }
@@ -114,19 +118,20 @@ class UploadWorker @AssistedInject constructor(
                     intent.setPackage(context.packageName)
                     context.sendBroadcast(intent)
                 }
-
                 requestHelper.request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }, errorHandler = { error ->
                     logWorkerHelper.insertLog("uploading error: $error")
                     trySend(Result.retry())
                     close()
-                })
-            }.collectLatest {
-                sbSensorDBRepository.deleteUploadedList(list)
-                trySend(Result.success())
-                close()
-                file?.delete()
+                }, showProgressBar = false)
+                    .flowOn(Dispatchers.IO).collectLatest {
+                        Log.e(TAG, "uploading:  collectLatest")
+                        sbSensorDBRepository.deleteUploadedList(list)
+                        file?.delete()
+                        trySend(Result.success())
+                        close()
+                    }
+                awaitClose()
             }
-            awaitClose()
         }
 
 }

@@ -27,6 +27,7 @@ import androidx.work.Operation
 import androidx.work.WorkInfo
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
@@ -353,27 +354,38 @@ class BLEService : LifecycleService() {
 
     private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType , snoreTime: Long = 0) {
         _resultMessage.emit(UPLOADING)
-        uploadWorkerHelper.uploadData(dataId, forceClose, sleepType = sleepType, snoreTime = snoreTime)
-            .observe(this@BLEService) { workInfo: WorkInfo? ->
-                if (workInfo != null) {
-                    when (workInfo.state) {
-                        WorkInfo.State.ENQUEUED -> {}
-                        WorkInfo.State.RUNNING -> {}
-                        WorkInfo.State.FAILED -> {}
-                        WorkInfo.State.BLOCKED -> {}
-                        WorkInfo.State.CANCELLED -> {}
-                        WorkInfo.State.SUCCEEDED -> {
-                            lifecycleScope.launch(IO) {
-                                logWorkerHelper.insertLog("서버 업로드 종료")
-                                _resultMessage.emit(FINISH)
-                                noseRingHelper.clearData()
-                                dataManager.setMoveView()
-                                finishService(dataId, forceClose)
+        lifecycleScope.launch(Dispatchers.Main) {
+            uploadWorkerHelper.uploadData(dataId, sleepType = sleepType, snoreTime = snoreTime)
+                .observe(this@BLEService) { workInfo: WorkInfo? ->
+                    if (workInfo != null) {
+                        when (workInfo.state) {
+                            WorkInfo.State.ENQUEUED -> {}
+                            WorkInfo.State.RUNNING -> {}
+                            WorkInfo.State.FAILED -> {
+                                lifecycleScope.launch(IO) {
+                                    logWorkerHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.getString("reason")}")
+                                }
+                            }
+                            WorkInfo.State.BLOCKED -> {}
+                            WorkInfo.State.CANCELLED -> {
+                                lifecycleScope.launch(IO) {
+                                    logWorkerHelper.insertLog("서버 업로드 취소}")
+                                }
+                            }
+                            WorkInfo.State.SUCCEEDED -> {
+                                lifecycleScope.launch(IO) {
+                                    logWorkerHelper.insertLog("서버 업로드 종료")
+                                    _resultMessage.emit(FINISH)
+                                    noseRingHelper.clearData()
+                                    dataManager.setMoveView()
+                                    finishService(dataId, forceClose)
+                                }
                             }
                         }
                     }
                 }
-            }
+        }
+
     }
 
     private fun stopScheduler() {
@@ -402,6 +414,7 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logWorkerHelper.insertLog("uploading: register")
+                        _resultMessage.emit(UPLOADING)
                         uploadWorker(dataId, forceClose, it.sleepType , it.snoreTime)
 //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                     }
@@ -551,6 +564,7 @@ class BLEService : LifecycleService() {
                         val min = sbSensorDBRepository.getMinIndex(dataId)
                         val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
                         if ((max - min + 1) == size) {
+                            _resultMessage.emit(UPLOADING)
                             uploadWorker(dataId,false, it.sleepType, it.snoreTime)
 //                            uploadWorkerHelper.uploadData(dataId ,false, sleepType = it.sleepType, snoreTime = it.snoreTime)
 //                            exportLastFile(dataId, max, true, sleepType = it.sleepType, snoreTime = it.snoreTime)

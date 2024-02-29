@@ -30,8 +30,6 @@ import javax.inject.Inject
 class ApplicationManager: Application() ,  Configuration.Provider  {
     private val _bluetoothInfoFlow: MutableStateFlow<BluetoothInfo> = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
-    private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
-    private  val service : StateFlow<WeakReference<BLEService>> = _service
     private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
     @Inject
@@ -45,6 +43,8 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
 
     companion object {
         lateinit var instance: ApplicationManager
+        private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
+        private  val service : StateFlow<WeakReference<BLEService>> = _service
         fun getBluetoothInfo(): BluetoothInfo {
             return instance.bluetoothInfoFlow.value
         }
@@ -55,13 +55,15 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
             instance._bluetoothInfoFlow.tryEmit(info)
         }
         fun setService(service : WeakReference<BLEService>){
-            instance._service.tryEmit(service)
+            if (_service.value.get() == null) {
+                _service.tryEmit(service)
+            }
         }
         fun serviceClear(){
-            instance._service.tryEmit(WeakReference(null))
+            _service.tryEmit(WeakReference(null))
         }
         fun getService() :  StateFlow<WeakReference<BLEService>>{
-            return instance.service
+            return service
         }
         fun getNetworkCheck() : Boolean {
             return instance.networkCheck.value

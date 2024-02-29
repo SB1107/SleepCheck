@@ -106,7 +106,6 @@ class RequestHelper(
             requestMap[request.toString()] = job
             job.invokeOnCompletion {
                 if (it?.localizedMessage?.isEmpty() == true) {
-//                    Log.e("Aaa","invokeOnCompletion")
                     requestMap.remove(request.toString())
                 }
             }
