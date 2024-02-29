@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -96,7 +97,7 @@ class LeaveActivity : AppCompatActivity() {
     @Composable
     fun DefaultPreview() {
         var etcText by remember { mutableStateOf("") }
-        val maxChars =255
+        val maxChars = 100
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -120,7 +121,7 @@ class LeaveActivity : AppCompatActivity() {
             mutableStateListOf(
                 CheckBoxData(
                     isChecked = false,
-                    text =  "예상했던 서비스가 아니에요.",
+                    text = "예상했던 서비스가 아니에요.",
                 ),
                 CheckBoxData(
                     isChecked = false,
@@ -151,7 +152,14 @@ class LeaveActivity : AppCompatActivity() {
                         containerColor = Color(LocalContext.current.getColor(R.color.color_061629)),
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
-                    title = { Text(text = stringResource(id = R.string.setting_general_withdraw), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold) },
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.setting_general_withdraw),
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { finish() }) {
                             Icon(
@@ -176,7 +184,7 @@ class LeaveActivity : AppCompatActivity() {
                         containerColor = colorResource(id = R.color.color_0F63C8),
                         contentColor = Color.White,
                         disabledContainerColor = Color.Gray,
-                          disabledContentColor = Color.Black
+                        disabledContentColor = Color.Black
                     ),
                     enabled = isButtonEnable,
                     onClick = {
@@ -188,8 +196,6 @@ class LeaveActivity : AppCompatActivity() {
                             }
                             viewModel.leaveButtonClick(checkBoxText)
                         }
-
-
                     }
 
                 ) {
@@ -227,15 +233,15 @@ class LeaveActivity : AppCompatActivity() {
                 })
                 Spacer(modifier = Modifier.height(10.dp))
 
-//                if (checkBoxText == "기타") {
-                Text(
-                    textAlign = TextAlign.End,
-                    modifier = Modifier
-                        .padding(horizontal = 30.dp)
-                        .fillMaxWidth(),
-                    style = TextStyle( color = colorResource(id = R.color.color_FFFFFF)),
-                    text = "${etcText.length} / $maxChars" ,
-                )
+                if (checkBoxText == "기타") {
+                    Text(
+                        textAlign = TextAlign.End,
+                        modifier = Modifier
+                            .padding(horizontal = 30.dp)
+                            .fillMaxWidth(),
+                        style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
+                        text = "${etcText.length} / $maxChars 글자 이내로 입력해주세요.",
+                    )
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -246,7 +252,10 @@ class LeaveActivity : AppCompatActivity() {
                         placeholder = {
                             Text(
                                 text = "기타 탈퇴 사유를 입력해 주세요. 고객님의 소중한 의견을 반영하여, 더 좋은 서비스로 찾아뵙겠습니다.",
-                                style = TextStyle(fontSize = 14.sp, color = colorResource(id = R.color.color_78899F))
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    color = colorResource(id = R.color.color_78899F)
+                                )
                             )
                         },
                         textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
@@ -256,7 +265,7 @@ class LeaveActivity : AppCompatActivity() {
                         )
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-//                }
+                }
             }
         }
     }
