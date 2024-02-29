@@ -58,18 +58,19 @@ class UploadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
+            val packageName = inputData.getString("packageName") ?: ""
             val dataId = inputData.getInt("dataId", -1)
             val sleepType = inputData.getInt("sleepType", 0)
             val snoreTime = inputData.getLong("snoreTime", 0)
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
-            if(dataId == -1){
+            if (dataId == -1) {
                 Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
             }
-            exportLastFile(dataId, type, snoreTime).first()
+            exportLastFile(packageName, dataId, type, snoreTime).first()
         }
     }
 
-    private suspend fun exportLastFile(dataId: Int, sleepType: SleepType, snoreTime: Long = 0)  = callbackFlow{
+    private suspend fun exportLastFile(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long = 0) = callbackFlow {
         withContext(ioDispatchers) {
             Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
             val min = sbSensorDBRepository.getMinIndex(dataId)
@@ -97,7 +98,7 @@ class UploadWorker @AssistedInject constructor(
                 }
             }
             logWorkerHelper.insertLog("uploading: exportFile")
-            uploading(dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime).collectLatest {
+            uploading(packageName, dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime).collectLatest {
                 trySend(it)
                 close()
             }
@@ -105,7 +106,7 @@ class UploadWorker @AssistedInject constructor(
         awaitClose()
     }
 
-    private suspend fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, sleepType: SleepType, snoreTime: Long = 0) =
+    private suspend fun uploading(packageName: String, dataId: Int, file: File?, list: List<SBSensorData>, sleepType: SleepType, snoreTime: Long = 0) =
         callbackFlow {
             withContext(ioDispatchers) {
                 val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
@@ -115,7 +116,7 @@ class UploadWorker @AssistedInject constructor(
                 logWorkerHelper.insertLog("서버 업로드 시작")
                 Intent().also { intent ->
                     intent.setAction(Cons.NOTIFICATION_ACTION)
-                    intent.setPackage(context.packageName)
+                    intent.setPackage(packageName)
                     context.sendBroadcast(intent)
                 }
                 requestHelper.request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }, errorHandler = { error ->
