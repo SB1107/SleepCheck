@@ -98,23 +98,6 @@ class LeaveActivity : AppCompatActivity() {
     fun DefaultPreview() {
         var etcText by remember { mutableStateOf("") }
         val maxChars = 100
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                val currentChars = s?.length ?: 0
-                // 글자 수 표시
-                // ...
-
-                // 225글자 초과 이벤트
-                if (currentChars > maxChars) {
-                    // 이벤트 보내기
-                    // ...
-                }
-            }
-        }
         var checkBoxText by remember { mutableStateOf("") }
         var isButtonEnable by remember { mutableStateOf(false) }
         val radioButtons = remember {
@@ -248,7 +231,10 @@ class LeaveActivity : AppCompatActivity() {
                             .height(120.dp)
                             .padding(horizontal = 30.dp),
                         value = etcText,
-                        onValueChange = { etcText = it },
+                        onValueChange = {
+                            if(it.length <= maxChars){
+                                etcText = it
+                            } },
                         placeholder = {
                             Text(
                                 text = "기타 탈퇴 사유를 입력해 주세요. 고객님의 소중한 의견을 반영하여, 더 좋은 서비스로 찾아뵙겠습니다.",
