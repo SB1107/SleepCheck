@@ -355,7 +355,7 @@ class BLEService : LifecycleService() {
     private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType , snoreTime: Long = 0) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
-            uploadWorkerHelper.uploadData(dataId, sleepType = sleepType, snoreTime = snoreTime)
+            uploadWorkerHelper.uploadData(baseContext.packageName,dataId, sleepType = sleepType, snoreTime = snoreTime)
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
                         when (workInfo.state) {
