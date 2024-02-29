@@ -2,6 +2,8 @@ package kr.co.sbsolutions.newsoomirang.presenter.leave
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -94,6 +96,24 @@ class LeaveActivity : AppCompatActivity() {
     @Composable
     fun DefaultPreview() {
         var etcText by remember { mutableStateOf("") }
+        val maxChars =255
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val currentChars = s?.length ?: 0
+                // 글자 수 표시
+                // ...
+
+                // 225글자 초과 이벤트
+                if (currentChars > maxChars) {
+                    // 이벤트 보내기
+                    // ...
+                }
+            }
+        }
         var checkBoxText by remember { mutableStateOf("") }
         var isButtonEnable by remember { mutableStateOf(false) }
         val radioButtons = remember {
@@ -207,7 +227,15 @@ class LeaveActivity : AppCompatActivity() {
                 })
                 Spacer(modifier = Modifier.height(10.dp))
 
-                if (checkBoxText == "기타") {
+//                if (checkBoxText == "기타") {
+                Text(
+                    textAlign = TextAlign.End,
+                    modifier = Modifier
+                        .padding(horizontal = 30.dp)
+                        .fillMaxWidth(),
+                    style = TextStyle( color = colorResource(id = R.color.color_FFFFFF)),
+                    text = "${etcText.length} / $maxChars" ,
+                )
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -228,7 +256,7 @@ class LeaveActivity : AppCompatActivity() {
                         )
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                }
+//                }
             }
         }
     }

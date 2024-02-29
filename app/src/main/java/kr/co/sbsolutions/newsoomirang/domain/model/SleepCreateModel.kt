@@ -4,12 +4,14 @@ import com.google.gson.annotations.SerializedName
 
 data class SleepCreateModel(
     @SerializedName("number")
-    private  val deviceName : String?,
+    private val deviceName: String?,
     @SerializedName("type")
-    private  val type : String = SleepType.Breathing.ordinal.toString()
+    private val type: String = SleepType.Breathing.ordinal.toString(),
+    @SerializedName("app_kind")
+    private val appKind: String = "C"
 )
 
-enum class SleepType (type : Int) {
-    Breathing (0), NoSering(1)
+enum class SleepType(type: Int) {
+    Breathing(0), NoSering(1)
 
 }
