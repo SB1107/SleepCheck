@@ -1,11 +1,17 @@
 package kr.co.sbsolutions.newsoomirang
 
+import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.RelativeLayout
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
+import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.hexToString
 import kr.co.sbsolutions.newsoomirang.common.prefixToHex
+import kr.co.sbsolutions.newsoomirang.common.toDp2Px
+import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,5 +101,65 @@ class ExampleInstrumentedTest {
         val prefix = data.hexToString().prefixToHex()
         assertEquals(prefix,"30B07567")
 
+    }
+
+    @Test
+    fun main() {
+        val positionVale = listOf(
+            Pair(
+                36,
+                100
+            ),
+            Pair(
+                0,
+                0
+            ),
+            Pair(
+                0,
+                0
+            ),
+            Pair(
+                0,
+                0
+            ),
+            Pair(
+                0,
+                0
+            )
+        )
+
+        isCheckSumVis(timeList = positionVale)
+//        assertEquals("1",String.format("%.1f", 100) + "%")
+    }
+
+    @SuppressLint("SetTextI18n", "DefaultLocale")
+    fun isCheckSumVis(
+        totalTime: Int = 0, timeList: List<Pair<Int?, Int?>>, ): Boolean {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+//        if (totalTime == null) {
+//            return false
+////            Log.d(TAG, "isCheckSumVis: 1")
+//        }
+//        if (totalTime == list.filterNotNull().sum()) {
+//            Log.d(TAG, "$totalTime == ${list.filterNotNull().sum()}")
+        try {
+            timeList.forEachIndexed { index, value ->
+                value.let { (first, second) ->
+                    Log.d(Cons.TAG, "first: $first")
+                    Log.d(Cons.TAG, "second: $second")
+                    Log.d(Cons.TAG, "$index value: $value")
+                    val per = "$second %"
+                    val min = (first?.times(60))?.toHourMinute()
+                    val width = appContext.toDp2Px(((second?.toDouble() ?: 0.0) * 2).toFloat()).toInt()
+                    Log.d(TAG, "per: $per ")
+                    Log.d(TAG, "min: $min ")
+                    Log.d(TAG, "width: $width ")
+                }
+            }
+        } catch (e: Exception) {
+            Log.d(Cons.TAG, "isCheckSumVis: 2 ${e.message}")
+            return false
+        }
+        return true
     }
 }

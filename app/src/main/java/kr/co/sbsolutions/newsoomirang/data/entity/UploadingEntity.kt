@@ -9,39 +9,15 @@ data class UploadingEntity (
 ): BaseEntity()
 @Keep
 data class Result(
-    @SerializedName("data")
-    val data: List<DetailData>,
+    @SerializedName("FunctionName")
+    val functionName: String,
 
-    @SerializedName("count")
-    val count: Int
-)
-@Keep
-data class DetailData(
-    @SerializedName("day")
-    val day: String,
+    @SerializedName("InvocationType")
+    val invocationType: String,
 
-    @SerializedName("started_at")
-    val started_at: String,
+    @SerializedName("Payload")
+    val payload: Int,
 
-    @SerializedName("minute")
-    val minute: Int,
-
-    @SerializedName("apnea_10")
-    val apnea_10: Int,
-
-    @SerializedName("apnea_30")
-    val apnea_30: Int,
-
-    @SerializedName("apnea_60")
-    val apnea_60: Int,
-
-    @SerializedName("sleep_time")
-    val sleep_time: Int,
-
-    @SerializedName("state")
-    val state: Int,
-
-    @SerializedName("ended_at")
-    val ended_at: String
-
+    @SerializedName("LogType")
+    val logType: String,
 )

@@ -2,7 +2,6 @@ package kr.co.sbsolutions.newsoomirang.common
 
 import org.junit.Assert
 import org.junit.Test
-import org.junit.jupiter.api.Assertions.*
 import java.nio.charset.StandardCharsets
 
 class AESHelperTest{

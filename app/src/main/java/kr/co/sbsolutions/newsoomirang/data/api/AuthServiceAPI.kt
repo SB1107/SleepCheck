@@ -69,7 +69,7 @@ interface AuthServiceAPI {
     suspend fun postSleepDataDelete(@Body sleepDataRemoveModel: SleepDataRemoveModel): Response<BaseEntity>
 
     @Multipart
-    @POST("sleepdata/upload")
+    @POST("sleepdata/uploadplus")
     suspend fun postUploading(@Part file : List<MultipartBody.Part>) : Response<UploadingEntity>
 
     @GET("notice/list")

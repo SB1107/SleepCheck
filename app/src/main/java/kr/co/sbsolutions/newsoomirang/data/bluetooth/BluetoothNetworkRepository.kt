@@ -602,7 +602,7 @@ class BluetoothNetworkRepository @Inject constructor(
             logCoroutine.launch {
                 Log.d("---> Device To App", readValue.hexToString())
                 val value = decryptByteArray(readValue)
-                Log.d("---> Device To App1", value.hexToString())
+//                Log.d("---> Device To App1", value.hexToString())
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
                 when ((String.format("%02X", value[4])).getCommand()) {

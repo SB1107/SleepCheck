@@ -27,18 +27,19 @@ import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSleepBinding
-import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSnoreBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
-import java.time.Duration
 import java.util.concurrent.TimeUnit
-import kotlin.math.log
 
-class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(object : DiffUtil.ItemCallback<SleepDetailResult>() {
+class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(object :
+    DiffUtil.ItemCallback<SleepDetailResult>() {
     override fun areItemsTheSame(oldItem: SleepDetailResult, newItem: SleepDetailResult): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: SleepDetailResult, newItem: SleepDetailResult): Boolean {
+    override fun areContentsTheSame(
+        oldItem: SleepDetailResult,
+        newItem: SleepDetailResult
+    ): Boolean {
         return oldItem == newItem
     }
 
@@ -86,7 +87,10 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
         private val binding: RowHistoryItemSleepBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         init {
-            binding.clLayout.setOnClickListener { binding.actionType.root.visibility = if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE }
+            binding.clLayout.setOnClickListener {
+                binding.actionType.root.visibility =
+                    if (binding.actionType.root.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
         }
 
         @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
@@ -107,13 +111,19 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
 
                 result.startedAt?.let { itStartedAt ->
                     val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
-                    val durationString = (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
+                    val durationString =
+                        (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
 
                     val milliseconds: Long = (endedAt?.time ?: 0) - (startedAt?.time ?: 0)
-                    val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+                    val min =
+                        (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
 
                     //총 수면 시간
-                    setResultUi(binding.actionType.actionNewResult.resultTotalTextView, binding.actionType.actionNewResult.resultTotalTitleTextView, min)
+                    setResultUi(
+                        binding.actionType.actionNewResult.resultTotalTextView,
+                        binding.actionType.actionNewResult.resultTotalTitleTextView,
+                        min
+                    )
 
                     binding.resultDurationTextView.text = "$durationString 수면"
                 } ?: run {
@@ -127,7 +137,11 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
 
             //type
             if (result.type == 1) {
-                binding.resultDateTextView.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.bottom_menu_2_off), null, null, null)
+                binding.resultDateTextView.setCompoundDrawablesWithIntrinsicBounds(
+                    context.getDrawable(
+                        R.drawable.bottom_menu_2_off
+                    ), null, null, null
+                )
                 binding.actionType.actionSleepingGraph.root.visibility = View.GONE
                 binding.actionType.actionApneaResult.root.visibility = View.GONE
 
@@ -172,11 +186,26 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
 
 
             //무호흡 횟수
-            setResultUi(binding.actionType.actionApneaResult.resultApnea10TextView, binding.actionType.actionApneaResult.resultApnea10TitleTextView, result.apnea10, " 회")
+            setResultUi(
+                binding.actionType.actionApneaResult.resultApnea10TextView,
+                binding.actionType.actionApneaResult.resultApnea10TitleTextView,
+                result.apnea10,
+                " 회"
+            )
 
-            setResultUi(binding.actionType.actionApneaResult.resultApnea30TextView, binding.actionType.actionApneaResult.resultApnea30TitleTextView, result.apnea30, " 회")
+            setResultUi(
+                binding.actionType.actionApneaResult.resultApnea30TextView,
+                binding.actionType.actionApneaResult.resultApnea30TitleTextView,
+                result.apnea30,
+                " 회"
+            )
 
-            setResultUi(binding.actionType.actionApneaResult.resultApnea60TextView, binding.actionType.actionApneaResult.resultApnea60TitleTextView, result.apnea60, " 회")
+            setResultUi(
+                binding.actionType.actionApneaResult.resultApnea60TextView,
+                binding.actionType.actionApneaResult.resultApnea60TitleTextView,
+                result.apnea60,
+                " 회"
+            )
 
 
             val positionViews = listOf(
@@ -206,11 +235,33 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
                     binding.actionType.actionSleepPosition.pose5ProgressView
                 )
             )
+            val positionVale = listOf(
+                Pair(
+                    result.straightPositionTime,
+                    result.straightPer
+                ),
+                Pair(
+                    result.leftPositionTime,
+                    result.leftPer
+                ),
+                Pair(
+                    result.rightPositionTime,
+                    result.rightPer
+                ),
+                Pair(
+                    result.downPositionTime,
+                    result.downPer
+                ),
+                Pair(
+                    result.wakeTime,
+                    result.wakePer
+                )
+            )
 
             binding.actionType.actionSleepPosition.root.visibility = if (!isCheckSumVis
                     (
                     totalTime = result.sleepTime,
-                    list = listOf(result.straightPosition, result.leftPosition, result.rightPosition, result.downPosition, result.wakeTime),
+                    timeList = positionVale,
                     views = positionViews
                 )
             ) View.GONE else View.VISIBLE
@@ -231,7 +282,11 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     }
 
     @SuppressLint("SetTextI18n")
-    private fun percentLayout(percent: Double, textView: AppCompatTextView, cardView: MaterialCardView) {
+    private fun percentLayout(
+        percent: Double,
+        textView: AppCompatTextView,
+        cardView: MaterialCardView
+    ) {
         textView.text = String.format("%.1f", percent * 100) + "%"
         cardView.layoutParams = (cardView.layoutParams as RelativeLayout.LayoutParams).apply {
             width = context.toDp2Px((percent * 2 * 100).toFloat()).toInt()
@@ -476,7 +531,12 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
     }
 
     @SuppressLint("SetTextI18n")
-    private fun <T> setResultUi(textView: AppCompatTextView, pairView: AppCompatTextView, value: T?, unit: String = "") {
+    private fun <T> setResultUi(
+        textView: AppCompatTextView,
+        pairView: AppCompatTextView,
+        value: T?,
+        unit: String = ""
+    ) {
         value?.let { data ->
             textView.text = "${data}$unit"
         } ?: run {
@@ -485,42 +545,29 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    fun isCheckSumVis(totalTime: Int?, list: List<Int?>, views: List<Triple<AppCompatTextView, AppCompatTextView, MaterialCardView>>): Boolean {
+    @SuppressLint("SetTextI18n", "DefaultLocale")
+    fun isCheckSumVis(
+        totalTime: Int?, timeList: List<Pair<Int?, Int?>>, views: List<Triple<AppCompatTextView, AppCompatTextView, MaterialCardView>>
+    ): Boolean {
         if (totalTime == null) {
             return false
-//            Log.d(TAG, "isCheckSumVis: 1")
         }
-//        if (totalTime == list.filterNotNull().sum()) {
-//            Log.d(TAG, "$totalTime == ${list.filterNotNull().sum()}")
         try {
-            list.forEachIndexed { index, value ->
-                value?.let { value ->
-                    val percent = (value.toDouble() / totalTime.toDouble()) * 100
-                    /*Log.d(TAG, "percent: $percent")
-                    Log.d(TAG, "totalTime: $totalTime")
-                    Log.d(TAG, "value: $value")*/
-                    views[index].first.text = String.format("%.1f", percent) + "%"
-                    views[index].second.text = (value * 60).toHourMinute()
+            timeList.forEachIndexed { index, value ->
+                value.let { (first, second) ->
+                    views[index].first.text = "$second %"
+                    views[index].second.text = (first?.times(60))?.toHourMinute()
                     views[index].third.layoutParams = (views[index].third.layoutParams as RelativeLayout.LayoutParams).apply {
-                        width = context.toDp2Px((percent * 2).toFloat()).toInt()
-//                        Log.d(TAG, "width: $width ")
+                        width = context.toDp2Px(((second?.toDouble() ?: 0.0) * 2).toFloat()).toInt()
                     }
                 }
-
 //                    Log.d(TAG, "isCheckSumVis: $index")
             }
-
         } catch (e: Exception) {
-//                Log.d(TAG, "isCheckSumVis: 2 ${e.message}")
+            Log.d(TAG, "isCheckSumVis: 2 ${e.message}")
             return false
         }
-
-//            Log.d(TAG, "isCheckSumVis: 3")
         return true
-//        }
-//        Log.d(TAG, "isCheckSumVis: 4")
-//        return false
     }
 
     private fun <T> bothNotNull(value1: T?, value2: T?): Boolean {

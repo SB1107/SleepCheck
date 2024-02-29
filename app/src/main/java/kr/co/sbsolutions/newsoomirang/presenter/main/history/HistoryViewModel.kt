@@ -49,7 +49,10 @@ class HistoryViewModel @Inject constructor(
                         if (it.isEmpty()) {
                             _sleepDataDetailData.emit(
                                 listOf(
-                                    SleepDetailResult(id = 1, userId = 1, number = "", dirName = "", fileName = "", asleepTime = 1, type = 2, snoreTime = 1, apneaState = null, apneaCount = 0, apnea10 = 0, apnea30 = 0, apnea60 = 0, straightPosition = 0, leftPosition = 0, rightPosition = 0, downPosition = 0, wakeTime = 0,
+                                    SleepDetailResult(id = 1, userId = 1, number = "", dirName = "", fileName = "", asleepTime = 1, type = 2,
+                                        snoreTime = 1, apneaState = null, apneaCount = 0, apnea10 = 0, apnea30 = 0, apnea60 = 0,
+                                        straightPositionTime = 0, leftPositionTime = 0, rightPositionTime = 0, downPositionTime = 0, wakeTime = 0,
+                                        straightPer = 0, leftPer = 0, rightPer = 0, downPer = 0, wakePer = 0,
                                         sleepPattern = "", startedAt = "", endedAt = "", sleepTime = 0, state = 0)
                                 )
                             )

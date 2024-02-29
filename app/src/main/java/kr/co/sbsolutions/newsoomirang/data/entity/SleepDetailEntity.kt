@@ -43,15 +43,25 @@ data class SleepDetailResult(
     @SerializedName("apnea_60")
     var apnea60: Int? = 0,
     @SerializedName("straight_position")
-    var straightPosition: Int? = 0,
+    var straightPositionTime: Int? = 0,
     @SerializedName("left_position")
-    var leftPosition: Int? = 0,
+    var leftPositionTime: Int? = 0,
     @SerializedName("right_position")
-    var rightPosition: Int? = 0,
+    var rightPositionTime: Int? = 0,
     @SerializedName("down_position")
-    var downPosition: Int? = 0,
+    var downPositionTime: Int? = 0,
     @SerializedName("wake_time")
     var wakeTime: Int? = 0,
+    @SerializedName("straight_per")
+    var straightPer: Int? = 0,
+    @SerializedName("left_per")
+    var leftPer: Int? = 0,
+    @SerializedName("right_per")
+    var rightPer: Int? = 0,
+    @SerializedName("down_per")
+    var downPer: Int? = 0,
+    @SerializedName("wake_per")
+    var wakePer: Int? = 0,
     @SerializedName("sleep_pattern")
     var sleepPattern: String? = null,
     @SerializedName("started_at")
