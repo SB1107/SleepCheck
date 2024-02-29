@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 tokenManager.getFcmToken().first()?.let { fcmToken ->
-                    request { loginRepository.postLogin(SnsLoginModel(snsType, token, fcm_key = fcmToken, name = name)) }.collectLatest { user ->
+                    request { loginRepository.postLogin(SnsLoginModel(sns_Type = snsType, token = token, fcm_key = fcmToken, name = name)) }.collectLatest { user ->
                         user.result?.let { result ->
                             val isMember = result.member == "Y"
                             dataManager.saveSNSType(snsType)
