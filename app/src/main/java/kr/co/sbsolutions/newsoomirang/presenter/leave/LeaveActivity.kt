@@ -182,6 +182,7 @@ class LeaveActivity : AppCompatActivity() {
                     }
 
                 ) {
+                    Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = LocalContext.current.getString(R.string.leave_button),
                         fontStyle = FontStyle.Normal,
