@@ -545,7 +545,7 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
         }
     }
 
-    @SuppressLint("SetTextI18n", "DefaultLocale")
+    /*@SuppressLint("SetTextI18n", "DefaultLocale")
     fun isCheckSumVis(
         totalTime: Int?, timeList: List<Pair<Int?, Int?>>, views: List<Triple<AppCompatTextView, AppCompatTextView, MaterialCardView>>
     ): Boolean {
@@ -567,6 +567,56 @@ class HistoryAdapter : ListAdapter<SleepDetailResult, RecyclerView.ViewHolder>(o
             Log.d(TAG, "isCheckSumVis: 2 ${e.message}")
             return false
         }
+        return true
+    }*/
+
+    /*@SuppressLint("SetTextI18n")
+    fun isCheckSumVis(totalTime: Int?, list: List<Int?>, views: List<Triple<AppCompatTextView, AppCompatTextView, MaterialCardView>>): Boolean {
+        if (totalTime == null) {
+            return false
+        }
+//        if (totalTime == list.filterNotNull().sum()) {
+        try {
+            list.forEachIndexed { index, value ->
+                value?.let { value ->
+                    val percent = (value.toDouble() / totalTime.toDouble()) * 100
+                    *//*Log.d(TAG, "percent: $percent")
+                    Log.d(TAG, "totalTime: $totalTime")
+                    Log.d(TAG, "value: $value")*//*
+                    views[index].first.text = String.format("%.1f", percent) + "%"
+                    views[index].second.text = (value * 60).toHourMinute()
+                    views[index].third.layoutParams = (views[index].third.layoutParams as RelativeLayout.LayoutParams).apply {
+                        width = context.toDp2Px((percent * 2).toFloat()).toInt()
+//                        Log.d(TAG, "width: $width ")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            return false
+        }
+        return true
+    }*/
+
+    @SuppressLint("SetTextI18n")
+    fun isCheckSumVis(
+        totalTime: Int?,
+        timeList: List<Pair<Int?, Int?>>,
+        views: List<Triple<AppCompatTextView, AppCompatTextView, MaterialCardView>>
+    ): Boolean {
+        if (totalTime == null) return false
+
+        timeList.forEachIndexed { index, (first, second) ->
+            views[index].first.text = "$second%"
+            views[index].second.text = first?.times(60)?.toHourMinute() ?: "-"
+            if (second == null){
+                return false
+            }
+            val width = (second.toDouble() ?: 0.0) * 2
+            views[index].third.layoutParams = (views[index].third.layoutParams as? RelativeLayout.LayoutParams)?.apply {
+                this.width = context.toDp2Px(width.toFloat()).toInt()
+            }
+        }
+
         return true
     }
 
