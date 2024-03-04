@@ -24,10 +24,12 @@ import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
+import kr.co.sbsolutions.newsoomirang.presenter.login.KaKaoLoginHelper
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment() {
@@ -62,6 +64,10 @@ class HistoryFragment : Fragment() {
 
         //adpter 작업 필요함
         binding.historyRecyclerView.adapter = adapter
+
+        binding.btnShared.setOnClickListener {
+            viewModel.shareKaKao()
+        }
 
     }
 

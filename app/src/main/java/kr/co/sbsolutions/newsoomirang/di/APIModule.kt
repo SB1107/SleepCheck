@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.common.AuthInterceptor
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.KaKaoLinkHelper
 import kr.co.sbsolutions.newsoomirang.presenter.login.KaKaoLoginHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
@@ -81,6 +82,9 @@ class APIModule {
 
     @Provides
     fun provideKaKaoLoginHelper(@ApplicationContext context: Context) = KaKaoLoginHelper(context)
+
+    @Provides
+    fun provideKaKaoLinkHelper(@ApplicationContext context: Context) = KaKaoLinkHelper(context)
 
     @Provides
     fun provideGoogleLoginHelper() = GoogleLoginHelper()

@@ -81,6 +81,9 @@
                 <data
                     android:host="oauth"
                     android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
+
+                <data android:host="kakaolink"
+                    android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
             </intent-filter>
         </activity>
 
@@ -106,5 +109,10 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove"></provider>
     </application>
+
+    <!--queries에 카카오톡 패키지 추가-->
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
 
 </manifest>

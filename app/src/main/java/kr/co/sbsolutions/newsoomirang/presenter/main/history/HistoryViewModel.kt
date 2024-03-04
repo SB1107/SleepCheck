@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.KaKaoLinkHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     dataManager: DataManager,
     tokenManager: TokenManager,
+    private val kaKaoLinkHelper: KaKaoLinkHelper,
     private val authDataSource: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _sleepWeekData: MutableSharedFlow<SleepDateEntity> = MutableSharedFlow()
@@ -65,6 +67,10 @@ class HistoryViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun shareKaKao(){
+        kaKaoLinkHelper.shareKaKao()
     }
 
     override fun whereTag(): String {

@@ -186,4 +186,5 @@ dependencies {
     implementation ("com.airbnb.android:lottie:6.3.0")                            // Lottie
 
     implementation ("com.kakao.sdk:v2-user:2.19.0") // 카카오 로그인 API 모듈
+    implementation ("com.kakao.sdk:v2-share:2.11.2") // 카카오 공유하기 API 모듈
 }
