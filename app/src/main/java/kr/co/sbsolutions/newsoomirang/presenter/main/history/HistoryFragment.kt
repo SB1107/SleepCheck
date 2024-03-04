@@ -65,9 +65,6 @@ class HistoryFragment : Fragment() {
         //adpter 작업 필요함
         binding.historyRecyclerView.adapter = adapter
 
-        binding.btnShared.setOnClickListener {
-            viewModel.shareKaKao()
-        }
 
     }
 
