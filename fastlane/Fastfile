@@ -17,8 +17,22 @@ default_platform(:android)
 
 platform :android do
   desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+  lane :test do |options|
+#     gradle(task: "test")
+   if options[:version]
+       version = options[:version]
+       versionCode = options[:code]
+    else
+       version = prompt(text: "Enter the specific version")
+    end
+    if options[:code]
+           code = options[:code]
+        else
+           code = prompt(text: "Enter the specific version")
+        end
+    versionName = version
+    versionCode = code
+    git_tag(versionCode,versionName)
   end
 
   desc "Submit a new Beta Build to Crashlytics Beta"
@@ -46,18 +60,23 @@ platform :android do
     )
     upload_to_play_store()
     if options[:version]
-       version = options[:version]
-    else
-       version = prompt(text: "Enter the specific version")
-    end 
-
-    versionName = version
-    git_tag(versionName) 
-    
-  end
+           version = options[:version]
+           versionCode = options[:code]
+        else
+           version = prompt(text: "Enter the specific version")
+        end
+        if options[:code]
+               code = options[:code]
+            else
+               code = prompt(text: "Enter the specific version")
+            end
+        versionName = version
+        versionCode = code
+        git_tag(versionCode,versionName)
+      end
 # add git tag to remote
-  def git_tag(versionName)
-    add_git_tag(tag: "#{versionName}")
-    push_git_tags(tag: "#{versionName}")
+  def git_tag(versionCode,versionName)
+    add_git_tag(tag: "PlayStore-#{versionCode}-#{versionName}")
+    push_git_tags(tag: "PlayStore-#{versionCode}-#{versionName}")
   end
 end
