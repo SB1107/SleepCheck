@@ -61,7 +61,11 @@ class SensorActivity : BaseServiceActivity() {
 
 
     private val bleClickListener: (BluetoothDevice) -> Unit = { bluetoothDevice ->
-        viewModel.registerDevice(bluetoothDevice)
+
+        lifecycleScope.launch {
+            viewModel.registerDevice(bluetoothDevice)
+
+        }
     }
 
     private val animator: ObjectAnimator by lazy {
@@ -168,6 +172,13 @@ class SensorActivity : BaseServiceActivity() {
                     launch {
                         viewModel.errorMessage.collectLatest {
                             showAlertDialog(R.string.common_title, it)
+                        }
+                    }
+                    launch {
+                        viewModel.checkSensorResult.collectLatest {
+                            it?.let {
+                                showAlertDialog(message = it)
+                            }
                         }
                     }
                 }

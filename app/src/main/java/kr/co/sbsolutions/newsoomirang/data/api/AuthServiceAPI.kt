@@ -8,6 +8,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
+import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -67,5 +68,9 @@ interface AuthServiceAPI {
     @Multipart
     @POST("sleepdata/uploadv2")
     suspend fun postUploading(@Part file : List<MultipartBody.Part>) : Response<UploadingEntity>
+
+    //센서 등록 사용가능여부 확인
+    @POST("sleepdata/chksensor")
+    suspend fun postChkSensor(@Body checkSensor: CheckSensor ) : Response<UserEntity>
 
 }

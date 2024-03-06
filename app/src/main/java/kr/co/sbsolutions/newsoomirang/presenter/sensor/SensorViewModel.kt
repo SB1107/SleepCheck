@@ -29,6 +29,8 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import java.util.Timer
 import java.util.TimerTask
 import java.util.UUID
@@ -40,6 +42,7 @@ class SensorViewModel @Inject constructor(
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
+    private val authAPIRepository: RemoteAuthDataSource,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     companion object {
         private const val DELAY_TIMEOUT = 5000L
@@ -59,6 +62,9 @@ class SensorViewModel @Inject constructor(
 
     private val _searchBtnName: MutableStateFlow<String?> = MutableStateFlow(null)
     val searchBtnName: SharedFlow<String?> = _searchBtnName.asSharedFlow()
+
+    private val _checkSensorResult: MutableStateFlow<String?> = MutableStateFlow(null)
+    val checkSensorResult: SharedFlow<String?> = _checkSensorResult.asSharedFlow()
 
     private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
@@ -170,10 +176,19 @@ class SensorViewModel @Inject constructor(
         bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
     }
 
-    fun registerDevice(bluetoothDevice: BluetoothDevice) {
-        stopTimer()
-        registerBluetoothDevice(bluetoothDevice)
-
+    @SuppressLint("MissingPermission")
+    suspend fun registerDevice(bluetoothDevice: BluetoothDevice) {
+        Log.d(TAG, "registerDevice: ${bluetoothDevice.name}")
+        request { authAPIRepository.postCheckSensor(CheckSensor(sensorName = bluetoothDevice.name)) }
+            .collectLatest {
+                Log.d(TAG, "registerDevice: ${it.success}  ${it.message}")
+                if (it.success.not()) {
+                    _checkSensorResult.emit(it.message)
+                } else {
+                    stopTimer()
+                    registerBluetoothDevice(bluetoothDevice)
+                }
+            }
     }
 
     private fun startTimer() {
