@@ -40,8 +40,10 @@ class RequestHelper(
     }
 
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
-        val name = request.javaClass.name.replace("1", "").split(".").last().replace("$", " ").split(" ").last { it != "" }
-//        Log.e(TAG, "request: $name" )
+        val regex = Regex("[\\d\\p{Punct}$]")
+        val name =  regex.replace(request.javaClass.name.split(".").last() ,"")
+
+        Log.e(TAG, "request: $name" )
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
