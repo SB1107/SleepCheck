@@ -5,14 +5,12 @@ import android.bluetooth.*
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 import android.os.Build
 import android.util.Log
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -30,10 +28,8 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
-import kr.co.sbsolutions.newsoomirang.domain.db.LogDBDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
-import kr.co.sbsolutions.soomirang.db.LogData
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -46,10 +42,8 @@ class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
     private val logWorkerHelper: LogWorkerHelper,
-    private val aESHelper: AESHelper
+    private val aesHelper: AESHelper
 ) : IBluetoothNetworkRepository {
-    private val strBuilder = StringBuilder()
-
     private val logCoroutine = CoroutineScope(Dispatchers.IO)
 
     private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
@@ -473,7 +467,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private fun encryptByteArray(isEncrypt: Boolean, value: ByteArray): ByteArray {
 //        Log.d(TAG, "encryptByteArray: $isEncrypt")
 //        Log.d(TAG, "encryptByteArray: ${value.hexToString()}")
-        return if (isEncrypt.not()) aESHelper.encryptAES128(value) else value
+        return if (isEncrypt.not()) aesHelper.encryptAES128(value) else value
     }
 
     private fun decryptByteArray(value: ByteArray): ByteArray {
@@ -481,7 +475,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //        Log.d(TAG, "value: ${value.hexToString().prefixToHex()}")
 //        Log.d(TAG, "encryptPrefix: ${defaultPrefix}")
 //        Log.d(TAG, "decryptByteArray: $isEncrypt")
-        return if (isEncrypt.not()) aESHelper.decryptAES128(value) else value
+        return if (isEncrypt.not()) aesHelper.decryptAES128(value) else value
     }
 
 
