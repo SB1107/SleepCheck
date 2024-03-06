@@ -10,6 +10,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
+import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -33,4 +34,5 @@ interface RemoteAuthDataSource {
 
      fun postNewFcmToken(newToken: String) : Flow<ApiResponse<UserEntity>>
      fun postLeave(leaveReason : String) : Flow<ApiResponse<BaseEntity>>
+     fun postCheckSensor(sensorInfo: CheckSensor) : Flow<ApiResponse<UserEntity>>
 }

@@ -12,6 +12,7 @@ import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
 import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
 import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
 import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
+import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -80,6 +81,9 @@ interface AuthServiceAPI {
 
     @GET("faq/list")
     suspend fun getFaqList(@QueryMap faq : Map<String , Any>) : Response<FaqModel>
+    //센서 등록 사용가능여부 확인
+    @POST("sleepdata/chksensor")
+    suspend fun postChkSensor(@Body checkSensor: CheckSensor ) : Response<UserEntity>
 
     //--------------------------------------------------------------------------------------------
     // MARK : 1:1 문의

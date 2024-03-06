@@ -12,6 +12,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
+import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -80,5 +81,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
 
     override fun postLeave(leaveReason: String): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow{
         api.postLeave(leaveReason)
+    }
+
+    override fun postCheckSensor(sensorInfo: CheckSensor): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
+        api.postChkSensor(sensorInfo)
     }
 }
