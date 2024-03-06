@@ -8,10 +8,6 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
-import kr.co.sbsolutions.newsoomirang.data.model.FaqModel
-import kr.co.sbsolutions.newsoomirang.data.model.ImageModel
-import kr.co.sbsolutions.newsoomirang.data.model.NoticeModel
-import kr.co.sbsolutions.newsoomirang.data.model.QnaModel
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -25,7 +21,6 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
-import retrofit2.http.QueryMap
 
 interface AuthServiceAPI {
 
@@ -49,17 +44,18 @@ interface AuthServiceAPI {
     @GET("sleepdata/result")
     suspend fun getSleepDataResult(): Response<SleepResultEntity>
 
-    //수면 데이터 결과 주로 보기
-    @GET("sleepdata/week")
-    suspend fun getSleepDataWeekResult(): Response<SleepDateEntity>
+
+    //수면 데이터 결과 년도로 보기
+    @GET("sleepdata/years")
+    suspend fun getSleepDataYearsResult(@Query("toyear") year : String): Response<SleepDateEntity>
 
     //코골이 데이터 결과
     @GET("snoredata/result")
     suspend fun getSnoreDataResult(): Response<NoSeringResultEntity>
 
     //수면 데이터 날짜별 상세 보기
-    @GET("sleepdata/detail")
-    suspend fun sleepDataDetail(@Query("ended_at") day: String): Response<SleepDetailEntity>
+    @GET("sleepdata/yearsdetail")
+    suspend fun sleepDataDetail(@Query("data_id") id: String): Response<SleepDetailEntity>
 
     //수면데이터 측정 시작
     @POST("sleepdata/createplus")
@@ -69,43 +65,7 @@ interface AuthServiceAPI {
     suspend fun postSleepDataDelete(@Body sleepDataRemoveModel: SleepDataRemoveModel): Response<BaseEntity>
 
     @Multipart
-    @POST("sleepdata/uploadplus")
+    @POST("sleepdata/uploadv2")
     suspend fun postUploading(@Part file : List<MultipartBody.Part>) : Response<UploadingEntity>
 
-    @GET("notice/list")
-    suspend fun getNoticeList(@QueryMap notice : Map<String , Any>) : Response<NoticeModel>
-
-    @GET("notice/detail")
-    suspend fun getNoticeDetail(@QueryMap notice : Map<String , Any>) : Response<NoticeModel>
-
-    @GET("faq/list")
-    suspend fun getFaqList(@QueryMap faq : Map<String , Any>) : Response<FaqModel>
-
-    //--------------------------------------------------------------------------------------------
-    // MARK : 1:1 문의
-    //--------------------------------------------------------------------------------------------
-    @GET("qa/list")
-    suspend fun qaList(@QueryMap map: Map<String , Any>): Response<QnaModel>
-
-    @GET("qa/detail")
-    suspend fun qaDetail(@QueryMap map: Map<String, Any>): Response<QnaModel>
-
-    @FormUrlEncoded
-    @POST("qa/create")
-    suspend fun postQACreate(@Body qna : QnaModel): Response<QnaModel>
-
-    @FormUrlEncoded
-    @POST("qa/delete")
-    suspend fun postQADelete(@Body qna : QnaModel): Response<QnaModel>
-
-    //--------------------------------------------------------------------------------------------
-    // MARK : 파일
-    //--------------------------------------------------------------------------------------------
-    @Multipart
-    @POST("imageupload")
-    fun postImageUpload(@Part file: MultipartBody.Part): Response<ImageModel>
-
-    @Multipart
-    @POST("imageMultiUpload")
-    fun postImageMultiUpload(@Part file: List<MultipartBody.Part>): Response<ImageModel>
 }

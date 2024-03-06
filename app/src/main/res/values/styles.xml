@@ -127,6 +127,12 @@
     <item name="colorAccent">@color/colorPrimary</item>
   </style>
 
+  <!--  DatePickerDialog Style-->
+  <style name="YearDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+    <item name="colorAccent">@android:color/black</item>
+    <item name="android:textSize">50sp</item>
+  </style>
+
   <!-- 다이어로그 MAX Width -->
   <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
     <item name="android:windowBackground">@android:color/transparent</item>

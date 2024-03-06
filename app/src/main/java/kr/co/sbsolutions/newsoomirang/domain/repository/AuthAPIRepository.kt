@@ -19,7 +19,6 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
 import java.io.File
 import javax.inject.Inject
 
@@ -36,26 +35,20 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postSleepDataCreate(createModel = sleepCreateModel)
     }
 
-    override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
-
-
+    override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long, sensorName: String): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
         val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
         val appKind = MultipartBody.Part.createFormData("app_kind", "C")
-//        val list = if (sleepType == SleepType.Breathing) {
-//            arrayListOf(body, dataId, appKind)
-//        } else {
-            val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
-//            arrayListOf(body, dataId, appKind, snoreTime)
-//        }
+        val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
+        val sensorName = MultipartBody.Part.createFormData("number", sensorName)
         file?.let {
             val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
-            api.postUploading( arrayListOf(body, dataId, appKind, snoreTime))
-        } ?:  api.postUploading( arrayListOf( dataId, appKind, snoreTime))
+            api.postUploading(arrayListOf(body, dataId, appKind, snoreTime , sensorName))
+        } ?: api.postUploading(arrayListOf(dataId, appKind, snoreTime , sensorName))
     }
 
 
-    override fun getWeek(): Flow<ApiResponse<SleepDateEntity>> = apiRequestFlow {
-        api.getSleepDataWeekResult()
+    override fun getYear(year: String): Flow<ApiResponse<SleepDateEntity>> = apiRequestFlow {
+        api.getSleepDataYearsResult(year)
     }
 
     override fun getSleepDataResult(): Flow<ApiResponse<SleepResultEntity>> = apiRequestFlow {
@@ -74,11 +67,11 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.getSnoreDataResult()
     }
 
-    override fun postNewFcmToken(newToken: String): Flow<ApiResponse<UserEntity>> = apiRequestFlow{
+    override fun postNewFcmToken(newToken: String): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
         api.postFcmUpdate(newToken)
     }
 
-    override fun postLeave(leaveReason: String): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow{
+    override fun postLeave(leaveReason: String): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
         api.postLeave(leaveReason)
     }
 }

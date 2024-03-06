@@ -17,12 +17,12 @@ import javax.inject.Inject
 class UploadWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
-    fun uploadData(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long, isFilePass: Boolean = false): LiveData<WorkInfo> {
+    fun uploadData(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long,sensorName : String, isFilePass: Boolean = false): LiveData<WorkInfo> {
         val uuid = UUID.randomUUID()
         val worker = OneTimeWorkRequestBuilder<UploadWorker>().apply {
             addTag("upload")
             setId(uuid)
-            setInputData(workDataOf("packageName" to packageName, "dataId" to dataId, "sleepType" to sleepType.ordinal, "snoreTime" to snoreTime, "isFilePass" to isFilePass))
+            setInputData(workDataOf("packageName" to packageName, "dataId" to dataId, "sleepType" to sleepType.ordinal, "snoreTime" to snoreTime, "isFilePass" to isFilePass , "sensorName" to sensorName))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 1, TimeUnit.MINUTES

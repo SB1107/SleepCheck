@@ -63,20 +63,21 @@ class UploadWorker @AssistedInject constructor(
             val sleepType = inputData.getInt("sleepType", 0)
             val snoreTime = inputData.getLong("snoreTime", 0)
             val isFilePass = inputData.getBoolean("isFilePass", false)
+            val sensorName = inputData.getString("sensorName") ?: ""
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
             if (dataId == -1) {
                 Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
             }
             if (isFilePass) {
-                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime).first()
+                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }else{
-                exportLastFile(packageName, dataId, type, snoreTime).first()
+                exportLastFile(packageName, dataId, type, snoreTime , sensorName).first()
             }
 
         }
     }
 
-    private suspend fun exportLastFile(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long = 0) = callbackFlow {
+    private suspend fun exportLastFile(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long = 0 , sensorName : String) = callbackFlow {
         withContext(ioDispatchers) {
             Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
             val min = sbSensorDBRepository.getMinIndex(dataId)
@@ -104,7 +105,7 @@ class UploadWorker @AssistedInject constructor(
                 }
             }
             logWorkerHelper.insertLog("uploading: exportFile")
-            uploading(packageName, dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime).collectLatest {
+            uploading(packageName, dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName).collectLatest {
                 trySend(it)
                 close()
             }
@@ -112,7 +113,7 @@ class UploadWorker @AssistedInject constructor(
         awaitClose()
     }
 
-    private suspend fun uploading(packageName: String, dataId: Int, file: File?, list: List<SBSensorData>, sleepType: SleepType, snoreTime: Long = 0) =
+    private suspend fun uploading(packageName: String, dataId: Int, file: File?, list: List<SBSensorData>, sleepType: SleepType, snoreTime: Long = 0, sensorName: String) =
         callbackFlow {
             withContext(ioDispatchers) {
                 val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
@@ -125,7 +126,7 @@ class UploadWorker @AssistedInject constructor(
                     intent.setPackage(packageName)
                     context.sendBroadcast(intent)
                 }
-                requestHelper.request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime) }, errorHandler = { error ->
+                requestHelper.request(request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName) }, errorHandler = { error ->
                     logWorkerHelper.insertLog("uploading error: $error")
                     trySend(Result.retry())
                     close()

@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             app:contentScrim="@drawable/history_gradient"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
+<!--
 
             <com.kizitonwose.calendar.view.WeekCalendarView
                 android:id="@+id/week_calendar_view"
@@ -31,6 +32,7 @@
                 app:cv_weekFooterResource="@null"
                 app:cv_weekHeaderResource="@null"
                 app:layout_collapseMode="parallax" />
+-->
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -47,9 +49,11 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/date_text_view"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textAlignment="center"
+                        android:gravity="center"
                         android:layout_centerInParent="true"
-                        android:layout_gravity="center"
+                        android:paddingHorizontal="20dp"
                         android:fontFamily="@font/nanumsquarebold"
                         android:text="2023.03"
                         android:textColor="@color/color_FFFFFF"

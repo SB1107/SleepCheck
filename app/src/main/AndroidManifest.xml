@@ -16,7 +16,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- queries에 카카오톡 패키지 추가 -->
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
 
     <application
         android:name=".ApplicationManager"
@@ -29,6 +32,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
+        <activity
+            android:name=".presenter.main.history.detail.HistoryDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".presenter.leave.LeaveActivity"
             android:exported="false" />
@@ -81,8 +87,8 @@
                 <data
                     android:host="oauth"
                     android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
-
-                <data android:host="kakaolink"
+                <data
+                    android:host="kakaolink"
                     android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
             </intent-filter>
         </activity>
@@ -107,12 +113,7 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove"></provider>
+            tools:node="remove" />
     </application>
-
-    <!--queries에 카카오톡 패키지 추가-->
-    <queries>
-        <package android:name="com.kakao.talk" />
-    </queries>
 
 </manifest>

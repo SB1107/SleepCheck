@@ -10,6 +10,7 @@ import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.datastore.core.DataStore
@@ -19,6 +20,7 @@ import com.bumptech.glide.Glide
 import kr.co.sbsolutions.newsoomirang.R
 import java.text.SimpleDateFormat
 import java.time.Duration
+import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 
@@ -47,6 +49,36 @@ fun ContextWrapper.getPermissionResult(): ArrayList<String> {
     }
 
     return deniedPermissions
+}
+
+fun Context.showYearDialog(currentYear : Int,  cancelAction: (() -> Unit)? = null, confirmAction: ((Int) -> Unit)){
+    val maxYear : Int = LocalDate.now().year
+    val minYear = 2020
+    val dialogView = LayoutInflater.from(this).inflate(R.layout.show_alert_year_dialog, null)
+    val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
+        .setView(dialogView)
+        .setCancelable(true)
+        .create()
+    with(dialogView) {
+        val piker = findViewById<NumberPicker>(R.id.picker_year)
+        piker.minValue = minYear
+        piker.maxValue = maxYear
+        piker.value = currentYear
+        findViewById<Button>(R.id.btnConfirm).apply {
+            setOnClickListener {
+                confirmAction.invoke(piker.value)
+                dialog.dismiss()
+            }
+        }
+        findViewById<Button>(R.id.btnCancel).apply {
+            setOnClickListener {
+                cancelAction?.invoke()
+                dialog.dismiss()
+            }
+        }
+    }
+
+    dialog.show()
 }
 
 fun Context.showAlertDialog(title: Int? = null, message: String, buttonText: Int = R.string.app_confirm, cancelable: Boolean = true, confirmAction: (() -> Unit)? = null) {
