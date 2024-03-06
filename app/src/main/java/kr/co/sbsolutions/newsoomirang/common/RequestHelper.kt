@@ -27,7 +27,7 @@ class RequestHelper(
 ) {
     companion object {
         var reAuthorizeCallBack: ReAuthorizeCallBack? = null
-        var logWorkerHelper : LogWorkerHelper? = null
+        var logWorkerHelper: LogWorkerHelper? = null
     }
 
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
@@ -35,15 +35,14 @@ class RequestHelper(
     fun setReAuthorizeCallBack(reAuthorizeCallBack: ReAuthorizeCallBack) {
         RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
-    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper){
+
+    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper) {
         RequestHelper.logWorkerHelper = logWorkerHelper
     }
 
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
-        val regex = Regex("[\\d\\p{Punct}$]")
-        val name =  regex.replace(request.javaClass.name.split(".").last() ,"")
-
-        Log.e(TAG, "request: $name" )
+        val name = getClazzName(request)
+        Log.e(TAG, "request: $name")
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
@@ -60,10 +59,10 @@ class RequestHelper(
 
             val job = scope.launch(Dispatchers.IO + CoroutineExceptionHandler { _, error ->
                 scope.launch(Dispatchers.Main) {
-                    val errorMSG =  error.localizedMessage ?: "Error occured! Please try again."
-                        errorMessage?.emit(errorMSG)
-                        errorHandler?.onError(errorMSG)
-                        logWorkerHelper?.insertLog(errorMSG)
+                    val errorMSG = error.localizedMessage ?: "Error occured! Please try again."
+                    errorMessage?.emit(errorMSG)
+                    errorHandler?.onError(errorMSG)
+                    logWorkerHelper?.insertLog(errorMSG)
                 }
             }) {
                 yield()
@@ -115,6 +114,18 @@ class RequestHelper(
         awaitClose()
     }
 
+    private fun <T : BaseEntity> getClazzName(request: () -> Flow<ApiResponse<T>>): String {
+        val regex = Regex("[\\d\\p{Punct}$]")
+        val clazzName = regex.replace(request.javaClass.name.split(".").last(), "")
+
+         return if (clazzName.contains("ViewModel")) {
+            val index = clazzName.indexOf("ViewModel")
+            clazzName.substring(index + "ViewModel".length)
+        } else {
+            clazzName
+        }
+    }
+
     fun netWorkCancel() {
         requestMap.forEach { (_, job) ->
             job.cancel()
@@ -125,6 +136,7 @@ class RequestHelper(
     fun interface CoroutinesErrorHandler {
         fun onError(message: String)
     }
+
     interface ReAuthorizeCallBack {
         fun reLogin()
     }
