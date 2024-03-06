@@ -108,16 +108,6 @@ class BLEService : LifecycleService() {
         })
     }
 
-    val sbSensorInfo by lazy {
-        bluetoothNetworkRepository.sbSensorInfo
-    }
-    val spo2SensorInfo by lazy {
-        bluetoothNetworkRepository.spo2SensorInfo
-    }
-    val eegSensorInfo by lazy {
-        bluetoothNetworkRepository.eegSensorInfo
-    }
-
     @Inject
     lateinit var notificationBuilder: NotificationCompat.Builder
 
@@ -160,6 +150,15 @@ class BLEService : LifecycleService() {
         }
     }
 
+    val sbSensorInfo by lazy {
+        bluetoothNetworkRepository.sbSensorInfo
+    }
+    val spo2SensorInfo by lazy {
+        bluetoothNetworkRepository.spo2SensorInfo
+    }
+    val eegSensorInfo by lazy {
+        bluetoothNetworkRepository.eegSensorInfo
+    }
     lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()

@@ -64,13 +64,15 @@ class BluetoothNetworkRepository @Inject constructor(
                 _sbSensorInfo.update { it.copy(bluetoothName = name, bluetoothAddress = address) }
                 !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
-                val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
-                insertLog(result.bluetoothState)
-//                _sbSensorInfo.value.let {
-//                    it.bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered
-//                    _sbSensorInfo.tryEmit(it)
-//                    insertLog(it.bluetoothState)
-//                }
+                //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
+                when {
+                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered -> {
+                    }
+                    else -> {
+                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                        insertLog(result.bluetoothState)
+                    }
+                }
             }
 
 

@@ -16,7 +16,9 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.api.ServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.LoginRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
@@ -106,5 +108,8 @@ abstract class ViewModelBindsModule {
 abstract class SingleToneBindingModule {
     @Binds
     abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
+
+    @Binds
+    abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository): IBluetoothNetworkRepository
 
 }

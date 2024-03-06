@@ -1,11 +1,8 @@
 package kr.co.sbsolutions.newsoomirang.di
 
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import androidx.core.app.NotificationCompat
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,27 +11,22 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
-import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
-import kr.co.sbsolutions.newsoomirang.domain.repository.AuthAPIRepository
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
-import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothNetworkRepository
 
-@Module
-@InstallIn(ServiceComponent::class)
-abstract class ServiceModule {
-    @Binds
-    abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository): IBluetoothNetworkRepository
-
-    //    @Binds
-//    abstract fun bindApneaUploadRepository(apneaUploadRepository: ApneaUploadRepository) : IApneaUploadRepository
+//@Module
+//@InstallIn(ServiceComponent::class)
+//abstract class ServiceModule {
+//    @Singleton
 //    @Binds
-//    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
-
-}
+//    abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository): IBluetoothNetworkRepository
+//
+//    //    @Binds
+////    abstract fun bindApneaUploadRepository(apneaUploadRepository: ApneaUploadRepository) : IApneaUploadRepository
+////    @Binds
+////    abstract fun provideRemotePolicyDataSource(policyRepository: AuthAPIRepository): RemoteAuthDataSource
+//
+//}
 
 @Module
 @InstallIn(ServiceComponent::class)
