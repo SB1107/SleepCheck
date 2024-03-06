@@ -74,6 +74,7 @@ class RequestHelper(
                             }
                             errorMessage?.emit(it.errorCode.msg)
                             errorHandler?.onError(it.errorCode.msg)
+                            logWorkerHelper?.insertLog("$name = ${it.errorCode.msg}")
                         }
 
                         ApiResponse.Loading -> {

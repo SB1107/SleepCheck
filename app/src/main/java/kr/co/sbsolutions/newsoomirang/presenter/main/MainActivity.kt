@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
@@ -106,6 +108,12 @@ class MainActivity : BaseServiceActivity() {
                         if (it.not()) {
                             viewModel.isMoveHistory()
                         }
+                    }
+                }
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        viewModel.stopResultProgressBar()
+                        showAlertDialog(message = it)
                     }
                 }
                 launch(Dispatchers.Main) {

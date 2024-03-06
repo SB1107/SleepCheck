@@ -88,7 +88,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        if ((getService()?.timeHelper?.getTime() ?: 0) < 30) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }

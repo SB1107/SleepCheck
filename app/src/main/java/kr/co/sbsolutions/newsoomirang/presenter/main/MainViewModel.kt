@@ -36,6 +36,13 @@ class MainViewModel @Inject constructor(
      val moveHistory: SharedFlow<Boolean> = _moveHistory
 
     private lateinit var job: Job
+
+    fun stopResultProgressBar(){
+        viewModelScope.launch {
+            _isResultProgressBar.emit(false)
+        }
+    }
+
     fun sendMeasurementResults() {
         viewModelScope.launch(Dispatchers.IO) {
                     if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
