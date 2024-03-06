@@ -1,17 +1,24 @@
 package kr.co.sbsolutions.newsoomirang.di
 
+import android.app.NotificationManager
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.work.WorkManager
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.BuildConfig
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
+import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
+import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
+import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.UploadWorker
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
@@ -55,4 +62,18 @@ object ApplicationModule {
 
     @Provides
     fun provideAESHelper() = AESHelper()
+
+    @Provides
+    fun provideTimeHelperManager() = TimeHelper()
+
+    @Provides
+    fun provideNoseRingManager() = NoseRingHelper()
+
+    @Provides
+    fun provideNotificationBuilder(
+        @ApplicationContext context: Context
+    ) = NotificationCompat.Builder(context, Cons.NOTIFICATION_CHANNEL_ID).setAutoCancel(true).setOngoing(true).setSmallIcon(R.mipmap.ic_launcher) // TODO: Notification 아이콘 작업
+        .setContentTitle("숨이랑 기기 연결 대기 중").setPriority(NotificationCompat.PRIORITY_HIGH)
+    @Provides
+    fun provideNotificationManager(@ApplicationContext context: Context) = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 }
