@@ -119,9 +119,13 @@ class HistoryAdapter(private  val clickItem : (String , String) -> Unit) : ListA
 //                        min
 //                    )
 
-                    binding.resultDurationTextView.text = "$durationString 수면"
+                    val durationType = if(result.type == 0) durationString.plus(" 수면") else durationString.plus(" 코골이")
+
+                    binding.resultDurationTextView.text = durationType
+
+
                     binding.clLayout.setOnClickListener {
-                        clickItem.invoke(result.id , "$durationString 수면")
+                        clickItem.invoke(result.id , durationType)
                     }
                 } ?: run {
                     binding.resultDurationTextView.visibility = View.GONE
