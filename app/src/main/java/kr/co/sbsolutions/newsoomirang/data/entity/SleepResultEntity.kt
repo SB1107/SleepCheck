@@ -9,6 +9,8 @@ data class SleepResultEntity(
 ): BaseEntity()
 @Keep
 data class SleepResult(
+    @SerializedName("id")
+    val id: String = "",
     @SerializedName("started_at")
     val startedAt: String? = null,
     @SerializedName("ended_at")

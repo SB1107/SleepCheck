@@ -18,6 +18,8 @@ import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.toDate
+import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
@@ -107,6 +109,15 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
+                    result.startedAt?.let { itStartedAt ->
+                        val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                        result.endedAt?.let { itEndedAt ->
+                            val endedAt = itEndedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                            val durationString =
+                                (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
+                            ApplicationManager.setResultData(result.id, durationString.plus(if (bluetoothInfo.sleepType == SleepType.Breathing) "수면" else "코골이"))
+                        }
+                    }
                     _isResultProgressBar.emit(result.state == 1)
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
@@ -122,6 +133,15 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
+                    result.startedAt?.let { itStartedAt ->
+                        val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                        result.endedAt?.let { itEndedAt ->
+                            val endedAt = itEndedAt.toDate("yyyy-MM-dd HH:mm:ss")
+                            val durationString =
+                                (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
+                            ApplicationManager.setResultData(result.id, durationString.plus(if (bluetoothInfo.sleepType == SleepType.Breathing) "수면" else "코골이"))
+                        }
+                    }
                     _isResultProgressBar.emit(result.state == 1)
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)

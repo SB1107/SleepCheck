@@ -32,6 +32,8 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
     private val bluetoothInfoFlow: StateFlow<BluetoothInfo> = _bluetoothInfoFlow
     private  val _networkCheck : MutableStateFlow<Boolean> = MutableStateFlow(false)
     private  val networkCheck : StateFlow<Boolean> = _networkCheck
+    private  val _resultData : MutableStateFlow<Pair<String,String>?> = MutableStateFlow(null)
+    private val resultData : StateFlow<Pair<String,String>?> = _resultData
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
@@ -45,6 +47,17 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
         lateinit var instance: ApplicationManager
         private  val _service : MutableStateFlow<WeakReference<BLEService>> = MutableStateFlow(WeakReference(null))
         private  val service : StateFlow<WeakReference<BLEService>> = _service
+
+
+        fun resultDataClear(){
+            instance._resultData.tryEmit(null)
+        }
+        fun setResultData(id : String , date : String){
+            instance._resultData.tryEmit(Pair(id,date))
+        }
+        fun getResultData() : StateFlow<Pair<String,String>?> {
+            return instance.resultData
+        }
         fun getBluetoothInfo(): BluetoothInfo {
             return instance.bluetoothInfoFlow.value
         }

@@ -11,6 +11,8 @@ data class NoSeringResultEntity(
 ) : BaseEntity()
 @Keep
 data class NoSeringResult(
+    @SerializedName("id")
+    var id: String = "",
     @SerializedName("started_at")
     var startedAt: String? = null,
     @SerializedName("ended_at")

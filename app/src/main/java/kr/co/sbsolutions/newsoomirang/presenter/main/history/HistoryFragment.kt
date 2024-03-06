@@ -14,7 +14,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showYearDialog
@@ -52,6 +54,13 @@ class HistoryFragment : Fragment() {
         bindViews()
         setObservers()
         viewModel.getYearSleepData(mSelectedDate.year.toString())
+        lifecycleScope.launch {
+            ApplicationManager.getResultData().first()?.let {
+                clickItem.invoke(it.first, it.second)
+                ApplicationManager.resultDataClear()
+            }
+
+        }
     }
 
     @SuppressLint("SetTextI18n")
