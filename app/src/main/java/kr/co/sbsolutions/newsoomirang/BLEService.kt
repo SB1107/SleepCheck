@@ -351,10 +351,10 @@ class BLEService : LifecycleService() {
 
     }
 
-    private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType , snoreTime: Long = 0) {
+    private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType , snoreTime: Long = 0, isFilePass: Boolean = false) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
-            uploadWorkerHelper.uploadData(baseContext.packageName,dataId, sleepType = sleepType, snoreTime = snoreTime)
+            uploadWorkerHelper.uploadData(baseContext.packageName,dataId, sleepType = sleepType, snoreTime = snoreTime,isFilePass = isFilePass)
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
                         when (workInfo.state) {
@@ -626,7 +626,7 @@ class BLEService : LifecycleService() {
                     sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                uploading(dataId, file = null, list = emptyList(), true, isForcedClose = false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60)
+                                uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60 , true)
                             }
                         }
                     }

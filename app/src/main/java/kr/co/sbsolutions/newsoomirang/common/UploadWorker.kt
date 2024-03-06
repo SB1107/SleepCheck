@@ -62,11 +62,17 @@ class UploadWorker @AssistedInject constructor(
             val dataId = inputData.getInt("dataId", -1)
             val sleepType = inputData.getInt("sleepType", 0)
             val snoreTime = inputData.getLong("snoreTime", 0)
+            val isFilePass = inputData.getBoolean("isFilePass", false)
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
             if (dataId == -1) {
                 Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
             }
-            exportLastFile(packageName, dataId, type, snoreTime).first()
+            if (isFilePass) {
+                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime).first()
+            }else{
+                exportLastFile(packageName, dataId, type, snoreTime).first()
+            }
+
         }
     }
 
