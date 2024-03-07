@@ -26,6 +26,7 @@
     <color name="color_6EA7EC">#6EA7EC</color>
 
     <color name="color_FFFFFF">#FFFFFF</color>
+    <color name="color_4DFFFFFF">#4DFFFFFF</color>
     <color name="color_f6f6f6">#F6F6F6</color>
     <color name="color_f9f9f9">#F9F9F9</color>
     <color name="color_dddddd">#DDDDDD</color>
@@ -37,6 +38,7 @@
     <color name="color_24374E">#24374E</color>
     <color name="color_1F3046">#1F3046</color>
     <color name="color_1C9083">#1C9083</color>
+    <color name="color_yellow">#FFDB1C</color>
 
 
     <!-- google's material design colours from
