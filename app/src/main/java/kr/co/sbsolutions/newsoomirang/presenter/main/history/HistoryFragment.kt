@@ -10,6 +10,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
@@ -87,7 +89,8 @@ class HistoryFragment : Fragment() {
         }
     }
     private var mSelectedDate: LocalDate = LocalDate.now()
-//    private val adapter = HistoryAdapter(clickItem)
+
+    //    private val adapter = HistoryAdapter(clickItem)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -121,41 +124,59 @@ class HistoryFragment : Fragment() {
     fun RootView() {
         val yearData by viewModel.sleepYearData.collectAsState(initial = SleepDateEntity(null))
         Scaffold { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .background(color = colorResource(id = R.color.color_061629))
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp, 48.dp, 16.dp, 16.dp)
-                        .background(color = colorResource(id = android.R.color.transparent)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TopYearView()
-                }
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-                if (yearData.result?.data?.isEmpty() == true) {
-                    Text(text = "저장된 이력이 없습니다.", fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White)
-                } else {
-                    LazyColumn {
-                        itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
-                            SleepItemRow(item)
-                            if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
-                                HorizontalDivider(thickness = 1.dp, color = Color.White)
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(id = R.drawable.back1), contentDescription = "배경",
+                    contentScale = ContentScale.FillBounds
+                )
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp, 48.dp, 16.dp, 16.dp)
+                            .background(color = colorResource(id = android.R.color.transparent)),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TopYearView()
+                    }
+                    HorizontalDivider(thickness = 1.dp, color = Color.White)
+
+                    if (yearData.result?.data?.isEmpty() != false) {
+                        Column( modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center) {
+                            Text(
+                                text = "저장된 이력이 없습니다.", fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
+                                SleepItemRow(item)
+                                if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
+                                    HorizontalDivider(thickness = 1.dp, color = Color.White)
+                                }
                             }
                         }
                     }
+
                 }
             }
+
         }
     }
 
 
     @Composable
-    private fun SleepItemRow(data: SleepDateResult = SleepDateResult(id = "0", type = 0)) {
+    private fun SleepItemRow(data: SleepDateResult) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val titleDate = endedAt?.toDayString("M월 d일 E요일")
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -184,11 +205,13 @@ class HistoryFragment : Fragment() {
 
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
-                IconButton(onClick = { clickItem.invoke(data.id, durationString) },
+                IconButton(
+                    onClick = { clickItem.invoke(data.id, durationString) },
                     Modifier
-                    .size(74.dp, 45.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(color = colorResource(id = R.color.color_yellow))) {
+                        .size(74.dp, 45.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(color = colorResource(id = R.color.color_yellow))
+                ) {
                     Text(text = "보기", fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
                 }
             }

@@ -32,12 +32,12 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getYear(year) }
                 .collectLatest {
-                    if (it.result?.data?.isEmpty() == true) {
-                        val result = SleepDateResultData(data = listOf(SleepDateResult(id = "0", type = 2)) )
-                        _sleepYearData.emit(SleepDateEntity(result = result))
-                    }else{
+//                    if (it.result?.data?.isEmpty() == true) {
+//                        val result = SleepDateResultData(data = listOf(SleepDateResult(id = "0", type = 2)) )
+//                        _sleepYearData.emit(SleepDateEntity(result = result))
+//                    }else{
                         _sleepYearData.emit(it)
-                    }
+//                    }
                 }
         }
     }

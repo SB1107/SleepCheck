@@ -21,7 +21,7 @@ data class SleepDateResult(
     @SerializedName("type")
     val type: Int = 0,
     @SerializedName("started_at")
-    val startedAt: String? = "",
+    val startedAt: String? ,
     @SerializedName("ended_at")
-    val endedAt: String? = "",
+    val endedAt: String? ,
 )
