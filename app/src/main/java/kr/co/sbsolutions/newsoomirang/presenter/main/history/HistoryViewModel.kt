@@ -11,9 +11,6 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.KaKaoLinkHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateResult
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateResultData
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import javax.inject.Inject
