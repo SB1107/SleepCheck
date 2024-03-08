@@ -32,16 +32,13 @@ class QuestionViewModel @Inject constructor(
         return "Question"
     }
 
-    init {
-        getContactList()
-    }
 
     fun sendQuestion(text: String) {
         viewModelScope.launch(Dispatchers.IO) {
         }
     }
 
-    private fun getContactList() {
+    fun getContactList() {
         viewModelScope.launch {
             request { questionRepository.getContact() }.collectLatest { it ->
                 it.result?.let { resultData ->

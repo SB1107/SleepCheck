@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,17 +38,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 
@@ -67,18 +71,29 @@ class ContactUsActivity : BaseServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DefaultPreview()
+            val contactResult by viewModel.contactResultData.collectAsState(initial = BaseEntity())
+            DefaultPreview(contactResult)
         }
+
+        /*lifecycleScope.launch {
+            viewModel.contactResultData.collectLatest { message ->
+                showAlertDialog(message = message)
+            }
+        }*/
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Preview
     @Composable
-    fun DefaultPreview() {
-        var etcText by remember { mutableStateOf("") }
+    fun DefaultPreview(baseEntity: BaseEntity = BaseEntity()) {
+        var etcText by remember{ mutableStateOf("") }
         var etcTitleText by remember { mutableStateOf("") }
-        val tabs = listOf("문의하기", "문의내역확인")
-        var selectedTabIndex by remember { mutableStateOf(0) }
+
+        if (baseEntity.success){
+            showAlertDialog(message = baseEntity.message, confirmAction = { newBackPressed() })
+            etcText = ""
+            etcTitleText = ""
+        }
 
         Scaffold(
             topBar = {
@@ -123,9 +138,11 @@ class ContactUsActivity : BaseServiceActivity() {
                                 showAlertDialog(message = "제목을 입력해주세요.")
                             } else if (etcText.isEmpty()) {
                                 showAlertDialog(message = "내용을 입력해주세요.")
-                            } else {
+                            } else if(etcText.length > 200){
+                                showAlertDialog(message = "200자 이내로 입력해주세요.")
+                            }
+                             if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200){
                                 viewModel.sendDetail(etcTitleText,etcText)
-                                Log.d(Cons.TAG, "DefaultPreview: ${etcText.length}")
                             }
                         },
                     ) {
@@ -143,22 +160,26 @@ class ContactUsActivity : BaseServiceActivity() {
                     .padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Contact(etcTitleText = etcTitleText, etcText = etcText)
+                Contact(etcTitleText = etcTitleText, etcText = etcText, titleValueChange = {value -> etcTitleText = value}, textValueChange = {value -> if (etcText.length <= 200)  etcText = value})
             }
         }
     }
 
+
     //문의하기 화면
     @Composable
-    fun Contact(etcTitleText: String, etcText: String) {
-        var qEtcText by remember { mutableStateOf(etcText) }
-        var qEtcTitleText by remember { mutableStateOf(etcTitleText) }
+    fun Contact(etcTitleText: String, etcText: String, titleValueChange: (String) -> Unit, textValueChange: (String) -> Unit) {
+        /*Log.d(TAG, "Contact: $etcTitleText $etcText")
+        Log.d(TAG, "Contact: $titleValueChange $textValueChange")*/
+
+
+
         SpacerHeight(size = 10)
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth(),
-            value = qEtcTitleText,
-            onValueChange = { qEtcTitleText = it },
+            value = etcTitleText,
+            onValueChange = titleValueChange,
             placeholder = { Text(text = "제목을 입력해주세요.") },
             textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
             colors = OutlinedTextFieldDefaults.colors(
@@ -172,20 +193,16 @@ class ContactUsActivity : BaseServiceActivity() {
             modifier = Modifier
                 .fillMaxWidth(),
             style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-            text = "${qEtcText.length} / 200 글자 이내로 입력해주세요.",
+            text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp),
-            value = qEtcText,
-            onValueChange = {
-                qEtcText = it
-                if (it.length <= 200) {
-                    qEtcText = it
-                }
-            },
+                .height(300.dp),
+            value = etcText,
+            onValueChange = textValueChange
+            ,
             placeholder = { Text(text = "문의할 내용을 입력해주세요.") },
             textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
             colors = OutlinedTextFieldDefaults.colors(

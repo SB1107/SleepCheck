@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,10 +51,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.toDate
+import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.data.entity.ContactData
 import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
 import kr.co.sbsolutions.newsoomirang.presenter.question.contactUs.ContactUsActivity
 
 @AndroidEntryPoint
@@ -66,6 +70,11 @@ class QuestionActivity : BaseServiceActivity() {
             DefaultPreview(contactResultList)
         }
     }
+    override fun onResume() {
+        super.onResume()
+        viewModel.getContactList()
+
+    }
 
     override fun newBackPressed() {
         finish()
@@ -73,6 +82,16 @@ class QuestionActivity : BaseServiceActivity() {
 
     override fun injectViewModel(): BaseViewModel {
         return viewModel
+    }
+
+    private val clickItem: (String, String) -> Unit = object : (String, String) -> Unit {
+        override fun invoke(id: String, date: String) {
+            // TODO: Activity 생성후 수정 필요
+            /*startActivity(Intent(this@QuestionActivity, HistoryDetailActivity::class.java).apply {
+                putExtra("id", id)
+                putExtra("date", date)
+            })*/
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -162,6 +181,10 @@ class QuestionActivity : BaseServiceActivity() {
 
     @Composable
     fun ContactList(data: ContactData) {
+        val endedAt = data.createdAt?.toDate("yy-MM-dd HH:mm")
+        val titleDate = endedAt?.toDayString("MM월 dd일")
+
+        HorizontalDivider(thickness = 1.dp, color = Color.White)
         Row(modifier = Modifier.padding(16.dp)) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -169,7 +192,12 @@ class QuestionActivity : BaseServiceActivity() {
                         modifier = Modifier
                             .width(60.dp)
                             .fillMaxHeight()
-                            .background(color = Color.Magenta, shape = RoundedCornerShape(20.dp))
+                            .background(
+                                color = if (data.answer == "Y") colorResource(id = R.color.md_green_600) else colorResource(
+                                    id = R.color.color_78899F
+                                ),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                             .padding(vertical = 5.dp),
                         text = if (data.answer == "Y") "답변있음" else "답변없음",
                         style = TextStyle(
@@ -179,13 +207,15 @@ class QuestionActivity : BaseServiceActivity() {
                             fontSize = 12.sp,
                         ),
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = data.title ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                        text = titleDate ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.White,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = data.content ?:"", fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    text = data.title ?:"", fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    maxLines = 1
                 )
             }
 

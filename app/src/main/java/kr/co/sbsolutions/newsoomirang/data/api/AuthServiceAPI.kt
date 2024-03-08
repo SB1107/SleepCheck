@@ -77,7 +77,7 @@ interface AuthServiceAPI {
 
     //문의 내용 조회
     @GET("sleepdata/viewappqa")
-    suspend fun getContact() : Response<ContactEntity>
+    suspend fun getContact(@Query("app_kind") appKind : String = "C") : Response<ContactEntity>
 
     @POST("sleepdata/regappqa")
     suspend fun postContactDetail(@Body contactDetail: ContactDetail) : Response<BaseEntity>
