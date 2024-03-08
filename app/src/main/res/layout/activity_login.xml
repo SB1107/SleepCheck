@@ -4,34 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@drawable/back1"
     tools:context=".presenter.login.LoginActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivLogo"
         android:layout_width="122dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/logo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:src="@drawable/sm_logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/sp_center"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/nanumsquareregular"
         android:text="숨이랑 앱 사용을 위해\n로그인이 필요합니다."
         android:textColor="@color/color_FFFFFF"
-        android:textSize="20sp"
+        android:textSize="21sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@+id/sp_center" />
+
+    <Space
+        android:id="@+id/sp_center"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/btGoogle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btGoogle"
@@ -40,6 +48,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="48dp"
         android:layout_marginRight="30dp"
+        android:layout_marginBottom="32dp"
         android:background="@drawable/google_login_box"
         android:fontFamily="@font/nanumsquarebold"
         android:insetTop="0dp"
@@ -47,12 +56,12 @@
         android:scaleType="centerInside"
         android:text="구글 로그인"
         android:textColor="@color/md_black_1000"
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:cornerRadius="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="23dp"
@@ -71,11 +80,12 @@
         android:layout_marginHorizontal="30dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/kakao_login_box"
-        android:scaleType="centerInside"
         android:fontFamily="@font/nanumsquarebold"
+        android:scaleType="centerInside"
         android:text="카카오 로그인"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btGoogle" />
