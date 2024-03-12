@@ -98,27 +98,23 @@ class HistoryDetailActivity : BaseActivity() {
         setContent {
             val detailEntity by viewModel.sleepDataDetailData.collectAsState(initial = SleepDetailResult())
             val isProgressBar by viewModel.isProgressBar.collectAsState(initial = true)
-            RootView(detailEntity, isProgressBar)
-
-
+            val showAlert  by viewModel.errorMessage.collectAsState(initial = "")
+            RootView(detailEntity, isProgressBar,showAlert)
         }
 //        setContentView(binding.root)
         intent?.let {
             it.getStringExtra("id")?.let { id ->
                 viewModel.getSleepData(id)
             }
-            it.getStringExtra("date")?.let { date ->
-//                binding.actionBar.toolbarTitle.text = date
-            }
         }
 //        binding.actionType.root.visibility = View.GONE
-        bindViews()
-        setObservers()
+//        bindViews()
+//        setObservers()
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun RootView(data: SleepDetailResult = SleepDetailResult(), showProgressBar: Boolean = false) {
+    fun RootView(data: SleepDetailResult = SleepDetailResult(), showProgressBar: Boolean = false, showAlert : String  = "") {
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource(id = R.drawable.bg2),
@@ -154,6 +150,9 @@ class HistoryDetailActivity : BaseActivity() {
                     },
                 )
                 Box {
+                        Components.ShowAlertDialog(isShow = showAlert.isNotEmpty(),
+                            onConfirmation = {  },
+                            dialogTitle = "알림", dialogText = showAlert)
                     if (showProgressBar) {
                         Components.LottieLoading()
                     } else {
@@ -622,18 +621,18 @@ class HistoryDetailActivity : BaseActivity() {
     private fun setObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.errorMessage.collectLatest {
-                        showAlertDialog(R.string.common_title, it)
-                    }
-                }
-                launch {
-                    viewModel.isProgressBar.collect {
-                        Log.e(TAG, "isProgressBar: ${it}")
-//                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-//                        binding.actionType.root.visibility = if (it.not()) View.VISIBLE else View.GONE
-                    }
-                }
+//                launch {
+//                    viewModel.errorMessage.collectLatest {
+//                        showAlertDialog(R.string.common_title, it)
+//                    }
+//                }
+//                launch {
+//                    viewModel.isProgressBar.collect {
+//                        Log.e(TAG, "isProgressBar: ${it}")
+////                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+////                        binding.actionType.root.visibility = if (it.not()) View.VISIBLE else View.GONE
+//                    }
+//                }
 //                launch {
 //                    viewModel.sleepDataDetailData.collectLatest {
 //                        setSleepDataDetailData(it)
