@@ -5,6 +5,9 @@ import android.graphics.Bitmap
 import androidx.lifecycle.viewModelScope
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.kakao.sdk.share.ShareClient
+import com.kakao.sdk.template.model.Content
+import com.kakao.sdk.template.model.FeedTemplate
+import com.kakao.sdk.template.model.Link
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,6 +56,26 @@ class HistoryDetailViewModel @Inject constructor(
                     sendErrorMessage("이미지 업로드 실패\n${error.message}")
                 } else if (imageUploadResult != null) {
 //                    Log.i(TAG, "이미지 업로드 성공 \n${imageUploadResult.infos.original}")
+                    val makeFeed = FeedTemplate(
+                        content = Content(
+                            title = "수면 기록 공유",
+                            description = "수면 기록을 공유합니다.",
+                            imageUrl = imageUploadResult.infos.original.url,
+                            link = Link(
+                                webUrl = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang",
+                                mobileWebUrl = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang"
+                            )
+                        ),
+                    )
+                    ShareClient.instance.shareDefault(context, makeFeed) { linkResult, error ->
+                        error?.let {
+                            sendErrorMessage("카카오톡 공유 실패\n${it.message}")
+
+                        }
+                        linkResult?.let {
+                            context.startActivity(it.intent)
+                        }
+                    }
                 }
             }
         } else {
