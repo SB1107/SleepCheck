@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.kakao.sdk.share.ShareClient
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
@@ -55,6 +57,7 @@ class HistoryDetailViewModel @Inject constructor(
 //                    Log.e(TAG, "이미지 업로드 실패", error)
                     sendErrorMessage("이미지 업로드 실패\n${error.message}")
                 } else if (imageUploadResult != null) {
+                    Log.d(TAG, "sharingKakao: ${imageUploadResult.infos.original.url}")
 //                    Log.i(TAG, "이미지 업로드 성공 \n${imageUploadResult.infos.original}")
                     val makeFeed = FeedTemplate(
                         content = Content(
@@ -62,20 +65,20 @@ class HistoryDetailViewModel @Inject constructor(
                             description = "수면 기록을 공유합니다.",
                             imageUrl = imageUploadResult.infos.original.url,
                             link = Link(
-                                webUrl = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang",
-                                mobileWebUrl = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang"
+                                webUrl = imageUploadResult.infos.original.url,
+                                mobileWebUrl = imageUploadResult.infos.original.url
                             )
                         ),
                     )
-                    ShareClient.instance.shareDefault(context, makeFeed) { linkResult, error ->
-                        error?.let {
-                            sendErrorMessage("카카오톡 공유 실패\n${it.message}")
-
-                        }
-                        linkResult?.let {
-                            context.startActivity(it.intent)
-                        }
-                    }
+//                    ShareClient.instance.shareDefault(context, makeFeed) { linkResult, error ->
+//                        error?.let {
+//                            sendErrorMessage("카카오톡 공유 실패\n${it.message}")
+//
+//                        }
+//                        linkResult?.let {
+//                            context.startActivity(it.intent)
+//                        }
+//                    }
                 }
             }
         } else {

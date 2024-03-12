@@ -20,6 +20,7 @@
         app:itemRippleColor="@android:color/transparent"
         app:itemTextColor="@color/selector_bottom_navigation"
         app:labelVisibilityMode="labeled"
+        app:itemBackground="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

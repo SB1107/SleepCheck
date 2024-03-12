@@ -109,8 +109,8 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
 
     //프레그먼트
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("androidx.annotation:annotation:1.7.1")
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 

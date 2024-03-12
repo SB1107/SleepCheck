@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@drawable/back1"
     tools:context=".presenter.sensor.SensorActivity">
 
     <include
@@ -16,9 +16,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"
+        android:background="@drawable/ble_name_rectangle"
         android:fontFamily="@font/nanumsquarebold"
+        android:gravity="center"
         android:text="연결된 기기가 없습니다."
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,18 +49,17 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="50dp"
         android:layout_marginRight="30dp"
-        android:backgroundTint="@color/color_061629"
+        android:backgroundTint="@color/color_yellow"
         android:fontFamily="@font/nanumsquarebold"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="숨이랑 센서 찾기"
-        android:textColor="@color/color_6EA7EC"
+        android:textColor="@color/color_000000"
         android:textSize="16sp"
         app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/device_name_text_view"
-        app:strokeColor="@color/color_6EA7EC"
         app:strokeWidth="1dp" />
 
 

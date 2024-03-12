@@ -4,7 +4,8 @@
         android:id="@+id/navigation_breathing"
         android:icon="@drawable/selector_menu_1"
         android:title="호흡"
-        android:enabled="true" />
+        android:enabled="true"
+        />
 
     <item
         android:id="@+id/navigation_no_sering"

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="250dp"
-    android:background="@drawable/record_gradient">
+    android:background="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_measure"
@@ -19,10 +19,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/nanumsquarebold"
+            android:layout_marginTop="50dp"
             android:gravity="center"
             android:text="코골이 측정중"
             android:textColor="@color/color_FFFFFF"
-            android:textSize="34sp"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,7 +39,7 @@
             android:gravity="center"
             android:text="00:00:00"
             android:textColor="@color/color_FFFFFF"
-            android:textSize="34sp"
+            android:textSize="39sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,18 +85,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="30dp"
             android:fontFamily="@font/nanumsquarebold"
             android:gravity="center"
             android:text="이 작업은 몇분 정도\n걸리 수 있습니다."
             android:textColor="@color/color_FFFFFF"
             android:textSize="18sp"
-            android:layout_marginTop="10dp"
-            app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_send" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_send"
+            app:layout_constraintVertical_bias="0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
