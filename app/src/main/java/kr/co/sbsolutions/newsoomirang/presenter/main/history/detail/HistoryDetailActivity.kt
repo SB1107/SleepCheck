@@ -1,12 +1,8 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,6 +46,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,13 +59,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
-import kr.co.sbsolutions.newsoomirang.presenter.components.capture.rememberScreenCaptureState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
@@ -78,6 +72,9 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components
+import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
+import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCaptureOptions
+import kr.co.sbsolutions.newsoomirang.presenter.components.capture.rememberScreenCaptureState
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -118,8 +115,9 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     fun RootView(data: SleepDetailResult = SleepDetailResult(), showProgressBar: Boolean = false) {
         val state = rememberScreenCaptureState()
+        val localView = LocalView.current
         ScreenCapture(screenCaptureState = state) {
-            ContentView(data)
+            ContentView(data ,true)
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
@@ -156,19 +154,30 @@ class HistoryDetailActivity : BaseActivity() {
                     },
                     actions = {
                         IconButton(onClick = {
-                            Log.e(TAG, "RootView: 액션 " )
-//                            viewModel.sendErrorMessage("캡쳐")
-                            state.capture(null)
+                            state.capture(options = ScreenCaptureOptions(height = localView.measuredHeight * 4))
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_share),
-                                contentDescription = "뒤로가기",
+                                contentDescription = "공유하기",
                                 tint = Color.White
                             )
                         }
                     }
                 )
                 state.bitmap?.let {
+//                    Column(   modifier = Modifier
+//                        .fillMaxWidth()
+//                        .verticalScroll(rememberScrollState())) {
+//                        Image(
+//                            bitmap = it.asImageBitmap(),
+//                            contentDescription = null,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .background(Color.Transparent)
+//                                .border(1.dp, color = Color.Black)
+//                        )
+//
+//                    }
                     viewModel.sharingKakao(this@HistoryDetailActivity , it)
                 }
                 Box {
@@ -179,7 +188,7 @@ class HistoryDetailActivity : BaseActivity() {
 //                    )
                     if (showProgressBar) {
                         Components.LottieLoading()
-                    } else {
+                    }else {
                         ContentView(data)
                     }
                 }
@@ -188,13 +197,26 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Composable
-    private fun ContentView(data: SleepDetailResult) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            TopDateView(data = data)
+    private fun ContentView(data: SleepDetailResult , isBack : Boolean= false) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (isBack) {
+                    Box(modifier = Modifier.background(color = colorResource(id = R.color.color_purple))) {
+                        Image(
+                            painter = painterResource(id = R.drawable.bg2),
+                            contentDescription = "배경",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.FillBounds
+                        )
+                        TopDateView(data = data)
+                    }
+                }else{
+                    TopDateView(data = data)
+                }
+
         }
     }
 
