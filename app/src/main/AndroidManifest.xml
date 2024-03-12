@@ -34,7 +34,18 @@
         tools:targetApi="31">
         <activity
             android:name=".presenter.main.history.detail.HistoryDetailActivity"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="AppLinkUrlError">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:host="kakaolink"
+                    android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
+            </intent-filter>
+
+        </activity>
         <activity
             android:name=".presenter.leave.LeaveActivity"
             android:exported="false" />
@@ -86,9 +97,6 @@
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
                 <data
                     android:host="oauth"
-                    android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
-                <data
-                    android:host="kakaolink"
                     android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
             </intent-filter>
         </activity>

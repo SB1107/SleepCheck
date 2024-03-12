@@ -62,6 +62,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
+import kr.co.sbsolutions.newsoomirang.presenter.components.capture.rememberScreenCaptureState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -98,8 +100,8 @@ class HistoryDetailActivity : BaseActivity() {
         setContent {
             val detailEntity by viewModel.sleepDataDetailData.collectAsState(initial = SleepDetailResult())
             val isProgressBar by viewModel.isProgressBar.collectAsState(initial = true)
-            val showAlert  by viewModel.errorMessage.collectAsState(initial = "")
-            RootView(detailEntity, isProgressBar,showAlert)
+//            val showAlert by viewModel.errorMessage.collectAsState(initial = "")
+            RootView(detailEntity, isProgressBar)
         }
 //        setContentView(binding.root)
         intent?.let {
@@ -109,12 +111,16 @@ class HistoryDetailActivity : BaseActivity() {
         }
 //        binding.actionType.root.visibility = View.GONE
 //        bindViews()
-//        setObservers()
+        setObservers()
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun RootView(data: SleepDetailResult = SleepDetailResult(), showProgressBar: Boolean = false, showAlert : String  = "") {
+    fun RootView(data: SleepDetailResult = SleepDetailResult(), showProgressBar: Boolean = false) {
+        val state = rememberScreenCaptureState()
+        ScreenCapture(screenCaptureState = state) {
+            ContentView(data)
+        }
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource(id = R.drawable.bg2),
@@ -148,27 +154,47 @@ class HistoryDetailActivity : BaseActivity() {
                             )
                         }
                     },
+                    actions = {
+                        IconButton(onClick = {
+                            Log.e(TAG, "RootView: 액션 " )
+//                            viewModel.sendErrorMessage("캡쳐")
+                            state.capture(null)
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_share),
+                                contentDescription = "뒤로가기",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 )
+                state.bitmap?.let {
+                    viewModel.sharingKakao(this@HistoryDetailActivity , it)
+                }
                 Box {
-                        Components.ShowAlertDialog(isShow = showAlert.isNotEmpty(),
-                            onConfirmation = {  },
-                            dialogTitle = "알림", dialogText = showAlert)
+//                    Components.ShowAlertDialog(
+//                        isShow = showAlert.isNotEmpty(),
+//                        onConfirmation = { },
+//                        dialogTitle = "알림", dialogText = showAlert
+//                    )
                     if (showProgressBar) {
                         Components.LottieLoading()
                     } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            TopDateView(data = data)
-                        }
+                        ContentView(data)
                     }
-
                 }
-
-
             }
+        }
+    }
+
+    @Composable
+    private fun ContentView(data: SleepDetailResult) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            TopDateView(data = data)
         }
     }
 
@@ -621,11 +647,11 @@ class HistoryDetailActivity : BaseActivity() {
     private fun setObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                launch {
-//                    viewModel.errorMessage.collectLatest {
-//                        showAlertDialog(R.string.common_title, it)
-//                    }
-//                }
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        showAlertDialog(R.string.common_title, it)
+                    }
+                }
 //                launch {
 //                    viewModel.isProgressBar.collect {
 //                        Log.e(TAG, "isProgressBar: ${it}")
@@ -785,21 +811,21 @@ class HistoryDetailActivity : BaseActivity() {
 //        }
 //    }
 
-
-@SuppressLint("SetTextI18n")
-private fun <T> setResultUi(
-    textView: AppCompatTextView,
-    pairView: AppCompatTextView,
-    value: T?,
-    unit: String = ""
-) {
-    value?.let { data ->
-        textView.text = "${data}$unit"
-    } ?: run {
-        textView.visibility = View.GONE
-        pairView.visibility = View.GONE
-    }
-}
+//
+//@SuppressLint("SetTextI18n")
+//private fun <T> setResultUi(
+//    textView: AppCompatTextView,
+//    pairView: AppCompatTextView,
+//    value: T?,
+//    unit: String = ""
+//) {
+//    value?.let { data ->
+//        textView.text = "${data}$unit"
+//    } ?: run {
+//        textView.visibility = View.GONE
+//        pairView.visibility = View.GONE
+//    }
+//}
 
 
 //    @SuppressLint("SetTextI18n")
