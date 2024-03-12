@@ -39,6 +39,15 @@
     <color name="color_1F3046">#1F3046</color>
     <color name="color_1C9083">#1C9083</color>
     <color name="color_yellow">#FFDB1C</color>
+    <color name="color_dark_yellow">#B5A40A</color>
+    <color name="color_gradient_center">#6B6B6B</color>
+    <color name="color_gradient_end">#000000</color>
+    <color name="color_stroke_line">#929292</color>
+    <color name="color_gray1">#585858</color>
+    <color name="color_gray2">#464646</color>
+    <color name="color_gray3">#323232</color>
+
+
 
 
     <!-- google's material design colours from

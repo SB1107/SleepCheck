@@ -62,6 +62,7 @@ import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateResult
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components
 import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
 import java.time.LocalDate
 
@@ -95,8 +96,9 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.composeView.apply {
             setContent {
-                        val yearData by viewModel.sleepYearData.collectAsState(initial = SleepDateEntity(null))
-                RootView(yearData)
+                val yearData by viewModel.sleepYearData.collectAsState(initial = SleepDateEntity(null))
+                val showProgressBar by viewModel.isProgressBar.collectAsState(initial = true)
+                RootView(yearData, showProgressBar)
             }
         }
         bindViews()
@@ -114,7 +116,7 @@ class HistoryFragment : Fragment() {
 
     @Preview
     @Composable
-    fun RootView(yearData: SleepDateEntity = SleepDateEntity(null)) {
+    fun RootView(yearData: SleepDateEntity = SleepDateEntity(null), showProgressBar: Boolean = true) {
         Scaffold { innerPadding ->
             Box(
                 modifier = Modifier
@@ -137,24 +139,30 @@ class HistoryFragment : Fragment() {
                         TopYearView()
                     }
                     HorizontalDivider(thickness = 1.dp, color = Color.White)
-
-                    if (yearData.result?.data?.isEmpty() != false) {
-                        Column( modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center) {
-                            Text(
-                                text = "저장된 이력이 없습니다.", fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White,
-                                textAlign = TextAlign.Center,
-                            )
+                    Box {
+                        if (showProgressBar) {
+                            Components.LottieLoading()
                         }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                        ) {
-                            itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
-                                SleepItemRow(item)
-                                if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
-                                    HorizontalDivider(thickness = 1.dp, color = Color.White)
+                        if (yearData.result?.data?.isEmpty() != false) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "저장된 이력이 없습니다.", fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                            ) {
+                                itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
+                                    SleepItemRow(item)
+                                    if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
+                                        HorizontalDivider(thickness = 1.dp, color = Color.White)
+                                    }
                                 }
                             }
                         }
@@ -303,11 +311,11 @@ class HistoryFragment : Fragment() {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
-                launch {
-                    viewModel.isProgressBar.collect {
-                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-                    }
-                }
+//                launch {
+//                    viewModel.isProgressBar.collect {
+//                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+//                    }
+//                }
             }
         }
     }

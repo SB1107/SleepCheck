@@ -190,6 +190,17 @@ fun Int.toHourMinute(): String {
         String.format("%d 분",minutes)
     }
 }
+fun Int.toHourOrMinute(): String {
+    val time = Duration.ofSeconds(this.toLong())
+    val hours = time.toHours() // 전체 시간을 시간 단위로 추출
+
+    val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
+    return if (hours > 0) {
+        String.format("약\n%d시간", hours)
+    } else {
+        String.format("약\n%d 분",minutes)
+    }
+}
 
 fun Context.toDp2Px(dp: Float): Float {
     return dp * (this.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
