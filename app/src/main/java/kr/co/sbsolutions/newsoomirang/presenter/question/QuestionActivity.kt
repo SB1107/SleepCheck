@@ -57,7 +57,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.ContactData
 import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
+import kr.co.sbsolutions.newsoomirang.presenter.question.contactDetail.ContactDetailActivity
 import kr.co.sbsolutions.newsoomirang.presenter.question.contactUs.ContactUsActivity
 
 @AndroidEntryPoint
@@ -70,6 +70,7 @@ class QuestionActivity : BaseServiceActivity() {
             DefaultPreview(contactResultList)
         }
     }
+
     override fun onResume() {
         super.onResume()
         viewModel.getContactList()
@@ -87,17 +88,17 @@ class QuestionActivity : BaseServiceActivity() {
     private val clickItem: (String, String) -> Unit = object : (String, String) -> Unit {
         override fun invoke(id: String, date: String) {
             // TODO: Activity 생성후 수정 필요
-            /*startActivity(Intent(this@QuestionActivity, HistoryDetailActivity::class.java).apply {
+            startActivity(Intent(this@QuestionActivity, ContactDetailActivity::class.java).apply {
                 putExtra("id", id)
                 putExtra("date", date)
-            })*/
+            })
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Preview
     @Composable
-    fun DefaultPreview(contactData:ContactEntity = ContactEntity()) {
+    fun DefaultPreview(contactData: ContactEntity = ContactEntity()) {
         val text by remember { mutableStateOf("") }
 
 //        val contactResultList by viewModel.contactResultData.collectAsState(this)
@@ -135,7 +136,14 @@ class QuestionActivity : BaseServiceActivity() {
             floatingActionButton = {
                 ExtendedFloatingActionButton(
                     modifier = Modifier,
-                    onClick = { startActivity(Intent(this@QuestionActivity,ContactUsActivity::class.java)) }
+                    onClick = {
+                        startActivity(
+                            Intent(
+                                this@QuestionActivity,
+                                ContactUsActivity::class.java
+                            )
+                        )
+                    }
                 ) {
                     Row(
                         verticalAlignment = CenterVertically,
@@ -155,7 +163,8 @@ class QuestionActivity : BaseServiceActivity() {
                     .padding(innerPadding),
             ) {
                 if (contactData.result?.data?.isEmpty() != false) {
-                    Column( modifier = Modifier.fillMaxSize(),
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -167,8 +176,8 @@ class QuestionActivity : BaseServiceActivity() {
                             textAlign = TextAlign.Center,
                         )
                     }
-                } else{
-                    LazyColumn (){
+                } else {
+                    LazyColumn() {
                         items(contactData.result.data ?: emptyList()) { data ->
                             ContactList(data)
                         }
@@ -209,24 +218,50 @@ class QuestionActivity : BaseServiceActivity() {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = titleDate ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                        text = titleDate ?: "",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = data.title ?:"", fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    text = data.title ?: "",
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
                     maxLines = 1
                 )
             }
 
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
-                IconButton(onClick = { /*clickItem.invoke(data.id, durationString)*/ },
+                IconButton(
+                    onClick = {
+                        startActivity(
+                            Intent(
+                                this@QuestionActivity,
+                                ContactDetailActivity::class.java
+                            ).apply {
+                                putExtra("date", data.createdAt)
+                                putExtra("title", data.title,)
+                                putExtra("content", data.content,)
+                                putExtra("ansContent", data.ansContent)
+                                putExtra("ansCreatedAt", data.ansCreatedAt,)
+
+                            })
+                    },
                     Modifier
                         .size(74.dp, 45.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(color = colorResource(id = R.color.color_yellow))) {
-                    Text(text = "보기", fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
+                        .background(color = colorResource(id = R.color.color_yellow))
+                ) {
+                    Text(
+                        text = "보기",
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.Black
+                    )
                 }
             }
         }

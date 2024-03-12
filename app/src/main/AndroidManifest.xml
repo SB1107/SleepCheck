@@ -70,6 +70,11 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.MyApplication" />
         <activity
+            android:name=".presenter.question.contactDetail.ContactDetailActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.MyApplication" />
+        <activity
             android:name=".presenter.splash.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">

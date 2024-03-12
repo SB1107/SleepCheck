@@ -50,8 +50,8 @@ data class ContactData(
     @SerializedName("ans_content")
     var ansContent: String? = null,
 
-    @SerializedName("ans_content_at")
-    var token: String? = null,
+    @SerializedName("ans_created_at")
+    var ansCreatedAt: String? = null,
 
     @SerializedName("ans_update_at")
     val ansUpdateAt: String? = null,
