@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -33,7 +34,7 @@ class HistoryDetailViewModel @Inject constructor(
 ) : BaseViewModel(dataManager, tokenManager) {
 
     private val _sleepDataDetailData: MutableSharedFlow<SleepDetailResult> = MutableSharedFlow()
-    val sleepDataDetailData: SharedFlow<SleepDetailResult> = _sleepDataDetailData
+    val sleepDataDetailData: SharedFlow<SleepDetailResult> = _sleepDataDetailData.asSharedFlow()
     fun getSleepData(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getSleepDataDetail(id) }

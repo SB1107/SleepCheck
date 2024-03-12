@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -96,8 +97,8 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.composeView.apply {
             setContent {
-                val yearData by viewModel.sleepYearData.collectAsState(initial = SleepDateEntity(null))
-                val showProgressBar by viewModel.isProgressBar.collectAsState(initial = true)
+                val yearData by viewModel.sleepYearData.collectAsStateWithLifecycle(initialValue = SleepDateEntity(null))
+                val showProgressBar by viewModel.isProgressBar.collectAsStateWithLifecycle(initialValue = true)
                 RootView(yearData, showProgressBar)
             }
         }

@@ -56,7 +56,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -95,9 +97,8 @@ class HistoryDetailActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val detailEntity by viewModel.sleepDataDetailData.collectAsState(initial = SleepDetailResult())
-            val isProgressBar by viewModel.isProgressBar.collectAsState(initial = true)
-//            val showAlert by viewModel.errorMessage.collectAsState(initial = "")
+            val detailEntity by viewModel.sleepDataDetailData.collectAsStateWithLifecycle(initialValue = SleepDetailResult())
+            val isProgressBar by viewModel.isProgressBar.collectAsStateWithLifecycle(initialValue = true)
             RootView(detailEntity, isProgressBar)
         }
 //        setContentView(binding.root)
