@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
@@ -110,6 +112,7 @@ class MainActivity : BaseServiceActivity() {
                             startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
                                 putExtra("id", it.first.toString())
                             })
+                            viewModel.stopResultProgressBar()
                         }
                     }
                 }
