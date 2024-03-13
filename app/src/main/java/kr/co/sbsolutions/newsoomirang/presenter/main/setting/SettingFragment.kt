@@ -105,7 +105,13 @@ class SettingFragment : Fragment() {
                 launch {
                     viewModel.deviceName.collectLatest {
                         Log.d(TAG, "setObservers11: $it")
-                        binding.tvDeviceName.text = it
+                        if (it == ""){
+                            binding.tvDeviceName.visibility = View.GONE
+                        } else {
+                            binding.tvDeviceName.visibility = View.VISIBLE
+                            binding.tvDeviceName.text = it
+                        }
+
                     }
                 }
             }

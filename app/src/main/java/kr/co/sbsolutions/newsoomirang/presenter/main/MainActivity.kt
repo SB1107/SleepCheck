@@ -110,6 +110,7 @@ class MainActivity : BaseServiceActivity() {
                         }
                         if(it.first != -1 && !it.second){
                             startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                                 putExtra("id", it.first.toString())
                             })
                             viewModel.stopResultProgressBar()

@@ -12,6 +12,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -213,7 +214,10 @@ class HistoryDetailActivity : BaseActivity() {
                             scrollState.animateScrollTo(0)
                         }
                     }) {
-                        Image(painter = painterResource(id = R.drawable.ic_scroll_up), contentDescription = "스크롤")
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_scroll_up),
+                            contentDescription = "스크롤"
+                        )
                     }
                 }
             }
@@ -228,7 +232,8 @@ class HistoryDetailActivity : BaseActivity() {
         val titleDate = endedAt?.toDayString("M월 d일 E요일")
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) "수면" else "코골이")
+            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ")
+                .plus(if (data.type == 0) "수면" else "코골이")
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
         val totalTime = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60)
         val min = totalTime.toHourMinute()
@@ -256,20 +261,31 @@ class HistoryDetailActivity : BaseActivity() {
                     alignment = Alignment.Center
                 )
                 Text(
-                    text = titleDate ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                    text = titleDate ?: "",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.White,
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
             if (durationString.contains("null").not()) {
                 Text(
-                    text = durationString, fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    text = durationString,
+                    fontSize = 21.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
                 )
             }
 
             data.apneaCount?.let {
                 HeaderTitleView("수면 중  비정상 호흡 수")
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(it.toFloat(), startText = "0", centerText = "50", endText = "100+")
+                VerticalGraphView(
+                    it.toFloat(),
+                    startText = "0",
+                    centerText = "50",
+                    endText = "100+"
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
@@ -277,13 +293,25 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(32.dp))
                 BreathingGraphView(
                     "이상호흡", "총${it}회", listOf(
-                        Triple("이상호흡 10초", "${data.apnea10 ?: 0}회", colorResource(id = R.color.color_gray1)),
-                        Triple("이상호흡 30초", "${data.apnea30 ?: 0}회", colorResource(id = R.color.color_gray2)),
-                        Triple("이상호흡 60초", "${data.apnea60 ?: 0}회", colorResource(id = R.color.color_gray3))
+                        Triple(
+                            "이상호흡 10초",
+                            "${data.apnea10 ?: 0}회",
+                            colorResource(id = R.color.color_gray1)
+                        ),
+                        Triple(
+                            "이상호흡 30초",
+                            "${data.apnea30 ?: 0}회",
+                            colorResource(id = R.color.color_gray2)
+                        ),
+                        Triple(
+                            "이상호흡 60초",
+                            "${data.apnea60 ?: 0}회",
+                            colorResource(id = R.color.color_gray3)
+                        )
                     )
                 )
             }
-            val lists : ArrayList<Triple<String , String , Color>> = ArrayList()
+            val lists: ArrayList<Triple<String, String, Color>> = ArrayList()
             data.fastBreath?.let {
                 lists.add(Triple("빠른호흡", "${it}회", colorResource(id = R.color.color_gray1)))
             }
@@ -291,11 +319,12 @@ class HistoryDetailActivity : BaseActivity() {
                 lists.add(Triple("느린호흡", "${it}회", colorResource(id = R.color.color_gray2)))
             }
             data.unstableBreath?.let {
-                 lists.add(Triple("불안정 호흡", "${it}회", colorResource(id = R.color.color_gray3)))
+                lists.add(Triple("불안정 호흡", "${it}회", colorResource(id = R.color.color_gray3)))
             }
             if (lists.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(32.dp))
-                val totalCount = (data.fastBreath ?: 0) + (data.slowBreath ?: 0)+ (data.unstableBreath ?: 0)
+                val totalCount =
+                    (data.fastBreath ?: 0) + (data.slowBreath ?: 0) + (data.unstableBreath ?: 0)
                 BreathingGraphView("불안정 호흡", "총${totalCount}회", lists)
             }
 
@@ -317,24 +346,56 @@ class HistoryDetailActivity : BaseActivity() {
             }
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(thickness = 1.dp, color = Color.White)
                 HeaderTitleView("수면 자세")
-                VerticalGraphView(percentValue = (data.straightPer ?: 0).toFloat(), startText = "바른자세", startTextSize = 19.sp, endText = it.toHourMinute(), endTextSize = 19.sp)
+                Spacer(modifier = Modifier.height(16.dp))
+                VerticalGraphView(
+                    percentValue = (data.straightPer ?: 0).toFloat(),
+                    startText = "바른자세",
+                    startTextSize = 19.sp,
+                    endText = it.toHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.leftPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.leftPer ?: 0).toFloat(), startText = "왼쪽으로 누운 자세", startTextSize = 19.sp, endText = it.toHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.leftPer ?: 0).toFloat(),
+                    startText = "왼쪽으로 누운 자세",
+                    startTextSize = 19.sp,
+                    endText = it.toHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.rightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.rightPer ?: 0).toFloat(), startText = "오른쪽으로 누운 자세", startTextSize = 19.sp, endText = it.toHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.rightPer ?: 0).toFloat(),
+                    startText = "오른쪽으로 누운 자세",
+                    startTextSize = 19.sp,
+                    endText = it.toHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.downPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.downPer ?: 0).toFloat(), startText = "업드린 자세", startTextSize = 19.sp, endText = it.toHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.downPer ?: 0).toFloat(),
+                    startText = "업드린 자세",
+                    startTextSize = 19.sp,
+                    endText = it.toHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.wakePer?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.wakePer ?: 0).toFloat(), startText = "수면중 일어남", startTextSize = 19.sp, endText = it.toHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.wakePer ?: 0).toFloat(),
+                    startText = "수면중 일어남",
+                    startTextSize = 19.sp,
+                    endText = it.toHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -362,7 +423,7 @@ class HistoryDetailActivity : BaseActivity() {
                     BarChartView("깊은수면", totalTime, it)
                 }
             }
-
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 
@@ -391,21 +452,23 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun HeaderTitleView(title: String) {
         val emptyTextSize = if (title.length < 14) 11 else title.length
-        val emptyText = " ".repeat(emptyTextSize)
-        val startText = emptyText
-        val endText = emptyText
 
-        val tempString = if (title.length < 13) startText.plus(title).plus(endText) else title
+//        val emptyText = " ".repeat(emptyTextSize)
+//        val startText = emptyText
+//        val endText = emptyText
+
+//        val tempString = if (title.length < 13) startText.plus(title).plus(endText) else title
         Box(
             modifier = Modifier
-                .padding(top = 24.dp)
+                .padding(top = 24.dp, start = 50.dp, end = 50.dp)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
                 .background(colorResource(id = R.color.color_dark_yellow))
                 .padding(16.dp, 3.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = tempString,
+                text = title,
                 color = Color.Black,
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold
@@ -463,22 +526,41 @@ class HistoryDetailActivity : BaseActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(59.dp)
-                            .background(shape = RoundedCornerShape(11.dp), color = Color.Transparent)
-                            .border(width = 1.dp, color = colorResource(id = R.color.color_stroke_line), shape = RoundedCornerShape(11.dp))
+                            .background(
+                                shape = RoundedCornerShape(11.dp),
+                                color = Color.Transparent
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = colorResource(id = R.color.color_stroke_line),
+                                shape = RoundedCornerShape(11.dp)
+                            )
                             .padding(start = 16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        Text(text = value.first, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Normal)
+                        Text(
+                            text = value.first,
+                            color = Color.White,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Normal
+                        )
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .width(52.dp)
-                                .background(color = value.third, shape = RoundedCornerShape(topEnd = 11.dp, bottomEnd = 11.dp)), contentAlignment = Alignment.Center
+                                .background(
+                                    color = value.third,
+                                    shape = RoundedCornerShape(topEnd = 11.dp, bottomEnd = 11.dp)
+                                ), contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = value.second, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Normal, textAlign = TextAlign.Center
+                                text = value.second,
+                                color = Color.White,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Normal,
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
@@ -535,7 +617,8 @@ class HistoryDetailActivity : BaseActivity() {
                 val percent = width * ((percentValue / 100f))
                 Image(
                     modifier = Modifier.padding(start = percent),
-                    painter = painterResource(id = getPercentImage(percentValue)), contentDescription = ""
+                    painter = painterResource(id = getPercentImage(percentValue)),
+                    contentDescription = ""
                 )
 
                 Text(
@@ -563,6 +646,11 @@ class HistoryDetailActivity : BaseActivity() {
                             startX = 0f,
                             endX = Float.POSITIVE_INFINITY
                         )
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = colorResource(id = R.color.color_FFFFFF),
+                        shape = RoundedCornerShape(40.dp)
                     )
                     .onGloballyPositioned { coordinates ->
                         width = with(density) {
@@ -592,7 +680,10 @@ class HistoryDetailActivity : BaseActivity() {
                     modifier = Modifier
                         .offset(x = (5).dp)
                         .padding(top = 4.dp),
-                    text = centerText, color = Color.White, fontSize = centerTextSize, fontWeight = FontWeight.Bold
+                    text = centerText,
+                    color = Color.White,
+                    fontSize = centerTextSize,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     modifier = Modifier
@@ -613,11 +704,18 @@ class HistoryDetailActivity : BaseActivity() {
         val density = LocalDensity.current
         val percentValue = (time / totalTime.toFloat()) * 100f
         val percent = height * ((percentValue / 100f))
-        Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Box(
                 modifier = Modifier
                     .size(61.dp, 136.dp)
-                    .border(width = 1.dp, color = colorResource(id = R.color.color_stroke_line), shape = RoundedCornerShape(15.dp))
+                    .border(
+                        width = 1.dp,
+                        color = colorResource(id = R.color.color_stroke_line),
+                        shape = RoundedCornerShape(15.dp)
+                    )
                     .clip(RoundedCornerShape(15.dp))
                     .background(color = colorResource(id = R.color.color_gray2))
                     .onGloballyPositioned { coordinates ->
@@ -631,9 +729,14 @@ class HistoryDetailActivity : BaseActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(percent)
-                        .border(width = 1.dp, color = colorResource(id = R.color.color_stroke_line), shape = RoundedCornerShape(15.dp))
+                        .border(
+                            width = 1.dp,
+                            color = colorResource(id = R.color.color_stroke_line),
+                            shape = RoundedCornerShape(15.dp)
+                        )
                         .clip(RoundedCornerShape(15.dp))
-                        .background(color = colorResource(id = R.color.color_gray3)), contentAlignment = Alignment.Center
+                        .background(color = colorResource(id = R.color.color_gray3)),
+                    contentAlignment = Alignment.Center
                 ) {
                 }
                 Text(
@@ -690,7 +793,8 @@ class HistoryDetailActivity : BaseActivity() {
                 launch {
                     viewModel.isProgressBar.collect {
 //                        Log.e(TAG, "isProgressBar: ${it}")
-                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                        binding.actionProgress.clProgress.visibility =
+                            if (it) View.VISIBLE else View.GONE
                     }
                 }
                 launch {

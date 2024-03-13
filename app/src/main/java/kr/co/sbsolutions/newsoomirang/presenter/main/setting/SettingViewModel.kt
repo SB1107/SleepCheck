@@ -38,16 +38,14 @@ class SettingViewModel @Inject constructor(
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
-    private val _deviceName: MutableStateFlow<String> = MutableStateFlow("")
-    val deviceName: SharedFlow<String> = _deviceName.asStateFlow()
+    private val _deviceName: MutableStateFlow<String?> = MutableStateFlow("")
+    val deviceName: SharedFlow<String?> = _deviceName.asStateFlow()
 
-    private val _bleName: MutableStateFlow<String?> = MutableStateFlow(null)
-    val bleName: SharedFlow<String?> = _bleName.asSharedFlow()
     init {
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
-                    Log.d(TAG, "[SVM]: $info")
+                    Log.d(TAG, "[STM]: $info")
                     getDeviceName()
                 }
             }
@@ -80,8 +78,7 @@ class SettingViewModel @Inject constructor(
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 Log.d(TAG, "getDeviceName: $it")
                 _deviceName.emit(it)
-                _bleName.emit(it)
-            }
+            } ?: _deviceName.emit("")
         }
     }
 
