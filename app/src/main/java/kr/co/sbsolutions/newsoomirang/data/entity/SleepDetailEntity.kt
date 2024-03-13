@@ -73,5 +73,13 @@ data class SleepDetailResult(
     var remSleepTime: Int? = null,
     @SerializedName("light_sleep_time")
     var lightSleepTime: Int? = null,
+    @SerializedName("fast_breath")
+    var fastBreath: Int? = null,
+    @SerializedName("slow_breath")
+    var slowBreath: Int? = null,
+    @SerializedName("unstable_breath")
+    var unstableBreath: Int? = null,
+    @SerializedName("avg_normal_breath")
+    var avgNormalBreath: Int? = null,
 
 )

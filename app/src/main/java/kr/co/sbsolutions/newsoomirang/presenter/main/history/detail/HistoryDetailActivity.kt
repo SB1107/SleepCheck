@@ -53,6 +53,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
@@ -114,6 +115,7 @@ class HistoryDetailActivity : BaseActivity() {
         setObservers()
     }
 
+    @Preview
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun RootView(data: SleepDetailResult = SleepDetailResult()) {
@@ -264,7 +266,6 @@ class HistoryDetailActivity : BaseActivity() {
                 )
             }
 
-
             data.apneaCount?.let {
                 HeaderTitleView("수면 중  비정상 호흡 수")
                 Spacer(modifier = Modifier.height(16.dp))
@@ -276,12 +277,28 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(32.dp))
                 BreathingGraphView(
                     "이상호흡", "총${it}회", listOf(
-                        Triple("이상호흡 10초", "${data.apnea10}회", colorResource(id = R.color.color_gray1)),
-                        Triple("이상호흡 30초", "${data.apnea30}회", colorResource(id = R.color.color_gray2)),
-                        Triple("이상호흡 60초", "${data.apnea60}회", colorResource(id = R.color.color_gray2))
+                        Triple("이상호흡 10초", "${data.apnea10 ?: 0}회", colorResource(id = R.color.color_gray1)),
+                        Triple("이상호흡 30초", "${data.apnea30 ?: 0}회", colorResource(id = R.color.color_gray2)),
+                        Triple("이상호흡 60초", "${data.apnea60 ?: 0}회", colorResource(id = R.color.color_gray3))
                     )
                 )
             }
+            val lists : ArrayList<Triple<String , String , Color>> = ArrayList()
+            data.fastBreath?.let {
+                lists.add(Triple("빠른호흡", "${it}회", colorResource(id = R.color.color_gray1)))
+            }
+            data.slowBreath?.let {
+                lists.add(Triple("느린호흡", "${it}회", colorResource(id = R.color.color_gray2)))
+            }
+            data.unstableBreath?.let {
+                 lists.add(Triple("불안정 호흡", "${it}회", colorResource(id = R.color.color_gray3)))
+            }
+            if (lists.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(32.dp))
+                val totalCount = (data.fastBreath ?: 0) + (data.slowBreath ?: 0)+ (data.unstableBreath ?: 0)
+                BreathingGraphView("불안정 호흡", "총${totalCount}회", lists)
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
             HorizontalDivider(thickness = 1.dp, color = Color.White)
 
