@@ -97,9 +97,7 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.composeView.apply {
             setContent {
-                val yearData by viewModel.sleepYearData.collectAsStateWithLifecycle(initialValue = SleepDateEntity(null))
-                val showProgressBar by viewModel.isProgressBar.collectAsStateWithLifecycle(initialValue = true)
-                RootView(yearData, showProgressBar)
+                RootView(SleepDateEntity(null))
             }
         }
         bindViews()
@@ -141,9 +139,9 @@ class HistoryFragment : Fragment() {
                     }
                     HorizontalDivider(thickness = 1.dp, color = Color.White)
                     Box {
-                        if (showProgressBar) {
-                            Components.LottieLoading()
-                        }
+//                        if (showProgressBar) {
+//                            Components.LottieLoading()
+//                        }
                         if (yearData.result?.data?.isEmpty() != false) {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -300,23 +298,29 @@ class HistoryFragment : Fragment() {
     private fun setObservers() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                launch {
-//                    viewModel.sleepYearData.collectLatest {
+                launch {
+                    viewModel.sleepYearData.collectLatest {
 //                        it.result?.data?.let { list ->
 //                            adapter.submitList(list.toMutableList())
-//                        }
-//                    }
-//                }
+                            binding.composeView.apply {
+                                setContent {
+//                                    val yearData by viewModel.sleepYearData.collectAsStateWithLifecycle(initialValue = SleepDateEntity(null))
+                                    RootView(it)
+//                                }
+                            }
+                        }
+                    }
+                }
                 launch {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
-//                launch {
-//                    viewModel.isProgressBar.collect {
-//                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-//                    }
-//                }
+                launch {
+                    viewModel.isProgressBar.collect {
+                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
             }
         }
     }
