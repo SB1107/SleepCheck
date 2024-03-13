@@ -255,6 +255,7 @@ class NoSeringFragment : Fragment() {
                             MeasuringState.InIt, MeasuringState.FiveRecode -> {
                                 binding.initGroup.visibility = View.VISIBLE
                                 binding.actionMeasurer.root.visibility = View.GONE
+                                binding.actionMeasurer.clMeasure.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
                                 binding.startButton.visibility = View.VISIBLE
                                 binding.stopButton.visibility = View.GONE
@@ -286,6 +287,7 @@ class NoSeringFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.GONE
                                 binding.actionMeasurer.analyLayout.visibility = View.VISIBLE
+                                binding.actionMeasurer.clMeasure.visibility = View.GONE
 
                             }
 

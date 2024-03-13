@@ -270,6 +270,7 @@ class BreathingFragment : Fragment() {
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
                                 binding.actionMeasurer.chart.visibility = View.GONE
                                 binding.actionMeasurer.recordInfoTextView.visibility = View.GONE
+                                binding.actionMeasurer.measureStateLayout.visibility = View.VISIBLE
                             }
 
                             MeasuringState.Analytics -> {

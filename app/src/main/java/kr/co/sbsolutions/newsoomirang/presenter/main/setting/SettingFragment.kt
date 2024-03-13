@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build.VERSION
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.WebType
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
@@ -43,9 +45,10 @@ class SettingFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("UnsafeRepeatOnLifecycleDetector")
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setObservers()
 
         //내센서 클릭
         binding.clSensor.setOnClickListener {
@@ -74,31 +77,38 @@ class SettingFragment : Fragment() {
             startActivity(Intent(requireContext(), LeaveActivity::class.java))
         }
 
-        //디바이스 연결시에 디바이스 이름
-        binding.cvDeviceName.visibility = View.GONE
-        binding.tvDeviceName.text = ""
-
         binding.tvVersionName.text = "앱 버전 : ${BuildConfig.VERSION_NAME}"
-
-        lifecycleScope.launch {
-            launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.logoutResult.collect {
-                        startActivity(Intent(activity, LoginActivity::class.java))
-                    }
-                }
-            }
-            launch {
-                viewModel.errorMessage.collectLatest {
-                    requireActivity().showAlertDialog(R.string.common_title, it)
-                }
-            }
-        }
     }
+
     private fun webViewActivity(webType: WebType) {
         startActivity(Intent(requireContext(), WebViewActivity::class.java).apply {
             putExtra("webTypeUrl", webType.url)
             putExtra("webTypeTitle", webType.title)
         })
+    }
+
+    private fun setObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                launch {
+                    viewModel.logoutResult.collect {
+                        startActivity(Intent(activity, LoginActivity::class.java))
+                    }
+                }
+
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        requireActivity().showAlertDialog(R.string.common_title, it)
+                    }
+                }
+                launch {
+                    viewModel.deviceName.collectLatest {
+                        Log.d(TAG, "setObservers11: $it")
+                        binding.tvDeviceName.text = it
+                    }
+                }
+            }
+        }
     }
 }
