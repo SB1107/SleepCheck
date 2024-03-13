@@ -660,15 +660,15 @@ class HistoryDetailActivity : BaseActivity() {
 
     private fun getPercentImage(percent: Float): Int {
         return when {
-            percent < 40 -> {
+            percent < 31 -> {
                 R.drawable.ic_green_value
             }
 
-            percent < 60 -> {
+            percent < 51 -> {
                 R.drawable.ic_yallow_value
             }
 
-            percent < 80 -> {
+            percent < 71 -> {
                 R.drawable.ic_orange_value
             }
 
