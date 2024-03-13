@@ -215,7 +215,7 @@ class BreathingFragment : Fragment() {
 
                 launch {
                     activityViewModel.isResultProgressBar.collectLatest {
-                        if (it.not()) {
+                        if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }

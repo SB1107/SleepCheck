@@ -28,6 +28,7 @@ import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
 
 @AndroidEntryPoint
 class MainActivity : BaseServiceActivity() {
@@ -103,10 +104,12 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.isResultProgressBar.collectLatest {
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         resultDialog.run {
-                            if (it) show() else dismiss()
+                            if (it.second) show() else dismiss()
                         }
-                        if (it.not()) {
-                            viewModel.isMoveHistory()
+                        if(it.first != -1 && !it.second){
+                            startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
+                                putExtra("id", it.first.toString())
+                            })
                         }
                     }
                 }
@@ -114,11 +117,6 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.errorMessage.collectLatest {
                         viewModel.stopResultProgressBar()
                         showAlertDialog(message = it)
-                    }
-                }
-                launch(Dispatchers.Main) {
-                    viewModel.moveHistory.collectLatest {
-                        binding.navBottomView.selectedItemId = R.id.navigation_history
                     }
                 }
             }

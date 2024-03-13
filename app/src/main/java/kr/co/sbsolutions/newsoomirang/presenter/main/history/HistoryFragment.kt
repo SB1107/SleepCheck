@@ -74,11 +74,10 @@ class HistoryFragment : Fragment() {
     private val binding: FragmentHistoryBinding by lazy {
         FragmentHistoryBinding.inflate(layoutInflater)
     }
-    private val clickItem: (String, String) -> Unit = object : (String, String) -> Unit {
-        override fun invoke(id: String, date: String) {
+    private val clickItem: (String) -> Unit = object : (String) -> Unit {
+        override fun invoke(id: String) {
             requireActivity().startActivity(Intent(requireActivity(), HistoryDetailActivity::class.java).apply {
                 putExtra("id", id)
-                putExtra("date", date)
             })
         }
     }
@@ -103,13 +102,6 @@ class HistoryFragment : Fragment() {
         bindViews()
         setObservers()
         viewModel.getYearSleepData(mSelectedDate.year.toString())
-        lifecycleScope.launch {
-            ApplicationManager.getResultData().first()?.let {
-                clickItem.invoke(it.first, it.second)
-                ApplicationManager.resultDataClear()
-            }
-
-        }
     }
 
 
@@ -205,7 +197,7 @@ class HistoryFragment : Fragment() {
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
                 IconButton(
-                    onClick = { clickItem.invoke(data.id, durationString) },
+                    onClick = { clickItem.invoke(data.id) },
                     Modifier
                         .size(74.dp, 45.dp)
                         .clip(RoundedCornerShape(10.dp))

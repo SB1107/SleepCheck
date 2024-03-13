@@ -32,38 +32,27 @@ class MainViewModel @Inject constructor(
     private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _isResultProgressBar: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isResultProgressBar: SharedFlow<Boolean> = _isResultProgressBar.asSharedFlow()
-    private val _moveHistory: MutableSharedFlow<Boolean> = MutableSharedFlow()
-     val moveHistory: SharedFlow<Boolean> = _moveHistory
+    private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1, false))
+    val isResultProgressBar: SharedFlow<Pair<Int, Boolean>> = _isResultProgressBar.asSharedFlow()
 
     private lateinit var job: Job
 
-    fun stopResultProgressBar(){
+    fun stopResultProgressBar() {
         viewModelScope.launch {
-            _isResultProgressBar.emit(false)
+            _isResultProgressBar.emit(Pair(-1, false))
         }
     }
 
     fun sendMeasurementResults() {
         viewModelScope.launch(Dispatchers.IO) {
-                    if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
-                        Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
+            if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
+                Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                    _breathingResults.emit(0)
-                        sleepDataResult()
-                    } else {
-                        Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
+                sleepDataResult()
+            } else {
+                Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                _noSeringResults.emit(0)
-                        noSeringResult()
-                }
-            }
-    }
-
-     fun isMoveHistory() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (dataManager.getMoveView().first()) {
-                _moveHistory.emit(true)
-                dataManager.setMoveView(false)
+                noSeringResult()
             }
         }
     }
@@ -74,7 +63,7 @@ class MainViewModel @Inject constructor(
             job.cancel()
         }
         job = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(true)
+            _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -93,7 +82,7 @@ class MainViewModel @Inject constructor(
             job.cancel()
         }
         job = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(true)
+            _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -109,23 +98,14 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    result.startedAt?.let { itStartedAt ->
-                        val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
-                        result.endedAt?.let { itEndedAt ->
-                            val endedAt = itEndedAt.toDate("yyyy-MM-dd HH:mm:ss")
-                            val durationString =
-                                (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
-                            ApplicationManager.setResultData(result.id, durationString.plus(if (bluetoothInfo.sleepType == SleepType.Breathing) "수면" else "코골이"))
-                        }
-                    }
-                    _isResultProgressBar.emit(result.state == 1)
+                    _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
                             sleepDataResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(false)
+                } ?: _isResultProgressBar.emit(Pair(-1, false))
             }
     }
 
@@ -133,23 +113,15 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    result.startedAt?.let { itStartedAt ->
-                        val startedAt = itStartedAt.toDate("yyyy-MM-dd HH:mm:ss")
-                        result.endedAt?.let { itEndedAt ->
-                            val endedAt = itEndedAt.toDate("yyyy-MM-dd HH:mm:ss")
-                            val durationString =
-                                (startedAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm")))
-                            ApplicationManager.setResultData(result.id, durationString.plus(if (bluetoothInfo.sleepType == SleepType.Breathing) "수면" else "코골이"))
-                        }
-                    }
-                    _isResultProgressBar.emit(result.state == 1)
+
+                    _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
                             noSeringResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(false)
+                } ?: _isResultProgressBar.emit(Pair(-1, false))
             }
     }
 

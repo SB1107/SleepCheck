@@ -242,7 +242,7 @@ class NoSeringFragment : Fragment() {
                 }
                 launch {
                     activityViewModel.isResultProgressBar.collectLatest {
-                        if (it.not()) {
+                        if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }
@@ -250,7 +250,7 @@ class NoSeringFragment : Fragment() {
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {
-                        Log.d(TAG, "setObservers: ${it}")
+//                        Log.d(TAG, "setObservers: ${it}")
                         when (it) {
                             MeasuringState.InIt, MeasuringState.FiveRecode -> {
                                 binding.initGroup.visibility = View.VISIBLE
