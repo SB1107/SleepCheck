@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@android:color/transparent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 <!--    android:background="@android:color/transparent"-->
@@ -44,20 +44,13 @@
 
 
     <!--    측정 상태     -->
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/measure_state_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@android:color/transparent"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/record_info_text_view"
         app:layout_constraintTop_toTopOf="parent">
-
-        <RelativeLayout
-            android:id="@+id/background_layout"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="@drawable/record_gradient" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/state_text_view"
@@ -66,12 +59,16 @@
             android:layout_centerInParent="true"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_marginTop="500dp"
             android:fontFamily="@font/nanumsquarebold"
             android:gravity="center"
             android:text="호흡 측정중"
             android:textColor="@color/color_FFFFFF"
-            android:textSize="34sp" />
-    </RelativeLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="20sp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <!--    측정 중 표시     -->
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -109,9 +106,9 @@
         android:id="@+id/analy_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_061629"
         android:orientation="vertical"
         android:visibility="gone"
+        android:layout_marginTop="100dp"
         app:layout_constraintTop_toBottomOf="@id/record_info_text_view">
 
         <!--        <com.airbnb.lottie.LottieAnimationView-->

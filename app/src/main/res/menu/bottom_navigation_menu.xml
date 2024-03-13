@@ -16,7 +16,7 @@
     <item
         android:id="@+id/navigation_history"
         android:icon="@drawable/selector_menu_3"
-        android:title="결과"
+        android:title="이력"
         android:enabled="true" />
 
     <item

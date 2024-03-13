@@ -253,6 +253,8 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
+                                binding.actionMeasurer.chart.visibility = View.VISIBLE
+                                binding.actionMeasurer.recordInfoTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.measureStateLayout.visibility = View.GONE
 
                             }
@@ -266,7 +268,8 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
-                                binding.actionMeasurer.measureStateLayout.visibility = View.VISIBLE
+                                binding.actionMeasurer.chart.visibility = View.GONE
+                                binding.actionMeasurer.recordInfoTextView.visibility = View.GONE
                             }
 
                             MeasuringState.Analytics -> {
@@ -333,7 +336,7 @@ class BreathingFragment : Fragment() {
         xCountResetFlag = true
 
         dataSetList.lineWidth = 2f
-        dataSetList.color = Color.parseColor("#FFFFFF")
+        dataSetList.color = Color.parseColor("#3FFFFF")
         dataSetList.setCircleColor(Color.TRANSPARENT)
         dataSetList.setDrawHorizontalHighlightIndicator(false)
         dataSetList.isHighlightEnabled = false

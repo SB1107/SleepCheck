@@ -43,6 +43,7 @@ class RequestHelper(
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
         val name = getClazzName(request)
         Log.e(TAG, "request: $name")
+        logWorkerHelper?.insertLog("$name = API 호출")
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
@@ -62,7 +63,7 @@ class RequestHelper(
                     val errorMSG = error.localizedMessage ?: "Error occured! Please try again."
                     errorMessage?.emit(errorMSG)
                     errorHandler?.onError(errorMSG)
-                    logWorkerHelper?.insertLog(errorMSG)
+                    logWorkerHelper?.insertLog("$name = $errorMSG")
                 }
             }) {
                 yield()
@@ -84,6 +85,7 @@ class RequestHelper(
                         }
 
                         ApiResponse.ReAuthorize -> {
+                            logWorkerHelper?.insertLog("$name = ReAuthorize")
                             if (showProgressBar) {
                                 isProgressBar?.emit(false)
                             }
@@ -96,6 +98,7 @@ class RequestHelper(
                         }
 
                         is ApiResponse.Success -> {
+                            logWorkerHelper?.insertLog("$name = Success")
                             if (showProgressBar) {
                                 isProgressBar?.emit(false)
                             }
