@@ -87,6 +87,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.ScrollToView
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCaptureOptions
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.rememberScreenCaptureState
@@ -124,7 +125,6 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Preview
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun RootView(data: SleepDetailResult = SleepDetailResult()) {
         val state = rememberScreenCaptureState()
@@ -132,57 +132,25 @@ class HistoryDetailActivity : BaseActivity() {
         ScreenCapture(screenCaptureState = state) {
             ContentView(data, true)
         }
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.bg2),
-                contentDescription = "배경",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
-            Column(
-                Modifier
-                    .fillMaxSize()
-            ) {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = colorResource(id = android.R.color.transparent),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            text = "결과",
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { finish() }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.arrow_left),
-                                contentDescription = "뒤로가기",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            state.capture(options = ScreenCaptureOptions(height = localView.measuredHeight * 4))
-                        }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_share),
-                                contentDescription = "공유하기",
-                                tint = Color.White
-                            )
-                        }
-                    }
+
+        SoomScaffold(R.drawable.bg2 , "결과" , topAction = {
+            finish()
+        }, row =  {
+            IconButton(onClick = {
+                state.capture(options = ScreenCaptureOptions(height = localView.measuredHeight * 4))
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = "공유하기",
+                    tint = Color.White
                 )
-                state.bitmap?.let {
-                    viewModel.sharingImage(this@HistoryDetailActivity, it)
-                }
-                ContentView(data)
             }
-        }
+        }, childView = {
+            state.bitmap?.let {
+                viewModel.sharingImage(this@HistoryDetailActivity, it)
+            }
+            ContentView(data)
+        })
     }
 
     @Composable
