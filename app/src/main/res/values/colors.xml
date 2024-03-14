@@ -46,6 +46,7 @@
     <color name="color_gradient_center">#6B6B6B</color>
     <color name="color_gradient_end">#000000</color>
     <color name="color_stroke_line">#929292</color>
+    <color name="color_gray0">#7D7D7D</color>
     <color name="color_gray1">#585858</color>
     <color name="color_gray2">#464646</color>
     <color name="color_gray3">#323232</color>

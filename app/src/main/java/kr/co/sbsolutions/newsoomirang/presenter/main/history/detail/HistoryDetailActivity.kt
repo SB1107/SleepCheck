@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.InpuMintoHourMinute
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
@@ -235,8 +236,7 @@ class HistoryDetailActivity : BaseActivity() {
             (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ")
                 .plus(if (data.type == 0) "수면" else "코골이")
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
-        val totalTime = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60)
-        val min = totalTime.toHourMinute()
+        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
 
         Column(
             Modifier
@@ -333,69 +333,40 @@ class HistoryDetailActivity : BaseActivity() {
 
             RowTexts("총 수면시간", min)
             data.asleepTime?.let {
-                RowTexts("잠들때까지 걸린 시간", it.toHourMinute())
+                RowTexts("잠들때까지 걸린 시간", it.InpuMintoHourMinute())
             }
             data.snoreTime?.let {
-                RowTexts("코고는 시간", it.toHourMinute())
+                RowTexts("코고는 시간", it.InpuMintoHourMinute())
             }
             data.deepSleepTime?.let {
-                RowTexts("깊은잠 시간", it.toHourMinute())
+                RowTexts("깊은잠 시간", it.InpuMintoHourMinute())
             }
             data.moveCount?.let {
-                RowTexts("뒤척임 횟수", it.toHourMinute())
+                RowTexts("뒤척임 횟수", it.InpuMintoHourMinute())
             }
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 HeaderTitleView("수면 자세")
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.straightPer ?: 0).toFloat(),
-                    startText = "바른자세",
-                    startTextSize = 19.sp,
-                    endText = it.toHourMinute(),
-                    endTextSize = 19.sp
-                )
+
+                VerticalGraphView(percentValue = (data.straightPer ?: 0).toFloat(), startText = "바른자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
             }
             data.leftPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.leftPer ?: 0).toFloat(),
-                    startText = "왼쪽으로 누운 자세",
-                    startTextSize = 19.sp,
-                    endText = it.toHourMinute(),
-                    endTextSize = 19.sp
-                )
+                VerticalGraphView(percentValue = (data.leftPer ?: 0).toFloat(), startText = "왼쪽으로 누운 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
             }
             data.rightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.rightPer ?: 0).toFloat(),
-                    startText = "오른쪽으로 누운 자세",
-                    startTextSize = 19.sp,
-                    endText = it.toHourMinute(),
-                    endTextSize = 19.sp
-                )
+                VerticalGraphView(percentValue = (data.rightPer ?: 0).toFloat(), startText = "오른쪽으로 누운 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
             }
             data.downPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.downPer ?: 0).toFloat(),
-                    startText = "업드린 자세",
-                    startTextSize = 19.sp,
-                    endText = it.toHourMinute(),
-                    endTextSize = 19.sp
-                )
+                VerticalGraphView(percentValue = (data.downPer ?: 0).toFloat(), startText = "업드린 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
             }
             data.wakePer?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.wakePer ?: 0).toFloat(),
-                    startText = "수면중 일어남",
-                    startTextSize = 19.sp,
-                    endText = it.toHourMinute(),
-                    endTextSize = 19.sp
-                )
+                VerticalGraphView(percentValue = (data.wakePer ?: 0).toFloat(), startText = "수면중 일어남", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
             }
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -414,13 +385,13 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
 
                 data.remSleepTime?.let {
-                    BarChartView("램수면", totalTime, it)
+                    BarChartView("램수면", data.sleepTime ?: 0, it)
                 }
                 data.lightSleepTime?.let {
-                    BarChartView("얕은수면", totalTime, it)
+                    BarChartView("얕은수면", data.sleepTime ?: 0, it)
                 }
                 data.deepSleepTime?.let {
-                    BarChartView("깊은수면", totalTime, it)
+                    BarChartView("깊은수면", data.sleepTime ?: 0, it)
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -451,13 +422,7 @@ class HistoryDetailActivity : BaseActivity() {
 
     @Composable
     private fun HeaderTitleView(title: String) {
-        val emptyTextSize = if (title.length < 14) 11 else title.length
 
-//        val emptyText = " ".repeat(emptyTextSize)
-//        val startText = emptyText
-//        val endText = emptyText
-
-//        val tempString = if (title.length < 13) startText.plus(title).plus(endText) else title
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 50.dp, end = 50.dp)
@@ -569,10 +534,7 @@ class HistoryDetailActivity : BaseActivity() {
                     }
                 }
             }
-
-
         }
-
     }
 
     @Composable
@@ -717,7 +679,7 @@ class HistoryDetailActivity : BaseActivity() {
                         shape = RoundedCornerShape(15.dp)
                     )
                     .clip(RoundedCornerShape(15.dp))
-                    .background(color = colorResource(id = R.color.color_gray2))
+                    .background(color = colorResource(id = R.color.color_gray0))
                     .onGloballyPositioned { coordinates ->
                         height = with(density) {
                             coordinates.size.height.toDp()
