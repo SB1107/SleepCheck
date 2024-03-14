@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.login
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -80,6 +81,11 @@ class LoginActivity : AppCompatActivity() {
                 launch {
                     viewModel.errorMessage.collectLatest {
                         showAlertDialog(message = it)
+                    }
+                }
+                launch {
+                    viewModel.isProgressBar.collect {
+                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
 

@@ -38,11 +38,18 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         }
     }
 
+    fun showProgressBar() {
+        viewModelScope.launch {
+            _isProgressBar.emit(true)
+        }
+    }
+
     fun setReAuthorizeCallBack(reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack) {
         this.reAuthorizeCallBack = reAuthorizeCallBack
         requestHelper.setReAuthorizeCallBack(this.reAuthorizeCallBack)
     }
-    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper){
+
+    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper) {
         requestHelper.setLogWorkerHelper(logWorkerHelper)
     }
 

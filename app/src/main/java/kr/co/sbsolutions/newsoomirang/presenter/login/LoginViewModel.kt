@@ -38,7 +38,9 @@ class LoginViewModel @Inject constructor(
             } else {
                 kaKaoLoginHelper
             }
+        showProgressBar()
         viewModelScope.launch(Dispatchers.IO) {
+
             socialType.login(data).collectLatest {
                 login(it.socialType ,it.socialToken, it.name)
             }
