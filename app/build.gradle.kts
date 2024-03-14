@@ -68,6 +68,7 @@ android {
 
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation (composeBom)
     androidTestImplementation (composeBom)
 
@@ -91,7 +92,8 @@ dependencies {
     implementation ("androidx.activity:activity-compose:1.8.2")
     // Optional - Integration with ViewModels
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //스플레시 스크린
     implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
@@ -111,8 +113,8 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
 
     //프레그먼트
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("androidx.annotation:annotation:1.7.1")
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 
@@ -186,6 +188,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation ("com.airbnb.android:lottie:6.3.0")                            // Lottie
+    implementation ("com.airbnb.android:lottie-compose:6.4.0")                            // Lottie
 
     implementation ("com.kakao.sdk:v2-user:2.19.0") // 카카오 로그인 API 모듈
     implementation ("com.kakao.sdk:v2-share:2.11.2") // 카카오 공유하기 API 모듈

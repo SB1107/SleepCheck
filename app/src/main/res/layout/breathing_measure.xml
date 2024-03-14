@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@android:color/transparent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+<!--    android:background="@android:color/transparent"-->
 
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -13,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="50dp"
+        android:layout_marginTop="100dp"
         android:gravity="center"
         android:fontFamily="@font/nanumsquarebold"
         android:textColor="@color/color_FFFFFF"
@@ -24,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="393:178"
-        app:layout_constraintTop_toBottomOf="@id/title_text_view">
+        app:layout_constraintTop_toBottomOf="@id/timer_text_view">
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
@@ -33,40 +36,21 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
+            android:background="@android:color/transparent"
             android:layout_marginBottom="20dp" />
 
     </RelativeLayout>
 
-    <!--    측정 중 표시     -->
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/record_info_text_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:background="@color/color_1C9083"
-        android:gravity="center"
-        android:fontFamily="@font/nanumsquarebold"
-        android:text="호흡 측정중"
-        android:textColor="@color/color_FFFFFF"
-        android:textSize="20sp"
-        app:layout_constraintTop_toBottomOf="@id/chart_layout" />
+
 
     <!--    측정 상태     -->
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/measure_state_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/color_061629"
-        android:visibility="gone"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="@id/record_info_text_view"
         app:layout_constraintTop_toTopOf="parent">
-
-        <RelativeLayout
-            android:id="@+id/background_layout"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="@drawable/record_gradient" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/state_text_view"
@@ -75,37 +59,56 @@
             android:layout_centerInParent="true"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_marginTop="500dp"
             android:fontFamily="@font/nanumsquarebold"
             android:gravity="center"
             android:text="호흡 측정중"
             android:textColor="@color/color_FFFFFF"
-            android:textSize="34sp" />
-    </RelativeLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textSize="20sp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--    측정 중 표시     -->
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/record_info_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:fontFamily="@font/nanumsquarebold"
+        android:text="호흡 측정중"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/title_text_view" />
+
     <!--   타이머 텍스트     -->
+
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/timer_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/nanumsquarebold"
         android:gravity="center"
         android:text="00:00:00"
         android:textColor="@color/color_FFFFFF"
-        android:textSize="34sp"
+        android:textSize="39sp"
         android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/record_info_text_view" />
-
-
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/record_info_text_view"
+        tools:layout_editor_absoluteX="30dp" />
 
     <LinearLayout
         android:id="@+id/analy_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_061629"
         android:orientation="vertical"
         android:visibility="gone"
+        android:layout_marginTop="100dp"
         app:layout_constraintTop_toBottomOf="@id/record_info_text_view">
 
         <!--        <com.airbnb.lottie.LottieAnimationView-->

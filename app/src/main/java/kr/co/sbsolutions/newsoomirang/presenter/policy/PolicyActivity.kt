@@ -109,7 +109,7 @@ class PolicyActivity : AppCompatActivity() {
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.checkServerDataFlow.collect {
-                        binding.btnAgree.setBackgroundColor(if (it == 0) getColor(R.color.color_999999) else getColor(R.color.color_0F63C8))
+                        binding.btnAgree.setBackgroundColor(if (it == 0) getColor(R.color.color_999999) else getColor(R.color.color_yellow))
                     }
                 }
             }

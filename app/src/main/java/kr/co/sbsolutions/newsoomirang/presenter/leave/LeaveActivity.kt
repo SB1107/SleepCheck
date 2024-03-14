@@ -129,68 +129,68 @@ class LeaveActivity : AppCompatActivity() {
             )
         }
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = topAppBarColors(
-                        containerColor = Color(LocalContext.current.getColor(R.color.color_061629)),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            text = stringResource(id = R.string.setting_general_withdraw),
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { finish() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "뒤로가기",
-                                tint = Color.White
+                topBar = {
+                    TopAppBar(
+                        colors = topAppBarColors(
+                            containerColor = Color(LocalContext.current.getColor(R.color.color_061629)),
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.setting_general_withdraw),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                        }
-                    },
-                )
-            },
-            bottomBar = {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorResource(id = R.color.color_061629))
-                        .padding(bottom = 30.dp)
-                        .height(50.dp)
-                        .padding(horizontal = 30.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.color_0F63C8),
-                        contentColor = Color.White,
-                        disabledContainerColor = Color.Gray,
-                        disabledContentColor = Color.Black
-                    ),
-                    enabled = isButtonEnable,
-                    onClick = {
-                        if (checkBoxText.isEmpty()) {
-                            showAlertDialog(message = "동의사항을 체크해주세요.")
-                        }else{
-                            if (checkBoxText == "기타") {
-                                checkBoxText  = etcText
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { finish() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "뒤로가기",
+                                    tint = Color.White
+                                )
                             }
-                            viewModel.leaveButtonClick(checkBoxText)
-                        }
-                    }
-
-                ) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = LocalContext.current.getString(R.string.leave_button),
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        },
                     )
+                },
+        bottomBar = {
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = colorResource(id = R.color.color_061629))
+                    .padding(bottom = 30.dp)
+                    .height(50.dp)
+                    .padding(horizontal = 30.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.color_0F63C8),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray,
+                    disabledContentColor = Color.Black
+                ),
+                enabled = isButtonEnable,
+                onClick = {
+                    if (checkBoxText.isEmpty()) {
+                        showAlertDialog(message = "동의사항을 체크해주세요.")
+                    }else{
+                        if (checkBoxText == "기타") {
+                            checkBoxText  = etcText
+                        }
+                        viewModel.leaveButtonClick(checkBoxText)
+                    }
                 }
-            },
+
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = LocalContext.current.getString(R.string.leave_button),
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        },
         ) { innerPadding ->
 
             Column(

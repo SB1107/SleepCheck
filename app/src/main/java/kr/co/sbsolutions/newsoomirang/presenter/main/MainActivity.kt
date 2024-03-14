@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -22,12 +23,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
 
 @AndroidEntryPoint
 class MainActivity : BaseServiceActivity() {
@@ -103,10 +106,14 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.isResultProgressBar.collectLatest {
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         resultDialog.run {
-                            if (it) show() else dismiss()
+                            if (it.second) show() else dismiss()
                         }
-                        if (it.not()) {
-                            viewModel.isMoveHistory()
+                        if(it.first != -1 && !it.second){
+                            startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                putExtra("id", it.first.toString())
+                            })
+                            viewModel.stopResultProgressBar()
                         }
                     }
                 }
@@ -114,11 +121,6 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.errorMessage.collectLatest {
                         viewModel.stopResultProgressBar()
                         showAlertDialog(message = it)
-                    }
-                }
-                launch(Dispatchers.Main) {
-                    viewModel.moveHistory.collectLatest {
-                        binding.navBottomView.selectedItemId = R.id.navigation_history
                     }
                 }
             }

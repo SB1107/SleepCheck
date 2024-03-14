@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@drawable/back1"
     tools:context=".presenter.main.breathing.BreathingFragment">
 
 
@@ -18,9 +18,9 @@
         app:layout_constraintBottom_toTopOf="@id/start_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintVertical_weight="7"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintVertical_weight="7">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -99,17 +99,18 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
-        android:background="@drawable/button"
+        android:background="@drawable/new_button"
         android:fontFamily="@font/nanumsquarebold"
+        android:scaleType="centerCrop"
         android:text="시작"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="24sp"
-        app:layout_constraintVertical_weight="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scroll_view"
         app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintTop_toBottomOf="@id/scroll_view" />
+        app:layout_constraintVertical_weight="3" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/stop_button"
@@ -118,10 +119,10 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
-        android:background="@drawable/button"
+        android:background="@drawable/new_button"
         android:fontFamily="@font/nanumsquarebold"
         android:text="종료"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="24sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -134,12 +135,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:drawableEnd="@drawable/ic_battery"
+        android:background="@drawable/battery_back"
+        android:drawableEnd="@drawable/new_ic_battery"
         android:drawablePadding="5dp"
         android:gravity="center"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="15dp"
         android:text=""
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintLeft_toLeftOf="parent"

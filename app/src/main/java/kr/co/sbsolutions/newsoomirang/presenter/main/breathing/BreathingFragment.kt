@@ -215,7 +215,7 @@ class BreathingFragment : Fragment() {
 
                 launch {
                     activityViewModel.isResultProgressBar.collectLatest {
-                        if (it.not()) {
+                        if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }
@@ -253,6 +253,8 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
+                                binding.actionMeasurer.chart.visibility = View.VISIBLE
+                                binding.actionMeasurer.recordInfoTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.measureStateLayout.visibility = View.GONE
 
                             }
@@ -266,6 +268,8 @@ class BreathingFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.VISIBLE
                                 binding.actionMeasurer.analyLayout.visibility = View.GONE
+                                binding.actionMeasurer.chart.visibility = View.GONE
+                                binding.actionMeasurer.recordInfoTextView.visibility = View.GONE
                                 binding.actionMeasurer.measureStateLayout.visibility = View.VISIBLE
                             }
 
@@ -333,7 +337,7 @@ class BreathingFragment : Fragment() {
         xCountResetFlag = true
 
         dataSetList.lineWidth = 2f
-        dataSetList.color = Color.parseColor("#FFFFFF")
+        dataSetList.color = Color.parseColor("#3FFFFF")
         dataSetList.setCircleColor(Color.TRANSPARENT)
         dataSetList.setDrawHorizontalHighlightIndicator(false)
         dataSetList.isHighlightEnabled = false
@@ -397,14 +401,14 @@ class BreathingFragment : Fragment() {
         }
         binding.batteryTextView.visibility = View.VISIBLE
         if (batteryInfo.toInt() <= 25) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_1), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_1), null)
         } else if (batteryInfo.toInt() in 26..50) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_2), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_2), null)
         } else if (batteryInfo.toInt() in 51..75) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_3), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_3), null)
         } else {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery), null)
         }
-        binding.batteryTextView.text = "$batteryInfo%"
+        binding.batteryTextView.text = "배터리 $batteryInfo%"
     }
 }

@@ -242,7 +242,7 @@ class NoSeringFragment : Fragment() {
                 }
                 launch {
                     activityViewModel.isResultProgressBar.collectLatest {
-                        if (it.not()) {
+                        if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }
@@ -250,11 +250,12 @@ class NoSeringFragment : Fragment() {
                 //UI 변경
                 launch {
                     viewModel.measuringState.collectLatest {
-                        Log.d(TAG, "setObservers: ${it}")
+//                        Log.d(TAG, "setObservers: ${it}")
                         when (it) {
                             MeasuringState.InIt, MeasuringState.FiveRecode -> {
                                 binding.initGroup.visibility = View.VISIBLE
                                 binding.actionMeasurer.root.visibility = View.GONE
+                                binding.actionMeasurer.clMeasure.visibility = View.VISIBLE
                                 binding.actionResult.root.visibility = View.GONE
                                 binding.startButton.visibility = View.VISIBLE
                                 binding.stopButton.visibility = View.GONE
@@ -286,6 +287,7 @@ class NoSeringFragment : Fragment() {
                                 binding.stopButton.visibility = View.VISIBLE
                                 binding.actionMeasurer.timerTextView.visibility = View.GONE
                                 binding.actionMeasurer.analyLayout.visibility = View.VISIBLE
+                                binding.actionMeasurer.clMeasure.visibility = View.GONE
 
                             }
 
@@ -354,14 +356,14 @@ class NoSeringFragment : Fragment() {
         }
         binding.batteryTextView.visibility = View.VISIBLE
         if (batteryInfo.toInt() <= 25) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_1), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_1), null)
         } else if (batteryInfo.toInt() in 26..50) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_2), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_2), null)
         } else if (batteryInfo.toInt() in 51..75) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery_3), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_3), null)
         } else {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.ic_battery), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery), null)
         }
-        binding.batteryTextView.text = "$batteryInfo%"
+        binding.batteryTextView.text = "배터리 $batteryInfo%"
     }
 }

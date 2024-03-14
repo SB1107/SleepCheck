@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629">
+    android:background="@drawable/back1">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_title"
@@ -38,30 +38,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cv_device_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:visibility="visible"
-            app:cardCornerRadius="30dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_arrow"
-            app:layout_constraintTop_toTopOf="parent">
-
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tv_device_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/color_0F63C8"
+                android:background="@drawable/device_name_back"
                 android:fontFamily="@font/nanumsquarebold"
                 android:paddingLeft="20dp"
                 android:paddingTop="10dp"
                 android:paddingRight="20dp"
                 android:paddingBottom="10dp"
-                android:text="APN-1234"
+                android:text=""
+                app:layout_constraintEnd_toStartOf="@+id/iv_arrow"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="10dp"
                 android:textColor="@color/color_FFFFFF" />
-        </com.google.android.material.card.MaterialCardView>
 
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -69,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
-            android:src="@drawable/arrow_right"
+            android:src="@drawable/new_arrow_right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -77,8 +69,8 @@
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -112,15 +104,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
-            android:src="@drawable/arrow_right"
+            android:src="@drawable/new_arrow_right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -144,7 +136,6 @@
             android:text="개인정보 보호 정책"
             android:textColor="@color/color_FFFFFF"
             android:textSize="16sp"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -153,15 +144,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
-            android:src="@drawable/arrow_right"
+            android:src="@drawable/new_arrow_right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -188,19 +179,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
-            android:src="@drawable/arrow_right"
+            android:src="@drawable/new_arrow_right"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -222,17 +214,25 @@
             android:layout_marginStart="30dp"
             android:fontFamily="@font/nanumsquareregular"
             android:text="로그아웃"
-            android:textColor="@color/color_78899F"
+            android:textColor="@color/color_FFFFFF"
             android:textSize="16sp"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="30dp"
+            android:src="@drawable/new_arrow_right"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -243,14 +243,14 @@
         android:id="@+id/cl_leave"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <View
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/color_1F3046"
+            android:layout_height="0.5dp"
+            android:background="@color/md_grey_200"
             app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -262,7 +262,7 @@
             android:layout_marginStart="30dp"
             android:fontFamily="@font/nanumsquareregular"
             android:text="회원탈퇴"
-            android:textColor="@color/color_78899F"
+            android:textColor="@color/color_FFFFFF"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -276,7 +276,7 @@
             android:layout_marginEnd="30dp"
             android:fontFamily="@font/nanumsquareregular"
             android:text="앱 버전"
-            android:textColor="@color/color_78899F"
+            android:textColor="@color/color_FFFFFF"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

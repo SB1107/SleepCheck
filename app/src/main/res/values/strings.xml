@@ -51,7 +51,7 @@
     <string name="privacy_personal_information_collection_usage_policy">개인정보 수집 및 이용 정책</string>
     <string name="privacy_consent_list1">\t (필수) 서비스 이용 약관 동의</string>
     <string name="privacy_consent_list2">\t 앱 개선에 데이터 활용 동의</string>
-    <string name="privacy_agree">동의하기</string>
+    <string name="privacy_agree">확인</string>
 
 
     <string name="app_yes">예</string>

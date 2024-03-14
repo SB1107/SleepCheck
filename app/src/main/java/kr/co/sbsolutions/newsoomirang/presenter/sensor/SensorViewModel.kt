@@ -73,7 +73,6 @@ class SensorViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-
             launch {
                 getName()
                 if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {

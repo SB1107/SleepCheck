@@ -9,9 +9,15 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
@@ -32,6 +38,20 @@ class SettingViewModel @Inject constructor(
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
+    private val _deviceName: MutableStateFlow<String?> = MutableStateFlow("")
+    val deviceName: SharedFlow<String?> = _deviceName.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            launch {
+                ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
+                    Log.d(TAG, "[STM]: $info")
+                    getDeviceName()
+                }
+            }
+        }
+    }
+
 
     //로그아웃
     fun logout() {
@@ -50,6 +70,15 @@ class SettingViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun getDeviceName(){
+        viewModelScope.launch(Dispatchers.IO) {
+            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
+                Log.d(TAG, "getDeviceName: $it")
+                _deviceName.emit(it)
+            } ?: _deviceName.emit("")
         }
     }
 

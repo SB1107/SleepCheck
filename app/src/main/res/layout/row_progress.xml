@@ -15,6 +15,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:lottie_autoPlay="true"
+            app:lottie_colorFilter="@color/color_yellow"
             app:lottie_loop="true"
-            app:lottie_rawRes="@raw/ic_loading" />
+            app:lottie_rawRes="@raw/sleep_animation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

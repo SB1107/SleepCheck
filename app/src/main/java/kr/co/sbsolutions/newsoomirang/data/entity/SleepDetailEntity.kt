@@ -28,7 +28,7 @@ data class SleepDetailResult(
     @SerializedName("apnea_state")
     var apneaState: Int? = null,
     @SerializedName("apnea_count")
-    var apneaCount: Int? = 0,
+    var apneaCount: Int?  = null,
     @SerializedName("apnea_10")
     var apnea10: Int? = 0,
     @SerializedName("apnea_30")
@@ -36,25 +36,25 @@ data class SleepDetailResult(
     @SerializedName("apnea_60")
     var apnea60: Int? = 0,
     @SerializedName("straight_position")
-    var straightPositionTime: Int? = 0,
+    var straightPositionTime: Int? = null,
     @SerializedName("left_position")
-    var leftPositionTime: Int? = 0,
+    var leftPositionTime: Int? = null,
     @SerializedName("right_position")
-    var rightPositionTime: Int? = 0,
+    var rightPositionTime: Int? = null,
     @SerializedName("down_position")
-    var downPositionTime: Int? = 0,
+    var downPositionTime: Int? = null,
     @SerializedName("wake_time")
-    var wakeTime: Int? = 0,
+    var wakeTime: Int? = null,
     @SerializedName("straight_per")
-    var straightPer: Int? = 0,
+    var straightPer: Int? = null,
     @SerializedName("left_per")
-    var leftPer: Int? = 0,
+    var leftPer: Int? = null,
     @SerializedName("right_per")
-    var rightPer: Int? = 0,
+    var rightPer: Int? = null,
     @SerializedName("down_per")
-    var downPer: Int? = 0,
+    var downPer: Int? = null,
     @SerializedName("wake_per")
-    var wakePer: Int? = 0,
+    var wakePer: Int? = null,
     @SerializedName("sleep_pattern")
     var sleepPattern: String? = null,
     @SerializedName("started_at")
@@ -66,7 +66,20 @@ data class SleepDetailResult(
     @SerializedName("state")
     var state: Int? = null,
     @SerializedName("deep_sleep_time")
-    var deepSleepTime: Int? = 0,
+    var deepSleepTime: Int? =  null,
     @SerializedName("move_count")
-    var moveCount: Int? = 0
+    var moveCount: Int? = null,
+    @SerializedName("rem_sleep_time")
+    var remSleepTime: Int? = null,
+    @SerializedName("light_sleep_time")
+    var lightSleepTime: Int? = null,
+    @SerializedName("fast_breath")
+    var fastBreath: Int? = null,
+    @SerializedName("slow_breath")
+    var slowBreath: Int? = null,
+    @SerializedName("unstable_breath")
+    var unstableBreath: Int? = null,
+    @SerializedName("avg_normal_breath")
+    var avgNormalBreath: Int? = null,
+
 )

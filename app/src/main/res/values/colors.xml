@@ -24,9 +24,13 @@
     <color name="color_061629">#061629</color>
     <color name="color_0F63C8">#0F63C8</color>
     <color name="color_6EA7EC">#6EA7EC</color>
+    <color name="color_1A447D">#1A447D</color>
+    <color name="color_0086FF">#0086FF</color>
+    <color name="color_032656">#032656</color>
 
     <color name="color_FFFFFF">#FFFFFF</color>
     <color name="color_yellow">#FFDB1C</color>
+    <color name="color_4DFFFFFF">#4DFFFFFF</color>
     <color name="color_f6f6f6">#F6F6F6</color>
     <color name="color_f9f9f9">#F9F9F9</color>
     <color name="color_dddddd">#DDDDDD</color>
@@ -38,6 +42,18 @@
     <color name="color_24374E">#24374E</color>
     <color name="color_1F3046">#1F3046</color>
     <color name="color_1C9083">#1C9083</color>
+    <color name="color_dark_yellow">#B5A40A</color>
+    <color name="color_gradient_center">#6B6B6B</color>
+    <color name="color_gradient_end">#000000</color>
+    <color name="color_stroke_line">#929292</color>
+    <color name="color_gray0">#7D7D7D</color>
+    <color name="color_gray1">#585858</color>
+    <color name="color_gray2">#464646</color>
+    <color name="color_gray3">#323232</color>
+    <color name="color_purple">#4B0069</color>
+    <color name="color_D6D6D6">#D6D6D6</color>
+
+
 
 
     <!-- google's material design colours from

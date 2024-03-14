@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_061629"
+    android:background="@drawable/back1"
     tools:context=".presenter.main.nosering.NoSeringFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -93,8 +93,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
@@ -102,8 +101,9 @@
         android:layout_marginStart="30dp"
         android:fontFamily="@font/nanumsquareregular"
         android:text="코골이 진동 알림"
-        android:textColor="@color/color_78899F"
+        android:textColor="@color/color_FFFFFF"
         android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/motor_check_box"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/motor_check_box" />
@@ -117,18 +117,33 @@
         android:checked="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/v_line"
-        app:thumbTint="@color/selector_switch" />
+        app:thumbTint="@color/selector_switch"
+        app:trackTint="@color/color_FFFFFF" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_vibration_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:fontFamily="@font/nanumsquareregular"
+        android:text="진동 세기"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/motor_check_box" />
 
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cv_v"
-        android:layout_width="180dp"
-        android:layout_height="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
         android:layout_margin="20dp"
         app:cardCornerRadius="5dp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/motor_check_box">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_vibration_setting">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -147,7 +162,8 @@
                 android:tag="0"
                 android:text="약"
                 android:textAlignment="center"
-                android:textSize="14sp"
+                android:textColor="@color/color_000000"
+                android:textSize="21sp"
                 app:chipCornerRadius="0dp"
                 app:chipMinTouchTargetSize="0dp" />
 
@@ -168,7 +184,8 @@
                 android:tag="1"
                 android:text="중"
                 android:textAlignment="center"
-                android:textSize="14sp"
+                android:textColor="@color/color_000000"
+                android:textSize="21sp"
                 app:chipCornerRadius="0dp"
                 app:chipMinTouchTargetSize="0dp" />
 
@@ -189,25 +206,14 @@
                 android:tag="2"
                 android:text="강"
                 android:textAlignment="center"
-                android:textSize="14sp"
+                android:textColor="@color/color_000000"
+                android:textSize="21sp"
                 app:chipCornerRadius="0dp"
                 app:chipMinTouchTargetSize="0dp" />
 
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:fontFamily="@font/nanumsquareregular"
-        android:text="진동 세기"
-        android:textColor="@color/color_78899F"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/cv_v"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cv_v" />
 
 
     <androidx.appcompat.widget.AppCompatButton
@@ -217,10 +223,10 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
-        android:background="@drawable/button"
+        android:background="@drawable/new_button"
         android:fontFamily="@font/nanumsquarebold"
         android:text="시작"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -233,13 +239,12 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
-        android:background="@drawable/button"
+        android:background="@drawable/new_button"
         android:fontFamily="@font/nanumsquarebold"
         android:src="@drawable/btn_close"
         android:text="종료"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="24sp"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -250,12 +255,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:drawableEnd="@drawable/ic_battery"
+        android:background="@drawable/battery_back"
+        android:drawableEnd="@drawable/new_ic_battery"
         android:drawablePadding="5dp"
         android:gravity="center"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="15dp"
         android:text=""
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintHorizontal_bias="1"
         app:layout_constraintLeft_toLeftOf="parent"
