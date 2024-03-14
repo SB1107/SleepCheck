@@ -107,25 +107,26 @@ object Components {
     }
 
     @Composable
-    fun ScrollToView(isVisiable: Boolean ,scrollableState: ScrollableState){
+    fun ScrollToView(isVisiable: Boolean, scrollableState: ScrollableState) {
         val coroutineScope = rememberCoroutineScope()
+
         Box(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 16.dp, end = 16.dp)
-
         ) {
             if (isVisiable) {
-                IconButton(onClick = {
-                    coroutineScope.launch {
-                        if (scrollableState is  LazyListState){
-                            scrollableState.animateScrollToItem(0)
-                        } else if(scrollableState is ScrollState) {
-                            scrollableState.animateScrollTo(0)
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            when (scrollableState) {
+                                is LazyListState -> scrollableState.animateScrollToItem(0)
+                                is ScrollState -> scrollableState.animateScrollTo(0)
+                            }
                         }
                     }
-                }) {
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_scroll_up),
                         contentDescription = "스크롤"

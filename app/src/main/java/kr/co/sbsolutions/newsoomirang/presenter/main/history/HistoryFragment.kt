@@ -171,25 +171,6 @@ class HistoryFragment : Fragment() {
                                     }
                                 }
                                 ScrollToView(showButton.value, scrollState)
-                                Box(
-                                    contentAlignment = Alignment.BottomEnd,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(bottom = 16.dp, end = 16.dp)
-                                ) {
-                                    if (showButton.value) {
-                                        IconButton(onClick = {
-                                            coroutineScope.launch {
-                                                scrollState.animateScrollToItem(0)
-                                            }
-                                        }) {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_scroll_up),
-                                                contentDescription = "스크롤"
-                                            )
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
