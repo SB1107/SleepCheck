@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.history
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,10 +31,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,6 +115,11 @@ class HistoryFragment : Fragment() {
     @Preview
     @Composable
     fun RootView(yearData: SleepDateEntity = SleepDateEntity(null), showProgressBar: Boolean = true) {
+        val scrollState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+        var scrollIsLastState by remember { mutableStateOf(false) }
+        val showButton = remember { derivedStateOf { scrollState.firstVisibleItemIndex > 0 } }
+
         Scaffold { innerPadding ->
             Box(
                 modifier = Modifier
@@ -146,13 +158,35 @@ class HistoryFragment : Fragment() {
                                 )
                             }
                         } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                            ) {
-                                itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
-                                    SleepItemRow(item)
-                                    if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
-                                        HorizontalDivider(thickness = 1.dp, color = Color.White)
+                            Box{
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    state = scrollState
+                                ) {
+                                    itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
+                                        SleepItemRow(item)
+                                        if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
+                                            HorizontalDivider(thickness = 1.dp, color = Color.White)
+                                        }
+                                    }
+                                }
+                                Box(
+                                    contentAlignment = Alignment.BottomEnd,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(bottom = 16.dp, end = 16.dp)
+                                ) {
+                                    if (showButton.value) {
+                                        IconButton(onClick = {
+                                            coroutineScope.launch {
+                                                scrollState.animateScrollToItem(0)
+                                            }
+                                        }) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_scroll_up),
+                                                contentDescription = "스크롤"
+                                            )
+                                        }
                                     }
                                 }
                             }

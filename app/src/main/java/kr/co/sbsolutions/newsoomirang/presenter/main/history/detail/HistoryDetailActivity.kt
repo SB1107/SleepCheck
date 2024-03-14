@@ -233,7 +233,10 @@ class HistoryDetailActivity : BaseActivity() {
 
 
     @Composable
-    private fun TopDateView(data: SleepDetailResult = SleepDetailResult(), scrollState: ScrollState) {
+    private fun TopDateView(
+        data: SleepDetailResult = SleepDetailResult(),
+        scrollState: ScrollState
+    ) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val titleDate = endedAt?.toDayString("M월 d일 E요일")
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -355,23 +358,53 @@ class HistoryDetailActivity : BaseActivity() {
                 HeaderTitleView("수면 자세")
                 Spacer(modifier = Modifier.height(16.dp))
 
-                VerticalGraphView(percentValue = (data.straightPer ?: 0).toFloat(), startText = "바른자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.straightPer ?: 0).toFloat(),
+                    startText = "바른자세",
+                    startTextSize = 19.sp,
+                    endText = it.InpuMintoHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.leftPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.leftPer ?: 0).toFloat(), startText = "왼쪽으로 누운 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.leftPer ?: 0).toFloat(),
+                    startText = "왼쪽으로 누운 자세",
+                    startTextSize = 19.sp,
+                    endText = it.InpuMintoHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.rightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.rightPer ?: 0).toFloat(), startText = "오른쪽으로 누운 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.rightPer ?: 0).toFloat(),
+                    startText = "오른쪽으로 누운 자세",
+                    startTextSize = 19.sp,
+                    endText = it.InpuMintoHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.downPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.downPer ?: 0).toFloat(), startText = "업드린 자세", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.downPer ?: 0).toFloat(),
+                    startText = "업드린 자세",
+                    startTextSize = 19.sp,
+                    endText = it.InpuMintoHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             data.wakePer?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(percentValue = (data.wakePer ?: 0).toFloat(), startText = "수면중 일어남", startTextSize = 19.sp, endText = it.InpuMintoHourMinute(), endTextSize = 19.sp)
+                VerticalGraphView(
+                    percentValue = (data.wakePer ?: 0).toFloat(),
+                    startText = "수면중 일어남",
+                    startTextSize = 19.sp,
+                    endText = it.InpuMintoHourMinute(),
+                    endTextSize = 19.sp
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -666,13 +699,18 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Composable
-    private fun BarChartView(titleText: String, totalTime: Int, time: Int, scrollState: ScrollState) {
+    private fun BarChartView(
+        titleText: String,
+        totalTime: Int,
+        time: Int,
+        scrollState: ScrollState
+    ) {
         var height by remember { mutableStateOf(0.dp) }
         var animationPlayed by remember { //애니메이션 트리거를 위한 boolean 값
             mutableStateOf(false)
         }
         when {
-            scrollState.value < 3800 -> {
+            scrollState.canScrollBackward -> {
                 animationPlayed = true
             }
         }
@@ -680,7 +718,10 @@ class HistoryDetailActivity : BaseActivity() {
         val density = LocalDensity.current
         val percentValue = (time / totalTime.toFloat()) * 100f
         val percent = height * ((percentValue / 100f))
-        val curValue = animateIntAsState(targetValue = if (animationPlayed) percent.value.toInt() else 0, animationSpec = tween(durationMillis = 1000, delayMillis = 1000), label = "애니")
+        val curValue = animateIntAsState(
+            targetValue = if (animationPlayed) percent.value.toInt()
+            else 0, animationSpec = tween(durationMillis = 1000, delayMillis = 500), label = "애니"
+        )
 
         Column(
             verticalArrangement = Arrangement.Center,
