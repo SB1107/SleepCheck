@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.domain.repository
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -13,6 +14,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
+import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -78,5 +80,13 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
 
     override fun postCheckSensor(sensorInfo: CheckSensor): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
         api.postChkSensor(sensorInfo)
+    }
+
+    override fun getContact(): Flow<ApiResponse<ContactEntity>>  = apiRequestFlow {
+        api.getContact()
+    }
+
+    override fun postContactDetail(contactDetail: ContactDetail): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow {
+        api.postContactDetail(contactDetail)
     }
 }

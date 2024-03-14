@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -11,6 +12,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
+import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -35,4 +37,7 @@ interface RemoteAuthDataSource {
      fun postNewFcmToken(newToken: String) : Flow<ApiResponse<UserEntity>>
      fun postLeave(leaveReason : String) : Flow<ApiResponse<BaseEntity>>
      fun postCheckSensor(sensorInfo: CheckSensor) : Flow<ApiResponse<UserEntity>>
+     fun getContact() : Flow<ApiResponse<ContactEntity>>
+
+     fun postContactDetail(contactDetail: ContactDetail) : Flow<ApiResponse<BaseEntity>>
 }

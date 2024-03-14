@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.data.api
 
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -9,6 +10,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UploadingEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
+import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -72,5 +74,12 @@ interface AuthServiceAPI {
     //센서 등록 사용가능여부 확인
     @POST("sleepdata/chksensor")
     suspend fun postChkSensor(@Body checkSensor: CheckSensor ) : Response<UserEntity>
+
+    //문의 내용 조회
+    @GET("sleepdata/viewappqa")
+    suspend fun getContact(@Query("app_kind") appKind : String = "C") : Response<ContactEntity>
+
+    @POST("sleepdata/regappqa")
+    suspend fun postContactDetail(@Body contactDetail: ContactDetail) : Response<BaseEntity>
 
 }

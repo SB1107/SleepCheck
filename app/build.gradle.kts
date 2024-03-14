@@ -67,8 +67,8 @@ android {
 
 
 dependencies {
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
-    val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation (composeBom)
     androidTestImplementation (composeBom)
 
@@ -80,6 +80,8 @@ dependencies {
     implementation ("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation ("androidx.compose.ui:ui-tooling")
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    debugImplementation ("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation ("androidx.compose.material:material-icons-core")
     // Optional - Add full set of material icons
     implementation ("androidx.compose.material:material-icons-extended")
