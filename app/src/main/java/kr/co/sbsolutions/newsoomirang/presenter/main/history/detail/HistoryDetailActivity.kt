@@ -5,8 +5,12 @@ import android.util.Log
 import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -197,10 +202,10 @@ class HistoryDetailActivity : BaseActivity() {
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.FillBounds
                         )
-                        TopDateView(data = data)
+                        TopDateView(data = data, scrollState)
                     }
                 } else {
-                    TopDateView(data = data)
+                    TopDateView(data = data, scrollState)
                 }
             }
             Box(
@@ -228,7 +233,7 @@ class HistoryDetailActivity : BaseActivity() {
 
 
     @Composable
-    private fun TopDateView(data: SleepDetailResult = SleepDetailResult()) {
+    private fun TopDateView(data: SleepDetailResult = SleepDetailResult(), scrollState: ScrollState) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val titleDate = endedAt?.toDayString("M월 d일 E요일")
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -385,13 +390,13 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
 
                 data.remSleepTime?.let {
-                    BarChartView("램수면", data.sleepTime ?: 0, it)
+                    BarChartView("램수면", data.sleepTime ?: 0, it, scrollState)
                 }
                 data.lightSleepTime?.let {
-                    BarChartView("얕은수면", data.sleepTime ?: 0, it)
+                    BarChartView("얕은수면", data.sleepTime ?: 0, it, scrollState)
                 }
                 data.deepSleepTime?.let {
-                    BarChartView("깊은수면", data.sleepTime ?: 0, it)
+                    BarChartView("깊은수면", data.sleepTime ?: 0, it, scrollState)
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -661,11 +666,22 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Composable
-    private fun BarChartView(titleText: String, totalTime: Int, time: Int) {
+    private fun BarChartView(titleText: String, totalTime: Int, time: Int, scrollState: ScrollState) {
         var height by remember { mutableStateOf(0.dp) }
+        var animationPlayed by remember { //애니메이션 트리거를 위한 boolean 값
+            mutableStateOf(false)
+        }
+        when {
+            scrollState.value < 3800 -> {
+                animationPlayed = true
+            }
+        }
+
         val density = LocalDensity.current
         val percentValue = (time / totalTime.toFloat()) * 100f
         val percent = height * ((percentValue / 100f))
+        val curValue = animateIntAsState(targetValue = if (animationPlayed) percent.value.toInt() else 0, animationSpec = tween(durationMillis = 1000, delayMillis = 1000), label = "애니")
+
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -690,7 +706,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(percent)
+                        .height(curValue.value.dp)
                         .border(
                             width = 1.dp,
                             color = colorResource(id = R.color.color_stroke_line),
@@ -702,6 +718,7 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                 }
                 Text(
+
                     text = time.toHourOrMinute(),
                     color = Color.White,
                     fontSize = 18.sp,
