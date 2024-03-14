@@ -106,22 +106,22 @@ object Components {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun ScrollToView(isVisiable: Boolean ,scrollableState: ScrollState){
+    fun ScrollToView(isVisiable: Boolean ,scrollableState: ScrollableState){
         val coroutineScope = rememberCoroutineScope()
         Box(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = 16.dp, end = 16.dp)
+
         ) {
             if (isVisiable) {
                 IconButton(onClick = {
                     coroutineScope.launch {
-                        if (scrollableState is LazyListState){
-                            (scrollableState as LazyListState).animateScrollToItem(0)
-                        } else{
+                        if (scrollableState is  LazyListState){
+                            scrollableState.animateScrollToItem(0)
+                        } else if(scrollableState is ScrollState) {
                             scrollableState.animateScrollTo(0)
                         }
                     }

@@ -71,6 +71,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateResult
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentHistoryBinding
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailActivity
 import java.time.LocalDate
 
@@ -117,7 +118,6 @@ class HistoryFragment : Fragment() {
     fun RootView(yearData: SleepDateEntity = SleepDateEntity(null), showProgressBar: Boolean = true) {
         val scrollState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
-        var scrollIsLastState by remember { mutableStateOf(false) }
         val showButton = remember { derivedStateOf { scrollState.firstVisibleItemIndex > 0 } }
 
         Scaffold { innerPadding ->
@@ -170,6 +170,7 @@ class HistoryFragment : Fragment() {
                                         }
                                     }
                                 }
+                                ScrollToView(showButton.value, scrollState)
                                 Box(
                                     contentAlignment = Alignment.BottomEnd,
                                     modifier = Modifier
