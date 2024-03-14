@@ -210,26 +210,6 @@ class HistoryDetailActivity : BaseActivity() {
                 }
             }
             ScrollToView(scrollState.value >= 200 , scrollState)
-//            Box(
-//                contentAlignment = Alignment.BottomEnd,
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(bottom = 16.dp, end = 16.dp)
-//            ) {
-
-//                if (scrollState.value >= 200) {
-//                    IconButton(onClick = {
-//                        coroutineScope.launch {
-//                            scrollState.animateScrollTo(0)
-//                        }
-//                    }) {
-//                        Image(
-//                            painter = painterResource(id = R.drawable.ic_scroll_up),
-//                            contentDescription = "스크롤"
-//                        )
-//                    }
-//                }
-//            }
         }
 
     }

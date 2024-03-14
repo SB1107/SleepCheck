@@ -1,5 +1,8 @@
 package kr.co.sbsolutions.newsoomirang.presenter.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -49,7 +52,6 @@ object Components {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ShowAlertDialog(
         isShow: Boolean,
@@ -57,8 +59,8 @@ object Components {
         onConfirmation: () -> Unit,
         dialogTitle: String,
         dialogText: String,
-        confirmText : String = "확인",
-        dissmissText : String = "취소"
+        confirmText: String = "확인",
+        dissmissText: String = "취소"
     ) {
         var openAlertDialog by remember { mutableStateOf(isShow) }
         when {
@@ -116,7 +118,7 @@ object Components {
                 .fillMaxSize()
                 .padding(bottom = 16.dp, end = 16.dp)
         ) {
-            if (isVisiable) {
+            AnimatedVisibility(visible = isVisiable , enter = fadeIn(), exit = fadeOut()){
                 IconButton(
                     onClick = {
                         coroutineScope.launch {
@@ -134,5 +136,6 @@ object Components {
                 }
             }
         }
+
     }
 }
