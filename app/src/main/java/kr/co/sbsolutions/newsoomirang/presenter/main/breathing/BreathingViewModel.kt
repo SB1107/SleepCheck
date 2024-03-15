@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,12 +84,14 @@ class BreathingViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
+
             BLEService.instance?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
         }
     }
 
     fun stopClick() {
+
         if ((BLEService.instance?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
@@ -120,6 +123,10 @@ class BreathingViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
+                            if (BLEService.instance == null) {
+                                setCommend(ServiceCommend.START)
+                                delay(1000)
+                            }
                             BLEService.instance?.startSBSensor(id, SleepType.Breathing)
                             setMeasuringState(MeasuringState.FiveRecode)
                             trySend(true)

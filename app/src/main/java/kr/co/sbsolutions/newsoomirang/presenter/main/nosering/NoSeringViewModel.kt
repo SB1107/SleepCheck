@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import javax.inject.Inject
 
@@ -128,6 +130,10 @@ class NoSeringViewModel @Inject constructor(
                     .collectLatest {
                         it.result?.id?.let { id ->
 //                            getService()?.startSBSensor(id, SleepType.NoSering)
+                            if (BLEService.instance == null) {
+                                setCommend(ServiceCommend.START)
+                                delay(1000)
+                            }
                             BLEService.instance?.startSBSensor(id, SleepType.NoSering)
                             setMeasuringState(MeasuringState.Record)
                             trySend(true)
