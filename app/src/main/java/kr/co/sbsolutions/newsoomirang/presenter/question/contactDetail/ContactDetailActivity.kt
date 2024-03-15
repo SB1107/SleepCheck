@@ -50,6 +50,8 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 
 @AndroidEntryPoint
 class ContactDetailActivity : BaseServiceActivity() {
@@ -74,53 +76,19 @@ class ContactDetailActivity : BaseServiceActivity() {
     @Preview
     @Composable
     fun DefaultPreview(intent: Intent?) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(LocalContext.current.getColor(R.color.color_061629)),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            text = "문의하기",
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = colorResource(id = R.color.color_FFFFFF)
-                            ),
-                            fontSize = 16.sp,
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { finish() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "뒤로가기",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                )
-            },
-            bottomBar = {
-                Column {
-                    SpacerHeight(size = 30)
+        SoomScaffold(
+            topText = "문의하기",
+            topAction = { finish() },
+            childView =
+            {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 30.dp)
+                ) {
+                    Contact(intent)
                 }
-            }) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .background(color = colorResource(R.color.color_061629))
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 30.dp, vertical = 0.dp)
-                    .padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-
-                Contact(intent)
             }
-        }
+        )
     }
 
     //문의하기 화면
@@ -170,11 +138,6 @@ class ContactDetailActivity : BaseServiceActivity() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = colorResource(id = R.color.color_0F63C8),
-                    shape = RoundedCornerShape(5.dp)
-                )
                 .padding(16.dp)
         ) {
             Text(

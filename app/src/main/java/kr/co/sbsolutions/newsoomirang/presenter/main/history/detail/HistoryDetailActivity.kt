@@ -156,7 +156,6 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun ContentView(data: SleepDetailResult, isBack: Boolean = false) {
         val scrollState = rememberScrollState()
-        val coroutineScope = rememberCoroutineScope()
         Box {
             Column(
                 modifier = Modifier

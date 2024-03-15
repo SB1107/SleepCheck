@@ -1,5 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.presenter.components
 
+import android.content.Context
+import android.view.View
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -43,13 +45,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottieDynamicProperties
+import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCaptureOptions
@@ -59,7 +67,7 @@ object Components {
 
     @Composable
     fun LottieLoading() {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.ic_loading))
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.sleep_animation))
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,6 +162,20 @@ object Components {
             }
         }
     }
+
+    @Composable
+    fun ScrollToContactView(isVisiable: Boolean, view: @Composable () -> Unit) {
+        Box(
+            contentAlignment = Alignment.BottomEnd,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            AnimatedVisibility(visible = isVisiable , enter = fadeIn(), exit = fadeOut()){
+               view()
+            }
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun SoomScaffold(bgImage : Int = R.drawable.back1 , topText : String = "결과" ,

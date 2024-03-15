@@ -117,7 +117,6 @@ class HistoryFragment : Fragment() {
     @Composable
     fun RootView(yearData: SleepDateEntity = SleepDateEntity(null), showProgressBar: Boolean = true) {
         val scrollState = rememberLazyListState()
-        val coroutineScope = rememberCoroutineScope()
         val showButton = remember { derivedStateOf { scrollState.firstVisibleItemIndex > 0 } }
 
         Scaffold { innerPadding ->
