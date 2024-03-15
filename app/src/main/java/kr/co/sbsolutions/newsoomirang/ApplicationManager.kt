@@ -56,9 +56,7 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
             instance._bluetoothInfoFlow.tryEmit(info)
         }
         fun setService(service : WeakReference<BLEService>){
-            if (_service.value.get() == null) {
                 _service.tryEmit(service)
-            }
         }
         fun serviceClear(){
             _service.tryEmit(WeakReference(null))

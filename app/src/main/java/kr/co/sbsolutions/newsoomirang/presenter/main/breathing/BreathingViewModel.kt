@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
@@ -82,13 +83,13 @@ class BreathingViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
-            getService()?.stopSBSensor(true)
+            BLEService.instance?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
         }
     }
 
     fun stopClick() {
-        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
+        if ((BLEService.instance?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
@@ -119,7 +120,7 @@ class BreathingViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
-                            getService()?.startSBSensor(id, SleepType.Breathing)
+                            BLEService.instance?.startSBSensor(id, SleepType.Breathing)
                             setMeasuringState(MeasuringState.FiveRecode)
                             trySend(true)
                             close()
@@ -142,7 +143,7 @@ class BreathingViewModel @Inject constructor(
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            getService()?.timeHelper?.measuringTimer?.collectLatest {
+            BLEService.instance?.timeHelper?.measuringTimer?.collectLatest {
                 if (bluetoothInfo.sleepType == SleepType.Breathing) {
                     _measuringTimer.emit(it)
                 }

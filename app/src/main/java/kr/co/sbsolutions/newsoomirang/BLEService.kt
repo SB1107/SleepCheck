@@ -95,6 +95,7 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
+        var instance : BLEService? = null
 
     }
 
@@ -169,6 +170,7 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        instance  = this
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
