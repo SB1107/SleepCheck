@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -136,7 +138,7 @@ class LeaveActivity : AppCompatActivity() {
 
                         LeaveDesText(text = "고객님의 계정에 저장된 정보가 삭제될 예정입니다. 삭제된 정보는 추후에 복원할 수 없습니다.")
                         Spacer(modifier = Modifier.height(10.dp))
-                        LeaveDesText(text = "같은 아이디로 재가입이 불가합니다.")
+//                        LeaveDesText(text = "같은 아이디로 재가입이 불가합니다.")
 
                         Spacer(modifier = Modifier.height(20.dp))
                         TextHeader("탈퇴 사유를 선택해주세요.")
@@ -156,11 +158,13 @@ class LeaveActivity : AppCompatActivity() {
                                 style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
                                 text = "${etcText.length} / $maxChars 글자 이내로 입력해주세요.",
                             )
-                            OutlinedTextField(
+                            TextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(120.dp)
-                                    .padding(horizontal = 30.dp),
+                                    .height(189.dp)
+                                    .padding(horizontal = 30.dp)
+                                    .background(color = colorResource(id = R.color.white)),
+                                shape = RoundedCornerShape(10.dp),
                                 value = etcText,
                                 onValueChange = {
                                     if (it.length <= maxChars) {
@@ -171,8 +175,8 @@ class LeaveActivity : AppCompatActivity() {
                                     Text(
                                         text = "기타 탈퇴 사유를 입력해 주세요. 고객님의 소중한 의견을 반영하여, 더 좋은 서비스로 찾아뵙겠습니다.",
                                         style = TextStyle(
-                                            fontSize = 14.sp,
-                                            color = colorResource(id = R.color.color_78899F)
+                                            fontSize = 16.sp,
+                                            color = colorResource(id = R.color.color_282828)
                                         )
                                     )
                                 },
@@ -257,7 +261,7 @@ class LeaveActivity : AppCompatActivity() {
                             .fillMaxWidth()
                             .height(30.dp)
                             .padding(top = 5.dp),
-                        text = data.text, style = TextStyle(color = Color.White, fontSize = 14.sp),
+                        text = data.text, style = TextStyle(color = Color.White, fontSize = 19.sp),
                         textAlign = TextAlign.Start
                     )
                 }
@@ -271,7 +275,7 @@ class LeaveActivity : AppCompatActivity() {
         Text(
             modifier = Modifier.padding(horizontal = 30.dp),
             text = text,
-            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 21.sp, color = Color.White)
         )
     }
 
