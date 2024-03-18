@@ -68,9 +68,17 @@ class BluetoothNetworkRepository @Inject constructor(
                 when {
                     _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered -> {
                     }
-                    else -> {
-                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered -> {
+                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Registered) }
                         insertLog(result.bluetoothState)
+                    }
+                    _sbSensorInfo.value.bluetoothState == BluetoothState.Registered  && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedByUser && registered.not() -> {
+                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Unregistered) }
+                        insertLog(result.bluetoothState)
+                    }
+                    else -> {
+//                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+//                        insertLog(result.bluetoothState)
                     }
                 }
             }

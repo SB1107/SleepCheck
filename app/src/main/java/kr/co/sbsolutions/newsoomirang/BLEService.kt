@@ -227,7 +227,7 @@ class BLEService : LifecycleService() {
                 }
 
                 BluetoothDevice.ACTION_ACL_CONNECTED -> {
-                    timerOfDisconnection?.cancel()
+                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
                     //Log.d(TAG, "[RCV] ACTION_ACL_CONNECTED ${device?.name} / ${device?.address}")
@@ -251,7 +251,6 @@ class BLEService : LifecycleService() {
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt = device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
-
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
             schedule(timerTask {
@@ -306,13 +305,13 @@ class BLEService : LifecycleService() {
 
 
     override fun onDestroy() {
-        super.onDestroy()
-
         unregisterReceiver(mReceiver)
 
         releaseResource()
         cancelJob()
         stopSelf()
+        logWorkerHelper.insertLog("BLEService onDestroy")
+        super.onDestroy()
     }
 
     private fun releaseResource() {

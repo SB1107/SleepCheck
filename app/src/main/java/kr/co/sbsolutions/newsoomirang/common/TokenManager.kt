@@ -32,38 +32,39 @@ class TokenManager(private val context: Context) {
         }
     }
 
-    fun getFcmToken() : Flow<String?> {
-        return context.tokenStore.data.map {preferences->
+    fun getFcmToken(): Flow<String?> {
+        return context.tokenStore.data.map { preferences ->
             preferences[KEY_FCM_TOKEN]
         }
     }
-    suspend fun saveFcmToken(fcmToken: String){
-        context.tokenStore.edit {preferences ->
+
+    suspend fun saveFcmToken(fcmToken: String) {
+        context.tokenStore.edit { preferences ->
             preferences[KEY_FCM_TOKEN] = fcmToken
         }
     }
 
-    suspend fun deleteFcmToken(){
-        context.tokenStore.edit {preferences->
+    suspend fun deleteFcmToken() {
+        context.tokenStore.edit { preferences ->
             preferences.remove(KEY_FCM_TOKEN)
         }
     }
-    fun isFirstAndEqualFcmToken() : Flow<Boolean> {
-        return context.tokenStore.data.map { preferences ->
-            preferences[KEY_IS_TOKEN_CHECK] ?: true
+
+    suspend fun setUpdateFcmToken() {
+        context.tokenStore.edit { preferences ->
+            preferences[KEY_IS_TOKEN_CHECK] = true
         }
     }
 
-    suspend fun setDifferentValue(){
+    suspend fun setDifferentValue() {
         context.tokenStore.edit { preferences ->
             preferences[KEY_IS_TOKEN_CHECK] = false
         }
     }
 
-    fun getFcmTokenState() {
-        context.tokenStore.data.map{ preferences ->
-            preferences[KEY_IS_TOKEN_CHECK]
+    suspend fun getTokenState(): Flow<Boolean> {
+        return context.tokenStore.data.map { preferences ->
+            preferences[KEY_IS_TOKEN_CHECK] ?: false
         }
     }
-
 }

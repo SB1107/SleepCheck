@@ -10,7 +10,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
@@ -19,7 +18,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
-import kr.co.sbsolutions.newsoomirang.common.UploadWorker
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao

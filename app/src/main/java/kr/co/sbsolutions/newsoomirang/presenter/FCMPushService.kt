@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
@@ -30,6 +31,8 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
     lateinit var notificationBuilder: NotificationCompat.Builder
     @Inject
     lateinit var notificationManager: NotificationManager
+    @Inject
+    lateinit var logWorkerHelper: LogWorkerHelper
 
 
     companion object {
@@ -44,6 +47,8 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 
         lifecycleScope.launch(Dispatchers.IO) {
             tokenManager.saveFcmToken(token)
+            tokenManager.setDifferentValue()
+            logWorkerHelper.insertLog("[FMS] UpdateFcm / FCMPushService: $token")
             Log.d(TAG, "[FMS] UpdateFcm / MyFirebaseMessagingService: $token")
         }
         Log.d(TAG, "[FMS] Token created: $token")

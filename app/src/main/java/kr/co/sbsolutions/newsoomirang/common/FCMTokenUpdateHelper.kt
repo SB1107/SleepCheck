@@ -14,25 +14,17 @@ import javax.inject.Inject
 class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource , logWorkerHelper: LogWorkerHelper) {
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            tokenManager.getFcmToken().collect(){
-//                Log.d(TAG, "토큰 생성 발생!!: $it ")
-                it?.let {
-                    tokenManager.getToken().first()?.let { _ ->
-                        CoroutineScope(Dispatchers.IO).launch {
-                            RequestHelper(this, tokenManager = tokenManager, dataManager = dataManager)
-                                .apply { setLogWorkerHelper(logWorkerHelper)}
-                                .request({
-                                    authAPIRepository.postNewFcmToken(it)
-                                }).collectLatest { userEntity ->
-                                    Log.d(TAG, "$userEntity")
-                                }
-
+            val state = tokenManager.getTokenState().first()
+            val token = tokenManager.getFcmToken().first()
+            if (state.not() && token?.isNotEmpty() == true) {
+                    RequestHelper(this, tokenManager = tokenManager, dataManager = dataManager)
+                        .apply { setLogWorkerHelper(logWorkerHelper)}
+                        .request({
+                            authAPIRepository.postNewFcmToken(token!!)
+                        }).collectLatest { userEntity ->
+                            Log.d(TAG, "$userEntity")
+                            tokenManager.setUpdateFcmToken()
                         }
-                    }
-
-                }
-
-
             }
         }
     }
