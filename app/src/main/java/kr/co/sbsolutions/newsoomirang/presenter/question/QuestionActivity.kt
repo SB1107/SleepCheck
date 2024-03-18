@@ -249,7 +249,7 @@ class QuestionActivity : BaseActivity() {
                                     putExtra("content", data.content)
                                     putExtra("ansContent", data.ansContent)
                                     putExtra("ansCreatedAt", data.ansCreatedAt)
-
+                                    putExtra("answer", data.answer)
                                 })
                         },
                         Modifier

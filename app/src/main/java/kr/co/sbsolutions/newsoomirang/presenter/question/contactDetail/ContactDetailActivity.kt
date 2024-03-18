@@ -2,42 +2,26 @@ package kr.co.sbsolutions.newsoomirang.presenter.question.contactDetail
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.toDate
+import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.components.Components
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 
 @AndroidEntryPoint
@@ -109,6 +93,15 @@ class ContactDetailActivity : BaseServiceActivity() {
         val ansCreatedAt = intent.let { it ->
             it?.getStringExtra("ansCreatedAt")
         } ?: ""
+        val answer = intent.let { it ->
+            it?.getStringExtra("answer")
+        } ?: ""
+
+        val createdAt = createDate.toDate("yy-MM-dd HH:mm")?.toDayString("yy년 MM월 dd일")
+        val endAt = if (ansCreatedAt == "") "" else ansCreatedAt.toDate("yy-MM-dd HH:mm")
+            ?.toDayString("yy년 MM월 dd일")
+
+//        val titleDate = endedAt?.toDayString("yy년 MM월 dd일")
 
         /*Log.d(TAG, "createDate: $createDate")
         Log.d(TAG, "title: $title")
@@ -118,113 +111,138 @@ class ContactDetailActivity : BaseServiceActivity() {
 
         SpacerHeight(size = 10)
         Row {
+            //답변 상태
             Text(
-                textAlign = TextAlign.Start,
                 modifier = Modifier
-                    .weight(1f),
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                text = "문의 제목",
+                    .width(80.dp)
+                    .background(
+                        color = if (answer == "Y") colorResource(id = R.color.color_0086FF) else colorResource(
+                            id = R.color.color_gradient_center
+                        ),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(vertical = 5.dp),
+                text = if (answer == "Y") "답변완료" else "답변전",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                ),
             )
 
+            //작성일
             Text(
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .weight(2f),
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                text = "작성일 : $createDate",
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontSize = 16.sp
+                ),
+                text = "$createdAt",
             )
         }
-
+        SpacerHeight(size = 15)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+
         ) {
+            //문의 제목
             Text(
+                textAlign = TextAlign.Start,
                 text = title,
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF))
-            )
-        }
-
-        Text(
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth(),
-            style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-            text = "문의 내용",
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = colorResource(id = R.color.color_0F63C8),
-                    shape = RoundedCornerShape(5.dp)
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 21.sp
                 )
-                .padding(16.dp)
-        ) {
-            Text(
-                text = content,
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)) // 텍스트의 색상을 설정합니다.
             )
         }
         SpacerHeight(size = 20)
-        Row {
-            Text(
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .weight(1f),
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                text = "답변 내용",
-            )
-
-            Text(
-                textAlign = TextAlign.End,
-                modifier = Modifier
-                    .weight(2f),
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                text = "답변일 : $ansCreatedAt",
-            )
-        }
-
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = colorResource(id = R.color.color_0F63C8),
-                    shape = RoundedCornerShape(5.dp)
-                )
-                .padding(16.dp)
         ) {
             Text(
-                text = ansContent,
-                style = TextStyle(color = colorResource(id = R.color.color_FFFFFF))
+                textAlign = TextAlign.Start,
+                text = content,
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontSize = 21.sp
+                )
             )
         }
+
+
+        SpacerHeight(size = 20)
+        HorizontalDivider(thickness = 1.dp, color = Color.White)
+        SpacerHeight(size = 20)
+        if (answer == "Y") AnsState(endAt.toString(), ansContent) else NoAnsState()
         SpacerHeight(size = 10)
     }
 
     @Composable
-    fun TitleText(text: String, textSize: Int, color: Color = Color.White) {
+    fun NoAnsState() {
+        SpacerHeight(size = 30)
         Text(
-            text = text,
-            style = TextStyle(fontWeight = FontWeight.Bold, color = color),
-            fontSize = textSize.sp
+            modifier = Modifier
+            .fillMaxWidth(),
+            style = TextStyle(
+                color = colorResource(id = R.color.color_FFFFFF),
+                textAlign = TextAlign.Center,
+                fontSize = 21.sp
+            ),
+            text = "답변을 등록하고 있습니다.\n조금만 기다려주세요.!"
         )
+        SpacerHeight(size = 30)
+
     }
 
     @Composable
-    fun DetailText(text: String, textSize: Int, color: Color = Color.White) {
-        Text(
-            text = text,
-            style = TextStyle(color = color),
-            fontSize = textSize.sp
-        )
-    }
+    fun AnsState(endAt: String, ansContent: String) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                textAlign = TextAlign.Start,
+                modifier = Modifier,
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 21.sp
+                ),
+                text = "답변 내용",
+            )
+            Text(
+                textAlign = TextAlign.End,
+                modifier = Modifier,
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontSize = 16.sp
+                ),
+                text = endAt,
+            )
+        }
 
+        SpacerHeight(size = 20)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                textAlign = TextAlign.Start,
+                text = ansContent,
+                style = TextStyle(
+                    color = colorResource(id = R.color.color_FFFFFF),
+                    fontSize = 21.sp
+                )
+            )
+        }
+    }
     @Composable
     fun SpacerHeight(size: Int) {
         Spacer(modifier = Modifier.height(size.dp))
