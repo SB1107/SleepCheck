@@ -95,7 +95,7 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
-        var instance : BLEService? = null
+        var instance: BLEService? = null
 
     }
 
@@ -170,7 +170,7 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        instance  = this
+        instance = this
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
@@ -227,7 +227,7 @@ class BLEService : LifecycleService() {
                 }
 
                 BluetoothDevice.ACTION_ACL_CONNECTED -> {
-                     timerOfDisconnection?.cancel()
+                    timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
                     //Log.d(TAG, "[RCV] ACTION_ACL_CONNECTED ${device?.name} / ${device?.address}")
@@ -299,7 +299,7 @@ class BLEService : LifecycleService() {
 
     }
 
-    fun stopTimer() {
+    private fun stopTimer() {
         timeHelper.stopTimer()
     }
 
@@ -365,8 +365,11 @@ class BLEService : LifecycleService() {
                             WorkInfo.State.RUNNING -> {}
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
-                                    logWorkerHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.getString("reason")}")
-                                    uploadWorker(dataId, forceClose, sleepType, snoreTime, isFilePass)
+                                    val reason = workInfo.outputData.getString("reason")
+                                    logWorkerHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
+                                    if (reason == null) {
+                                        uploadWorker(dataId, forceClose, sleepType, snoreTime, isFilePass)
+                                    }
                                 }
                             }
 
@@ -709,39 +712,6 @@ class BLEService : LifecycleService() {
         }
     }
 
-    private fun exportLastFile(dataId: Int, max: Int, isForcedClose: Boolean, sleepType: SleepType, snoreTime: Long = 0, sensorName: String) {
-
-        lifecycleScope.launch(IO) {
-            val min = sbSensorDBRepository.getMinIndex(dataId)
-            val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
-
-            Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-            logWorkerHelper.insertLog("exportLastFile - Size : $size")
-            if (size < 100) {
-                Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-                finishService(dataId, isForcedClose)
-                logWorkerHelper.insertLog("exportLastFile -  size 100 미만 : $size")
-                return@launch
-            }
-
-            val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
-            val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
-            val filePath = "$filesDir/${time}($dataId).csv"
-            val file = File(filePath)
-            Log.d(TAG, "exportLastFile - make Start ${time}.csv")
-            FileWriter(file).use { fw ->
-                CSVWriter(fw).use { cw ->
-//                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
-                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
-                    sbList.forEach { data ->
-                        cw.writeNext(data.toArray())
-                    }
-                }
-            }
-            logWorkerHelper.insertLog("uploading: exportFile")
-            uploading(dataId, file, sbList, true, isForcedClose, sleepType, snoreTime, sensorName)
-        }
-    }
 
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
@@ -768,24 +738,6 @@ class BLEService : LifecycleService() {
         logWorkerHelper.insertLog("finishService")
     }
 
-    /*private fun endMeasure(dataId: Int) {
-        baseRequest({
-            if(it != ApiResponse.Loading) {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
-            }
-        }, object: CoroutinesErrorHandler {
-            override fun onError(message: String) { }
-        }) {
-            apneaUploadRepository.uploadEnd(UploadDataId(dataId))
-        }
-
-        *//*baseRequest(_responseEndUpload, object: BaseViewModel.CoroutinesErrorHandler {
-            override fun onError(message: String) {
-                _responseEndUpload.value = ApiResponse.Failure(ResultError.ErrNetwork)
-            }
-        }) { apneaUploadRepository.uploadEnd(UploadDataId(dataId)) }*//*
-    }*/
     private fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0, sensorName: String) {
 
         lifecycleScope.launch(IO) {

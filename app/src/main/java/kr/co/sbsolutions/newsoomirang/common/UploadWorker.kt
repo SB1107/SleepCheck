@@ -66,8 +66,9 @@ class UploadWorker @AssistedInject constructor(
             val sensorName = inputData.getString("sensorName") ?: ""
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
             if (dataId == -1) {
-                Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
+                return@withContext  Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
             }
+
             if (isFilePass) {
                 uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }else{
@@ -87,8 +88,8 @@ class UploadWorker @AssistedInject constructor(
             logWorkerHelper.insertLog("exportLastFile - Size : $size")
             if (size < 100) {
                 Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-                logWorkerHelper.insertLog("exportLastFile -  size 100 미만 : $size")
-                Result.failure(Data.Builder().apply { putString("reason", "size 100 미만") }.build())
+                logWorkerHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
+               return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
             }
             val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
             val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
