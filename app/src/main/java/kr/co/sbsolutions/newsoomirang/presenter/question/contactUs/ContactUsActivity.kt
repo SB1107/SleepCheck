@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,7 @@ import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 
 @AndroidEntryPoint
 class ContactUsActivity : BaseServiceActivity() {
@@ -86,131 +88,135 @@ class ContactUsActivity : BaseServiceActivity() {
     @Preview
     @Composable
     fun DefaultPreview(baseEntity: BaseEntity = BaseEntity()) {
-        var etcText by remember{ mutableStateOf("") }
+        var etcText by remember { mutableStateOf("") }
         var etcTitleText by remember { mutableStateOf("") }
 
-        if (baseEntity.success){
+        if (baseEntity.success) {
             showAlertDialog(message = baseEntity.message, confirmAction = { newBackPressed() })
             etcText = ""
             etcTitleText = ""
         }
-
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(LocalContext.current.getColor(R.color.color_061629)),
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            text = "문의하기",
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold,
-                                color = colorResource(id = R.color.color_FFFFFF)
-                            ),
-                            fontSize = 16.sp,
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { finish() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "뒤로가기",
-                                tint = Color.White
-                            )
-                        }
-                    },
-                )
-            },
-            bottomBar = {
-                Column {
-                    SpacerHeight(size = 30)
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .padding(horizontal = 30.dp, vertical = 0.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        onClick = {
-                            if (etcTitleText.isEmpty()) {
-                                showAlertDialog(message = "제목을 입력해주세요.")
-                            } else if (etcText.isEmpty()) {
-                                showAlertDialog(message = "내용을 입력해주세요.")
-                            } else if(etcText.length > 200){
-                                showAlertDialog(message = "200자 이내로 입력해주세요.")
-                            }
-                             if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200){
-                                viewModel.sendDetail(etcTitleText,etcText)
-                            }
-                        },
-                    ) {
-                        DetailText(text = "문의하기", textSize = 16)
-                    }
-                    SpacerHeight(size = 30)
+        SoomScaffold(topText = "문의하기",
+            topAction = { finish() },
+            childView = {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 30.dp)
+                ) {
+                    Log.d(TAG, "DefaultPreview: $etcText")
+                    Contact(
+                        etcTitleText = etcTitleText,
+                        etcText = etcText,
+                        titleValueChange = { value -> etcTitleText = value },
+                        textValueChange = { value -> etcText = value }
+                    )
                 }
-            }) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .background(color = colorResource(R.color.color_061629))
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 30.dp, vertical = 0.dp)
-                    .padding(innerPadding),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Contact(etcTitleText = etcTitleText, etcText = etcText, titleValueChange = {value -> etcTitleText = value}, textValueChange = {value -> if (etcText.length <= 200)  etcText = value})
             }
-        }
+        )
     }
-
 
     //문의하기 화면
     @Composable
-    fun Contact(etcTitleText: String, etcText: String, titleValueChange: (String) -> Unit, textValueChange: (String) -> Unit) {
+    fun Contact(
+        etcTitleText: String,
+        etcText: String,
+        titleValueChange: (String) -> Unit,
+        textValueChange: (String) -> Unit
+    ) {
         /*Log.d(TAG, "Contact: $etcTitleText $etcText")
         Log.d(TAG, "Contact: $titleValueChange $textValueChange")*/
 
-
-
-        SpacerHeight(size = 10)
-        OutlinedTextField(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            value = etcTitleText,
-            onValueChange = titleValueChange,
-            placeholder = { Text(text = "제목을 입력해주세요.") },
-            textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = colorResource(id = R.color.color_0F63C8),
-                unfocusedBorderColor = colorResource(id = R.color.color_0F63C8),
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+
+            SpacerHeight(size = 10)
+            TitleText(text = "문의 제목", textSize = 21)
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                value = etcTitleText,
+                onValueChange = titleValueChange,
+                placeholder = {
+                    Text(
+                        text = "제목을 입력해주세요.", style = TextStyle(
+                            color = colorResource(
+                                id = R.color.color_FFFFFF
+                            )
+                        )
+                    )
+                },
+                textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorResource(id = R.color.color_FFFFFF),
+                    unfocusedBorderColor = colorResource(id = R.color.color_FFFFFF),
+                )
             )
-        )
-        SpacerHeight(size = 5)
-        Text(
-            textAlign = TextAlign.End,
-            modifier = Modifier
-                .fillMaxWidth(),
-            style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-            text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
-        )
 
-        OutlinedTextField(
+            SpacerHeight(size = 5)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TitleText(text = "문의 내용", textSize = 21)
+                Text(
+                    textAlign = TextAlign.End,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
+                    text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
+                )
+            }
+
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                value = etcText,
+                onValueChange = textValueChange,
+                placeholder = {
+                    Text(
+                        text = "문의할 내용을 입력해주세요.", style = TextStyle(
+                            color = colorResource(
+                                id = R.color.color_FFFFFF
+                            )
+                        )
+                    )
+                },
+                textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = colorResource(id = R.color.color_FFFFFF),
+                    unfocusedBorderColor = colorResource(id = R.color.color_FFFFFF),
+                )
+            )
+            SpacerHeight(size = 60)
+        }
+        Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp),
-            value = etcText,
-            onValueChange = textValueChange
-            ,
-            placeholder = { Text(text = "문의할 내용을 입력해주세요.") },
-            textStyle = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = colorResource(id = R.color.color_0F63C8),
-                unfocusedBorderColor = colorResource(id = R.color.color_0F63C8),
-            )
-        )
+                .height(50.dp),
+            shape = RoundedCornerShape(10.dp),
+            onClick = {
+                if (etcTitleText.isEmpty()) {
+                    showAlertDialog(message = "제목을 입력해주세요.")
+                } else if (etcText.isEmpty()) {
+                    showAlertDialog(message = "내용을 입력해주세요.")
+                } else if (etcText.length > 200) {
+                    showAlertDialog(message = "200자 이내로 입력해주세요.")
+                }
+                if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
+                    viewModel.sendDetail(etcTitleText, etcText)
+                }
+            },
+        ) {
+            DetailText(text = "문의하기", textSize = 16)
+        }
         SpacerHeight(size = 10)
+
     }
 
     @Composable
