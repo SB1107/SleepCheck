@@ -367,6 +367,7 @@ class BLEService : LifecycleService() {
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
                                     logWorkerHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.getString("reason")}")
+                                    uploadWorker(dataId, forceClose, sleepType, snoreTime, isFilePass)
                                 }
                             }
 
