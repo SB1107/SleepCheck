@@ -97,7 +97,7 @@ dependencies {
 
     //스플레시 스크린
     implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
-    implementation("androidx.activity:activity:1.8.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
     //라이프 사이클
     val lifecycle_version = "2.6.2"
@@ -187,7 +187,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    implementation ("com.airbnb.android:lottie:6.3.0")                            // Lottie
+    implementation ("com.airbnb.android:lottie:6.4.0")                            // Lottie
     implementation ("com.airbnb.android:lottie-compose:6.4.0")                            // Lottie
 
     implementation ("com.kakao.sdk:v2-user:2.19.0") // 카카오 로그인 API 모듈

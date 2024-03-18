@@ -24,7 +24,8 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Set the splash screen background to black -->
-        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <item name="windowSplashScreenBackground">@color/color_1D8089</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/new_logo</item>
         <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
              drawable. -->
         <!--        <item name="windowSplashScreenAnimatedIcon"></item>-->

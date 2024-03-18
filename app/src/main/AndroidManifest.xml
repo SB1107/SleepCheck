@@ -26,26 +26,15 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher_newsoomirang"
+        android:icon="@mipmap/new_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_newsoomirang"
+        android:roundIcon="@mipmap/new_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
             android:name=".presenter.main.history.detail.HistoryDetailActivity"
-            android:exported="false"
-            tools:ignore="AppLinkUrlError">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:host="kakaolink"
-                    android:scheme="kakaoe20714ce376e41e7c1d8c98a309e98e3" />
-            </intent-filter>
-
-        </activity>
+            android:exported="false"/>
         <activity
             android:name=".presenter.leave.LeaveActivity"
             android:exported="false" />

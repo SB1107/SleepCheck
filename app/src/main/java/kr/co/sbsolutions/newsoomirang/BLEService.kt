@@ -170,6 +170,8 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
+        logWorkerHelper.insertLog("[M] Model Name: "+Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
         instance = this
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
