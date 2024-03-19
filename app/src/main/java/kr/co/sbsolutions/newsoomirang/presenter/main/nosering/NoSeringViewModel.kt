@@ -88,6 +88,7 @@ class NoSeringViewModel @Inject constructor(
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
+                        insertLog("서비스가 없습니다.")
                         reLoginCallBack()
                     }
                 } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
