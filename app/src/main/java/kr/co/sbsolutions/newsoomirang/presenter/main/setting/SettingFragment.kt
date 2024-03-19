@@ -21,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
@@ -68,7 +69,9 @@ class SettingFragment : Fragment() {
         }
         //로그아웃
         binding.clLogout.setOnClickListener {
-            viewModel.logout()
+            requireActivity().showAlertDialogWithCancel(message = "로그아웃 하시겠습니까?", confirmAction = {
+                viewModel.logout()
+            })
         }
 
 

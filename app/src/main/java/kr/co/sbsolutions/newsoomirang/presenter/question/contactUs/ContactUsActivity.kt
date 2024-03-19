@@ -17,10 +17,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +46,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -137,11 +142,9 @@ class ContactUsActivity : BaseServiceActivity() {
         /*Log.d(TAG, "Contact: $etcTitleText $etcText")
         Log.d(TAG, "Contact: $titleValueChange $textValueChange")*/
 
-        val scrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
@@ -151,6 +154,8 @@ class ContactUsActivity : BaseServiceActivity() {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = etcTitleText,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                 onValueChange = titleValueChange,
                 placeholder = {
                     Text(
@@ -184,13 +189,12 @@ class ContactUsActivity : BaseServiceActivity() {
                     text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
                 )
             }
-
-
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp),
                 value = etcText,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 onValueChange = textValueChange,
                 placeholder = {
                     Text(
@@ -208,28 +212,36 @@ class ContactUsActivity : BaseServiceActivity() {
                 )
             )
             SpacerHeight(size = 60)
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(10.dp),
-                onClick = {
-                    if (etcTitleText.isEmpty()) {
-                        showAlertDialog(message = "제목을 입력해주세요.")
-                    } else if (etcText.isEmpty()) {
-                        showAlertDialog(message = "내용을 입력해주세요.")
-                    } else if (etcText.length > 200) {
-                        showAlertDialog(message = "200자 이내로 입력해주세요.")
-                    }
-                    if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
-                        viewModel.sendDetail(etcTitleText, etcText)
-                    }
-                },
-            ) {
-                DetailText(text = "문의하기", textSize = 16)
-            }
-            SpacerHeight(size = 15)
         }
+        Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.color_yellow),
+                contentColor = Color.Black,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+
+            onClick = {
+                if (etcTitleText.isEmpty()) {
+                    showAlertDialog(message = "제목을 입력해주세요.")
+                } else if (etcText.isEmpty()) {
+                    showAlertDialog(message = "내용을 입력해주세요.")
+                } else if (etcText.length > 200) {
+                    showAlertDialog(message = "200자 이내로 입력해주세요.")
+                }
+                if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
+                    viewModel.sendDetail(etcTitleText, etcText)
+                }
+            },
+        ) {
+            DetailText(text = "문의하기", textSize = 16, color = Color.Black)
+        }
+        SpacerHeight(size = 15)
+
     }
 
     @Composable

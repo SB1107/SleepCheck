@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,6 +38,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -180,7 +182,8 @@ class LeaveActivity : AppCompatActivity() {
                                         )
                                     )
                                 },
-                                textStyle = TextStyle(color = Color.White, fontSize = 14.sp),
+                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                                textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = colorResource(id = R.color.color_0F63C8),
                                     unfocusedBorderColor = colorResource(id = R.color.color_0F63C8)

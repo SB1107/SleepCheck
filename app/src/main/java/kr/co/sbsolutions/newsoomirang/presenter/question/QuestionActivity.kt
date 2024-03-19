@@ -3,10 +3,8 @@ package kr.co.sbsolutions.newsoomirang.presenter.question
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -195,18 +193,7 @@ class QuestionActivity : BaseActivity() {
                 .padding(16.dp)
                 .clickable(
                     onClick = {
-                        startActivity(
-                            Intent(
-                                this@QuestionActivity,
-                                ContactDetailActivity::class.java
-                            ).apply {
-                                putExtra("date", data.createdAt)
-                                putExtra("title", data.title)
-                                putExtra("content", data.content)
-                                putExtra("ansContent", data.ansContent)
-                                putExtra("ansCreatedAt", data.ansCreatedAt)
-                                putExtra("answer", data.answer)
-                            })
+                        gotoDetailActivity(data)
                     }
                 ),
         ) {
@@ -262,7 +249,9 @@ class QuestionActivity : BaseActivity() {
                         overflow = TextOverflow.Ellipsis
                     )
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            gotoDetailActivity(data)
+                        },
                         Modifier
                             .size(33.dp, 33.dp)
                             .clip(RoundedCornerShape(10.dp)),
@@ -275,6 +264,21 @@ class QuestionActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    private fun gotoDetailActivity(data: ContactData) {
+        startActivity(
+            Intent(
+                this@QuestionActivity,
+                ContactDetailActivity::class.java
+            ).apply {
+                putExtra("date", data.createdAt)
+                putExtra("title", data.title)
+                putExtra("content", data.content)
+                putExtra("ansContent", data.ansContent)
+                putExtra("ansCreatedAt", data.ansCreatedAt)
+                putExtra("answer", data.answer)
+            })
     }
 
     private fun setObservers() {
