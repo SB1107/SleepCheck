@@ -66,7 +66,7 @@ class SensorViewModel @Inject constructor(
     private val _checkSensorResult: MutableStateFlow<String?> = MutableStateFlow(null)
     val checkSensorResult: SharedFlow<String?> = _checkSensorResult.asSharedFlow()
 
-    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
+//    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
@@ -75,9 +75,6 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch {
             launch {
                 getName()
-                if (bluetoothInfo.bluetoothState == BluetoothState.Registered) {
-//                    changeStatus(bluetoothInfo)
-                }
                 if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
                     dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }
@@ -93,7 +90,6 @@ class SensorViewModel @Inject constructor(
     }
 
 
-
     fun bleConnectOrDisconnect() {
         viewModelScope.launch(Dispatchers.IO) {
             when (bluetoothInfo.bluetoothState) {
@@ -104,8 +100,21 @@ class SensorViewModel @Inject constructor(
 
                 //측정중
                 BluetoothState.Connected.ReceivingRealtime,
-                BluetoothState.Connected.SendDownloadContinue ->{
-                    sendErrorMessage(("호흡 측정중 입니다.\n측정을 종료후 시도해주세요"))
+                BluetoothState.Connected.SendDownloadContinue -> {
+                    sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
+                }
+
+                BluetoothState.Connected.Init,
+                BluetoothState.Connected.DataFlow,
+                BluetoothState.Connected.Finish,
+                BluetoothState.Connected.End,
+                BluetoothState.Connected.ForceEnd,
+                BluetoothState.DisconnectedByUser -> {
+                    disconnectDevice()
+                }
+
+                BluetoothState.DisconnectedNotIntent -> {
+                    sendErrorMessage(("측정 종료후 시도해주세요."))
                 }
 
                 //연결 해제
@@ -141,9 +150,10 @@ class SensorViewModel @Inject constructor(
 //        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.disconnectDevice(bluetoothInfo)
-            _disconnected.emit(dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name))
+            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
             _bleName.emit("연결된 기기가 없습니다.")
             _searchBtnName.emit("숨이랑 센서 찾기")
+            scanBLEDevices()
         }
 
         /*// 상태 정리 필요함

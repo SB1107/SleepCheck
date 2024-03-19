@@ -1,16 +1,11 @@
 package kr.co.sbsolutions.newsoomirang.presenter
 
-import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.CallSuper
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
@@ -18,26 +13,14 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
-import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
-import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.lang.ref.WeakReference
-import javax.annotation.Nullable
-import javax.inject.Inject
 
 
-abstract class BaseServiceActivity : BaseActivity() {
+abstract class BaseServiceActivity : BluetoothActivity() {
     private lateinit var service: WeakReference<BLEService>
-    private lateinit var bluetoothActivityResultLauncher: ActivityResultLauncher<Intent>
-
-    private val bluetoothAdapter: BluetoothAdapter? by lazy {
-        this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
-            return@run adapter
-        }
-    }
 
     override fun onStart() {
         super.onStart()
@@ -46,7 +29,6 @@ abstract class BaseServiceActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onBluetoothActive()
     }
 
     override fun onDestroy() {
@@ -56,26 +38,6 @@ abstract class BaseServiceActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        bluetoothAdapter?.let {
-            if (!it.isEnabled) {
-                showAlertDialogWithCancel(R.string.common_title, "블루투스를 활성화가 필요합니다. \n활성화 하시겠습니까?",
-                    confirmButtonText = R.string.setting_bluetooth_connect,
-                    confirmAction = {
-                        requestBluetoothActivation()
-                    },
-                    cancelAction = {
-                        finish()
-                    }
-                )
-            }
-        }?: showAlertDialog(R.string.common_title, "블루투스 사용이 불가한 기기입니다\n 어플리케이션 을 종료 합니다.",
-            cancelable = false,
-            buttonText = R.string.common_ok,
-            confirmAction = {
-                finish()
-            }
-        )
-
     }
 
     protected fun startSBService(am: ActionMessage, dataId: Int? = null) {
@@ -149,23 +111,4 @@ abstract class BaseServiceActivity : BaseActivity() {
             ApplicationManager.serviceClear()
         }
     }
-
-    private fun onBluetoothActive() {
-        bluetoothActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // 사용자가 블루투스를 활성화했을 때의 처리
-
-            } else {
-                // 사용자가 블루투스를 활성화하지 않았을 때의 처리
-                finish()
-            }
-        }
-//        requestBluetoothActivation()
-    }
-
-    private fun requestBluetoothActivation() {
-        val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        bluetoothActivityResultLauncher.launch(enableBluetoothIntent)
-    }
-
 }

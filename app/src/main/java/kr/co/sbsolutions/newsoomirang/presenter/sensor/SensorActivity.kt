@@ -2,16 +2,10 @@ package kr.co.sbsolutions.newsoomirang.presenter.sensor
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,15 +15,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
-import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
-class SensorActivity : BaseServiceActivity() {
+class SensorActivity : BluetoothActivity() {
 
     override fun newBackPressed() {
         finish()
@@ -61,7 +54,6 @@ class SensorActivity : BaseServiceActivity() {
 
 
     private val bleClickListener: (BluetoothDevice) -> Unit = { bluetoothDevice ->
-
         lifecycleScope.launch {
             viewModel.registerDevice(bluetoothDevice)
 
@@ -75,15 +67,11 @@ class SensorActivity : BaseServiceActivity() {
         }
     }
 
-    private lateinit var bluetoothActivityResultLauncher: ActivityResultLauncher<Intent>
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         bindViews()
-        onBluetoothActive()
     }
 
     override fun onResume() {
@@ -184,24 +172,6 @@ class SensorActivity : BaseServiceActivity() {
                 }
             }
         }
-    }
-
-    private fun onBluetoothActive() {
-        bluetoothActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // 사용자가 블루투스를 활성화했을 때의 처리
-
-            } else {
-                // 사용자가 블루투스를 활성화하지 않았을 때의 처리
-                finish()
-            }
-        }
-        requestBluetoothActivation()
-    }
-
-    private fun requestBluetoothActivation() {
-        val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        bluetoothActivityResultLauncher.launch(enableBluetoothIntent)
     }
 
 }
