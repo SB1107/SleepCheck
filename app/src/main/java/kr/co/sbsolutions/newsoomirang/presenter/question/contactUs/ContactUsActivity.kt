@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.question.contactUs
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,7 +47,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -54,6 +58,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
+import kr.co.sbsolutions.newsoomirang.databinding.ActivityQuestionBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
@@ -61,6 +66,9 @@ import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffo
 @AndroidEntryPoint
 class ContactUsActivity : BaseServiceActivity() {
     private val viewModel: ContactUsViewModel by viewModels()
+    private val binding: ActivityQuestionBinding by lazy {
+        ActivityQuestionBinding.inflate(layoutInflater)
+    }
 
     override fun newBackPressed() {
         finish()
@@ -72,9 +80,12 @@ class ContactUsActivity : BaseServiceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            val contactResult by viewModel.contactResultData.collectAsState(initial = BaseEntity())
-            DefaultPreview(contactResult)
+        setContentView(binding.root).apply {
+            setContent {
+                val contactResult by viewModel.contactResultData.collectAsState(initial = BaseEntity())
+                DefaultPreview(contactResult)
+            }
+            setObservers()
         }
 
         /*lifecycleScope.launch {
@@ -143,7 +154,7 @@ class ContactUsActivity : BaseServiceActivity() {
                     Text(
                         text = "제목을 입력해주세요.", style = TextStyle(
                             color = colorResource(
-                                id = R.color.color_FFFFFF
+                                id = R.color.color_dedede
                             )
                         )
                     )
@@ -165,7 +176,8 @@ class ContactUsActivity : BaseServiceActivity() {
                 Text(
                     textAlign = TextAlign.End,
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
                     style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
                     text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
                 )
@@ -182,7 +194,7 @@ class ContactUsActivity : BaseServiceActivity() {
                     Text(
                         text = "문의할 내용을 입력해주세요.", style = TextStyle(
                             color = colorResource(
-                                id = R.color.color_FFFFFF
+                                id = R.color.color_dedede
                             )
                         )
                     )
@@ -215,7 +227,7 @@ class ContactUsActivity : BaseServiceActivity() {
         ) {
             DetailText(text = "문의하기", textSize = 16)
         }
-        SpacerHeight(size = 10)
+        SpacerHeight(size = 15)
 
     }
 
@@ -241,4 +253,27 @@ class ContactUsActivity : BaseServiceActivity() {
     fun SpacerHeight(size: Int) {
         Spacer(modifier = Modifier.height(size.dp))
     }
+
+    private fun setObservers() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.contactResultData.collectLatest {
+                        binding.composeView.apply {
+                            /*setContent {
+                                DefaultPreview(it)
+                            }*/
+                        }
+                    }
+                }
+                launch {
+                    viewModel.isProgressBar.collectLatest {
+                        binding.actionProgress.clProgress.visibility =
+                            if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        }
+    }
+
 }

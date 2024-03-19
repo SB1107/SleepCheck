@@ -6,7 +6,9 @@ import android.view.View
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -143,8 +145,11 @@ class QuestionActivity : BaseActivity() {
                             } else {
                                 LazyColumn(
                                     state = scrollState
+
                                 ) {
-                                    items(contactData.result.data ?: emptyList()) { data ->
+                                    items(
+                                        contactData.result.data ?: emptyList()
+                                    ) { data ->
                                         ContactList(data)
                                     }
 
@@ -185,7 +190,26 @@ class QuestionActivity : BaseActivity() {
         val titleDate = endedAt?.toDayString("yy년 MM월 dd일")
 
         HorizontalDivider(thickness = 1.dp, color = Color.White)
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable(
+                    onClick = {
+                        startActivity(
+                            Intent(
+                                this@QuestionActivity,
+                                ContactDetailActivity::class.java
+                            ).apply {
+                                putExtra("date", data.createdAt)
+                                putExtra("title", data.title)
+                                putExtra("content", data.content)
+                                putExtra("ansContent", data.ansContent)
+                                putExtra("ansCreatedAt", data.ansCreatedAt)
+                                putExtra("answer", data.answer)
+                            })
+                    }
+                ),
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -238,20 +262,7 @@ class QuestionActivity : BaseActivity() {
                         overflow = TextOverflow.Ellipsis
                     )
                     IconButton(
-                        onClick = {
-                            startActivity(
-                                Intent(
-                                    this@QuestionActivity,
-                                    ContactDetailActivity::class.java
-                                ).apply {
-                                    putExtra("date", data.createdAt)
-                                    putExtra("title", data.title)
-                                    putExtra("content", data.content)
-                                    putExtra("ansContent", data.ansContent)
-                                    putExtra("ansCreatedAt", data.ansCreatedAt)
-                                    putExtra("answer", data.answer)
-                                })
-                        },
+                        onClick = {},
                         Modifier
                             .size(33.dp, 33.dp)
                             .clip(RoundedCornerShape(10.dp)),
