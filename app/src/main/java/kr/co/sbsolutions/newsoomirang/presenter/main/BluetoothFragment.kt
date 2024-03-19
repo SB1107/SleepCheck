@@ -35,7 +35,7 @@ abstract class BluetoothFragment : Fragment() {
       fun getBluetoothState(state: String) : BluetoothState {
         return when(state){
             "시작" -> BluetoothState.Connected
-            "연결" -> BluetoothState.Disconnected
+            "연결", "연결 끊김" -> BluetoothState.Disconnected
             else -> BluetoothState.Reconnected
         }
     }
@@ -55,9 +55,9 @@ enum class BluetoothState {
     }
     fun  getText() : String{
         return when(this){
-            Connected -> "연결됨"
-            Reconnected -> "재 연결중"
-            Disconnected -> "연결 안됨"
+            Connected -> "연결"
+            Reconnected -> "재연결 중"
+            Disconnected -> "연결 끊김"
         }
     }
 }
