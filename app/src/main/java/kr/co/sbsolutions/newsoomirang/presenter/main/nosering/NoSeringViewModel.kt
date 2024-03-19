@@ -58,7 +58,6 @@ class NoSeringViewModel @Inject constructor(
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
 
 
-
     init {
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -76,29 +75,38 @@ class NoSeringViewModel @Inject constructor(
         }
 
     }
+
     fun startClick() {
 //        Log.d(TAG, "startClick: ${isRegistered()}")
         if (isRegistered(isConnectAlertShow = false)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd)
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
+            )
+
                 viewModelScope.launch {
-                    _showMeasurementAlert.emit(true)
-                }else if(bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
-                    sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
-                }
-        }else{
+                    getService()?.let {
+                        _showMeasurementAlert.emit(true)
+                    } ?: run {
+                        reLoginCallBack()
+                    }
+                } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
+                sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
+            }
+        } else {
             viewModelScope.launch {
                 _isRegisteredMessage.emit("숨이랑 기기와 연결이 되지 않았습니다.\n코골이 만 측정하겠습니까?")
             }
         }
     }
-    fun forceStartClick(){
+
+    fun forceStartClick() {
         viewModelScope.launch {
             _showMeasurementAlert.emit(true)
         }
     }
-    fun bluetoothConnect(){
+
+    fun bluetoothConnect() {
         showConnectAlert()
     }
 
@@ -106,7 +114,7 @@ class NoSeringViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
-            BLEService.instance?.stopSBSensor(true)
+            getService()?.stopSBSensor(true)
         }
     }
 
@@ -119,7 +127,7 @@ class NoSeringViewModel @Inject constructor(
         }
     }
 
-    fun sleepDataCreate() : Flow<Boolean> = callbackFlow {
+    fun sleepDataCreate(): Flow<Boolean> = callbackFlow {
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first().let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it, type = SleepType.NoSering.ordinal.toString())) }
@@ -129,12 +137,7 @@ class NoSeringViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
-//                            getService()?.startSBSensor(id, SleepType.NoSering)
-                            if (BLEService.instance == null) {
-                                setCommend(ServiceCommend.START)
-                                delay(1000)
-                            }
-                            BLEService.instance?.startSBSensor(id, SleepType.NoSering)
+                            getService()?.startSBSensor(id, SleepType.NoSering)
                             setMeasuringState(MeasuringState.Record)
                             trySend(true)
                             close()
@@ -153,7 +156,7 @@ class NoSeringViewModel @Inject constructor(
 
 
     fun stopClick() {
-        if ((BLEService.instance?.timeHelper?.getTime() ?: 0) < 300) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
@@ -182,26 +185,25 @@ class NoSeringViewModel @Inject constructor(
 
     }
 
-/*    fun noSeringResultData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            request { authAPIRepository.getSleepDataResult() }
-                .collectLatest {
-                    Log.e("aa", it.toString())
-                }
-        }
+    /*    fun noSeringResultData() {
+            viewModelScope.launch(Dispatchers.IO) {
+                request { authAPIRepository.getSleepDataResult() }
+                    .collectLatest {
+                        Log.e("aa", it.toString())
+                    }
+            }
 
-    }*/
-
+        }*/
 
 
     override fun whereTag(): String {
-        return  SleepType.NoSering.name
+        return SleepType.NoSering.name
     }
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            BLEService.instance?.timeHelper?.measuringTimer?.collectLatest {
-                    if (bluetoothInfo.sleepType == SleepType.NoSering) {
+            getService()?.timeHelper?.measuringTimer?.collectLatest {
+                if (bluetoothInfo.sleepType == SleepType.NoSering) {
                     _measuringTimer.emit(it)
                 }
             }

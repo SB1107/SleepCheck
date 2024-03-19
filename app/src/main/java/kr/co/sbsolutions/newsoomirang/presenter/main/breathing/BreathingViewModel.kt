@@ -66,13 +66,18 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun startClick() {
+
         if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
             ) {
                 viewModelScope.launch {
-                    _showMeasurementAlert.emit(true)
+                    getService()?.let {
+                        _showMeasurementAlert.emit(true)
+                    } ?: run {
+                      reLoginCallBack()
+                    }
                 }
             } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                 sendErrorMessage("코골이 측정중 입니다. 종료후 사용해 주세요")
@@ -85,14 +90,14 @@ class BreathingViewModel @Inject constructor(
         sleepDataDelete()
         viewModelScope.launch {
 
-            BLEService.instance?.stopSBSensor(true)
+            getService()?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
         }
     }
 
     fun stopClick() {
 
-        if ((BLEService.instance?.timeHelper?.getTime() ?: 0) < 300) {
+        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
             viewModelScope.launch {
                 _showMeasurementCancelAlert.emit(true)
             }
@@ -123,11 +128,7 @@ class BreathingViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
-                            if (BLEService.instance == null) {
-                                setCommend(ServiceCommend.START)
-                                delay(1000)
-                            }
-                            BLEService.instance?.startSBSensor(id, SleepType.Breathing)
+                            getService()?.startSBSensor(id, SleepType.Breathing)
                             setMeasuringState(MeasuringState.FiveRecode)
                             trySend(true)
                             close()
@@ -150,7 +151,7 @@ class BreathingViewModel @Inject constructor(
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            BLEService.instance?.timeHelper?.measuringTimer?.collectLatest {
+            getService()?.timeHelper?.measuringTimer?.collectLatest {
                 if (bluetoothInfo.sleepType == SleepType.Breathing) {
                     _measuringTimer.emit(it)
                 }

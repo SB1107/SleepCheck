@@ -33,6 +33,7 @@ abstract class BaseActivity : AppCompatActivity() {
             endAndStartActivity(Intent(this@BaseActivity, SplashActivity::class.java))
         }
     }
+
     @Inject
     lateinit var  logWorkerHelper: LogWorkerHelper
 
@@ -106,4 +107,8 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun getViewModel(): BaseViewModel {
         return _viewModel
     }
+}
+
+interface resetActivityCallBack {
+    fun reLoading()
 }

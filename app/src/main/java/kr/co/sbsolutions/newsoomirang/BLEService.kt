@@ -95,7 +95,6 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
-        var instance: BLEService? = null
 
     }
 
@@ -172,7 +171,6 @@ class BLEService : LifecycleService() {
         super.onCreate()
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
         logWorkerHelper.insertLog("[M] Model Name: "+Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
-        instance = this
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()

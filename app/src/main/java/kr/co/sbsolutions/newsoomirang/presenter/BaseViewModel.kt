@@ -14,7 +14,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 
 
-open class BaseViewModel(private val dataManager: DataManager, private val tokenManager: TokenManager) : ViewModel() {
+open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) : ViewModel() {
     private val _errorMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val errorMessage: SharedFlow<String> = _errorMessage
 
@@ -49,9 +49,13 @@ open class BaseViewModel(private val dataManager: DataManager, private val token
         requestHelper.setReAuthorizeCallBack(this.reAuthorizeCallBack)
     }
 
+    fun reLoginCallBack() {
+        reAuthorizeCallBack.reLogin()
+    }
     fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper) {
         requestHelper.setLogWorkerHelper(logWorkerHelper)
     }
+
 
     override fun onCleared() {
         super.onCleared()
