@@ -84,11 +84,7 @@
                 android:id="@+id/action_result"
                 layout="@layout/breathing_sending_data"
                 android:visibility="gone" />
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
     </androidx.core.widget.NestedScrollView>
 
 
@@ -98,7 +94,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/new_button"
         android:fontFamily="@font/nanumsquarebold"
         android:scaleType="centerCrop"
@@ -108,9 +104,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scroll_view"
-        app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintVertical_weight="3" />
+        app:layout_constraintTop_toBottomOf="@id/scroll_view" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/stop_button"
@@ -139,8 +133,8 @@
         android:drawableEnd="@drawable/new_ic_battery"
         android:drawablePadding="5dp"
         android:gravity="center"
-        android:paddingVertical="10dp"
         android:paddingHorizontal="15dp"
+        android:paddingVertical="10dp"
         android:text=""
         android:textColor="@color/color_000000"
         android:textSize="20sp"
@@ -155,14 +149,14 @@
         android:id="@+id/tv_bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/battery_back"
         android:drawableEnd="@drawable/bluetooth_disabled"
         android:drawablePadding="5dp"
         android:gravity="center"
-        android:paddingVertical="10dp"
         android:paddingHorizontal="15dp"
+        android:paddingVertical="10dp"
         android:text="연결안됨"
         android:textColor="@color/color_000000"
         android:textSize="20sp"

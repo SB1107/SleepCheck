@@ -71,7 +71,8 @@ object Components {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = colorResource(id = R.color.color_80000000)), contentAlignment = Alignment.Center
+                .background(color = colorResource(id = R.color.color_80000000)),
+            contentAlignment = Alignment.Center
         ) {
             LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever)
         }
@@ -143,7 +144,7 @@ object Components {
                 .fillMaxSize()
                 .padding(bottom = 16.dp, end = 16.dp)
         ) {
-            AnimatedVisibility(visible = isVisiable , enter = fadeIn(), exit = fadeOut()){
+            AnimatedVisibility(visible = isVisiable, enter = fadeIn(), exit = fadeOut()) {
                 IconButton(
                     onClick = {
                         coroutineScope.launch {
@@ -170,17 +171,19 @@ object Components {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            AnimatedVisibility(visible = isVisiable , enter = fadeIn(), exit = fadeOut()){
-               view()
+            AnimatedVisibility(visible = isVisiable, enter = fadeIn(), exit = fadeOut()) {
+                view()
             }
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun SoomScaffold(bgImage : Int = R.drawable.back1 , topText : String = "결과" ,
-                     topAction : () -> Unit,  row  : @Composable RowScope.() -> Unit = {},
-                     childView : @Composable () -> Unit){
+    fun SoomScaffold(
+        bgImage: Int = R.drawable.back1, topText: String = "결과",
+        topAction: () -> Unit, row: @Composable RowScope.() -> Unit = {},
+        childView: @Composable () -> Unit
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource(id = bgImage),

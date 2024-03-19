@@ -13,11 +13,12 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/device_name_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"
         android:background="@drawable/ble_name_rectangle"
         android:fontFamily="@font/nanumsquarebold"
+        android:layout_marginHorizontal="30dp"
         android:gravity="center"
         android:text="연결된 기기가 없습니다."
         android:textColor="@color/color_000000"

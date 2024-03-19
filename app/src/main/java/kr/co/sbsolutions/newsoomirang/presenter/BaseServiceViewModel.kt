@@ -61,9 +61,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                         _bluetoothButtonState.emit("재 연결중")
                     }else if(it.bluetoothState == BluetoothState.DisconnectedNotIntent){
                         _bluetoothButtonState.emit("연결 끊김")
-                        getService()?.timeHelper?.pauseTimer()
                     }else if(it.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
-                        getService()?.timeHelper?.resetTimer()
                         _bluetoothButtonState.emit("시작")
                     }
                     else {

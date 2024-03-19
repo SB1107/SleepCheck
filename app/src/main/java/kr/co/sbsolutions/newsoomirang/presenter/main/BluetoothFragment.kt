@@ -53,11 +53,20 @@ enum class BluetoothState {
             Disconnected -> R.drawable.bluetooth_disabled
         }
     }
-    fun  getText() : String{
-        return when(this){
+    fun  getText() : String {
+        return when(this) {
             Connected -> "연결"
             Reconnected -> "재연결 중"
             Disconnected -> "연결 끊김"
         }
+    }
+
+    fun getStartButtonText() : String {
+        return when(this) {
+            Connected -> "시작"
+            Reconnected -> "시작"
+            Disconnected -> "연결"
+        }
+
     }
 }

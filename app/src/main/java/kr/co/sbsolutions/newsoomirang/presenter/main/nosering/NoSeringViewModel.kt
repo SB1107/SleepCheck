@@ -59,7 +59,6 @@ class NoSeringViewModel @Inject constructor(
 
 
     init {
-
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 settingDataRepository.getSnoringOnOff().let {

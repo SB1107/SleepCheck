@@ -137,9 +137,11 @@ class ContactUsActivity : BaseServiceActivity() {
         /*Log.d(TAG, "Contact: $etcTitleText $etcText")
         Log.d(TAG, "Contact: $titleValueChange $textValueChange")*/
 
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
@@ -206,29 +208,28 @@ class ContactUsActivity : BaseServiceActivity() {
                 )
             )
             SpacerHeight(size = 60)
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(10.dp),
+                onClick = {
+                    if (etcTitleText.isEmpty()) {
+                        showAlertDialog(message = "제목을 입력해주세요.")
+                    } else if (etcText.isEmpty()) {
+                        showAlertDialog(message = "내용을 입력해주세요.")
+                    } else if (etcText.length > 200) {
+                        showAlertDialog(message = "200자 이내로 입력해주세요.")
+                    }
+                    if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
+                        viewModel.sendDetail(etcTitleText, etcText)
+                    }
+                },
+            ) {
+                DetailText(text = "문의하기", textSize = 16)
+            }
+            SpacerHeight(size = 15)
         }
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            shape = RoundedCornerShape(10.dp),
-            onClick = {
-                if (etcTitleText.isEmpty()) {
-                    showAlertDialog(message = "제목을 입력해주세요.")
-                } else if (etcText.isEmpty()) {
-                    showAlertDialog(message = "내용을 입력해주세요.")
-                } else if (etcText.length > 200) {
-                    showAlertDialog(message = "200자 이내로 입력해주세요.")
-                }
-                if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
-                    viewModel.sendDetail(etcTitleText, etcText)
-                }
-            },
-        ) {
-            DetailText(text = "문의하기", textSize = 16)
-        }
-        SpacerHeight(size = 15)
-
     }
 
     @Composable
