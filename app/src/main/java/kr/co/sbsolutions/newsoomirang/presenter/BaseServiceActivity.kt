@@ -67,27 +67,25 @@ abstract class BaseServiceActivity : BluetoothActivity() {
                                     Log.d(TAG, "onServiceAvailable!!!!!!: false")
                                 }
                             }
-
-
                         }
                         ApplicationManager.setBluetoothInfo(info)
                     }
                 }
             }
-            launch {
-                service.get()?.let {
-                    it.spo2SensorInfo.collectLatest { info ->
-            //                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
-                    }
-                }
-            }
-            launch {
-                service.get()?.let {
-                    it.eegSensorInfo.collectLatest { info ->
-//                        changeServiceViewModel()?.onChangeEEGSensorInfo(info)
-                    }
-                }
-            }
+//            launch {
+//                service.get()?.let {
+//                    it.spo2SensorInfo.collectLatest { _ ->
+//            //                        changeServiceViewModel()?.onChangeSpO2SensorInfo(info)
+//                    }
+//                }
+//            }
+//            launch {
+//                service.get()?.let {
+//                    it.eegSensorInfo.collectLatest { _ ->
+////                        changeServiceViewModel()?.onChangeEEGSensorInfo(info)
+//                    }
+//                }
+//            }
         }
     }
 

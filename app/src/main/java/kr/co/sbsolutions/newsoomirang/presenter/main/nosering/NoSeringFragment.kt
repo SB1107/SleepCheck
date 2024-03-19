@@ -5,19 +5,15 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,16 +21,14 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
-import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
-import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
+import kr.co.sbsolutions.newsoomirang.presenter.main.BluetoothFragment
+import kr.co.sbsolutions.newsoomirang.presenter.main.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
@@ -43,27 +37,11 @@ import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
 
 @AndroidEntryPoint
-class NoSeringFragment : Fragment() {
-    private val viewModel: NoSeringViewModel by viewModels()
+class NoSeringFragment : BluetoothFragment() {
+    override val viewModel: NoSeringViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
-    }
-    private val connectInfoBinding: DialogConnectInfoBinding by lazy {
-        DialogConnectInfoBinding.inflate(layoutInflater)
-    }
-
-    private val connectInfoDialog by lazy {
-        BottomSheetDialog(requireContext()).apply {
-            setContentView(connectInfoBinding.root, null)
-            connectInfoBinding.btConnect.setOnClickListener {
-                viewModel.connectClick()
-                this.dismiss()
-            }
-            connectInfoBinding.btLater.setOnClickListener {
-                this.dismiss()
-            }
-        }
     }
 
     override fun onCreateView(
@@ -224,6 +202,7 @@ class NoSeringFragment : Fragment() {
                             binding.type0Chip.isEnabled = isEnabled
                             binding.type1Chip.isEnabled = isEnabled
                             binding.type2Chip.isEnabled = isEnabled
+                        setBluetoothStateIcon(getBluetoothState(it))
                     }
                 }
                 launch {
@@ -305,12 +284,7 @@ class NoSeringFragment : Fragment() {
         }
     }
 
-    private fun showConnectDialog() {
-        if (connectInfoDialog.isShowing) {
-            connectInfoDialog.dismiss()
-        }
-        connectInfoDialog.show()
-    }
+
 
     private fun showChargingDialog() {
         ChargingInfoDialog(object : AlertListener {
@@ -348,8 +322,14 @@ class NoSeringFragment : Fragment() {
         }
         awaitClose()
     }
+
+    override fun setBluetoothStateIcon(bluetoothState : BluetoothState){
+        binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(bluetoothState.getImage()), null)
+        binding.tvBluetooth.text = bluetoothState.getText()
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
-    private fun setBatteryInfo(batteryInfo: String) {
+    override fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
             binding.batteryTextView.visibility = View.GONE
             return

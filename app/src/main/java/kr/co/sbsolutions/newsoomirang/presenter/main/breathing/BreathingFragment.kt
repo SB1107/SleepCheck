@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,12 +31,15 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
+import kr.co.sbsolutions.newsoomirang.presenter.main.BluetoothFragment
+import kr.co.sbsolutions.newsoomirang.presenter.main.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ChargingInfoDialog
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
@@ -43,28 +47,14 @@ import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
 
 @AndroidEntryPoint
-class BreathingFragment : Fragment() {
-    private val viewModel: BreathingViewModel by viewModels()
+class BreathingFragment : BluetoothFragment() {
+    override val viewModel: BreathingViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
 
     private val binding: FragmentBreathingBinding by lazy {
         FragmentBreathingBinding.inflate(layoutInflater)
     }
-    private val connectInfoBinding: DialogConnectInfoBinding by lazy {
-        DialogConnectInfoBinding.inflate(layoutInflater)
-    }
-    private val connectInfoDialog by lazy {
-        BottomSheetDialog(requireContext()).apply {
-            setContentView(connectInfoBinding.root, null)
-            connectInfoBinding.btConnect.setOnClickListener {
-                viewModel.connectClick()
-                this.dismiss()
-            }
-            connectInfoBinding.btLater.setOnClickListener {
-                this.dismiss()
-            }
-        }
-    }
+
     private val queueList = LimitedQueue<Entry>(50)
     private val dataSetList = LineDataSet(queueList.toList(), "Label")
     private val lineDataList = LineData(dataSetList).apply { setDrawValues(false) }
@@ -193,18 +183,9 @@ class BreathingFragment : Fragment() {
                 launch {
                     viewModel.bluetoothButtonState.collect {
                         binding.startButton.text = it
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요.".let {
-                            SpannableString(it).apply {
-//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                                setSpan(StyleSpan(Typeface.BOLD), 0, 7, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//
-//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                                setSpan(StyleSpan(Typeface.BOLD), 20, 25, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//
-//                                setSpan(ForegroundColorSpan(Color.parseColor("#FFFFFF")), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                                setSpan(StyleSpan(Typeface.BOLD), 33, 36, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                        } else "시작버튼을 눌러\n호흡을 측정해 보세요"
+                        val isDisconnect = it.contains("시작").not()
+                        binding.tvNameDes2.text = if (isDisconnect) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n호흡을 측정해 보세요"
+                        setBluetoothStateIcon(getBluetoothState(it))
                     }
                 }
                 launch {
@@ -346,12 +327,7 @@ class BreathingFragment : Fragment() {
         dataSetList.setDrawCircles(false)
     }
 
-    private fun showConnectDialog() {
-        if (connectInfoDialog.isShowing) {
-            connectInfoDialog.dismiss()
-        }
-        connectInfoDialog.show()
-    }
+
 
     private fun showChargingDialog() {
 
@@ -393,8 +369,13 @@ class BreathingFragment : Fragment() {
     }
 
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    override fun setBluetoothStateIcon(bluetoothState : BluetoothState){
+        binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(bluetoothState.getImage()), null)
+        binding.tvBluetooth.text = bluetoothState.getText()
+    }
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
-    private fun setBatteryInfo(batteryInfo: String) {
+    override fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
             binding.batteryTextView.visibility = View.GONE
             return

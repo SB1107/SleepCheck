@@ -54,9 +54,13 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                     if (it.bluetoothState == BluetoothState.Unregistered ||it.bluetoothState == BluetoothState.Connected.Init) {
                         _bluetoothButtonState.emit("연결")
                     } else if (it.bluetoothState == BluetoothState.DisconnectedByUser || it.bluetoothGatt == null) {
-                        _bluetoothButtonState.emit("연결")
+                        bluetoothInfo.batteryInfo = null
                         _batteryState.emit("")
-                    } else {
+                        _bluetoothButtonState.emit("연결")
+                    }else if( it.bluetoothState == BluetoothState.Connected.Reconnected){
+                        _bluetoothButtonState.emit("재연결중")
+                    }
+                    else {
                         _bluetoothButtonState.emit("시작")
                     }
                 }
