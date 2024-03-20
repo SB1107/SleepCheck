@@ -383,6 +383,13 @@ class HistoryDetailActivity : BaseActivity() {
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "본 결과는 측정된 데이터를 통해 치료 결정을 내릴 수 있도록 도움을 드릴 수 있으나, 질병의 판단 유무, 치료의 방법 또는 처치에 대해서는 반드시 전문 의료진(의사 등)과 상의 하시길 바랍니다.\n",
+                         color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 
