@@ -384,8 +384,6 @@ class BLEService : LifecycleService() {
                                 lifecycleScope.launch(IO) {
                                     logWorkerHelper.insertLog("서버 업로드 종료")
                                     _resultMessage.emit(FINISH)
-                                    noseRingHelper.clearData()
-                                    dataManager.setMoveView()
                                     finishService(dataId, forceClose)
                                 }
                             }
@@ -754,8 +752,6 @@ class BLEService : LifecycleService() {
                 sbSensorDBRepository.deleteUploadedList(list)
                 file?.delete()
                 _resultMessage.emit(FINISH)
-                noseRingHelper.clearData()
-                dataManager.setMoveView()
 
                 if (isLast) {
                     finishService(dataId, isForcedClose)

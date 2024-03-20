@@ -11,11 +11,12 @@
         android:id="@+id/action_bar"
         layout="@layout/toolbar_back" />
 
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/device_name_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/ble_name_rectangle"
         android:fontFamily="@font/nanumsquarebold"
         android:layout_marginHorizontal="30dp"
@@ -26,6 +27,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/action_bar" />
+
+    <ImageView
+        android:id="@+id/iv_device"
+        android:contentDescription="device"
+        app:layout_constraintStart_toStartOf="@id/device_name_text_view"
+        app:layout_constraintEnd_toEndOf="@id/device_name_text_view"
+        app:layout_constraintTop_toTopOf="@id/device_name_text_view"
+        app:layout_constraintBottom_toBottomOf="@id/device_name_text_view"
+        android:src="@drawable/device"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/disconnectButton"
