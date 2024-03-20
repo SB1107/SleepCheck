@@ -29,6 +29,7 @@ android {
         buildConfigField ("String", "ivData",getProperties("ivData"))
         buildConfigField ("String", "key",getProperties("key"))
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -180,7 +181,13 @@ dependencies {
     implementation ("com.kizitonwose.calendar:view:2.2.0")
     implementation ("io.github.florent37:shapeofview:1.4.7")                      // Shape of view
     //텐서 플로우
-    implementation ("org.tensorflow:tensorflow-lite-task-audio:0.4.0")
+    implementation ("org.tensorflow:tensorflow-lite-task-audio:0.4.4")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
+
+//    implementation ("org.tensorflow:tensorflow-lite-gpu-delegate-plugin")
+//    implementation ("org.tensorflow:tensorflow-lite-task-audio")
+
+
     //권한
     implementation ("io.github.ParkSangGwon:tedpermission-normal:3.3.0")          // TED Permission
     testImplementation("junit:junit:4.13.2")
