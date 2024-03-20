@@ -81,5 +81,7 @@ data class SleepDetailResult(
     var unstableBreath: Int? = null,
     @SerializedName("avg_normal_breath")
     var avgNormalBreath: Int? = null,
+    @SerializedName("description")
+    val description : String? = ""
 
 )
