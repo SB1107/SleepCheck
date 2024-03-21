@@ -73,7 +73,7 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    fun getDeviceName(){
+    private fun getDeviceName(){
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 Log.d(TAG, "getDeviceName: $it")

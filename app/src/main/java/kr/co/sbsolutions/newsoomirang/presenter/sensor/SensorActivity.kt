@@ -125,20 +125,22 @@ class SensorActivity : BluetoothActivity() {
 
                     launch {
                         viewModel.isScanning.collectLatest {
-                            if (it) {
-                                Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                return@collectLatest
+                            it?.let {
+                                if (it) {
+                                    Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
+                                    return@collectLatest
+                                }
                             }
                         }
                     }
 
-                    launch {
+                    /*launch {
                         isScanning.collectLatest { isScanning ->
                             animator.also {
                                 if (isScanning) it.start() else it.cancel()
                             }
                         }
-                    }
+                    }*/
 
                     launch {
                         isRegistered.collectLatest {

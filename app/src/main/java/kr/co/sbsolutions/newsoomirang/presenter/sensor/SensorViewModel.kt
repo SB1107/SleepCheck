@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -48,8 +49,8 @@ class SensorViewModel @Inject constructor(
         private const val DELAY_TIMEOUT = 5000L
     }
 
-    private val _isScanning = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
-    val isScanning: SharedFlow<Boolean> = _isScanning
+    private val _isScanning: MutableStateFlow<Boolean?> = MutableStateFlow(null)
+    val isScanning: SharedFlow<Boolean?> = _isScanning.asSharedFlow()
 
     private val _isRegistered = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val isRegistered: SharedFlow<Boolean> = _isRegistered
@@ -74,13 +75,6 @@ class SensorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                getName()
-                if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
-                    dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
-                }
-            }
-
-            launch {
                 ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
                     Log.d(TAG, "[SVM]: $info")
                     getName()
@@ -92,15 +86,20 @@ class SensorViewModel @Inject constructor(
 
     fun bleConnectOrDisconnect() {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "bleConnectOrDisconnect: 나 불림 ${bluetoothInfo.bluetoothState}")
             when (bluetoothInfo.bluetoothState) {
                 //연결
-                BluetoothState.Unregistered -> {
+                BluetoothState.Unregistered,
+                BluetoothState.DisconnectedByUser -> {
+                    _bleName.emit("연결된 기기가 없습니다.")
+                    _searchBtnName.emit("숨이랑 센서 찾기")
                     scanBLEDevices()
                 }
 
                 //측정중
                 BluetoothState.Connected.ReceivingRealtime,
                 BluetoothState.Connected.SendDownloadContinue -> {
+                    _searchBtnName.emit("연결끊기")
                     sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
                 }
 
@@ -108,13 +107,19 @@ class SensorViewModel @Inject constructor(
                 BluetoothState.Connected.DataFlow,
                 BluetoothState.Connected.Finish,
                 BluetoothState.Connected.End,
-                BluetoothState.Connected.ForceEnd,
-                BluetoothState.DisconnectedByUser -> {
+                BluetoothState.Connected.ForceEnd -> {
+                    _searchBtnName.emit("연결끊기")
                     disconnectDevice()
                 }
 
                 BluetoothState.DisconnectedNotIntent -> {
                     sendErrorMessage(("측정 종료후 시도해주세요."))
+                }
+                BluetoothState.Connecting -> {
+                    _searchBtnName.emit("연결중")
+                }
+                BluetoothState.Registered -> {
+                    _searchBtnName.emit("연결중")
                 }
 
                 //연결 해제
@@ -138,9 +143,9 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()?.let {
                 _bleName.emit(it)
-                _searchBtnName.emit("연결끊기")
+                _searchBtnName.emit("연결 끊기")
                 Log.d(TAG, "디바이스 이름: $it")
-            }
+            } ?:_bleName.emit("연결된 기기 없음")
         }
     }
 
@@ -153,7 +158,7 @@ class SensorViewModel @Inject constructor(
             dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
             _bleName.emit("연결된 기기가 없습니다.")
             _searchBtnName.emit("숨이랑 센서 찾기")
-            scanBLEDevices()
+//            scanBLEDevices()
         }
 
         /*// 상태 정리 필요함
@@ -179,10 +184,16 @@ class SensorViewModel @Inject constructor(
             return
         }
 
-        _scanList.tryEmit(emptyList())
-        _scanSet.clear()
-        startTimer()
-        bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
+        /*Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(1)} ")
+        Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(2)} ")*/
+
+        viewModelScope.launch(Dispatchers.IO) {
+            startTimer()
+            delay(1000)
+            _scanList.tryEmit(emptyList())
+            _scanSet.clear()
+            bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
+        }
     }
 
     @SuppressLint("MissingPermission")

@@ -289,7 +289,9 @@ class HistoryDetailActivity : BaseActivity() {
             Spacer(modifier = Modifier.height(32.dp))
             HorizontalDivider(thickness = 1.dp, color = Color.White)
 
-            RowTexts("총 수면시간", min)
+            data.sleepTime?.let {
+                RowTexts("총 수면시간", it.InpuMintoHourMinute())
+            }
             data.asleepTime?.let {
                 RowTexts("잠들때까지 걸린 시간", it.InpuMintoHourMinute())
             }

@@ -8,7 +8,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -265,6 +267,17 @@ class BLEService : LifecycleService() {
                 gatt.setCharacteristicNotification(char, false)
             }
             gatt.disconnect()
+            gatt.abortReliableWrite()
+            Log.d(TAG, "disconnectDevice: ${gatt.abortReliableWrite()}")
+            if (bluetoothAdapter?.isEnabled == true){
+                val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+                for (device in gattDevices) {
+                    // 연결된 BLE 장치 처리
+                    Log.i(TAG, "Connected device: ${device.name}")
+                }
+                    gatt.disconnect()
+            }
             gatt.close()
             bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
         }
