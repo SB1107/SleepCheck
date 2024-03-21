@@ -175,6 +175,9 @@ fun String.toDate(format: String): Date? {
 }
 
 fun Date.toDayString(format: String): String? {
+    if (format.isEmpty()) {
+        return null
+    }
     val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
     return simpleDateFormat.format(this)
 }

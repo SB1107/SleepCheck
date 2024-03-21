@@ -11,6 +11,7 @@ import org.tensorflow.lite.task.audio.classifier.Classifications
 import org.tensorflow.lite.task.core.BaseOptions
 import java.io.IOException
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 
 class AudioClassificationHelper(var context: Context, var listener: AudioClassificationListener) {
@@ -39,7 +40,7 @@ class AudioClassificationHelper(var context: Context, var listener: AudioClassif
     private var tensorAudio: TensorAudio? = null
     private var recorder: AudioRecord? = null
     private val classifyRunnable = Runnable { classifyAudio() }
-    private var executor = Executors.newSingleThreadScheduledExecutor() // Single thread for efficient classification
+    private var executor = Executors.newScheduledThreadPool(2) // Single thread for efficient classification
     private var lengthInMilliSeconds: Long = 0 // Cached value
     private var interval: Long = 0 // Cached value
 
@@ -67,11 +68,20 @@ class AudioClassificationHelper(var context: Context, var listener: AudioClassif
     }
 
     fun startAudioClassification() {
+
         if (recorder?.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
             return
         }
         recorder?.startRecording()
-        executor.scheduleAtFixedRate(classifyRunnable, 0, interval, TimeUnit.MILLISECONDS)
+        try {
+            executor.scheduleWithFixedDelay(classifyRunnable, 0, interval, TimeUnit.MILLISECONDS)
+        } catch (e: RejectedExecutionException) {
+            executor.shutdown()
+            executor  = Executors.newScheduledThreadPool(2)
+            recorder?.stop()
+
+            startAudioClassification()
+        }
     }
 
     private fun classifyAudio() {
