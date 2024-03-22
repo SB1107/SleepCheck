@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -87,7 +89,7 @@ class SensorActivity : BluetoothActivity() {
             }
 
             actionBar.backButton.setOnClickListener {
-                finish()
+                newBackPressed()
             }
 
             /*disconnectButton.setOnClickListener {
@@ -142,13 +144,29 @@ class SensorActivity : BluetoothActivity() {
                         }
                     }*/
 
-                    launch {
+                    /*launch {
                         isRegistered.collectLatest {
                             if (it) {
-                                finish()
+//                                delay(1000)
+                                newBackPressed()
 
                             } else {
                                 Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }*/
+                    launch {
+                        viewModel.isBleProgressBar.collectLatest {
+                            binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
+                            if (it) newBackPressed()
+
+                        }
+                    }
+
+                    launch {
+                        viewModel.bleStateResultText.collectLatest {
+                            it?.let { resultText ->
+                                binding.icBleProgress.tvDeviceId.text = resultText
                             }
                         }
                     }

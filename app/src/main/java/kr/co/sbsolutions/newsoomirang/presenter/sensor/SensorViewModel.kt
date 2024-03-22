@@ -52,11 +52,11 @@ class SensorViewModel @Inject constructor(
     private val _isScanning: MutableStateFlow<Boolean?> = MutableStateFlow(null)
     val isScanning: SharedFlow<Boolean?> = _isScanning.asSharedFlow()
 
-    private val _isRegistered = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
-    val isRegistered: SharedFlow<Boolean> = _isRegistered
+    private val _isRegistered: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isRegistered: SharedFlow<Boolean> = _isRegistered.asSharedFlow()
 
-    private val _scanList = MutableSharedFlow<List<BluetoothDevice>>(extraBufferCapacity = 1)
-    val scanList: SharedFlow<List<BluetoothDevice>> = _scanList
+    private val _scanList: MutableStateFlow<List<BluetoothDevice>> = MutableStateFlow(emptyList())
+    val scanList: SharedFlow<List<BluetoothDevice>> = _scanList.asSharedFlow()
 
     private val _bleName: MutableStateFlow<String?> = MutableStateFlow(null)
     val bleName: SharedFlow<String?> = _bleName.asSharedFlow()
@@ -66,6 +66,12 @@ class SensorViewModel @Inject constructor(
 
     private val _checkSensorResult: MutableStateFlow<String?> = MutableStateFlow(null)
     val checkSensorResult: SharedFlow<String?> = _checkSensorResult.asSharedFlow()
+
+    private val _bleStateResultText: MutableStateFlow<String?> = MutableStateFlow(null)
+    val bleStateResultText: SharedFlow<String?> = _bleStateResultText.asSharedFlow()
+
+    private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
 
 //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
@@ -115,9 +121,11 @@ class SensorViewModel @Inject constructor(
                 BluetoothState.DisconnectedNotIntent -> {
                     sendErrorMessage(("측정 종료후 시도해주세요."))
                 }
+
                 BluetoothState.Connecting -> {
                     _searchBtnName.emit("연결중")
                 }
+
                 BluetoothState.Registered -> {
                     _searchBtnName.emit("연결중")
                 }
@@ -142,10 +150,10 @@ class SensorViewModel @Inject constructor(
     private fun getName() {
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()?.let {
-                _bleName.emit(it)
-                _searchBtnName.emit("연결 끊기")
-                Log.d(TAG, "디바이스 이름: $it")
-            } ?:_bleName.emit("연결된 기기 없음")
+                    _bleName.emit(it)
+                    _searchBtnName.emit("연결 끊기")
+                    Log.d(TAG, "디바이스 이름: $it")
+                } ?: _bleName.emit("연결된 기기 없음")
         }
     }
 
@@ -258,7 +266,12 @@ class SensorViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address))
+            _isBleProgressBar.emit(true)
+            _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
+            bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
+            bluetoothButtonState.collectLatest { state ->
+                _isBleProgressBar.emit(state.contains("시작"))
+            }
         }
     }
 
