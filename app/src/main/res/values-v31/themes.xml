@@ -3,7 +3,7 @@
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Set the splash screen background to black -->
-        <item name="windowSplashScreenBackground">@color/color_1D8089</item>
+        <item name="windowSplashScreenBackground">@color/color_0B5E86</item>
         <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
              drawable. -->
         <!--        <item name="windowSplashScreenAnimatedIcon"></item>-->
