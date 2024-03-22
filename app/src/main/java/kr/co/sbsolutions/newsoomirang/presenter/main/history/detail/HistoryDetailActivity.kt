@@ -249,7 +249,7 @@ class HistoryDetailActivity : BaseActivity() {
                 data.avgNormalBreath?.let {
                     Spacer(modifier = Modifier.height(32.dp))
                     HorizontalDivider(thickness = 1.dp, color = Color.White)
-                    RowTexts("정상호흡수(평균)", it.InpuMintoHourMinute())
+                    RowTexts("정상호흡수(평균)","$it 회")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -350,7 +350,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.downPer ?: 0).toFloat(),
-                    startText = "업드린 자세",
+                    startText = "엎드린 자세",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
                     endTextSize = 19.sp
