@@ -125,6 +125,7 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Preview
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun RootView(data: SleepDetailResult = SleepDetailResult()) {
         val state = rememberScreenCaptureState()
@@ -156,6 +157,7 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun ContentView(data: SleepDetailResult, isBack: Boolean = false) {
         val scrollState = rememberScrollState()
+        val coroutineScope = rememberCoroutineScope()
         Box {
             Column(
                 modifier = Modifier
@@ -244,25 +246,30 @@ class HistoryDetailActivity : BaseActivity() {
                     centerText = "50",
                     endText = "100+"
                 )
+                data.avgNormalBreath?.let {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    HorizontalDivider(thickness = 1.dp, color = Color.White)
+                    RowTexts("정상호흡수(평균)", it.InpuMintoHourMinute())
+                }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 HeaderTitleView("비정상 호흡수")
                 Spacer(modifier = Modifier.height(32.dp))
                 BreathingGraphView(
-                    "이상호흡", "총${it}회", listOf(
+                    "호흡곤란", "총${it}회", listOf(
                         Triple(
-                            "이상호흡 10초",
+                            "호흡곤란 10초",
                             "${data.apnea10 ?: 0}회",
                             colorResource(id = R.color.color_gray1)
                         ),
                         Triple(
-                            "이상호흡 30초",
+                            "호흡곤란 30초",
                             "${data.apnea30 ?: 0}회",
                             colorResource(id = R.color.color_gray2)
                         ),
                         Triple(
-                            "이상호흡 60초",
+                            "호흡곤란 60초",
                             "${data.apnea60 ?: 0}회",
                             colorResource(id = R.color.color_gray3)
                         )
@@ -289,6 +296,7 @@ class HistoryDetailActivity : BaseActivity() {
             Spacer(modifier = Modifier.height(32.dp))
             HorizontalDivider(thickness = 1.dp, color = Color.White)
 
+            RowTexts(startText = "측정 시간", endText = min)
             data.sleepTime?.let {
                 RowTexts("총 수면시간", it.InpuMintoHourMinute())
             }
@@ -302,7 +310,7 @@ class HistoryDetailActivity : BaseActivity() {
                 RowTexts("깊은잠 시간", it.InpuMintoHourMinute())
             }
             data.moveCount?.let {
-                RowTexts("뒤척임 횟수", it.InpuMintoHourMinute())
+                RowTexts("뒤척임 횟수", "$it 회")
             }
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -362,7 +370,7 @@ class HistoryDetailActivity : BaseActivity() {
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 깊이")
+                HeaderTitleView("수면 단계")
             }
 
             Row(
