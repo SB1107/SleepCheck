@@ -136,7 +136,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginRight="30dp"
             android:gravity="center"
-            android:text="이 작업은 몇분 정도\n걸리 수 있습니다."
+            android:text="이 작업은 몇분 정도\n걸릴 수 있습니다."
             android:textColor="@color/color_FFFFFF"
             android:textSize="18sp" />
 
