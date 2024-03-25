@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
@@ -43,6 +45,7 @@ class NoSeringFragment : BluetoothFragment() {
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
     }
+    private var clickCount = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,6 +99,19 @@ class NoSeringFragment : BluetoothFragment() {
         }
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
+        }
+
+        binding.batteryTextView.setOnClickListener {
+            clickCount++
+//            Log.d(Cons.TAG, "setBluetoothStateIcon1: $clickCount")
+            if (clickCount == 10 ){
+                binding.tvBluetooth.visibility = View.VISIBLE
+//                Log.d(Cons.TAG, "setBluetoothStateIcon2: $clickCount")
+            } else if (clickCount == 20){
+                binding.tvBluetooth.visibility = View.INVISIBLE
+//                Log.d(Cons.TAG, "setBluetoothStateIcon3: $clickCount")
+                clickCount = 0
+            }
         }
 
     }
