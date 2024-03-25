@@ -360,7 +360,7 @@ class HistoryDetailActivity : BaseActivity() {
                     endTextSize = 19.sp
                 )
             }
-            data.wakePer?.let {
+            data.wakeTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.wakePer ?: 0).toFloat(),
