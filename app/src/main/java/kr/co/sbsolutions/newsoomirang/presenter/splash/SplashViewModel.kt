@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
@@ -26,6 +27,8 @@ class SplashViewModel @Inject constructor(
     val nextProcess: SharedFlow<Boolean> = _nextProcess
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
     val whereActivity: SharedFlow<WHERE> = _whereActivity
+    private  val _isVersionCheck = MutableStateFlow(false)
+      val isVersionCheck = _isVersionCheck.asStateFlow()
 
     init {
         gotoLogin()
@@ -55,7 +58,11 @@ class SplashViewModel @Inject constructor(
             _nextProcess.emit(true)
         }
     }
-    fun a(){
+    fun versionCheck(isSusuccess : Boolean){
+        viewModelScope.launch{
+            _isVersionCheck.emit(isSusuccess)
+        }
+
     }
 
     fun whereLocation() {

@@ -41,7 +41,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
-
     private val binding: ActivitySplashBinding by lazy {
         ActivitySplashBinding.inflate(layoutInflater)
     }
@@ -54,6 +53,7 @@ class SplashActivity : AppCompatActivity() {
     }
     private  val appUpdateLauncher : ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
+            viewModel.versionCheck(true)
             viewModel.insertLog("Update success")
         } else {
             viewModel.insertLog("Update failed")
@@ -69,6 +69,15 @@ class SplashActivity : AppCompatActivity() {
         splashScreen.setKeepOnScreenCondition{true}
 
         lifecycleScope.launch {
+            launch {
+                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.isVersionCheck.collect {
+                        if (it) {
+                            viewModel.whereLocation()
+                        }
+                    }
+                }
+            }
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.nextProcess.collect {
@@ -129,8 +138,11 @@ class SplashActivity : AppCompatActivity() {
             Log.e(TAG, "addOnFailureListener: ${e.message}",)
         }
         appUpdateInfo.addOnCompleteListener {command  ->
-            Log.e(TAG, "addOnCompleteListener: $command",)
-            viewModel.insertLog("${command.result}")
+            viewModel.versionCheck(true)
+            command.exception?.let {
+//                viewModel.insertLog("${it}")
+                Log.e(TAG, "addOnCompleteListener: $it")
+            }
             }
     }
     private fun refreshPermissionViews() {
@@ -145,7 +157,8 @@ class SplashActivity : AppCompatActivity() {
         } else if (!isIgnoringBatteryOptimizations()) {
             checkBatteryOptimization()
         } else {
-            viewModel.whereLocation()
+            appUpdateCheck()
+//            viewModel.whereLocation()
         }
     }
 
@@ -172,17 +185,14 @@ class SplashActivity : AppCompatActivity() {
                     if (!isIgnoringBatteryOptimizations()) {
                         checkBatteryOptimization()
                     } else {
-                        viewModel.whereLocation()
+                        appUpdateCheck()
+//                        viewModel.whereLocation()
                     }
                 }
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        appUpdateCheck()
-    }
     @SuppressLint("BatteryLife")
     private fun checkBatteryOptimization() {
         val intent = Intent().apply {
