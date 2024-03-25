@@ -240,9 +240,17 @@ class HistoryDetailActivity : BaseActivity() {
                     color = Color.White,
                 )
             }
+            data.avgNormalBreath?.let {
+                HeaderTitleView("정상 호흡 수")
+                Spacer(modifier = Modifier.height(16.dp))
+                RowTexts("정상호흡수(평균)","$it 회")
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(thickness = 1.dp, color = Color.White)
+            }
 
             data.apneaCount?.let {
-                HeaderTitleView("수면 중  비정상 호흡 수")
+
+                HeaderTitleView("비정상 호흡수")
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     it.toFloat(),
@@ -250,15 +258,6 @@ class HistoryDetailActivity : BaseActivity() {
                     centerText = "50",
                     endText = "100+"
                 )
-                data.avgNormalBreath?.let {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    HorizontalDivider(thickness = 1.dp, color = Color.White)
-                    RowTexts("정상호흡수(평균)","$it 회")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("비정상 호흡수")
                 Spacer(modifier = Modifier.height(32.dp))
                 BreathingGraphView(
                     "호흡곤란", "총${it}회", listOf(
@@ -324,6 +323,7 @@ class HistoryDetailActivity : BaseActivity() {
 
                 VerticalGraphView(
                     percentValue = (data.straightPer ?: 0).toFloat(),
+                    isPercentText = true,
                     startText = "바른자세",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
@@ -334,6 +334,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.leftPer ?: 0).toFloat(),
+                    isPercentText = true,
                     startText = "왼쪽으로 누운 자세",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
@@ -344,6 +345,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.rightPer ?: 0).toFloat(),
+                    isPercentText = true,
                     startText = "오른쪽으로 누운 자세",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
@@ -354,6 +356,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.downPer ?: 0).toFloat(),
+                    isPercentText = true,
                     startText = "엎드린 자세",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
@@ -364,6 +367,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 VerticalGraphView(
                     percentValue = (data.wakePer ?: 0).toFloat(),
+                    isPercentText = true,
                     startText = "수면중 일어남",
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute(),
@@ -570,6 +574,7 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun VerticalGraphView(
         percentValue: Float,
+        isPercentText : Boolean = false,
         startText: String,
         startTextSize: TextUnit = 14.sp,
         centerText: String = "",
@@ -596,7 +601,7 @@ class HistoryDetailActivity : BaseActivity() {
                     modifier = Modifier
                         .padding(start = percent)
                         .offset(y = (-5).dp),
-                    text = "${percentValue.toInt()}",
+                    text = "${percentValue.toInt()}${if (isPercentText) "%"  else ""}",
                     color = colorResource(id = R.color.md_grey_800),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold

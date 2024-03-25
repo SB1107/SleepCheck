@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -55,11 +56,14 @@ class MainActivity : BaseServiceActivity() {
     }
 
     private val resultDialog by lazy {
+        val image= resultBinding.root.findViewById<ImageView>(R.id.iv_image)
+        image.layoutParams.height = binding.root.height
         BottomSheetDialog(this@MainActivity).apply {
             setContentView(resultBinding.root)
             (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(this@MainActivity, android.R.color.transparent))
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
             behavior.isDraggable = false
+            behavior.isFitToContents = false
             setCanceledOnTouchOutside(false)
         }
     }
