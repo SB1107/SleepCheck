@@ -94,7 +94,9 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    if(_isResultProgressBar.value.first != result.id.toInt()){
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
@@ -109,8 +111,9 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-
-                    _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    if(_isResultProgressBar.value.first != result.id.toInt()){
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
