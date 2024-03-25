@@ -119,6 +119,9 @@ dependencies {
     implementation ("androidx.annotation:annotation:1.7.1")
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 
+    //인앱 업데이트
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
+
     //파이어베이스
     /*implementation ("com.google.firebase:firebase-crashlytics:18.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))

@@ -12,13 +12,16 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val tokenManager: TokenManager
-) : ViewModel() {
+    private val tokenManager: TokenManager,
+    dataManager: DataManager
+) : BaseViewModel(dataManager, tokenManager){
     private val _nextProcess: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val nextProcess: SharedFlow<Boolean> = _nextProcess
     private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
@@ -51,6 +54,8 @@ class SplashViewModel @Inject constructor(
             delay(2000)
             _nextProcess.emit(true)
         }
+    }
+    fun a(){
     }
 
     fun whereLocation() {

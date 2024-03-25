@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -26,6 +32,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.addFlag
 import kr.co.sbsolutions.newsoomirang.common.getPermissionResult
 import kr.co.sbsolutions.newsoomirang.common.isIgnoringBatteryOptimizations
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySplashBinding
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
@@ -39,8 +46,20 @@ class SplashActivity : AppCompatActivity() {
         ActivitySplashBinding.inflate(layoutInflater)
     }
     private val viewModel: SplashViewModel by viewModels()
+    private  val appUpdateManager : AppUpdateManager  by lazy {
+        AppUpdateManagerFactory.create(this)
+    }
     private val contract: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         refreshPermissionViews()
+    }
+    private  val appUpdateLauncher : ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            viewModel.insertLog("Update success")
+        } else {
+            viewModel.insertLog("Update failed")
+            Log.d(TAG, "Update failed")
+
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +67,6 @@ class SplashActivity : AppCompatActivity() {
         val splashScreen = installSplashScreen()
         setContentView(binding.root)
         splashScreen.setKeepOnScreenCondition{true}
-
 
         lifecycleScope.launch {
             launch {
@@ -83,6 +101,38 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    private  fun appUpdateCheck() {
+        val appUpdateInfo = appUpdateManager.appUpdateInfo
+        appUpdateInfo.addOnSuccessListener { info ->
+            if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            ) {
+                showAlertDialogWithCancel(message =  "숨이랑  새로운 버전이 출시  되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        appUpdateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_finish, cancelAction = {
+                    finish()
+                })
+
+            }else if(info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS){
+                appUpdateManager.startUpdateFlowForResult(
+                    info,
+                    appUpdateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
+            }
+        }
+        appUpdateInfo.addOnFailureListener { e ->
+            Log.e(TAG, "addOnFailureListener: ${e.message}",)
+        }
+        appUpdateInfo.addOnCompleteListener {command  ->
+            Log.e(TAG, "addOnCompleteListener: $command",)
+            viewModel.insertLog("${command.result}")
+            }
+    }
     private fun refreshPermissionViews() {
         val deniedPermissions = getPermissionResult()
 
@@ -129,6 +179,10 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        appUpdateCheck()
+    }
     @SuppressLint("BatteryLife")
     private fun checkBatteryOptimization() {
         val intent = Intent().apply {
