@@ -383,7 +383,7 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
 
                 data.remSleepTime?.let {
-                    BarChartView("램수면", data.sleepTime ?: 0, it, scrollState)
+                    BarChartView("렘수면", data.sleepTime ?: 0, it, scrollState)
                 }
                 data.lightSleepTime?.let {
                     BarChartView("얕은수면", data.sleepTime ?: 0, it, scrollState)
