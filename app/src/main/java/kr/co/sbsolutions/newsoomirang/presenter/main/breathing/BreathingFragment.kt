@@ -60,6 +60,7 @@ class BreathingFragment : BluetoothFragment() {
     private val lineDataList = LineData(dataSetList).apply { setDrawValues(false) }
     private var xCountResetFlag = true
     private var graphCount = 0f
+    private var clickCount = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -84,7 +85,18 @@ class BreathingFragment : BluetoothFragment() {
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
         }
-
+        binding.batteryTextView.setOnClickListener {
+            clickCount++
+//            Log.d(TAG, "setBluetoothStateIcon1: $clickCount")
+            if (clickCount == 10 ){
+                binding.tvBluetooth.visibility = View.VISIBLE
+//                Log.d(TAG, "setBluetoothStateIcon2: $clickCount")
+            } else if (clickCount == 20){
+                binding.tvBluetooth.visibility = View.INVISIBLE
+//                Log.d(TAG, "setBluetoothStateIcon3: $clickCount")
+                clickCount = 0
+            }
+        }
     }
 
     override fun onResume() {
