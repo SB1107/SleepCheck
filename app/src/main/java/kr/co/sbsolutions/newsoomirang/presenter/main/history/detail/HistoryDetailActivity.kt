@@ -40,6 +40,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -125,20 +126,26 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Preview
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun RootView(data: SleepDetailResult = SleepDetailResult()) {
         val state = rememberScreenCaptureState()
-        val localView = LocalView.current
+        val scrollState = rememberScrollState()
+        var contentHeightPx by remember { mutableStateOf(0) }
+        val columnModifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+            .onGloballyPositioned { coordinates ->
+                    contentHeightPx = coordinates.size.height
+            }
         ScreenCapture(screenCaptureState = state) {
-            ContentView(data, true)
+            ContentView(data, true,columnModifier , scrollState = scrollState)
         }
 
         SoomScaffold(R.drawable.bg2 , "결과" , topAction = {
             finish()
         }, row =  {
             IconButton(onClick = {
-                state.capture(options = ScreenCaptureOptions(height = localView.measuredHeight * 4))
+                state.capture(options = ScreenCaptureOptions(height = contentHeightPx))
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_share),
@@ -150,19 +157,16 @@ class HistoryDetailActivity : BaseActivity() {
             state.bitmap?.let {
                 viewModel.sharingImage(this@HistoryDetailActivity, it)
             }
-            ContentView(data)
+            ContentView(data, modifier = columnModifier , scrollState = scrollState)
         })
     }
 
     @Composable
-    private fun ContentView(data: SleepDetailResult, isBack: Boolean = false) {
-        val scrollState = rememberScrollState()
-        val coroutineScope = rememberCoroutineScope()
+    private fun ContentView(data: SleepDetailResult, isBack: Boolean = false, modifier : Modifier , scrollState :ScrollState = rememberScrollState()){
+
         Box {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
+                modifier = modifier
             ) {
                 if (isBack) {
                     Box(modifier = Modifier.background(color = colorResource(id = R.color.color_purple))) {
