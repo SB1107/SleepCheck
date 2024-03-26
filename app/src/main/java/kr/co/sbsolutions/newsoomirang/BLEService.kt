@@ -504,7 +504,7 @@ class BLEService : LifecycleService() {
                     ServiceCompat.startForeground(
                         this, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
                         } else {
                             0
                         },
