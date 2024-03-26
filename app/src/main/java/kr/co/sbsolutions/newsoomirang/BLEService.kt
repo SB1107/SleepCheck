@@ -479,7 +479,7 @@ class BLEService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
+
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
@@ -574,7 +574,7 @@ class BLEService : LifecycleService() {
             */
             null -> {}
         }
-        return START_REDELIVER_INTENT
+        return  super.onStartCommand(intent, flags, startId)
     }
 
     private fun forcedFlow() {
@@ -643,7 +643,7 @@ class BLEService : LifecycleService() {
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             logWorkerHelper.insertLog("bluetoothState: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
-            lifecycleScope.launch {
+            lifecycleScope.launch(IO) {
                 if (settingDataRepository.getSleepType() == SleepType.NoSering.name) {
                     noSering(isCancel)
                 } else {
