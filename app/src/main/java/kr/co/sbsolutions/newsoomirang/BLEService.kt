@@ -585,12 +585,15 @@ class BLEService : LifecycleService() {
                         val max = sbSensorDBRepository.getMaxIndex(dataId)
                         val min = sbSensorDBRepository.getMinIndex(dataId)
                         val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                        logWorkerHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
+                            logWorkerHelper.insertLog("(max - min + 1) == size)")
                             _resultMessage.emit(UPLOADING)
                             uploadWorker(dataId, false, it.sleepType, it.snoreTime)
 //                            uploadWorkerHelper.uploadData(dataId ,false, sleepType = it.sleepType, snoreTime = it.snoreTime)
 //                            exportLastFile(dataId, max, true, sleepType = it.sleepType, snoreTime = it.snoreTime)
                         } else {
+                            logWorkerHelper.insertLog("(max - min + 1) == size)")
                             finishService(dataId, true)
                         }
                     }
@@ -635,28 +638,24 @@ class BLEService : LifecycleService() {
 //        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
 //        }
 
+        logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
+        Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
+
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
-            stopSBServiceForced(isCancel)
-            return
+            logWorkerHelper.insertLog("bluetoothState: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
+            lifecycleScope.launch {
+                if (settingDataRepository.getSleepType() == SleepType.NoSering.name) {
+                    noSering(isCancel)
+                } else {
+                    stopSBServiceForced(isCancel)
+                }
+            }
         } else {
-            logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
-            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
-                if (isCancel.not()) {
-                sbSensorInfo.value.let {
-                    it.dataId?.let { dataId ->
-                        lifecycleScope.launch(IO) {
-                            uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, true)
-                        }
-                    }
-                }
-                } else {
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                }
-
+                noSering(isCancel)
             }
         }
 
@@ -668,6 +667,21 @@ class BLEService : LifecycleService() {
 //            bluetoothNetworkRepository.stopNetworkSBSensor()
 //        }
 
+    }
+
+    private fun noSering(isCancel: Boolean) {
+        if (isCancel.not()) {
+            sbSensorInfo.value.let {
+                it.dataId?.let { dataId ->
+                    lifecycleScope.launch(IO) {
+                        logWorkerHelper.insertLog("isCancel.not: ${dataId}")
+                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, true)
+                    }
+                }
+            }
+        } else {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        }
     }
 
     private fun stopSBServiceForced(isCancel: Boolean = false) {

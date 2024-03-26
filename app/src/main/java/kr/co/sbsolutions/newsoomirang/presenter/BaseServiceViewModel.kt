@@ -98,12 +98,6 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
         }
     }
 
-    fun showCharging() {
-        viewModelScope.launch {
-            _canMeasurement.emit(true)
-        }
-    }
-
     //    open fun onChangeSpO2SensorInfo(info: BluetoothInfo) {}
 //    open fun onChangeEEGSensorInfo(info: BluetoothInfo) {}
     fun setCommend(serviceCommend: ServiceCommend) {
