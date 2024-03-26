@@ -4,11 +4,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -19,6 +23,11 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -27,6 +36,7 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowProgressResultBinding
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
@@ -50,6 +60,17 @@ class MainActivity : BaseServiceActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
+    }
+    private  val appUpdateManager : AppUpdateManager by lazy {
+        AppUpdateManagerFactory.create(this)
+    }
+    private  val appUpdateLauncher : ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            viewModel.insertLog("Update success")
+        } else {
+            viewModel.insertLog("Update failed")
+            Log.d(TAG, "Update failed")
+        }
     }
     private val resultBinding: RowProgressResultBinding by lazy {
         RowProgressResultBinding.inflate(layoutInflater)
@@ -139,6 +160,40 @@ class MainActivity : BaseServiceActivity() {
 
     fun getBroadcastData() {
         viewModel.sendMeasurementResults()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        appUpdateCheck()
+    }
+    private  fun appUpdateCheck() {
+        val appUpdateInfo = appUpdateManager.appUpdateInfo
+        appUpdateInfo.addOnSuccessListener { info ->
+            Log.e(TAG, "addOnSuccessListener: ${info.availableVersionCode()}")
+            if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+            ) {
+                showAlertDialogWithCancel(message =  "숨이랑  새로운 버전이 출시  되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        appUpdateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_finish, cancelAction = {
+                    finish()
+                }, cancelable = false)
+
+            }else if(info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS){
+                appUpdateManager.startUpdateFlowForResult(
+                    info,
+                    appUpdateLauncher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
+            }
+        }
+        appUpdateInfo.addOnFailureListener { e ->
+            Log.e(TAG, "addOnFailureListener: ${e.message}",)
+        }
 
     }
 
