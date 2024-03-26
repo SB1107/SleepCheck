@@ -29,6 +29,7 @@ class UploadWorkerHelper @Inject constructor(
             )
         }.build()
         workManager.enqueue(worker)
+        Log.d(TAG, "uploadData: 된다된다.")
         return workManager.getWorkInfoByIdLiveData(uuid)
     }
 }

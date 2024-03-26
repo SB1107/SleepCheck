@@ -9,10 +9,26 @@ class SettingDataRepository @Inject constructor(private val dao: SettingDao) {
         dao.insertSettingData(settingData = settingData)
     }
 
+    suspend fun insertDataId(settingData: SettingData) {
+        dao.insertDataId(dataId = settingData)
+    }
+
+    suspend fun getDataId(): Int {
+        return  dao.getDataId() ?: -1
+    }
+
+
+
     suspend fun setSleepType(sleepType: SleepType) {
         var data: SettingData? = dao.getSettingData()
         data = data?.copy(sleepType = sleepType.name) ?: SettingData().copy(sleepType = sleepType.name)
         insertSettingData(data)
+    }
+
+    suspend fun setDataId(id: Int) {
+        var dataId: SettingData? = dao.getSettingData()
+        dataId = dataId?.copy(dataId = id) ?: SettingData().copy(-1)
+        insertSettingData(dataId)
     }
 
     suspend fun getSleepType(): String {

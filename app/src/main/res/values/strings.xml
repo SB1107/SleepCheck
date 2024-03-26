@@ -14,6 +14,7 @@
     <string name="common_cancel">취소</string>
     <string name="common_delete">삭제</string>
     <string name="common_finish">종료</string>
+    <string name="common_next_update">다음에 하기</string>
     <string name="common_err_api_msg">통신상태를 확인해 주세요.</string>
     <string name="common_choose">선택해주세요.</string>
     <string name="common_camera">카메라</string>

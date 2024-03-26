@@ -202,6 +202,8 @@ class BLEService : LifecycleService() {
             .apply {
                 setLogWorkerHelper(logWorkerHelper)
             }
+
+        setDataFlowFinish()
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -373,6 +375,7 @@ class BLEService : LifecycleService() {
             uploadWorkerHelper.uploadData(baseContext.packageName, dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName, isFilePass = isFilePass)
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
+                        Log.d(TAG, "uploadWorker: 워커워커")
                         when (workInfo.state) {
                             WorkInfo.State.ENQUEUED -> {}
                             WorkInfo.State.RUNNING -> {}
@@ -615,6 +618,7 @@ class BLEService : LifecycleService() {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
             settingDataRepository.setSleepType(sleepType)
+            settingDataRepository.setDataId(dataId)
             logWorkerHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
         }
         startTimer()
@@ -811,6 +815,77 @@ class BLEService : LifecycleService() {
 
     private suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: RequestHelper.CoroutinesErrorHandler): Flow<T> {
         return requestHelper.request(request, errorHandler)
+    }
+
+    private fun setDataFlowFinish(){
+        bluetoothNetworkRepository.setDataFlowForceFinish {
+            Log.d(TAG, "setDataFlowFinish: callback")
+//            test()
+
+            lifecycleScope.launch(IO) {
+                launch {
+                    settingDataRepository.getDataId().let { id ->
+                        Log.d(TAG, "setDataFlowFinish:  $id")
+                        settingDataRepository.getSleepType().let {
+                            when (it) {
+                                SleepType.Breathing.name -> {
+                                    sbSensorInfo.value.let {
+                                        Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
+                                        lifecycleScope.launch(IO) {
+                                            logWorkerHelper.insertLog("uploading: register")
+                                            _resultMessage.emit(UPLOADING)
+                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
+    //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
+                                        }
+                                    }
+                                }
+                                SleepType.NoSering.name -> {
+                                    sbSensorInfo.value.let {
+                                        Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
+                                        lifecycleScope.launch(IO) {
+                                            logWorkerHelper.insertLog("uploading: register")
+                                            _resultMessage.emit(UPLOADING)
+                                            uploadWorker(id, false, SleepType.NoSering, it.snoreTime)
+//                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    private fun test(isCancel: Boolean = false) {
+        if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+            stopSBServiceForced(isCancel)
+            return
+        } else {
+            logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
+//            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
+            bluetoothNetworkRepository.setSBSensorCancel(isCancel)
+            if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
+                bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+            } else {
+                if (isCancel.not()) {
+                    sbSensorInfo.value.let {
+                        it.dataId?.let { dataId ->
+                            lifecycleScope.launch(IO) {
+                                uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, true)
+                            }
+                        }
+                    }
+                } else {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                }
+
+            }
+        }
     }
 
 }

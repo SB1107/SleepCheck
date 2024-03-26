@@ -15,5 +15,7 @@ data class SettingData(
     @ColumnInfo(name = "snoringOnOff")
     val snoringOnOff :Boolean = true,
     @ColumnInfo(name = "snoringVibrationIntensity")
-    val snoringVibrationIntensity : Int = 2
+    val snoringVibrationIntensity : Int = 2,
+    @ColumnInfo(name = "dataId")
+    val dataId: Int = 0,
 )

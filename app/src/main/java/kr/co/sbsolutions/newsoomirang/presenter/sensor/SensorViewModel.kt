@@ -266,6 +266,12 @@ class SensorViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
+            /*when(bluetoothInfo.bluetoothState) {
+                //충전 상태를 알아야하는 상태
+                BluetoothState.Connected.Ready ->
+                { _canMeasurement.emit(bluetoothInfo.canMeasurement) }
+                else -> {}
+            }*/
             _isBleProgressBar.emit(true)
             _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)

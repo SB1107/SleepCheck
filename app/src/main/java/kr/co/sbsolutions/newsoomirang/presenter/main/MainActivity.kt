@@ -173,20 +173,18 @@ class MainActivity : BaseServiceActivity() {
             if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
-                showAlertDialogWithCancel(message =  "숨이랑  새로운 버전이 출시  되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
-//                    appUpdateManager.startUpdateFlowForResult(
-//                        info,
-//                        appUpdateLauncher,
-//                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-//                    )
-                    val url = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang&pcampaignid=web_share"
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Uri.parse(url)
-                    startActivity(intent)
-                    finish()
-                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_finish, cancelAction = {
-                    finish()
-                }, cancelable = false)
+                showAlertDialogWithCancel(message =  "숨이랑  새로운 버전이 출시되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        appUpdateLauncher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+//                    val url = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang&pcampaignid=web_share"
+//                    val intent = Intent(Intent.ACTION_VIEW)
+//                    intent.data = Uri.parse(url)
+//                    startActivity(intent)
+//                    finish()
+                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_next_update, cancelable = false)
 
             }else if(info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS){
                 appUpdateManager.startUpdateFlowForResult(
