@@ -590,7 +590,7 @@ class HistoryDetailActivity : BaseActivity() {
         ) {
 
             Box(contentAlignment = Alignment.Center) {
-                val percent = width * ((percentValue / 100f))
+                val percent :Dp = if(percentValue < 0) 0.dp else width * ((percentValue / 100f))
                 Image(
                     modifier = Modifier.padding(start = percent),
                     painter = painterResource(id = getPercentImage(percentValue)),
