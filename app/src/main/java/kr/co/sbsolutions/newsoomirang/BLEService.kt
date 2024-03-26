@@ -282,6 +282,9 @@ class BLEService : LifecycleService() {
             bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
         }
 
+//        lifecycleScope.launch {
+//            dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
+//        }
         bluetoothInfo.dataId = null
         bluetoothInfo.bluetoothGatt = null
     }

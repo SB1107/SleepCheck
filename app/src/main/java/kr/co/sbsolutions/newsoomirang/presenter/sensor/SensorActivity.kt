@@ -74,6 +74,7 @@ class SensorActivity : BluetoothActivity() {
         setContentView(binding.root)
 
         bindViews()
+        viewModel.connectState()
     }
 
     override fun onResume() {

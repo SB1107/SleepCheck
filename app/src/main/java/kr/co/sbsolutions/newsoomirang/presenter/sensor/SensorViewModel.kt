@@ -78,10 +78,6 @@ class SensorViewModel @Inject constructor(
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
 
 
-    private val _bleState = canMeasurement.zip(bluetoothButtonState)
-    {
-        canMeasurement,buttonState-> canMeasurement to buttonState
-    }
 //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
@@ -95,21 +91,28 @@ class SensorViewModel @Inject constructor(
                     getName()
                 }
             }
-            launch {
-                 _bleState.collectLatest {
-                    Log.e(TAG, "배터리: ${getService()?.sbSensorInfo?.value?.batteryInfo}")
-                     _isBleProgressBar.emit(getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not() and it.first)
-                 }
-            }
         }
 
     }
 
+    fun connectState() {
+        viewModelScope.launch {
+            Log.d(TAG, "connectState: ${getService()?.sbSensorInfo}")
+            getService()?.sbSensorInfo?.let { it ->
+                canMeasurement.zip(it)
+                { canMeasurement, info -> canMeasurement to info }.collectLatest {
+                    Log.e(TAG, "배터리1: ${getService()?.sbSensorInfo?.value?.batteryInfo}")
+                    Log.e(TAG, "배터리2: ${getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not()}")
+                    _isBleProgressBar.emit( getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not() and it.first)
+                }
+            }
+        }
+    }
 
     fun bleConnectOrDisconnect() {
         viewModelScope.launch(Dispatchers.IO) {
             Log.d(TAG, "bleConnectOrDisconnect: 나 불림 ${bluetoothInfo.bluetoothState}")
-            when (bluetoothInfo.bluetoothState) {
+            when (getService()?.sbSensorInfo?.value?.bluetoothState) {
                 //연결
                 BluetoothState.Unregistered,
                 BluetoothState.DisconnectedByUser -> {
@@ -178,9 +181,13 @@ class SensorViewModel @Inject constructor(
     private fun disconnectDevice() {
 //        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
         viewModelScope.launch(Dispatchers.IO) {
-            getService()?.disconnectDevice(bluetoothInfo)
-            _bleName.emit("연결된 기기가 없습니다.")
-            _searchBtnName.emit("숨이랑 센서 찾기")
+            getService()?.sbSensorInfo?.value?.let {
+                Log.d(TAG, "disconnectDevice: $it")
+                getService()?.disconnectDevice(it)
+                dataManager.deleteBluetoothDevice(it.sbBluetoothDevice.type.name)
+                _bleName.emit("연결된 기기가 없습니다.")
+                _searchBtnName.emit("숨이랑 센서 찾기")
+            }
 //            scanBLEDevices()
         }
 
@@ -283,7 +290,16 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _isBleProgressBar.emit(false)
             _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
-            bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
+            bluetoothManagerUseCase.registerSBSensor(
+                SBBluetoothDevice.SB_SOOM_SENSOR,
+                device.name,
+                device.address
+            )
+            getService()?.sbSensorInfo?.collectLatest {
+                if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
+                    deviceConnect(it)
+                }
+            }
 //            canMeasurement.collectLatest {
 //                Log.d(TAG, "registerBluetoothDevice: $it")
 //                if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready) {
@@ -296,7 +312,13 @@ class SensorViewModel @Inject constructor(
 
     private fun registerBluetoothDevice(deviceName: String, deviceAddress: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isRegistered.tryEmit(bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, deviceName, deviceAddress))
+            _isRegistered.tryEmit(
+                bluetoothManagerUseCase.registerSBSensor(
+                    SBBluetoothDevice.SB_SOOM_SENSOR,
+                    deviceName,
+                    deviceAddress
+                )
+            )
         }
     }
 

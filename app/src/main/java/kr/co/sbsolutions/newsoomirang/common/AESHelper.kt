@@ -20,7 +20,7 @@ class AESHelper {
             val tempByte = ByteArray(16).apply { fill(0.toByte(), 0, 16) }
             plainText.forEachIndexed { index, value ->
                 tempByte[index] = value
-                Log.d(TAG, "encryptAES128: ${tempByte[index]}")
+//                Log.d(TAG, "encryptAES128: ${tempByte[index]}")
             }
             val cipher = Cipher.getInstance("AES/CBC/NoPadding")
                 .apply {
