@@ -240,10 +240,14 @@ class HistoryDetailActivity : BaseActivity() {
                     color = Color.White,
                 )
             }
-            data.avgNormalBreath?.let {
+
+            data.avgNormalBreath?.let {breath ->
                 HeaderTitleView("정상 호흡 수")
                 Spacer(modifier = Modifier.height(16.dp))
-                RowTexts("정상호흡수(평균)","$it 회")
+                data.normalBreathTime?.let {time ->
+                    RowTexts("정상호흡 시간", time.InpuMintoHourMinute())
+                }
+                RowTexts("정상호흡수(평균)","$breath 회")
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
