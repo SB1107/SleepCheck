@@ -172,7 +172,7 @@ class BLEService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
-        logWorkerHelper.insertLog("[M] Model Name: "+Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
+        logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
@@ -269,14 +269,14 @@ class BLEService : LifecycleService() {
             gatt.disconnect()
             gatt.abortReliableWrite()
             Log.d(TAG, "disconnectDevice: ${gatt.abortReliableWrite()}")
-            if (bluetoothAdapter?.isEnabled == true){
+            if (bluetoothAdapter?.isEnabled == true) {
                 val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
                 val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
                 for (device in gattDevices) {
                     // 연결된 BLE 장치 처리
                     Log.i(TAG, "Connected device: ${device.name}")
                 }
-                    gatt.disconnect()
+                gatt.disconnect()
             }
             gatt.close()
             bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
@@ -380,6 +380,7 @@ class BLEService : LifecycleService() {
                                 lifecycleScope.launch(IO) {
                                     val reason = workInfo.outputData.getString("reason")
                                     logWorkerHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
+                                    Log.e(TAG, "서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
                                         uploadWorker(dataId, forceClose, sleepType, snoreTime, isFilePass)
                                     }
@@ -639,19 +640,19 @@ class BLEService : LifecycleService() {
             return
         } else {
             logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
-//            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
+            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
                 if (isCancel.not()) {
-                    sbSensorInfo.value.let {
-                        it.dataId?.let { dataId ->
-                            lifecycleScope.launch(IO) {
-                                uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, true)
-                            }
+                sbSensorInfo.value.let {
+                    it.dataId?.let { dataId ->
+                        lifecycleScope.launch(IO) {
+                            uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, true)
                         }
                     }
+                }
                 } else {
                     stopForeground(STOP_FOREGROUND_REMOVE)
                 }

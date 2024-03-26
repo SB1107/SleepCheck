@@ -162,9 +162,9 @@ class NoSeringViewModel @Inject constructor(
             }
             return
         }
-        setMeasuringState(MeasuringState.Analytics)
+        setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
-            getService()?.stopSBSensor()
+            getService()?.stopSBSensor()?: insertLog("코골이 측정 중 서비스가 없습니다.")
         }
     }
 

@@ -62,52 +62,40 @@ class UploadWorker @AssistedInject constructor(
             }
 
             if (isFilePass) {
-                uploading(this@withContext, packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
+                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             } else {
-                exportLastFile(this@withContext, packageName, dataId, type, snoreTime, sensorName).first()
+                Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
+                val min = sbSensorDBRepository.getMinIndex(dataId)
+                val max = sbSensorDBRepository.getMaxIndex(dataId)
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
+                logWorkerHelper.insertLog("exportLastFile - Size : $size")
+                if (size < 1000) {
+                    Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
+                    logWorkerHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
+                    return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
+                }
+                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
+                val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
+                val filePath = "${context.filesDir}/${time}($dataId).csv"
+                val file = File(filePath)
+                Log.d(TAG, "exportLastFile - make Start ${time}.csv")
+                FileWriter(file).use { fw ->
+                    CSVWriter(fw).use { cw ->
+//                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
+                        cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
+                        sbList.forEach { data ->
+                            cw.writeNext(data.toArray())
+                        }
+                    }
+                }
+                logWorkerHelper.insertLog("uploading: exportFile")
+                uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }
-
         }
     }
 
-    private suspend fun exportLastFile(coroutineScope: CoroutineScope, packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long = 0, sensorName: String) = callbackFlow {
-        Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
-        val min = sbSensorDBRepository.getMinIndex(dataId)
-        val max = sbSensorDBRepository.getMaxIndex(dataId)
-        val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
-        Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-        logWorkerHelper.insertLog("exportLastFile - Size : $size")
-        if (size < 100) {
-            Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-            logWorkerHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
-            coroutineScope.launch {
-                Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
-            }
-        }
-        val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
-        val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
-        val filePath = "${context.filesDir}/${time}($dataId).csv"
-        val file = File(filePath)
-        Log.d(TAG, "exportLastFile - make Start ${time}.csv")
-        FileWriter(file).use { fw ->
-            CSVWriter(fw).use { cw ->
-//                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
-                cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
-                sbList.forEach { data ->
-                    cw.writeNext(data.toArray())
-                }
-            }
-        }
-        logWorkerHelper.insertLog("uploading: exportFile")
-        uploading(coroutineScope, packageName, dataId, file, sbList, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName).collectLatest {
-            trySend(it)
-            close()
-        }
-        awaitClose()
-    }.flowOn(Dispatchers.IO)
-
     private suspend fun uploading(
-        coroutineScope: CoroutineScope,
         packageName: String,
         dataId: Int,
         file: File?,
@@ -117,33 +105,35 @@ class UploadWorker @AssistedInject constructor(
         sensorName: String
     ) =
         callbackFlow {
-            val requestHelper = RequestHelper(coroutineScope, dataManager = dataManager, tokenManager = tokenManager)
-                .apply {
-                    setLogWorkerHelper(logWorkerHelper)
+            withContext(ioDispatchers) {
+                val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
+                    .apply {
+                        setLogWorkerHelper(logWorkerHelper)
+                    }
+                logWorkerHelper.insertLog("서버 업로드 시작")
+                Intent().also { intent ->
+                    intent.setAction(Cons.NOTIFICATION_ACTION)
+                    intent.setPackage(packageName)
+                    context.sendBroadcast(intent)
                 }
-            logWorkerHelper.insertLog("서버 업로드 시작")
-            Intent().also { intent ->
-                intent.setAction(Cons.NOTIFICATION_ACTION)
-                intent.setPackage(packageName)
-                context.sendBroadcast(intent)
+                requestHelper.request(
+                    request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName) },
+                    errorHandler = { error ->
+                        logWorkerHelper.insertLog("uploading error: $error")
+                        trySend(Result.retry())
+                        close()
+                    },
+                    showProgressBar = false
+                )
+                    .flowOn(Dispatchers.IO).collectLatest {
+                        Log.e(TAG, "uploading:  collectLatest")
+                        sbSensorDBRepository.deleteUploadedList(list)
+                        file?.delete()
+                        trySend(Result.success())
+                        close()
+                    }
+                awaitClose()
             }
-            requestHelper.request(
-                request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName) },
-                errorHandler = { error ->
-                    logWorkerHelper.insertLog("uploading error: $error")
-                    trySend(Result.retry())
-                    close()
-                },
-                showProgressBar = false
-            )
-                .flowOn(Dispatchers.IO).collectLatest {
-                    Log.e(TAG, "uploading:  collectLatest")
-                    sbSensorDBRepository.deleteUploadedList(list)
-                    file?.delete()
-                    trySend(Result.success())
-                    close()
-                }
-            awaitClose()
         }
 
 }

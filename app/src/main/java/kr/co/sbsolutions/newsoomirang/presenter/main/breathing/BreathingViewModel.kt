@@ -104,9 +104,9 @@ class BreathingViewModel @Inject constructor(
             }
             return
         }
-        setMeasuringState(MeasuringState.Analytics)
+        setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch(Dispatchers.IO) {
-            getService()?.stopSBSensor()
+            getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
         }
     }
 
