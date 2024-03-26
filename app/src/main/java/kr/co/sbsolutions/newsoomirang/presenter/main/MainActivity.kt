@@ -184,7 +184,7 @@ class MainActivity : BaseServiceActivity() {
                     intent.data = Uri.parse(url)
                     startActivity(intent)
                     finish()
-                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_finish, cancelAction = {
+                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_next_update, cancelAction = {
                     finish()
                 }, cancelable = false)
 

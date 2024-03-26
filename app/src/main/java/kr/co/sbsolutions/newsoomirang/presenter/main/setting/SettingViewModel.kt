@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -42,17 +43,8 @@ class SettingViewModel @Inject constructor(
     val deviceName: SharedFlow<String?> = _deviceName.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            launch {
-                ApplicationManager.getBluetoothInfoFlow().collectLatest { info ->
-                    Log.d(TAG, "[STM]: $info")
-                    getDeviceName()
-                }
-            }
-        }
+        getDeviceName()
     }
-
-
     //로그아웃
     fun logout() {
         if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime ||
@@ -72,13 +64,13 @@ class SettingViewModel @Inject constructor(
             }
         }
     }
-
     private fun getDeviceName(){
         viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
-                Log.d(TAG, "getDeviceName: $it")
-                _deviceName.emit(it)
-            } ?: _deviceName.emit("")
+            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).collectLatest {
+                it?.let {
+                    _deviceName.emit(it)
+                } ?: _deviceName.emit("")
+            }
         }
     }
 

@@ -16,9 +16,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons
@@ -73,6 +77,11 @@ class SensorViewModel @Inject constructor(
     private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
 
+
+    private val _bleState = canMeasurement.zip(bluetoothButtonState)
+    {
+        canMeasurement,buttonState-> canMeasurement to buttonState
+    }
 //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
@@ -86,7 +95,14 @@ class SensorViewModel @Inject constructor(
                     getName()
                 }
             }
+            launch {
+                 _bleState.collectLatest {
+                    Log.e(TAG, "배터리: ${getService()?.sbSensorInfo?.value?.batteryInfo}")
+                     _isBleProgressBar.emit(getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not() and it.first)
+                 }
+            }
         }
+
     }
 
 
@@ -163,7 +179,6 @@ class SensorViewModel @Inject constructor(
 //        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.disconnectDevice(bluetoothInfo)
-            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
             _bleName.emit("연결된 기기가 없습니다.")
             _searchBtnName.emit("숨이랑 센서 찾기")
 //            scanBLEDevices()
@@ -266,12 +281,16 @@ class SensorViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isBleProgressBar.emit(true)
+            _isBleProgressBar.emit(false)
             _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
-            bluetoothButtonState.collectLatest { state ->
-                _isBleProgressBar.emit(state.contains("시작"))
-            }
+//            canMeasurement.collectLatest {
+//                Log.d(TAG, "registerBluetoothDevice: $it")
+//                if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready) {
+//                    _isBleProgressBar.emit(it.not())
+//                }
+//            }
+
         }
     }
 
