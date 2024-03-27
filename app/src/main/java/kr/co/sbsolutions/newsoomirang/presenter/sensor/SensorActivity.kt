@@ -84,11 +84,14 @@ class SensorActivity : BluetoothActivity() {
 
     private fun bindViews() {
         with(binding) {
+
             deviceRecyclerView.apply {
                 layoutManager = LinearLayoutManager(this@SensorActivity, LinearLayoutManager.VERTICAL, false)
                 adapter = bleAdapter
             }
 
+            actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
+            actionBar.toolbarTitle.text = "센서 연결"
             actionBar.backButton.setOnClickListener {
                 newBackPressed()
             }

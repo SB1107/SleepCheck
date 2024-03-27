@@ -188,7 +188,7 @@ class HistoryFragment : Fragment() {
         val titleDate = endedAt?.toDayString("M월 d일 E요일")
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) "수면" else "코골이")
+            (startAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) "호흡" else "코골이")
         Row(modifier = Modifier.padding(16.dp).clickable {
             clickItem.invoke(data.id)
         } ) {
