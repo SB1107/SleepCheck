@@ -247,7 +247,7 @@ class HistoryDetailActivity : BaseActivity() {
                 data.normalBreathTime?.let {time ->
                     RowTexts("정상호흡 시간", time.InpuMintoHourMinute())
                 }
-                RowTexts("정상호흡수(평균)","$breath 회")
+                RowTexts("정상호흡수(평균 분당 호흡수)","$breath 회")
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
@@ -311,7 +311,7 @@ class HistoryDetailActivity : BaseActivity() {
                 RowTexts("잠들때까지 걸린 시간", it.InpuMintoHourMinute())
             }
             data.snoreTime?.let {
-                RowTexts("코고는 시간", it.InpuMintoHourMinute())
+                RowTexts("코골이 시간", it.InpuMintoHourMinute())
             }
             data.deepSleepTime?.let {
                 RowTexts("깊은잠 시간", it.InpuMintoHourMinute())

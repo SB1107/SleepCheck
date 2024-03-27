@@ -201,9 +201,9 @@ class LeaveActivity : AppCompatActivity() {
                             .padding(horizontal = 30.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(id = R.color.color_0F63C8),
+                            containerColor = colorResource(id = R.color.color_yellow),
                             contentColor = Color.White,
-                            disabledContainerColor = Color.Gray,
+                            disabledContainerColor = colorResource(id = R.color.color_777777),
                             disabledContentColor = Color.Black
                         ),
                         enabled = isButtonEnable,
