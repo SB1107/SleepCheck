@@ -42,6 +42,7 @@
                         android:src="@drawable/head_btn_back"
                         android:stateListAnimator="@null"
                         android:tint="@color/color_FFFFFF"
+                        android:contentDescription="@string/back_button_label"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
