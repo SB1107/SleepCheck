@@ -23,10 +23,6 @@ abstract class BluetoothActivity : BaseActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onBluetoothActive()
@@ -58,9 +54,6 @@ abstract class BluetoothActivity : BaseActivity() {
         )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 
     private fun onBluetoothActive() {
         bluetoothActivityResultLauncher =

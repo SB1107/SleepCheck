@@ -229,6 +229,7 @@ class BLEService : LifecycleService() {
                 }
 
                 BluetoothDevice.ACTION_ACL_CONNECTED -> {
+                    Log.e(TAG, "onReceive: ACTION_ACL_CONNECTED")
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
@@ -240,6 +241,11 @@ class BLEService : LifecycleService() {
                 }
             }
         }
+    }
+
+    fun timerOfDisconnection() {
+        timerOfDisconnection?.cancel()
+        timerOfDisconnection = null
     }
 
     private val mFilter = IntentFilter().apply {
@@ -256,37 +262,37 @@ class BLEService : LifecycleService() {
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
             schedule(timerTask {
-                disconnectDevice(bluetoothInfo)
+                Log.e(TAG, "connectDevice: ")
+                disconnectDevice()
             }, 5000L)
         }
     }
 
-    fun disconnectDevice(bluetoothInfo: BluetoothInfo) {
-        bluetoothInfo.bluetoothGatt?.let { gatt ->
-            BluetoothUtils.findResponseCharacteristic(gatt)?.let { char ->
-                gatt.setCharacteristicNotification(char, false)
+    fun disconnectDevice() {
+        Log.e(TAG, "disconnectDevice: ")
+
+        releaseResource()
+        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        for (device in gattDevices) {
+            // BluetoothAdapter 객체를 가져옵니다.
+
+            // BluetoothDevice 객체를 가져옵니다.
+            val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
+
+            // 본딩되어 있지 않으면 본딩을 시작합니다.
+            if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
+                bluetoothAdapter?.startDiscovery()
+                bluetoothDevice?.createBond()
+                bluetoothAdapter?.cancelDiscovery()
             }
-            gatt.disconnect()
-            gatt.abortReliableWrite()
-            Log.d(TAG, "disconnectDevice: ${gatt.abortReliableWrite()}")
-            if (bluetoothAdapter?.isEnabled == true) {
-                val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-                val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
-                for (device in gattDevices) {
-                    // 연결된 BLE 장치 처리
-                    Log.i(TAG, "Connected device: ${device.name}")
-                }
-                gatt.disconnect()
-            }
-            gatt.close()
-            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+
+            Log.i(TAG, "Connected device11: ${device.address}")
+            Log.i(TAG, "Connected device11: ${device.bondState}")
         }
 
-//        lifecycleScope.launch {
-//            dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
-//        }
-        bluetoothInfo.dataId = null
-        bluetoothInfo.bluetoothGatt = null
     }
 
     private fun startTimer() {
@@ -323,6 +329,7 @@ class BLEService : LifecycleService() {
     override fun onDestroy() {
         unregisterReceiver(mReceiver)
 
+        Log.e(TAG, "onDestroy: ")
         releaseResource()
         cancelJob()
         stopSelf()
@@ -331,6 +338,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun releaseResource() {
+        Log.d(TAG, "Serivce releaseResource: ")
         bluetoothNetworkRepository.releaseResource()
     }
 
@@ -577,7 +585,7 @@ class BLEService : LifecycleService() {
             */
             null -> {}
         }
-        return  super.onStartCommand(intent, flags, startId)
+        return super.onStartCommand(intent, flags, startId)
     }
 
     private fun forcedFlow() {

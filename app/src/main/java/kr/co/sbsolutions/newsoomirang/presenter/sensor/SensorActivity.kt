@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -58,7 +57,6 @@ class SensorActivity : BluetoothActivity() {
     private val bleClickListener: (BluetoothDevice) -> Unit = { bluetoothDevice ->
         lifecycleScope.launch {
             viewModel.registerDevice(bluetoothDevice)
-
         }
     }
 
@@ -84,7 +82,6 @@ class SensorActivity : BluetoothActivity() {
 
     private fun bindViews() {
         with(binding) {
-
             deviceRecyclerView.apply {
                 layoutManager = LinearLayoutManager(this@SensorActivity, LinearLayoutManager.VERTICAL, false)
                 adapter = bleAdapter
@@ -94,6 +91,9 @@ class SensorActivity : BluetoothActivity() {
             actionBar.toolbarTitle.text = "센서 연결"
             actionBar.backButton.setOnClickListener {
                 newBackPressed()
+            }
+            btDiss.setOnClickListener {
+                viewModel.bleDisconnect()
             }
 
             /*disconnectButton.setOnClickListener {
@@ -111,91 +111,85 @@ class SensorActivity : BluetoothActivity() {
                         viewModel.bleName.collectLatest { text ->
                             text?.let {
                                 binding.deviceNameTextView.text = text
+                                binding.btDiss.visibility = View.VISIBLE
+                            } ?: run {
+                                binding.deviceNameTextView.text = "연결된 기기가 없습니다."
+                                binding.btDiss.visibility = View.GONE
                             }
                         }
                     }
-
-                    launch {
-                        viewModel.searchBtnName.collectLatest { text->
-                            text?.let {
-                                binding.btSearch.text = text
+                        launch {
+                            binding.btSearch.setOnClickListener {
+                                viewModel.bleConnect()
                             }
                         }
-                    }
 
-                    launch {
-                        binding.btSearch.setOnClickListener {
-                            viewModel.bleConnectOrDisconnect()
-                        }
-                    }
-
-                    launch {
-                        viewModel.isScanning.collectLatest {
-                            it?.let {
-                                if (it) {
-                                    Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                    return@collectLatest
+                        launch {
+                            viewModel.isScanning.collectLatest {
+                                it?.let {
+                                    if (it) {
+                                        Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
+                                        return@collectLatest
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    /*launch {
-                        isScanning.collectLatest { isScanning ->
-                            animator.also {
-                                if (isScanning) it.start() else it.cancel()
+                        /*launch {
+                            isScanning.collectLatest { isScanning ->
+                                animator.also {
+                                    if (isScanning) it.start() else it.cancel()
+                                }
+                            }
+                        }*/
+
+                        /*launch {
+                            isRegistered.collectLatest {
+                                if (it) {
+    //                                delay(1000)
+                                    newBackPressed()
+
+                                } else {
+                                    Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }*/
+                        launch {
+                            viewModel.isBleProgressBar.collectLatest {
+                                binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
+                                if (it) newBackPressed()
+
                             }
                         }
-                    }*/
 
-                    /*launch {
-                        isRegistered.collectLatest {
-                            if (it) {
-//                                delay(1000)
-                                newBackPressed()
-
-                            } else {
-                                Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
+                        launch {
+                            viewModel.bleStateResultText.collectLatest {
+                                it?.let { resultText ->
+                                    binding.icBleProgress.tvDeviceId.text = resultText
+                                }
                             }
                         }
-                    }*/
-                    launch {
-                        viewModel.isBleProgressBar.collectLatest {
-                            binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
-                            if (it) newBackPressed()
 
-                        }
-                    }
-
-                    launch {
-                        viewModel.bleStateResultText.collectLatest {
-                            it?.let { resultText ->
-                                binding.icBleProgress.tvDeviceId.text = resultText
+                        launch {
+                            scanList.collectLatest { list ->
+                                bleAdapter.submitList(list)
                             }
                         }
-                    }
 
-                    launch {
-                        scanList.collectLatest { list ->
-                            bleAdapter.submitList(list)
+                        launch {
+                            viewModel.errorMessage.collectLatest {
+                                showAlertDialog(R.string.common_title, it)
+                            }
                         }
-                    }
-
-                    launch {
-                        viewModel.errorMessage.collectLatest {
-                            showAlertDialog(R.string.common_title, it)
-                        }
-                    }
-                    launch {
-                        viewModel.checkSensorResult.collectLatest {
-                            it?.let {
-                                showAlertDialog(message = it)
+                        launch {
+                            viewModel.checkSensorResult.collectLatest {
+                                it?.let {
+                                    showAlertDialog(message = it)
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }
-
 }

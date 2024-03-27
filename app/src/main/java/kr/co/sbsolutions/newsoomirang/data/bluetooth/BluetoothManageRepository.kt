@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
 import android.annotation.SuppressLint
+import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
@@ -14,5 +15,8 @@ class BluetoothManageRepository @Inject constructor(private val dataManager: Dat
 
     override suspend fun unregisterSBSensor(key: SBBluetoothDevice) : Boolean {
         return dataManager.deleteBluetoothDevice(key.type.name)
+    }
+    override suspend fun getBluetoothDeviceName(key: SBBluetoothDevice): Flow<String?> {
+        return  dataManager.getBluetoothDeviceName(key.type.name)
     }
 }
