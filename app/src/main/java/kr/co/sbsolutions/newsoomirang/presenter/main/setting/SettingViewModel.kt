@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.setting
 
-import android.bluetooth.BluetoothAdapter
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -11,29 +10,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
-import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val dataManager: DataManager,
-    private val remoteAuthDataSource: RemoteAuthDataSource
+    private val remoteAuthDataSource: RemoteAuthDataSource,
+    private val bluetoothManagerUseCase: BluetoothManageUseCase,
 ) : BaseServiceViewModel(dataManager, tokenManager) , DataRemove {
 
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
@@ -43,7 +39,16 @@ class SettingViewModel @Inject constructor(
     val deviceName: SharedFlow<String?> = _deviceName.asStateFlow()
 
     init {
-        getDeviceName()
+        viewModelScope.launch(Dispatchers.IO) {
+            launch {
+                bluetoothManagerUseCase.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR).collectLatest {
+                    it?.let {
+                        Log.d(TAG, "getDeviceName:11r $it")
+                        _deviceName.emit(it)
+                    } ?: _deviceName.emit("")
+                }
+            }
+        }
     }
     //로그아웃
     fun logout() {
@@ -61,15 +66,6 @@ class SettingViewModel @Inject constructor(
                         }
                     }
                 }
-            }
-        }
-    }
-    private fun getDeviceName(){
-        viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).collectLatest {
-                it?.let {
-                    _deviceName.emit(it)
-                } ?: _deviceName.emit("")
             }
         }
     }

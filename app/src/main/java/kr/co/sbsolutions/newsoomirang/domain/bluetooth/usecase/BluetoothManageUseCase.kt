@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase
 
+import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothManageRepository
 import javax.inject.Inject
@@ -11,5 +12,8 @@ class BluetoothManageUseCase @Inject constructor(private val bluetoothManageRepo
 
     suspend fun unregisterSBSensor(key: SBBluetoothDevice) : Boolean {
         return bluetoothManageRepository.unregisterSBSensor(key)
+    }
+    suspend fun getBluetoothDeviceName(key: SBBluetoothDevice) : Flow<String?> {
+        return bluetoothManageRepository.getBluetoothDeviceName(key)
     }
 }

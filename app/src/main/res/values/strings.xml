@@ -27,6 +27,8 @@
     <string name="find_pw_info">가입하신 이메일 주소를 입력해주시면 \n비밀번호 재설정이 가능한 링크가 발송됩니다.</string>
     <string name="qa">QA 타이틀</string>
     <string name="regist_button">등록버튼</string>
+    <string name="back_button_label">뒤로</string>
+    <string name="recyclerView_label">기기 검색</string>
 
     <!-- 달력 선택을 위한 -->
     <string name="action_today">오늘</string>

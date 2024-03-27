@@ -93,6 +93,7 @@ class RequestHelper(
                             scope.launch(Dispatchers.IO) {
                                 tokenManager.deleteToken()
                                 dataManager.deleteUserName()
+                                // FIXME: 틀려 먹엇다
                                 dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
                             }
                         }

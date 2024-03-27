@@ -77,6 +77,26 @@
         app:layout_constraintBottom_toTopOf="@id/deviceRecyclerView"
         app:strokeWidth="1dp" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bt_diss"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="@font/nanumsquarebold"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="연결 끊기"
+        android:textColor="@color/color_000000"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:backgroundTint="@color/color_yellow"
+        app:cornerRadius="10dp"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:layout_constraintEnd_toEndOf="@id/btSearch"
+        app:layout_constraintStart_toStartOf="@id/btSearch"
+        app:layout_constraintTop_toBottomOf="@id/btSearch"
+        app:layout_constraintBottom_toTopOf="@id/btSearch"
+        app:strokeWidth="1dp" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deviceRecyclerView"
@@ -85,6 +105,7 @@
         android:layout_marginTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/recyclerView_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btSearch" />
 

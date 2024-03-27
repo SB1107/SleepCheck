@@ -231,7 +231,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _sbSensorInfo.apply { update { it.copy() } }
         _spo2SensorInfo.apply { update { it.copy() } }
         _eegSensorInfo.apply { update { it.copy() } }
-
+        Log.e(TAG, "changeBluetoothState: isOn = ${isOn}", )
         releaseResource()
     }
 
@@ -251,7 +251,7 @@ class BluetoothNetworkRepository @Inject constructor(
         }.apply {
             value.let { info ->
                 if (info.bluetoothState != BluetoothState.Unregistered) {
-                    val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser) }
+                    val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser , batteryInfo = null) }
                     insertLog(result.bluetoothState)
                 }
             }
@@ -264,11 +264,12 @@ class BluetoothNetworkRepository @Inject constructor(
                 bluetoothState = BluetoothState.DisconnectedByUser
 //                Log.d(TAG, "disconnectedDevice: 2")
             }
-            bluetoothGatt?.let {
-                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
-                it.disconnect()
-                it.close()
-            }
+                bluetoothGatt?.let {
+                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.disconnect()
+                    it.close()
+                    Log.e(TAG, "releaseResource: ", )
+                }
             dataId = null
             bluetoothGatt = null
         }
@@ -544,7 +545,7 @@ class BluetoothNetworkRepository @Inject constructor(
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d(TAG, "[NR] onConnectionStateChange: CONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 gatt.discoverServices()
-                innerData.update { it.copy(bluetoothGatt = gatt) }
+                innerData.update { it.copy(bluetoothGatt = gatt , bluetoothState = BluetoothState.Connected.Init) }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, "[NR] onConnectionStateChange: DISCONNECTED ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)

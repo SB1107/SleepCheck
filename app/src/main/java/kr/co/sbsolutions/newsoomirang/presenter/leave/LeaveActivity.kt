@@ -246,9 +246,9 @@ class LeaveActivity : AppCompatActivity() {
                             click(data)
                         },
                     verticalAlignment = Alignment.CenterVertically,
-
                     ) {
                     Checkbox(
+                        modifier = Modifier.height(50.dp),
                         colors = CheckboxDefaults.colors(
                             checkmarkColor = Color.White,
                             checkedColor = colorResource(id = R.color.color_0F63C8),
