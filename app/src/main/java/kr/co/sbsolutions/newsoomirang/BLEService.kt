@@ -272,6 +272,7 @@ class BLEService : LifecycleService() {
         timerOfDisconnection = Timer().apply {
             schedule(timerTask {
                 Log.e(TAG, "connectDevice: ")
+                logWorkerHelper.insertLog("!!재연결중 disconnectDevice")
                 disconnectDevice()
             }, 60000L)
         }
@@ -279,7 +280,7 @@ class BLEService : LifecycleService() {
 
     fun disconnectDevice() = callbackFlow {
         Log.e(TAG, "disconnectDevice: ")
-
+        logWorkerHelper.insertLog("!!재연결중 disconnectDevice")
         bluetoothNetworkRepository.releaseResource().collectLatest {
             bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
             val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -589,6 +590,7 @@ class BLEService : LifecycleService() {
 
     private fun forcedFlow() {
         sbSensorInfo.value.let {
+            logWorkerHelper.insertLog("sbSensorInfo: ${it.bluetoothName}  ${it.dataId}")
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -672,7 +674,7 @@ class BLEService : LifecycleService() {
 //        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
 //        }
 
-        logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
+        logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}   $isCancel")
         Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
@@ -719,6 +721,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun stopSBServiceForced(isCancel: Boolean = false) {
+        logWorkerHelper.insertLog("stopSBServiceForced: ${isCancel}")
         stopScheduler()
         if (isCancel) {
             finishService(-1, true)

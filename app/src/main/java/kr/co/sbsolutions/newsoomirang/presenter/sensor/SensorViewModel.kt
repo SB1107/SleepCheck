@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
@@ -145,14 +146,12 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             Log.e(TAG, "sensor disconnectDevice: ")
             getService()?.disconnectDevice()?.collectLatest {
+                insertLog("사용자가 직접 연결 끊음 $it")
                 if (it) {
                     bluetoothManagerUseCase.unregisterSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR)
                 }
-
             }
         }
-
-
     }
 
     @SuppressLint("MissingPermission")
