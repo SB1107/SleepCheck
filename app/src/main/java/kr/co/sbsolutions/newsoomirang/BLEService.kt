@@ -302,8 +302,17 @@ class BLEService : LifecycleService() {
     }
 
     private fun startTimer() {
-        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(false)
+        notVibrationNotifyChannelCreate()
         lifecycleScope.launch { timeHelper.startTimer(this) }
+    }
+    private fun notVibrationNotifyChannelCreate() {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            enableVibration(false)
+        }
+        notificationManager.createNotificationChannel(channel)
+
     }
 
     private fun stopTimer() {
@@ -603,7 +612,7 @@ class BLEService : LifecycleService() {
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT
+            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
     }
