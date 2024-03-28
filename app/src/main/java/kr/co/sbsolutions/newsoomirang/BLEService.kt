@@ -165,10 +165,18 @@ class BLEService : LifecycleService() {
     private val mBinder: IBinder = LocalBinder()
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
-    private lateinit var timerJob: Job
 
     override fun onCreate() {
         super.onCreate()
+
+        lifecycleScope.launch(IO) {
+            timeHelper.measuringTimer.collectLatest {
+                Log.e(TAG, "onCreate: $it", )
+                notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
+                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+            }
+        }
+
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
         logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
         noseRingHelper.setCallVibrationNotifications {
@@ -294,38 +302,13 @@ class BLEService : LifecycleService() {
     }
 
     private fun startTimer() {
-        notVibrationNotifyChannelCreate()
-        if (::timerJob.isInitialized) {
-            timerJob.cancel(CancellationException("startTimer Cancel"))
-        }
-        timerJob = lifecycleScope.launch {
-            launch {
-                timeHelper.startTimer(this)
-            }
-            launch {
-                timeHelper.measuringTimer.collectLatest {
-                    notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-                }
-            }
-        }
-    }
-
-    private fun notVibrationNotifyChannelCreate() {
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            enableVibration(false)
-        }
-        notificationManager.createNotificationChannel(channel)
-
+        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(false)
+        lifecycleScope.launch { timeHelper.startTimer(this) }
     }
 
     private fun stopTimer() {
         timeHelper.stopTimer()
-        timerJob.cancel(CancellationException("startTimer Cancel"))
     }
-
 
     override fun onDestroy() {
         unregisterReceiver(mReceiver)
@@ -643,7 +626,7 @@ class BLEService : LifecycleService() {
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
-        createNotificationChannel()
+        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         stopTimer()
 
         stopAudioClassification()
