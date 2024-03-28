@@ -29,11 +29,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -171,7 +174,7 @@ class BLEService : LifecycleService() {
 
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
-                Log.e(TAG, "onCreate: $it", )
+                Log.e(TAG, "onCreate: $it")
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
                 notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
             }
@@ -274,37 +277,40 @@ class BLEService : LifecycleService() {
         }
     }
 
-    fun disconnectDevice() {
+    fun disconnectDevice() = callbackFlow {
         Log.e(TAG, "disconnectDevice: ")
 
-        releaseResource()
-        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+        bluetoothNetworkRepository.releaseResource().collectLatest {
+            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+            val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+            for (device in gattDevices) {
+                // BluetoothAdapter 객체를 가져옵니다.
 
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
-        for (device in gattDevices) {
-            // BluetoothAdapter 객체를 가져옵니다.
+                // BluetoothDevice 객체를 가져옵니다.
+                val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
 
-            // BluetoothDevice 객체를 가져옵니다.
-            val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
+                // 본딩되어 있지 않으면 본딩을 시작합니다.
+                if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
+                    bluetoothAdapter?.startDiscovery()
+                    bluetoothDevice?.createBond()
+                    bluetoothAdapter?.cancelDiscovery()
+                }
 
-            // 본딩되어 있지 않으면 본딩을 시작합니다.
-            if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
-                bluetoothAdapter?.startDiscovery()
-                bluetoothDevice?.createBond()
-                bluetoothAdapter?.cancelDiscovery()
+                Log.i(TAG, "Connected device11: ${device.address}")
+                Log.i(TAG, "Connected device11: ${device.bondState}")
             }
-
-            Log.i(TAG, "Connected device11: ${device.address}")
-            Log.i(TAG, "Connected device11: ${device.bondState}")
+            trySend(it)
+            close()
         }
-
+        awaitClose()
     }
 
     private fun startTimer() {
         notVibrationNotifyChannelCreate()
         lifecycleScope.launch { timeHelper.startTimer(this) }
     }
+
     private fun notVibrationNotifyChannelCreate() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW

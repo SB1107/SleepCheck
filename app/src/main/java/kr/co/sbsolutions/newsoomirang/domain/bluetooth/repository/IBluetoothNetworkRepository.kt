@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
@@ -29,7 +30,7 @@ interface IBluetoothNetworkRepository {
     fun connectedDevice(device: BluetoothDevice?)
     fun changeBluetoothState(isOn: Boolean)
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
-    fun releaseResource()
+    fun releaseResource() : Flow<Boolean>
 
     fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
     fun stopNetworkSBSensor(snoreTime : Long = 0 )

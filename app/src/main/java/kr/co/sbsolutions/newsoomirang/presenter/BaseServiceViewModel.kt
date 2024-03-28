@@ -40,6 +40,8 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
     val bluetoothButtonState: StateFlow<String> = _bluetoothButtonState
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
+    protected val _isBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
+    val isBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isBleProgressBar
     abstract fun whereTag(): String
 
     init {
@@ -51,23 +53,36 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                     bluetoothInfo = it
 
                     setBatteryInfo()
-                    if (it.bluetoothState == BluetoothState.Unregistered ||it.bluetoothState == BluetoothState.Connected.Init) {
-                        _bluetoothButtonState.emit("연결")
-                    } else if (it.bluetoothState == BluetoothState.DisconnectedByUser || it.bluetoothGatt == null) {
-                        bluetoothInfo.batteryInfo = null
-                        _batteryState.emit("")
-                        _bluetoothButtonState.emit("연결")
-                    }else if( it.bluetoothState == BluetoothState.Connected.Reconnected){
-                        _bluetoothButtonState.emit("재 연결중")
-                    }else if(it.bluetoothState == BluetoothState.DisconnectedNotIntent){
-                        _bluetoothButtonState.emit("연결 끊김")
-                    }else if(it.bluetoothState == BluetoothState.Connected.ReceivingRealtime){
-                        _bluetoothButtonState.emit("시작")
-                    }else if(it.bluetoothState == BluetoothState.Connecting){
-                        getService()?.timerOfDisconnection()
-                    }
-                    else {
-                        _bluetoothButtonState.emit("시작")
+                    when (it.bluetoothState) {
+                        BluetoothState.Unregistered -> {
+                            _bluetoothButtonState.emit("연결")
+                        }
+                        BluetoothState.DisconnectedByUser -> {
+                            bluetoothInfo.batteryInfo = null
+                            _batteryState.emit("")
+                            _bluetoothButtonState.emit("연결")
+                        }
+                        BluetoothState.Connected.Reconnected -> {
+                            _bluetoothButtonState.emit("재 연결중")
+                        }
+                        BluetoothState.DisconnectedNotIntent -> {
+                            _bluetoothButtonState.emit("연결 끊김")
+                        }
+                        BluetoothState.Connected.ReceivingRealtime -> {
+                            _bluetoothButtonState.emit("시작")
+                        }
+                        BluetoothState.Connected.DataFlow -> {
+                            _isBleProgressBar.emit(Pair(true, "기기를 초기화 중입니다."))
+                        }
+                        BluetoothState.Connecting -> {
+                            _isBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                            _bluetoothButtonState.emit("재 연결중")
+                            getService()?.timerOfDisconnection()
+                        }
+                        else -> {
+                            _bluetoothButtonState.emit("시작")
+                            _isBleProgressBar.emit(Pair(true, "배터리 정보 받아 오는중.."))
+                        }
                     }
                 }
             }
@@ -90,7 +105,10 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
     fun setBatteryInfo() {
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
-            bluetoothInfo.batteryInfo?.let { _batteryState.emit(it) }
+            bluetoothInfo.batteryInfo?.let {
+                _batteryState.emit(it)
+                _isBleProgressBar.emit(Pair(false, ""))
+            }
             when (bluetoothInfo.bluetoothState) {
                 //충전 상태를 알아야하는 상태
                 BluetoothState.Connected.Ready ->

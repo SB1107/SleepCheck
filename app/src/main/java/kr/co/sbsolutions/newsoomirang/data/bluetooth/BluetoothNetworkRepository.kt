@@ -5,12 +5,18 @@ import android.bluetooth.*
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 import android.os.Build
 import android.util.Log
+import androidx.collection.floatSetOf
+import androidx.compose.animation.fadeIn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -258,7 +264,7 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun releaseResource() {
+    override fun releaseResource() = flow <Boolean>{
         _sbSensorInfo.value.apply {
             if (bluetoothState != BluetoothState.Unregistered) {
                 bluetoothState = BluetoothState.DisconnectedByUser
@@ -274,17 +280,21 @@ class BluetoothNetworkRepository @Inject constructor(
             bluetoothGatt = null
         }
         _spo2SensorInfo.value.apply {
-            if (bluetoothState != BluetoothState.Unregistered) {
-                bluetoothState = BluetoothState.DisconnectedByUser
-//                Log.d(TAG, "disconnectedDevice: 3")
+            try {
+                if (bluetoothState != BluetoothState.Unregistered) {
+                    bluetoothState = BluetoothState.DisconnectedByUser
+    //                Log.d(TAG, "disconnectedDevice: 3")
+                }
+                bluetoothGatt?.let {
+                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.disconnect()
+                    it.close()
+                }
+                dataId = null
+                bluetoothGatt = null
+            } catch (e: Exception) {
+                emit(false)
             }
-            bluetoothGatt?.let {
-                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
-                it.disconnect()
-                it.close()
-            }
-            dataId = null
-            bluetoothGatt = null
         }
 //
         _eegSensorInfo.value.apply {
@@ -300,6 +310,7 @@ class BluetoothNetworkRepository @Inject constructor(
             dataId = null
             bluetoothGatt = null
         }
+        emit(true)
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {

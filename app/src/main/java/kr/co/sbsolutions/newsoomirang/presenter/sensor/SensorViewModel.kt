@@ -68,9 +68,6 @@ class SensorViewModel @Inject constructor(
     private val _bleStateResultText: MutableStateFlow<String?> = MutableStateFlow(null)
     val bleStateResultText: SharedFlow<String?> = _bleStateResultText.asSharedFlow()
 
-    private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
-
 
 //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
 
@@ -101,14 +98,14 @@ class SensorViewModel @Inject constructor(
                 getService()?.sbSensorInfo?.filter { it.batteryInfo != null }?.collectLatest { it ->
                     Log.e(TAG, "배터리1: ${getService()?.sbSensorInfo?.value?.batteryInfo}")
                     Log.e(TAG, "배터리2: ${getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not()}")
-                    _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
+                    _isBleProgressBar.emit(Pair(it.batteryInfo.isNullOrEmpty().not(), ""))
                 }
             }
         }
     }
 
     fun bleDisconnect() {
-        if (getService()?.isForegroundServiceRunning() == true){
+        if (getService()?.isForegroundServiceRunning() == true) {
             sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
             return
         }
@@ -145,8 +142,12 @@ class SensorViewModel @Inject constructor(
 //        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
         viewModelScope.launch(Dispatchers.IO) {
             Log.e(TAG, "sensor disconnectDevice: ")
-            getService()?.disconnectDevice()
-            bluetoothManagerUseCase.unregisterSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR)
+            getService()?.disconnectDevice()?.collectLatest {
+                if (it) {
+                    bluetoothManagerUseCase.unregisterSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR)
+                }
+
+            }
         }
 
 
@@ -233,7 +234,7 @@ class SensorViewModel @Inject constructor(
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isBleProgressBar.emit(false)
+            _isBleProgressBar.emit(Pair(false, ""))
             _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
 
             bluetoothManagerUseCase.registerSBSensor(

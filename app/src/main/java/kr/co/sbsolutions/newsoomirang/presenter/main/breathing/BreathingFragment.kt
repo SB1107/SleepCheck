@@ -60,7 +60,6 @@ class BreathingFragment : BluetoothFragment() {
     private val lineDataList = LineData(dataSetList).apply { setDrawValues(false) }
     private var xCountResetFlag = true
     private var graphCount = 0f
-    private var clickCount = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -211,6 +210,12 @@ class BreathingFragment : BluetoothFragment() {
                         if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
+                    }
+                }
+                launch {
+                    activityViewModel.isBleProgressBar.collectLatest {
+                        binding.icBleProgress.tvDeviceId.text = it.second
+                        binding.icBleProgress.root.visibility = if (it.first) View.VISIBLE else View.GONE
                     }
                 }
 
