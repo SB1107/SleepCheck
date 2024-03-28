@@ -161,7 +161,6 @@
         android:textColor="@color/color_000000"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:visibility="invisible"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

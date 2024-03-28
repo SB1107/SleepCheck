@@ -85,7 +85,7 @@ class BreathingFragment : BluetoothFragment() {
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
         }
-        binding.batteryTextView.setOnClickListener {
+        /*binding.batteryTextView.setOnClickListener {
             clickCount++
 //            Log.d(TAG, "setBluetoothStateIcon1: $clickCount")
             if (clickCount == 10 ){
@@ -96,7 +96,7 @@ class BreathingFragment : BluetoothFragment() {
 //                Log.d(TAG, "setBluetoothStateIcon3: $clickCount")
                 clickCount = 0
             }
-        }
+        }*/
     }
 
     override fun onResume() {

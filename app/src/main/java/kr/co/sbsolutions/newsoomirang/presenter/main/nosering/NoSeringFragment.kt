@@ -101,7 +101,7 @@ class NoSeringFragment : BluetoothFragment() {
             viewModel.stopClick()
         }
 
-        binding.batteryTextView.setOnClickListener {
+        /*binding.batteryTextView.setOnClickListener {
             clickCount++
 //            Log.d(Cons.TAG, "setBluetoothStateIcon1: $clickCount")
             if (clickCount == 10 ){
@@ -112,7 +112,7 @@ class NoSeringFragment : BluetoothFragment() {
 //                Log.d(Cons.TAG, "setBluetoothStateIcon3: $clickCount")
                 clickCount = 0
             }
-        }
+        }*/
 
     }
 
