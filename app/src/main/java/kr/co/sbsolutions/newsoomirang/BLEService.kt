@@ -623,6 +623,30 @@ class BLEService : LifecycleService() {
         notificationManager.createNotificationChannel(channel)
     }
 
+    suspend fun checkDataSize() = callbackFlow {
+
+        lifecycleScope.launch(IO) {
+            if (settingDataRepository.getSleepType() == SleepType.NoSering.name) {
+                if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent || bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered) {
+                    send(false)
+                    close()
+                    return@launch
+                }
+            }
+            sbSensorInfo.value.dataId?.let { dataId ->
+                val min = sbSensorDBRepository.getMinIndex(dataId)
+                val max = sbSensorDBRepository.getMaxIndex(dataId)
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                send(size < 1000)
+                close()
+            } ?: run {
+                send(true)
+                close()
+            }
+        }
+        awaitClose()
+    }
+
     fun startSBSensor(dataId: Int, sleepType: SleepType) {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()

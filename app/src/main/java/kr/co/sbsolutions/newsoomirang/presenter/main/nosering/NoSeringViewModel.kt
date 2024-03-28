@@ -156,15 +156,15 @@ class NoSeringViewModel @Inject constructor(
 
 
     fun stopClick() {
-        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
-            viewModelScope.launch {
-                _showMeasurementCancelAlert.emit(true)
-            }
-            return
-        }
-        setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
-            getService()?.stopSBSensor()?: insertLog("코골이 측정 중 서비스가 없습니다.")
+            getService()?.checkDataSize()?.collectLatest {
+                if (it) {
+                    _showMeasurementCancelAlert.emit(true)
+                    return@collectLatest
+                }
+                setMeasuringState(MeasuringState.InIt)
+                getService()?.stopSBSensor()?: insertLog("코골이 측정 중 서비스가 없습니다.")
+            }
         }
     }
 

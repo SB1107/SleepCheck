@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -77,7 +78,7 @@ class BreathingViewModel @Inject constructor(
                         _showMeasurementAlert.emit(true)
                     } ?: run {
                         insertLog("서비스가 없습니다.")
-                      reLoginCallBack()
+                        reLoginCallBack()
                     }
                 }
             } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
@@ -97,16 +98,15 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-
-        if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
-            viewModelScope.launch {
-                _showMeasurementCancelAlert.emit(true)
+        viewModelScope.launch {
+            getService()?.checkDataSize()?.collectLatest {
+                if (it) {
+                    _showMeasurementCancelAlert.emit(true)
+                    return@collectLatest
+                }
+                setMeasuringState(MeasuringState.InIt)
+                getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
             }
-            return
-        }
-        setMeasuringState(MeasuringState.InIt)
-        viewModelScope.launch(Dispatchers.IO) {
-            getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
         }
     }
 

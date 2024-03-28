@@ -77,7 +77,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                         }
                         else -> {
                             _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를 받아오는 중입니다."))
+                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
                     }
                 }
