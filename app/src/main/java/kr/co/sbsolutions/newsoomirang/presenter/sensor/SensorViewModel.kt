@@ -108,21 +108,11 @@ class SensorViewModel @Inject constructor(
     }
 
     fun bleDisconnect() {
-        when (getService()?.sbSensorInfo?.value?.bluetoothState) {
-            //측정중
-            BluetoothState.Connected.ReceivingRealtime,
-            BluetoothState.Connected.SendDownloadContinue -> {
-                sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
-            }
-            BluetoothState.DisconnectedNotIntent -> {
-                sendErrorMessage(("측정 종료후 시도해주세요."))
-            }
-            //연결 해제
-            else -> {
-                disconnectDevice()
-            }
+        if (getService()?.isForegroundServiceRunning() == true){
+            sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
+            return
         }
-
+        disconnectDevice()
     }
 
     fun bleConnect() {
