@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -16,7 +15,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.lang.ref.WeakReference
 
@@ -40,8 +38,9 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
     val bluetoothButtonState: StateFlow<String> = _bluetoothButtonState
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
-    protected val _isBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
-    val isBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isBleProgressBar
+
+    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
+    val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
     abstract fun whereTag(): String
 
     init {
@@ -71,17 +70,14 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                         BluetoothState.Connected.ReceivingRealtime -> {
                             _bluetoothButtonState.emit("시작")
                         }
-                        BluetoothState.Connected.DataFlow -> {
-                            _isBleProgressBar.emit(Pair(true, "기기를 초기화 중입니다."))
-                        }
                         BluetoothState.Connecting -> {
-                            _isBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                            _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
                             _bluetoothButtonState.emit("재 연결중")
                             getService()?.timerOfDisconnection()
                         }
                         else -> {
                             _bluetoothButtonState.emit("시작")
-                            _isBleProgressBar.emit(Pair(true, "배터리 정보 받아 오는중.."))
+                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를 받아오는 중입니다."))
                         }
                     }
                 }
@@ -107,7 +103,7 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
             bluetoothInfo.batteryInfo?.let {
                 _batteryState.emit(it)
-                _isBleProgressBar.emit(Pair(false, ""))
+                _isHomeBleProgressBar.emit(Pair(false, ""))
             }
             when (bluetoothInfo.bluetoothState) {
                 //충전 상태를 알아야하는 상태

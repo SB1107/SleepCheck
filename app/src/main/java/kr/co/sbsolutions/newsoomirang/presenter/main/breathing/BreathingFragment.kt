@@ -213,7 +213,7 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    activityViewModel.isBleProgressBar.collectLatest {
+                    activityViewModel.isHomeBleProgressBar.collectLatest {
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility = if (it.first) View.VISIBLE else View.GONE
                     }

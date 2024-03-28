@@ -156,8 +156,8 @@ class SensorActivity : BluetoothActivity() {
                         }*/
                         launch {
                             viewModel.isBleProgressBar.collectLatest {
-                                binding.icBleProgress.clProgress.visibility = if (it.first) View.GONE else View.VISIBLE
-                                if (it.first) newBackPressed()
+                                binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
+                                if (it) newBackPressed()
 
                             }
                         }
