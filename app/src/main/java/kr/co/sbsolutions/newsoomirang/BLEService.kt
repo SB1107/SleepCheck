@@ -273,7 +273,7 @@ class BLEService : LifecycleService() {
             schedule(timerTask {
                 Log.e(TAG, "connectDevice: ")
                 disconnectDevice()
-            }, 5000L)
+            }, 60000L)
         }
     }
 
