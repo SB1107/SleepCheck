@@ -305,7 +305,7 @@ class BLEService : LifecycleService() {
             launch {
                 timeHelper.measuringTimer.collectLatest {
                     notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                    notificationManager.notify(NOTIFICATION_CHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
                 }
             }
         }
