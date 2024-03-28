@@ -17,6 +17,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
 
 class RequestHelper(
     private val scope: CoroutineScope,
@@ -93,7 +94,6 @@ class RequestHelper(
                             scope.launch(Dispatchers.IO) {
                                 tokenManager.deleteToken()
                                 dataManager.deleteUserName()
-                                // FIXME: 틀려 먹엇다
                                 dataManager.deleteBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
                             }
                         }

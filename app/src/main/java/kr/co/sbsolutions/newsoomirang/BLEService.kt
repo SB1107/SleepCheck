@@ -8,7 +8,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -23,14 +22,13 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.work.Operation
 import androidx.work.WorkInfo
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +37,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
@@ -73,6 +70,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.Timer
+import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
 
@@ -167,7 +165,7 @@ class BLEService : LifecycleService() {
     private val mBinder: IBinder = LocalBinder()
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
-
+    private lateinit var timerJob: Job
 
     override fun onCreate() {
         super.onCreate()
@@ -297,15 +295,17 @@ class BLEService : LifecycleService() {
 
     private fun startTimer() {
         notVibrationNotifyChannelCreate()
-        lifecycleScope.launch {
+        if (::timerJob.isInitialized) {
+            timerJob.cancel(CancellationException("startTimer Cancel"))
+        }
+        timerJob = lifecycleScope.launch {
             launch {
                 timeHelper.startTimer(this)
             }
             launch {
                 timeHelper.measuringTimer.collectLatest {
                     notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-
+                    notificationManager.notify(NOTIFICATION_CHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
                 }
             }
         }
@@ -323,6 +323,7 @@ class BLEService : LifecycleService() {
 
     private fun stopTimer() {
         timeHelper.stopTimer()
+        timerJob.cancel(CancellationException("startTimer Cancel"))
     }
 
 
@@ -521,7 +522,7 @@ class BLEService : LifecycleService() {
                         } else {
                             0
                         },
-                    ).apply { startTimer() }
+                    )
                 } catch (e: Exception) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                         && e is ForegroundServiceStartNotAllowedException
