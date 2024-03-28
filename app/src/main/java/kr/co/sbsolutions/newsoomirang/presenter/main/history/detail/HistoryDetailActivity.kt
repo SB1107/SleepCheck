@@ -697,7 +697,7 @@ class HistoryDetailActivity : BaseActivity() {
 
         val density = LocalDensity.current
         val percentValue = (time / totalTime.toFloat()) * 100f
-        val percent = height * ((percentValue / 100f))
+        val percent = if (percentValue.isNaN()) 0.dp else height * ((percentValue / 100f))
         val curValue = animateIntAsState(
             targetValue = if (animationPlayed) percent.value.toInt()
             else 0, animationSpec = tween(durationMillis = 1000, delayMillis = 500), label = "애니"
