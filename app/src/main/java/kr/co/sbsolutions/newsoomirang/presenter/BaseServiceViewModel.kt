@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -52,61 +51,72 @@ abstract class BaseServiceViewModel(
     init {
 
         viewModelScope.launch {
-            launch {
+            launch(Dispatchers.IO) {
                 ApplicationManager.getBluetoothInfoFlow().collect {
                     Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
 
-                    launch {
-                        setBatteryInfo()
-                    }
-                    when (it.bluetoothState) {
-                        BluetoothState.Unregistered -> {
-                            _bluetoothButtonState.emit("연결")
-                            Log.e(TAG, "1 ")
-                        }
+                    setBatteryInfo()
+                        when (it.bluetoothState) {
+                            BluetoothState.Unregistered -> {
+                                _bluetoothButtonState.emit("연결")
+                                Log.e(TAG, "1 ")
+                            }
 
-                        BluetoothState.DisconnectedByUser -> {
-                            Log.e(TAG, "BluetoothState.DisconnectedByUser ")
-                            bluetoothInfo.batteryInfo = null
-                            _batteryState.emit("")
-                            _bluetoothButtonState.emit("연결")
-                            _isHomeBleProgressBar.emit(Pair(false, ""))
-                            _canMeasurement.emit(false)
-                        }
+                            BluetoothState.DisconnectedByUser -> {
+                                Log.e(TAG, "BluetoothState.DisconnectedByUser ")
+                                bluetoothInfo.batteryInfo = null
 
-                        BluetoothState.Connected.Reconnected -> {
-                            Log.e(TAG, "2 ")
-                            _bluetoothButtonState.emit("재 연결중")
-                        }
+                                    _isHomeBleProgressBar.emit(Pair(false, ""))
+                                _canMeasurement.emit(false)
 
-                        BluetoothState.DisconnectedNotIntent -> {
-                            Log.e(TAG, "3 ")
-//                            bluetoothInfo.batteryInfo = null
-                            _bluetoothButtonState.emit("연결 끊김")
-//                              _batteryState.emit("")
-//                            _canMeasurement.emit(false)
-                        }
+                                launch(Dispatchers.Main) {
+                                    _batteryState.emit("")
+                                    _bluetoothButtonState.emit("연결")
+                                }
+                            }
 
-                        BluetoothState.Connected.ReceivingRealtime -> {
-                            Log.e(TAG, "4 ")
-                            _bluetoothButtonState.emit("시작")
-                        }
+                            BluetoothState.Connected.Reconnected -> {
+                                Log.e(TAG, "2 ")
+                                launch(Dispatchers.Main) {
+                                    _bluetoothButtonState.emit("재 연결중")
+                                }
+                                setBatteryInfo()
+                            }
 
-                        BluetoothState.Connecting -> {
-                            Log.e(TAG, "5 ")
-                            _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
-                            _bluetoothButtonState.emit("재 연결중")
+                            BluetoothState.DisconnectedNotIntent -> {
+                                Log.e(TAG, "3 ")
+                                launch(Dispatchers.Main){
+                                    _batteryState.emit("")
+                                    _bluetoothButtonState.emit("연결 끊김")
+                                }
+                            }
+
+                            BluetoothState.Connected.ReceivingRealtime -> {
+                                Log.e(TAG, "4 ")
+                                launch(Dispatchers.Main) {
+                                    _bluetoothButtonState.emit("시작")
+                                }
+                            }
+
+                            BluetoothState.Connecting -> {
+                                Log.e(TAG, "5 ")
+                                    _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                                launch(Dispatchers.Main) {
+                                    _bluetoothButtonState.emit("재 연결중")
+                                }
 //                            getService()?.timerOfDisconnection()
-                        }
+                            }
 
-                        else -> {
-                            Log.e(TAG, "6 $it")
-                            _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            else -> {
+                                Log.e(TAG, "6 $it")
+                                launch(Dispatchers.Main) {
+                                    _bluetoothButtonState.emit("시작")
+                                }
+                                    _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            }
                         }
                     }
-                }
             }
             /*launch {
                 val name = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()

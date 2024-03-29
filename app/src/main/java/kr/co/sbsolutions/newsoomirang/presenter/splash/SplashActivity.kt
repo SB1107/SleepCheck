@@ -45,7 +45,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val splashScreen = installSplashScreen()
         setContentView(binding.root)
-        splashScreen.setKeepOnScreenCondition{true}
+//        splashScreen.setKeepOnScreenCondition{true}
 
         lifecycleScope.launch {
             launch {
