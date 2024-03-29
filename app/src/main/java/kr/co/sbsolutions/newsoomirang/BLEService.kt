@@ -281,9 +281,9 @@ class BLEService : LifecycleService() {
     }
 
     fun disconnectDevice() {
-        Log.e(TAG, "disconnectDevice: ")
-        bluetoothNetworkRepository.releaseResource()
-        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+            bluetoothNetworkRepository.releaseResource()
+
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
         for (device in gattDevices) {

@@ -238,19 +238,15 @@ class BluetoothNetworkRepository @Inject constructor(
         when (sbBluetoothDevice) {
             SBBluetoothDevice.SB_SOOM_SENSOR ->
                 _sbSensorInfo
-
             SBBluetoothDevice.SB_SPO2_SENSOR ->
                 _spo2SensorInfo
-
             SBBluetoothDevice.SB_EEG_SENSOR ->
                 _eegSensorInfo
         }.apply {
             value.let { info ->
                 if (info.bluetoothState != BluetoothState.Unregistered) {
-
-                    Log.d(TAG, "disconnectedDevice:disconnectedDevice ")
-                    val result = this.updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser , batteryInfo = null) }
-                    insertLog(result.bluetoothState)
+                        val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser , batteryInfo = null) }
+                        insertLog(result.bluetoothState)
                 }
             }
         }

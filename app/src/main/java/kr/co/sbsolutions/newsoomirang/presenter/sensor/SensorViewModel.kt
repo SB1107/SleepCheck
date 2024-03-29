@@ -155,7 +155,8 @@ class SensorViewModel @Inject constructor(
 
     //연결끊기
     private fun disconnectDevice() {
-//        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
+        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
+
         getService()?.disconnectDevice()
         insertLog("사용자가 직접 연결 끊음")
         viewModelScope.launch(Dispatchers.IO) {
