@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -18,7 +20,10 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.lang.ref.WeakReference
 
-abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenManager: TokenManager) : BaseViewModel(dataManager, tokenManager) {
+abstract class BaseServiceViewModel(
+    private val dataManager: DataManager,
+    tokenManager: TokenManager
+) : BaseViewModel(dataManager, tokenManager) {
     private lateinit var service: WeakReference<BLEService>
     private val _serviceCommend: MutableSharedFlow<ServiceCommend> = MutableSharedFlow()
     val serviceCommend: SharedFlow<ServiceCommend> = _serviceCommend
@@ -36,10 +41,11 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
     private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val canMeasurement: SharedFlow<Boolean> = _canMeasurement
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
-    val bluetoothButtonState: StateFlow<String> = _bluetoothButtonState
+    val bluetoothButtonState: SharedFlow<String> = _bluetoothButtonState.asSharedFlow()
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
-    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
+    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
+        MutableSharedFlow()
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
     abstract fun whereTag(): String
 
@@ -51,31 +57,51 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                     Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
 
-                    setBatteryInfo()
+                    launch {
+                        setBatteryInfo()
+                    }
                     when (it.bluetoothState) {
                         BluetoothState.Unregistered -> {
                             _bluetoothButtonState.emit("연결")
+                            Log.e(TAG, "1 ")
                         }
+
                         BluetoothState.DisconnectedByUser -> {
+                            Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                             bluetoothInfo.batteryInfo = null
                             _batteryState.emit("")
                             _bluetoothButtonState.emit("연결")
+                            _isHomeBleProgressBar.emit(Pair(false, ""))
+                            _canMeasurement.emit(false)
                         }
+
                         BluetoothState.Connected.Reconnected -> {
+                            Log.e(TAG, "2 ")
                             _bluetoothButtonState.emit("재 연결중")
                         }
+
                         BluetoothState.DisconnectedNotIntent -> {
+                            Log.e(TAG, "3 ")
+//                            bluetoothInfo.batteryInfo = null
                             _bluetoothButtonState.emit("연결 끊김")
+//                              _batteryState.emit("")
+//                            _canMeasurement.emit(false)
                         }
+
                         BluetoothState.Connected.ReceivingRealtime -> {
+                            Log.e(TAG, "4 ")
                             _bluetoothButtonState.emit("시작")
                         }
+
                         BluetoothState.Connecting -> {
+                            Log.e(TAG, "5 ")
                             _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
                             _bluetoothButtonState.emit("재 연결중")
-                            getService()?.timerOfDisconnection()
+//                            getService()?.timerOfDisconnection()
                         }
+
                         else -> {
+                            Log.e(TAG, "6 $it")
                             _bluetoothButtonState.emit("시작")
                             _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
@@ -103,12 +129,16 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
             bluetoothInfo = ApplicationManager.getBluetoothInfo()
             bluetoothInfo.batteryInfo?.let {
                 _batteryState.emit(it)
+                _bluetoothButtonState.emit("시작")
                 _isHomeBleProgressBar.emit(Pair(false, ""))
             }
             when (bluetoothInfo.bluetoothState) {
                 //충전 상태를 알아야하는 상태
-                BluetoothState.Connected.Ready ->
-                    { _canMeasurement.emit(bluetoothInfo.canMeasurement) }
+                BluetoothState.Connected.Ready,
+                BluetoothState.Connected.Reconnected -> {
+                    _canMeasurement.emit(bluetoothInfo.canMeasurement)
+                }
+
                 else -> {}
             }
         }
@@ -127,11 +157,12 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
             _gotoScan.emit(true)
         }
     }
-    fun getResultMessage() : String? {
+
+    fun getResultMessage(): String? {
         return getService()?.getResultMessage()
     }
 
-    fun isRegistered(isConnectAlertShow  : Boolean): Boolean {
+    fun isRegistered(isConnectAlertShow: Boolean): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
@@ -139,8 +170,8 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
                     dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }
             }
-                viewModelScope.launch {
-                    if (isConnectAlertShow) {
+            viewModelScope.launch {
+                if (isConnectAlertShow) {
                     _connectAlert.emit(true)
                 }
             }
@@ -156,7 +187,8 @@ abstract class BaseServiceViewModel(private val dataManager: DataManager, tokenM
             }
         }
     }
-    fun  showConnectAlert() {
+
+    fun showConnectAlert() {
         viewModelScope.launch {
             _connectAlert.emit(true)
         }

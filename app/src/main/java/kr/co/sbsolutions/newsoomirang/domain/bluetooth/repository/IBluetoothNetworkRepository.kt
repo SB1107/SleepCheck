@@ -30,7 +30,7 @@ interface IBluetoothNetworkRepository {
     fun connectedDevice(device: BluetoothDevice?)
     fun changeBluetoothState(isOn: Boolean)
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
-    fun releaseResource() : Flow<Boolean>
+    fun releaseResource()
 
     fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
     fun stopNetworkSBSensor(snoreTime : Long = 0 )

@@ -174,7 +174,6 @@ class BLEService : LifecycleService() {
 
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
-                Log.e(TAG, "onCreate: $it")
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
                 notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
             }
@@ -268,43 +267,41 @@ class BLEService : LifecycleService() {
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt = device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
+        Log.d(TAG, "getCallback: ${bluetoothInfo.bluetoothGatt} ")
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
             schedule(timerTask {
                 Log.e(TAG, "connectDevice: ")
                 logWorkerHelper.insertLog("!!재연결중 disconnectDevice")
-                disconnectDevice()
-            }, 60000L)
+                lifecycleScope.launch(Dispatchers.Main) {
+                    disconnectDevice()
+                }
+            }, 5000L)
         }
     }
 
-    fun disconnectDevice() = callbackFlow {
+    fun disconnectDevice() {
         Log.e(TAG, "disconnectDevice: ")
-        logWorkerHelper.insertLog("!!재연결중 disconnectDevice")
-        bluetoothNetworkRepository.releaseResource().collectLatest {
-            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
-            val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
-            for (device in gattDevices) {
-                // BluetoothAdapter 객체를 가져옵니다.
+        bluetoothNetworkRepository.releaseResource()
+        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+        for (device in gattDevices) {
+            // BluetoothAdapter 객체를 가져옵니다.
 
-                // BluetoothDevice 객체를 가져옵니다.
-                val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
+            // BluetoothDevice 객체를 가져옵니다.
+            val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
 
-                // 본딩되어 있지 않으면 본딩을 시작합니다.
-                if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
-                    bluetoothAdapter?.startDiscovery()
-                    bluetoothDevice?.createBond()
-                    bluetoothAdapter?.cancelDiscovery()
-                }
-
-                Log.i(TAG, "Connected device11: ${device.address}")
-                Log.i(TAG, "Connected device11: ${device.bondState}")
+            // 본딩되어 있지 않으면 본딩을 시작합니다.
+            if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
+                bluetoothAdapter?.startDiscovery()
+                bluetoothDevice?.createBond()
+                bluetoothAdapter?.cancelDiscovery()
             }
-            trySend(it)
-            close()
+
+            Log.i(TAG, "Connected device11: ${device.address}")
+            Log.i(TAG, "Connected device11: ${device.bondState}")
         }
-        awaitClose()
     }
 
     private fun startTimer() {

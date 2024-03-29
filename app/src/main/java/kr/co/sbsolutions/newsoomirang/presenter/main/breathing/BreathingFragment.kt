@@ -193,6 +193,7 @@ class BreathingFragment : BluetoothFragment() {
                 }
                 launch {
                     viewModel.bluetoothButtonState.collect {
+                        Log.e(TAG, "setObservers:!!!!!!!! $it", )
                         binding.startButton.text = getBluetoothState(it).getStartButtonText()
                         val isDisconnect = it.contains("시작").not()
                         binding.tvNameDes2.text = if (isDisconnect) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n호흡을 측정해 보세요"
