@@ -82,4 +82,7 @@ interface AuthServiceAPI {
     @POST("sleepdata/regappqa")
     suspend fun postContactDetail(@Body contactDetail: ContactDetail) : Response<BaseEntity>
 
+    @POST("sleepdata/disconnect")
+    suspend fun postDisconnect(@Body checkSensor: CheckSensor) : Response<BaseEntity>
+
 }

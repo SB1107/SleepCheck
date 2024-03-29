@@ -89,4 +89,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun postContactDetail(contactDetail: ContactDetail): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow {
         api.postContactDetail(contactDetail)
     }
+
+    override fun postDisconnect(sensorInfo: CheckSensor): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
+        api.postDisconnect(sensorInfo)
+    }
+
 }

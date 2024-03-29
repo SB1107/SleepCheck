@@ -40,4 +40,6 @@ interface RemoteAuthDataSource {
      fun getContact() : Flow<ApiResponse<ContactEntity>>
 
      fun postContactDetail(contactDetail: ContactDetail) : Flow<ApiResponse<BaseEntity>>
+     fun postDisconnect(sensorInfo: CheckSensor) : Flow<ApiResponse<BaseEntity>>
+
 }
