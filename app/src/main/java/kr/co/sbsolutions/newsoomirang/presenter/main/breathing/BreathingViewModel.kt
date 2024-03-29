@@ -71,7 +71,8 @@ class BreathingViewModel @Inject constructor(
         if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd ||
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             ) {
                 viewModelScope.launch {
                     getService()?.let {

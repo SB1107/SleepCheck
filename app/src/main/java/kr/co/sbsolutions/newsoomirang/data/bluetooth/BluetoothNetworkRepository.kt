@@ -68,6 +68,7 @@ class BluetoothNetworkRepository @Inject constructor(
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
             .zip(dataManager.getBluetoothDeviceAddress(_sbSensorInfo.value.sbBluetoothDevice.type.toString()))
             { name, address ->
+                Log.d(TAG, "listenRegisterSBSensor: $name $address")
                 _sbSensorInfo.update { it.copy(bluetoothName = name, bluetoothAddress = address) }
                 !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
@@ -610,9 +611,9 @@ class BluetoothNetworkRepository @Inject constructor(
 
         private fun readData(gatt: BluetoothGatt, readValue: ByteArray) {
             logCoroutine.launch {
-                Log.d("---> Device To App", readValue.hexToString())
+//                Log.d("---> Device To App", readValue.hexToString())
                 val value = decryptByteArray(readValue)
-//                Log.d("---> Device To App1", value.hexToString())
+                Log.d("---> Device To App1", value.hexToString())
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
                 when ((String.format("%02X", value[4])).getCommand()) {
@@ -671,7 +672,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                 }
 
                                 BluetoothState.Connected.Init,
-                                BluetoothState.Connected.Ready-> {
+                                BluetoothState.Connected.Ready,
+                                BluetoothState.Connecting-> {
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {

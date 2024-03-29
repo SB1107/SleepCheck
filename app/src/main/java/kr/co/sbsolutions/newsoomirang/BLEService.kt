@@ -276,7 +276,7 @@ class BLEService : LifecycleService() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     disconnectDevice()
                 }
-            }, 5000L)
+            }, 10000L)
         }
     }
 

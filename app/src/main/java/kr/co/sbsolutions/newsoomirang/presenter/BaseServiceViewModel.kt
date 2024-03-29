@@ -67,8 +67,7 @@ abstract class BaseServiceViewModel(
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
 
-                                    _isHomeBleProgressBar.emit(Pair(false, ""))
-                                _canMeasurement.emit(false)
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
 
                                 launch(Dispatchers.Main) {
                                     _batteryState.emit("")
@@ -85,6 +84,7 @@ abstract class BaseServiceViewModel(
                             }
 
                             BluetoothState.DisconnectedNotIntent -> {
+                                bluetoothInfo.batteryInfo = null
                                 Log.e(TAG, "3 ")
                                 launch(Dispatchers.Main){
                                     _batteryState.emit("")
@@ -105,7 +105,7 @@ abstract class BaseServiceViewModel(
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("재 연결중")
                                 }
-//                            getService()?.timerOfDisconnection()
+//                                getService()?.timerOfDisconnection()
                             }
 
                             else -> {
@@ -175,11 +175,11 @@ abstract class BaseServiceViewModel(
     fun isRegistered(isConnectAlertShow: Boolean): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
-            if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
+            /*if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
                 viewModelScope.launch {
                     dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
                 }
-            }
+            }*/
             viewModelScope.launch {
                 if (isConnectAlertShow) {
                     _connectAlert.emit(true)
