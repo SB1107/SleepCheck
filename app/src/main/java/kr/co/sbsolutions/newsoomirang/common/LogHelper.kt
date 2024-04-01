@@ -8,7 +8,11 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
     }
 
     fun insertLog(message : String) {
-        logWorkerHelper.insertLog(message)
+        var tempData = message
+        if (tempData.contains("null")) {
+            tempData = message.replace("null", "").replace("", "").trim()
+        }
+        logWorkerHelper.insertLog(tempData)
     }
 
     private fun  getClazzName(request: () -> Unit): String {

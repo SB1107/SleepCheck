@@ -121,13 +121,7 @@ class MainActivity : BaseServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object  : ViewTreeObserver.OnGlobalLayoutListener{
-
-            override fun onGlobalLayout() {
-                rootHeight = binding.root.height
-            }
-
-        })
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener { rootHeight = binding.root.height }
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
         logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
         ContextCompat.registerReceiver(this, receiver, IntentFilter(Cons.NOTIFICATION_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
