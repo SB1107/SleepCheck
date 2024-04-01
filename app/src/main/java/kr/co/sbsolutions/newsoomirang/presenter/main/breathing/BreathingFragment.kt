@@ -163,7 +163,7 @@ class BreathingFragment : BluetoothFragment() {
                 //타이머 설정
                 launch {
                     viewModel.measuringTimer.collectLatest {
-                        viewModel.setMeasuringState(if (it.second >= 5) MeasuringState.Record else MeasuringState.FiveRecode)
+                        viewModel.setMeasuringState(if (it.second >= 5 || it.first > 0) MeasuringState.Record else MeasuringState.FiveRecode)
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
