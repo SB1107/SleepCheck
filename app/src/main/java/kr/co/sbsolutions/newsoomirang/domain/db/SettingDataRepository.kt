@@ -9,6 +9,11 @@ class SettingDataRepository @Inject constructor(private val dao: SettingDao) {
         dao.insertSettingData(settingData = settingData)
     }
 
+    suspend fun setSleepTypeAndDataId(sleepType: SleepType, dataId: Int) {
+        var data: SettingData? = dao.getSettingData()
+        data = data?.copy(sleepType = sleepType.name, dataId = dataId) ?: SettingData().copy(sleepType = sleepType.name, dataId = dataId)
+        insertSettingData(data)
+    }
     suspend fun setSleepType(sleepType: SleepType) {
         var data: SettingData? = dao.getSettingData()
         data = data?.copy(sleepType = sleepType.name) ?: SettingData().copy(sleepType = sleepType.name)

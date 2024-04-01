@@ -60,7 +60,6 @@ abstract class BaseServiceViewModel(
                         when (it.bluetoothState) {
                             BluetoothState.Unregistered -> {
                                 _bluetoothButtonState.emit("연결")
-                                Log.e(TAG, "1 ")
                             }
 
                             BluetoothState.DisconnectedByUser -> {
@@ -76,7 +75,6 @@ abstract class BaseServiceViewModel(
                             }
 
                             BluetoothState.Connected.Reconnected -> {
-                                Log.e(TAG, "2 ")
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("재 연결중")
                                 }
@@ -85,7 +83,6 @@ abstract class BaseServiceViewModel(
 
                             BluetoothState.DisconnectedNotIntent -> {
                                 bluetoothInfo.batteryInfo = null
-                                Log.e(TAG, "3 ")
                                 launch(Dispatchers.Main){
                                     _batteryState.emit("")
                                     _bluetoothButtonState.emit("연결 끊김")
@@ -93,14 +90,12 @@ abstract class BaseServiceViewModel(
                             }
 
                             BluetoothState.Connected.ReceivingRealtime -> {
-                                Log.e(TAG, "4 ")
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("시작")
                                 }
                             }
 
                             BluetoothState.Connecting -> {
-                                Log.e(TAG, "5 ")
                                     _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("재 연결중")
@@ -109,7 +104,6 @@ abstract class BaseServiceViewModel(
                             }
 
                             else -> {
-                                Log.e(TAG, "6 $it")
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("시작")
                                 }

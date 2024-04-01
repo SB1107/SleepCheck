@@ -491,12 +491,12 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
-                    val sleepType = settingDataRepository.getSleepType().first().toString()
+                    val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
                     }
-
-                    logWorkerHelper.insertLog("${if (sleepType == SleepType.Breathing.name) "호흡" else "코골이"} 측정 시작")
+                    sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+                    logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                     notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
                     val pendingIntent = PendingIntent.getActivity(
                         this@BLEService, NOTIFICATION_ID, Intent(this@BLEService, SplashActivity::class.java).apply {
@@ -654,8 +654,7 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
-            settingDataRepository.setSleepType(sleepType)
-            settingDataRepository.setDataId(dataId)
+            settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logWorkerHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
         }
         startTimer()
