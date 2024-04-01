@@ -1,24 +1,27 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -30,7 +33,9 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
@@ -49,6 +54,9 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : BaseServiceActivity() {
+
+    private  var rootHeight : Int = 0
+
     override fun newBackPressed() {
         twiceBackPressed()
     }
@@ -61,10 +69,10 @@ class MainActivity : BaseServiceActivity() {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
-    private  val appUpdateManager : AppUpdateManager by lazy {
+    private val appUpdateManager: AppUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
-    private  val appUpdateLauncher : ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+    private val appUpdateLauncher: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             viewModel.insertLog("Update success")
         } else {
@@ -77,8 +85,9 @@ class MainActivity : BaseServiceActivity() {
     }
 
     private val resultDialog by lazy {
-        val image= resultBinding.root.findViewById<ImageView>(R.id.iv_image)
-        image.layoutParams.height = binding.root.height
+
+        val image = resultBinding.root.findViewById<ImageView>(R.id.iv_image)
+        image.layoutParams.height = rootHeight
         BottomSheetDialog(this@MainActivity).apply {
             setContentView(resultBinding.root)
             (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(this@MainActivity, android.R.color.transparent))
@@ -112,8 +121,15 @@ class MainActivity : BaseServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object  : ViewTreeObserver.OnGlobalLayoutListener{
+
+            override fun onGlobalLayout() {
+                rootHeight = binding.root.height
+            }
+
+        })
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
-        logWorkerHelper.insertLog("[M] Model Name: "+Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
+        logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
         ContextCompat.registerReceiver(this, receiver, IntentFilter(Cons.NOTIFICATION_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
         val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         binding.navBottomView.apply {
@@ -134,16 +150,19 @@ class MainActivity : BaseServiceActivity() {
                     }
                 }
                 launch(Dispatchers.Main) {
-                    viewModel.isResultProgressBar.collectLatest {
+                    viewModel.isResultProgressBar.filter { it.first != -1 }.collectLatest {
+                        Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         resultDialog.run {
                             if (it.second) show() else dismiss()
                         }
-                        if(it.first != -1 && !it.second){
-                            startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-                                putExtra("id", it.first.toString())
-                            })
+                        if ( !it.second) {
+                                startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    putExtra("id", it.first.toString())
+                                })
+
+
                             viewModel.stopResultProgressBar()
                         }
                     }
