@@ -144,7 +144,7 @@ class MainActivity : BaseServiceActivity() {
                     }
                 }
                 launch(Dispatchers.Main) {
-                    viewModel.isResultProgressBar.filter { it.first != -1 }.collectLatest {
+                    viewModel.isResultProgressBar.filter { it.first != -1 || it.second }.collectLatest {
                         Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         resultDialog.run {
