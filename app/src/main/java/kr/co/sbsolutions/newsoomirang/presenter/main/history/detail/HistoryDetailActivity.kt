@@ -60,6 +60,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -135,15 +136,15 @@ class HistoryDetailActivity : BaseActivity() {
             .fillMaxWidth()
             .verticalScroll(scrollState)
             .onGloballyPositioned { coordinates ->
-                    contentHeightPx = coordinates.size.height
+                contentHeightPx = coordinates.size.height
             }
         ScreenCapture(screenCaptureState = state) {
-            ContentView(data, true,columnModifier , scrollState = scrollState)
+            ContentView(data, true, columnModifier, scrollState = scrollState)
         }
 
-        SoomScaffold(R.drawable.bg2 , "결과" , topAction = {
+        SoomScaffold(R.drawable.bg2, "결과", topAction = {
             finish()
-        }, row =  {
+        }, row = {
             IconButton(onClick = {
                 state.capture(options = ScreenCaptureOptions(height = contentHeightPx))
             }) {
@@ -157,12 +158,12 @@ class HistoryDetailActivity : BaseActivity() {
             state.bitmap?.let {
                 viewModel.sharingImage(this@HistoryDetailActivity, it)
             }
-            ContentView(data, modifier = columnModifier , scrollState = scrollState)
+            ContentView(data, modifier = columnModifier, scrollState = scrollState)
         })
     }
 
     @Composable
-    private fun ContentView(data: SleepDetailResult, isBack: Boolean = false, modifier : Modifier , scrollState :ScrollState = rememberScrollState()){
+    private fun ContentView(data: SleepDetailResult, isBack: Boolean = false, modifier: Modifier, scrollState: ScrollState = rememberScrollState()) {
 
         Box {
             Column(
@@ -182,7 +183,7 @@ class HistoryDetailActivity : BaseActivity() {
                     TopDateView(data = data, scrollState)
                 }
             }
-            ScrollToView(scrollState.value >= 200 , scrollState)
+            ScrollToView(scrollState.value >= 200, scrollState)
         }
 
     }
@@ -241,13 +242,13 @@ class HistoryDetailActivity : BaseActivity() {
                 )
             }
 
-            data.avgNormalBreath?.let {breath ->
+            data.avgNormalBreath?.let { breath ->
                 HeaderTitleView("정상 호흡 수")
                 Spacer(modifier = Modifier.height(16.dp))
-                data.normalBreathTime?.let {time ->
+                data.normalBreathTime?.let { time ->
                     RowTexts("정상호흡 시간", time.InpuMintoHourMinute())
                 }
-                RowTexts("정상호흡수(평균 분당 호흡수)","$breath 회")
+                RowTexts("정상호흡수(평균 분당 호흡수)", "$breath 회")
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
@@ -266,17 +267,17 @@ class HistoryDetailActivity : BaseActivity() {
                 BreathingGraphView(
                     "호흡곤란", "총${it}회", listOf(
                         Triple(
-                            "호흡곤란 10초",
+                            "10초이상 호흡곤란",
                             "${data.apnea10 ?: 0}회",
                             colorResource(id = R.color.color_gray1)
                         ),
                         Triple(
-                            "호흡곤란 30초",
+                            "30초이상 호흡곤란",
                             "${data.apnea30 ?: 0}회",
                             colorResource(id = R.color.color_gray2)
                         ),
                         Triple(
-                            "호흡곤란 60초",
+                            "60초이상 호흡곤란",
                             "${data.apnea60 ?: 0}회",
                             colorResource(id = R.color.color_gray3)
                         )
@@ -406,8 +407,8 @@ class HistoryDetailActivity : BaseActivity() {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text =data.description?: "",
-                         color = Color.White,
+                text = data.description ?: "",
+                color = Color.White,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Normal
             )
@@ -476,7 +477,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Text(
                     text = title, color = Color.White,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Box(modifier = Modifier.padding(top = 16.dp), contentAlignment = Alignment.Center) {
                     StrokeCircle(
@@ -521,17 +522,20 @@ class HistoryDetailActivity : BaseActivity() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Text(
                             text = value.first,
                             color = Color.White,
                             fontSize = 17.sp,
-                            fontWeight = FontWeight.Normal
+                            fontWeight = FontWeight.Normal,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                           modifier =  Modifier.weight(7f)
                         )
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .width(52.dp)
+                                .weight(3f)
                                 .background(
                                     color = value.third,
                                     shape = RoundedCornerShape(topEnd = 11.dp, bottomEnd = 11.dp)
@@ -578,7 +582,7 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun VerticalGraphView(
         percentValue: Float,
-        isPercentText : Boolean = false,
+        isPercentText: Boolean = false,
         startText: String,
         startTextSize: TextUnit = 14.sp,
         centerText: String = "",
@@ -594,7 +598,7 @@ class HistoryDetailActivity : BaseActivity() {
         ) {
 
             Box(contentAlignment = Alignment.Center) {
-                val percent :Dp = if(percentValue < 0) 0.dp else width * ((percentValue / 100f))
+                val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
                 Image(
                     modifier = Modifier.padding(start = percent),
                     painter = painterResource(id = getPercentImage(percentValue)),
@@ -605,7 +609,7 @@ class HistoryDetailActivity : BaseActivity() {
                     modifier = Modifier
                         .padding(start = percent)
                         .offset(y = (-5).dp),
-                    text = "${percentValue.toInt()}${if (isPercentText) "%"  else ""}",
+                    text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
                     color = colorResource(id = R.color.md_grey_800),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
