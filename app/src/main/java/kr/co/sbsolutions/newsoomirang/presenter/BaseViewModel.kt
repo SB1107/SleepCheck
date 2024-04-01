@@ -25,7 +25,6 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
     val isProgressBar: SharedFlow<Boolean> = _isProgressBar
 
     private lateinit var reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack
-    private lateinit var logWorkerHelper: LogWorkerHelper
     private lateinit var logHelper: LogHelper
 
     private val requestHelper: RequestHelper = RequestHelper(
@@ -59,14 +58,11 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
         reAuthorizeCallBack.reLogin()
     }
 
-    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper) {
-        this.logWorkerHelper = logWorkerHelper
-        requestHelper.setLogWorkerHelper(logWorkerHelper)
-    }
-
     fun insertLog(log: String) {
-        logWorkerHelper.insertLog(log)
-        Log.d(TAG, "insertLog: $log")
+        if (::logHelper.isInitialized) {
+            logHelper.insertLog(log)
+            Log.d(TAG, "insertLog: $log")
+        }
     }
     fun setLogHelper(logHelper: LogHelper) {
         this.logHelper = logHelper

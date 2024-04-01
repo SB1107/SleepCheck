@@ -985,9 +985,21 @@ class BluetoothNetworkRepository @Inject constructor(
                     ModuleToApp.BatteryState -> {
                         val data = String.format("%02X", value[6])
                         val result = Integer.parseInt(data, 16)
-                            innerData.update { it.copy(batteryInfo = result.toString(), canMeasurement = result > 20,
-                                bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init) BluetoothState.Connected.Ready else it.bluetoothState)
+                        innerData.value.let { info ->
+                            when (info.bluetoothState) {
+                                BluetoothState.Connecting -> {
+                                    innerData.update { it.copy(batteryInfo = result.toString(), canMeasurement = result > 20,
+                                        bluetoothState = BluetoothState.Connected.Reconnected)
+                                    }
+                                }
+
+                                else -> {
+                                    innerData.update { it.copy(batteryInfo = result.toString(), canMeasurement = result > 20,
+                                        bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init) BluetoothState.Connected.Ready else it.bluetoothState)
+                                    }
+                                }
                             }
+                        }
                     }
 
                     else -> {}

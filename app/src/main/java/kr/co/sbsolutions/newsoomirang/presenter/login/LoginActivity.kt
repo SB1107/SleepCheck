@@ -20,12 +20,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.addFlag
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.WHERE
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
@@ -43,6 +45,9 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var gso: GoogleSignInOptions
 
+    @Inject
+    lateinit var logWorkerHelper: LogWorkerHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -54,6 +59,7 @@ class LoginActivity : AppCompatActivity() {
     private fun bindView() {
         binding.apply {
             btGoogle.setOnClickListener {
+                logWorkerHelper.insertLog("login 클릭 사용자가 직접")
                 val signInIntent = googleSignInClient.signInIntent
                 startActivityForResult(signInIntent, RC_SIGN_IN)
             }

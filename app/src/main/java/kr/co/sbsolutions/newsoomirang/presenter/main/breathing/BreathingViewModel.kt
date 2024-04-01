@@ -99,6 +99,9 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
+        insertLog {
+            stopClick()
+        }
         viewModelScope.launch {
             getService()?.checkDataSize()?.collectLatest {
                 if (it) {
@@ -121,6 +124,9 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun sleepDataCreate(): Flow<Boolean> = callbackFlow {
+        insertLog {
+            sleepDataCreate()
+        }
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }

@@ -25,6 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
+import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
@@ -45,6 +47,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class BreathingFragment : BluetoothFragment() {
@@ -192,7 +195,7 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    viewModel.bluetoothButtonState.collect {
+                    viewModel.bluetoothButtonState.collectLatest {
                         Log.e(TAG, "setObservers:!!!!!!!! $it", )
                         binding.startButton.text = getBluetoothState(it).getStartButtonText()
                         val isDisconnect = it.contains("시작").not()

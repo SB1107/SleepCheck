@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import javax.inject.Inject
 
@@ -32,7 +32,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
     @Inject
     lateinit var notificationManager: NotificationManager
     @Inject
-    lateinit var logWorkerHelper: LogWorkerHelper
+    lateinit var logHelper: LogHelper
 
 
     companion object {
@@ -48,7 +48,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
         lifecycleScope.launch(Dispatchers.IO) {
             tokenManager.saveFcmToken(token)
             tokenManager.setDifferentValue()
-            logWorkerHelper.insertLog("[FMS] UpdateFcm / FCMPushService: $token")
+            logHelper.insertLog("[FMS] UpdateFcm / FCMPushService: $token")
             Log.d(TAG, "[FMS] UpdateFcm / MyFirebaseMessagingService: $token")
         }
         Log.d(TAG, "[FMS] Token created: $token")
@@ -57,9 +57,11 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
+
         //받은 remoteMessage의 값 출력해보기.   데이터메세지 / 알림 메세지
-        Log.d(TAG, "[FMS] Data / ${remoteMessage.data[DATA_KEY]}")
-        Log.d(TAG, "[FMS] Noti / title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
+
+        logHelper.insertLog("[FMS] Data / ${remoteMessage.data[DATA_KEY]}")
+        logHelper.insertLog("[FMS] Noti / title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         @SuppressLint("InvalidWakeLockTag") val wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG")

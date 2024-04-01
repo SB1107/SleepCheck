@@ -79,7 +79,6 @@ abstract class BaseActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, callback)
         _viewModel.setReAuthorizeCallBack(reAuthorizeCallBack)
-        _viewModel.setLogWorkerHelper(logWorkerHelper)
         _viewModel.setLogHelper(logHelper)
     }
 

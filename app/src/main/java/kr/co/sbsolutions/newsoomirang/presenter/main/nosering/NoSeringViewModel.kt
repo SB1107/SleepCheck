@@ -80,9 +80,9 @@ class NoSeringViewModel @Inject constructor(
         if (isRegistered(isConnectAlertShow = false)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
-                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd ||
+                bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
-
                 viewModelScope.launch {
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
@@ -128,6 +128,9 @@ class NoSeringViewModel @Inject constructor(
     }
 
     fun sleepDataCreate(): Flow<Boolean> = callbackFlow {
+        insertLog {
+            sleepDataCreate()
+        }
         viewModelScope.launch(Dispatchers.IO) {
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first().let {
                 request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it, type = SleepType.NoSering.ordinal.toString())) }
@@ -156,6 +159,9 @@ class NoSeringViewModel @Inject constructor(
 
 
     fun stopClick() {
+        insertLog {
+            stopClick()
+        }
         viewModelScope.launch {
             getService()?.checkDataSize()?.collectLatest {
                 if (it) {

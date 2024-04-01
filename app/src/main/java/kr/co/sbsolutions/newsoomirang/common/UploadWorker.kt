@@ -37,7 +37,7 @@ class UploadWorker @AssistedInject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val sbSensorDBRepository: SBSensorDBRepository,
-    private val logWorkerHelper: LogWorkerHelper,
+    private val logHelper: LogHelper,
     private val remoteAuthDataSource: RemoteAuthDataSource
 ) : CoroutineWorker(context, params) {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -67,10 +67,10 @@ class UploadWorker @AssistedInject constructor(
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-                logWorkerHelper.insertLog("exportLastFile - Size : $size")
+                logHelper.insertLog("exportLastFile - Size : $size")
                 if (size < 1000) {
                     Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-                    logWorkerHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
+                    logHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
                 val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
@@ -87,7 +87,7 @@ class UploadWorker @AssistedInject constructor(
                         }
                     }
                 }
-                logWorkerHelper.insertLog("uploading: exportFile")
+                logHelper.insertLog("uploading: exportFile")
                 uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }
         }
@@ -106,9 +106,9 @@ class UploadWorker @AssistedInject constructor(
             withContext(ioDispatchers) {
                 val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
                     .apply {
-                        setLogWorkerHelper(logWorkerHelper)
+                        setLogWorkerHelper(logHelper)
                     }
-                logWorkerHelper.insertLog("서버 업로드 시작")
+                logHelper.insertLog("서버 업로드 시작")
                 Intent().also { intent ->
                     intent.setAction(Cons.NOTIFICATION_ACTION)
                     intent.setPackage(packageName)
@@ -117,7 +117,7 @@ class UploadWorker @AssistedInject constructor(
                 requestHelper.request(
                     request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName) },
                     errorHandler = { error ->
-                        logWorkerHelper.insertLog("uploading error: $error")
+                        logHelper.insertLog("uploading error: $error")
                         trySend(Result.retry())
                         close()
                     },

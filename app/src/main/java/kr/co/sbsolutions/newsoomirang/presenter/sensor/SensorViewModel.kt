@@ -127,8 +127,8 @@ class SensorViewModel @Inject constructor(
     }
 
     fun bleConnect() {
+        insertLog("스캔 사용자가 직접 bleConnect() ${bluetoothInfo.bluetoothState}")
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "bleConnectOrDisconnect: 나 불림 ${bluetoothInfo.bluetoothState}")
             when (getService()?.sbSensorInfo?.value?.bluetoothState) {
                 //연결
                 BluetoothState.Unregistered,
@@ -143,9 +143,7 @@ class SensorViewModel @Inject constructor(
 
     fun checkDeviceScan() {
         viewModelScope.launch {
-            val name =
-                dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name)
-                    .first()
+            val name = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
             if (name.isNullOrEmpty()) {
                 scanBLEDevices()
             }
@@ -155,10 +153,8 @@ class SensorViewModel @Inject constructor(
 
     //연결끊기
     private fun disconnectDevice() {
-        Log.d(TAG, "현재 상태 : ${bluetoothInfo.bluetoothState} ")
-
         getService()?.disconnectDevice()
-        insertLog("사용자가 직접 연결 끊음")
+        insertLog("사용자가 직접 연결 끊음 현재 상태 : ${bluetoothInfo.bluetoothState}")
         viewModelScope.launch(Dispatchers.IO) {
             bluetoothManagerUseCase.unregisterSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR)
         }
@@ -186,10 +182,10 @@ fun scanBLEDevices() {
 
 @SuppressLint("MissingPermission")
 suspend fun registerDevice(bluetoothDevice: BluetoothDevice) {
-    Log.d(TAG, "registerDevice: ${bluetoothDevice.name}")
+    insertLog("registerDevice 사용자가 시도: ${bluetoothDevice.name}")
     request { authAPIRepository.postCheckSensor(CheckSensor(sensorName = bluetoothDevice.name)) }
         .collectLatest {
-            Log.d(TAG, "registerDevice: ${it.success}  ${it.message}")
+            insertLog("registerDevice 서버: ${it.success}  ${it.message}")
             if (it.success.not()) {
                 _checkSensorResult.emit(it.message)
             } else {

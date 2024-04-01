@@ -23,7 +23,6 @@ abstract class BluetoothFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (viewModel as? BaseViewModel)?.let { baseViewModel ->
             (requireActivity() as? MainActivity)?.let { mainActivity ->
-                baseViewModel.setLogWorkerHelper(mainActivity.logWorkerHelper)
                 baseViewModel.setLogHelper(mainActivity.logHelper)
             }
         }

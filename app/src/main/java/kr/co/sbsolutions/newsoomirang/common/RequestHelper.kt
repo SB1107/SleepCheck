@@ -17,7 +17,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
 
 class RequestHelper(
     private val scope: CoroutineScope,
@@ -28,7 +27,7 @@ class RequestHelper(
 ) {
     companion object {
         var reAuthorizeCallBack: ReAuthorizeCallBack? = null
-        var logWorkerHelper: LogWorkerHelper? = null
+        var logHelper: LogHelper? = null
     }
 
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
@@ -37,19 +36,19 @@ class RequestHelper(
         RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
 
-    fun setLogWorkerHelper(logWorkerHelper: LogWorkerHelper) {
-        RequestHelper.logWorkerHelper = logWorkerHelper
+    fun setLogWorkerHelper(logHelper: LogHelper) {
+        RequestHelper.logHelper = logHelper
     }
 
     suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: CoroutinesErrorHandler? = null, showProgressBar: Boolean = true) = callbackFlow {
         val name = getClazzName(request)
         Log.e(TAG, "request: $name")
-        logWorkerHelper?.insertLog("$name = API 호출")
+        logHelper?.insertLog("$name = API 호출")
         if (!ApplicationManager.getNetworkCheck()) {
             scope.launch {
                 val errorMSG = "네트워크 연결이 되어 있지 않습니다. \n확인후 다시 실행해주세요"
                 errorMessage?.emit(errorMSG)
-                logWorkerHelper?.insertLog("$name = 네트워크 연결 오류")
+                logHelper?.insertLog("$name = 네트워크 연결 오류")
                 errorHandler?.onError("네트워크 연결 오류")
                 cancel("네트워크 오류")
             }
@@ -64,7 +63,7 @@ class RequestHelper(
                     val errorMSG = error.localizedMessage ?: "Error occured! Please try again."
                     errorMessage?.emit(errorMSG)
                     errorHandler?.onError(errorMSG)
-                    logWorkerHelper?.insertLog("$name = $errorMSG")
+                    logHelper?.insertLog("$name = $errorMSG")
                 }
             }) {
                 yield()
@@ -76,7 +75,7 @@ class RequestHelper(
                             }
                             errorMessage?.emit(it.errorCode.msg)
                             errorHandler?.onError(it.errorCode.msg)
-                            logWorkerHelper?.insertLog("$name = ${it.errorCode.msg}")
+                            logHelper?.insertLog("$name = ${it.errorCode.msg}")
                         }
 
                         ApiResponse.Loading -> {
@@ -86,7 +85,7 @@ class RequestHelper(
                         }
 
                         ApiResponse.ReAuthorize -> {
-                            logWorkerHelper?.insertLog("$name = ReAuthorize")
+                            logHelper?.insertLog("$name = ReAuthorize")
                             if (showProgressBar) {
                                 isProgressBar?.emit(false)
                             }
@@ -99,7 +98,7 @@ class RequestHelper(
                         }
 
                         is ApiResponse.Success -> {
-                            logWorkerHelper?.insertLog("$name = Success")
+                            logHelper?.insertLog("$name = Success")
                             if (showProgressBar) {
                                 isProgressBar?.emit(false)
                             }

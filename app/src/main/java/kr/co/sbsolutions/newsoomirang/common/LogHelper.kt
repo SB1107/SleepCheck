@@ -4,8 +4,13 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
 
     fun  insertLog(logMethod :() -> Unit  ){
         val name = getClazzName(logMethod)
-        RequestHelper.logWorkerHelper?.insertLog("Method : $name ")
+        logWorkerHelper.insertLog("Method : $name ")
     }
+
+    fun insertLog(message : String) {
+        logWorkerHelper.insertLog(message)
+    }
+
     private fun  getClazzName(request: () -> Unit): String {
         val regex = Regex("[\\d\\p{Punct}$]")
         val clazzName = regex.replace(request.javaClass.name.split(".").last(), "")

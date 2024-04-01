@@ -11,14 +11,14 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import javax.inject.Inject
 
 
-class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource , logWorkerHelper: LogWorkerHelper) {
+class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource, logHelper: LogHelper) {
     init {
         CoroutineScope(Dispatchers.IO).launch {
             val state = tokenManager.getTokenState().first()
             val token = tokenManager.getFcmToken().first()
             if (state.not() && token?.isNotEmpty() == true) {
                     RequestHelper(this, tokenManager = tokenManager, dataManager = dataManager)
-                        .apply { setLogWorkerHelper(logWorkerHelper)}
+                        .apply { setLogWorkerHelper(logHelper)}
                         .request({
                             authAPIRepository.postNewFcmToken(token!!)
                         }).collectLatest { userEntity ->
