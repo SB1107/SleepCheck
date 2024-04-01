@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
@@ -36,6 +37,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
     @Inject
     lateinit var  logWorkerHelper: LogWorkerHelper
+    @Inject
+    lateinit var  logHelper: LogHelper
 
     protected fun twiceBackPressed() {
         if (backPressedTime + 2000L > System.currentTimeMillis()) {
@@ -77,6 +80,7 @@ abstract class BaseActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
         _viewModel.setReAuthorizeCallBack(reAuthorizeCallBack)
         _viewModel.setLogWorkerHelper(logWorkerHelper)
+        _viewModel.setLogHelper(logHelper)
     }
 
     protected fun showProgress() {

@@ -15,6 +15,7 @@ import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
@@ -66,6 +67,10 @@ object ApplicationModule {
 
     @Provides
     fun provideNoseRingManager() = NoseRingHelper()
+
+
+    @Provides
+    fun provideLogHelper(logWorkerHelper: LogWorkerHelper) = LogHelper(logWorkerHelper)
 
     @Provides
     fun provideNotificationBuilder(

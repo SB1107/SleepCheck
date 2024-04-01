@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
@@ -25,6 +26,8 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
 
     private lateinit var reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack
     private lateinit var logWorkerHelper: LogWorkerHelper
+    private lateinit var logHelper: LogHelper
+
     private val requestHelper: RequestHelper = RequestHelper(
         scope = viewModelScope,
         tokenManager = tokenManager, dataManager = dataManager, errorMessage = _errorMessage,
@@ -64,6 +67,12 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
     fun insertLog(log: String) {
         logWorkerHelper.insertLog(log)
         Log.d(TAG, "insertLog: $log")
+    }
+    fun setLogHelper(logHelper: LogHelper) {
+        this.logHelper = logHelper
+    }
+    fun insertLog(method : ()-> Unit) {
+        logHelper.insertLog(method)
     }
 
     override fun onCleared() {

@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
-import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 
@@ -20,15 +19,17 @@ abstract class BluetoothFragment : Fragment() {
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         (viewModel as? BaseViewModel)?.let { baseViewModel ->
             (requireActivity() as? MainActivity)?.let { mainActivity ->
                 baseViewModel.setLogWorkerHelper(mainActivity.logWorkerHelper)
+                baseViewModel.setLogHelper(mainActivity.logHelper)
             }
         }
-        return super.onCreateView(inflater, container, savedInstanceState)
 
     }
+
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
