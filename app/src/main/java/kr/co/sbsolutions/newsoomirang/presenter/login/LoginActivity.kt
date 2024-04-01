@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -12,9 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -45,8 +45,17 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var gso: GoogleSignInOptions
 
+    private lateinit var googleLoginActivityResultLauncher: ActivityResultLauncher<Intent>
+
     @Inject
     lateinit var logWorkerHelper: LogWorkerHelper
+
+
+    override fun onStart() {
+        super.onStart()
+        val currentUser = mAuth.currentUser
+        googleSignInClient.signOut()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,14 +63,14 @@ class LoginActivity : AppCompatActivity() {
 
         setGoogle()
         bindView()
+        onGoogleLogin()
     }
 
     private fun bindView() {
         binding.apply {
             btGoogle.setOnClickListener {
                 logWorkerHelper.insertLog("login 클릭 사용자가 직접")
-                val signInIntent = googleSignInClient.signInIntent
-                startActivityForResult(signInIntent, RC_SIGN_IN)
+                requestGoogleLoginActivation()
             }
             btKakao.setOnClickListener {
                 viewModel.socialLogin(SocialType.KAKAO)
@@ -117,10 +126,19 @@ class LoginActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RC_SIGN_IN) {
-            viewModel.socialLogin(SocialType.GOOGLE , data)
+    private fun requestGoogleLoginActivation() {
+        val signInIntent = Intent(googleSignInClient.signInIntent)
+        googleLoginActivityResultLauncher.launch(signInIntent)
+    }
+
+    private fun onGoogleLogin() {
+        googleLoginActivityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                viewModel.socialLogin(SocialType.GOOGLE , result.data)
+            }
         }
     }
 }

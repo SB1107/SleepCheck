@@ -41,7 +41,6 @@ class LeaveViewModel @Inject constructor(
             tokenManager.deleteToken()
             dataManager.deleteUserName()
             Firebase.auth.signOut()
-            FirebaseAuth.getInstance().signOut();
             deleteDeviceName()
             _logoutResult.emit(true)
         }

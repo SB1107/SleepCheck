@@ -135,14 +135,14 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics:18.3.2")
     implementation("com.google.firebase:firebase-analytics:21.2.0")
     implementation("com.google.firebase:firebase-firestore-ktx:24.7.1")
-    implementation(platform("com.google.firebase:firebase-bom:31.1.1"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-messaging-ktx:23.1.2")
     implementation("com.google.firebase:firebase-core:21.1.1")
     implementation("com.google.firebase:firebase-config-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     //주입
     val hiltVersion = "2.50"
