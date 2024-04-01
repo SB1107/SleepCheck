@@ -24,6 +24,9 @@ interface SettingDao {
     @Query("SELECT snoringOnOff FROM Setting  LIMIT 1")
     fun getSnoringOnOff(): Boolean?
 
+    @Query("SELECT dataId FROM Setting  LIMIT 1")
+    fun getDataId():Int?
+
     @Query("SELECT snoringVibrationIntensity FROM Setting  LIMIT 1")
     fun getSnoringVibrationIntensity(): Int?
 

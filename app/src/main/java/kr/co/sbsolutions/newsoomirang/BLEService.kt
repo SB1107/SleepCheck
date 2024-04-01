@@ -490,43 +490,47 @@ class BLEService : LifecycleService() {
          super.onStartCommand(intent, flags, startId)
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
-                logWorkerHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
-//                bluetoothNetworkRepository.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
-                noseRingHelper.clearData()
-                notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
-                val pendingIntent = PendingIntent.getActivity(
-                    this, NOTIFICATION_ID, Intent(this, SplashActivity::class.java).apply {
-                        this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        putExtra("data", sbSensorInfo.value.sleepType.ordinal)
-                    }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    else PendingIntent.FLAG_UPDATE_CURRENT
-                )
-                notificationBuilder.setContentIntent(pendingIntent)
+                lifecycleScope.launch(IO) {
+                    val sleepType = settingDataRepository.getSleepType().first().toString()
+                    settingDataRepository.getDataId()?.let {
+                        sbSensorInfo.value.dataId = it
+                    }
+
+                    logWorkerHelper.insertLog("${if (sleepType == SleepType.Breathing.name) "호흡" else "코골이"} 측정 시작")
+                    notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
+                    val pendingIntent = PendingIntent.getActivity(
+                        this@BLEService, NOTIFICATION_ID, Intent(this@BLEService, SplashActivity::class.java).apply {
+                            this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            putExtra("data", sbSensorInfo.value.sleepType.ordinal)
+                        }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        else PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                    notificationBuilder.setContentIntent(pendingIntent)
 
 //                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
-                listenChannelMessage()
-                startScheduler()
-                registerDownloadCallback()
-                // uploadStart()
-                //startNotification()
-                try {
-                    ServiceCompat.startForeground(
-                        this, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-                        } else {
-                            0
-                        },
-                    )
-                } catch (e: Exception) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                        && e is ForegroundServiceStartNotAllowedException
-                    ) {
-                        logWorkerHelper.insertLog("서비스 시작 오류")
+                    listenChannelMessage()
+                    startScheduler()
+                    registerDownloadCallback()
+                    // uploadStart()
+                    //startNotification()
+                    try {
+                        ServiceCompat.startForeground(
+                            this@BLEService, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                            } else {
+                                0
+                            },
+                        )
+                    } catch (e: Exception) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                            && e is ForegroundServiceStartNotAllowedException
+                        ) {
+                            logWorkerHelper.insertLog("서비스 시작 오류")
+                        }
                     }
                 }
-
             }
 
             ActionMessage.StopSBService -> {
@@ -582,7 +586,7 @@ class BLEService : LifecycleService() {
             */
             null -> {}
         }
-        return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun forcedFlow() {
@@ -651,6 +655,7 @@ class BLEService : LifecycleService() {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
             settingDataRepository.setSleepType(sleepType)
+            settingDataRepository.setDataId(dataId)
             logWorkerHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
         }
         startTimer()
