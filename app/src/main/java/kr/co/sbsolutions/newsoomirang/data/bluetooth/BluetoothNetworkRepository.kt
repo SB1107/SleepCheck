@@ -414,7 +414,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 gatt.writeCharacteristic(cmd)
             }
 
-            Log.d("<--- App To Device", byteArr.hexToString())
+            Log.d("<--- App To Device", command.getCommandByteArr().hexToString())
         }
 
     }
@@ -443,7 +443,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
 
                     if (result) {
-                        Log.d("<--- App To Device", byteArr.hexToString())
+                        Log.d("<--- App To Device", command.getCommandByteArr().hexToString())
                     }
 
                 } while (!result)
