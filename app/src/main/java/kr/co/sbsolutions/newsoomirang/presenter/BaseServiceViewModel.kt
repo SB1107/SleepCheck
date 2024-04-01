@@ -89,7 +89,8 @@ abstract class BaseServiceViewModel(
                                 }
                             }
 
-                            BluetoothState.Connected.ReceivingRealtime -> {
+                            BluetoothState.Connected.ReceivingRealtime,
+                            BluetoothState.Connected.End -> {
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("시작")
                                 }
