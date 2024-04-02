@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.common
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.POWER_SERVICE
 import android.content.ContextWrapper
@@ -13,11 +14,19 @@ import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.presenter.main.ImageViewPagerAdapter
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
@@ -142,6 +151,64 @@ fun Context.showAlertDialogWithCancel(
     }
     dialog.show()
 }
+
+@SuppressLint("CutPasteId")
+fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null) {
+    val imageViewPagerAdapter: ImageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
+    val dialogView = LayoutInflater.from(this).inflate(R.layout.row_app_guide, null)
+    val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
+        .setView(dialogView)
+        .setCancelable(true)
+        .create()
+
+    var currentPageIndex = 0
+
+    val checkBox = dialogView.findViewById<AppCompatCheckBox>(R.id.cb_1)
+    dialogView.findViewById<ViewPager2>(R.id.vp_2).adapter = imageViewPagerAdapter
+
+
+    //set the orientation of the viewpager using ViewPager2.orientation
+    dialogView.findViewById<ViewPager2>(R.id.vp_2).orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
+    //select any page you want as your starting page
+
+   val job = CoroutineScope(Dispatchers.Default).launch{
+        while (true){
+            delay(1000)
+
+            if (currentPageIndex == imageViewPagerAdapter.itemCount ){
+                currentPageIndex = 0
+            } else {
+                currentPageIndex++
+            }
+            withContext(Dispatchers.Main){
+                dialogView.findViewById<ViewPager2>(R.id.vp_2).currentItem = currentPageIndex
+            }
+        }
+    }
+    // registering for page change callback
+    dialogView.findViewById<ViewPager2>(R.id.vp_2).registerOnPageChangeCallback(
+        object : ViewPager2.OnPageChangeCallback() {
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+            }
+        }
+    )
+
+    with(dialogView) {
+        findViewById<Button>(R.id.btn_3).apply {
+            setOnClickListener {
+                job.cancel()
+                confirmAction?.invoke(checkBox.isChecked)
+                dialog.dismiss()
+            }
+        }
+    }
+    dialog.show()
+}
+
 
 fun Context.showAlertDialogWithToolTip() {
     val dialogView = LayoutInflater.from(this).inflate(R.layout.tooltip_dialog, null)

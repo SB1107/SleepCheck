@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
-import android.bluetooth.BluetoothDevice
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
@@ -22,20 +22,45 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    dataManager: DataManager,
+    val dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
     private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
     val isResultProgressBar: SharedFlow<Pair<Int, Boolean>> = _isResultProgressBar.asSharedFlow()
+
+    private val _isAppGuideFirst: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isAppGuideFirst: SharedFlow<Boolean> = _isAppGuideFirst.asSharedFlow()
+
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
     private lateinit var resultJob: Job
+    
+    init {
+        getAppGuide()
+    }
 
+    private fun getAppGuide() {
+        Log.d(TAG, "getAppGuide11111111: ")
+        viewModelScope.launch(Dispatchers.IO) {
+        Log.d(TAG, "getAppGuide22222222 ${dataManager.isFirstExecute().first()} ")
+            _isAppGuideFirst.emit(dataManager.isFirstExecute().first())
+        }
+    }
+
+    fun setAppGuide(check: Boolean) {
+        if (check){
+            Log.d(TAG, "setAppGuide: $check")
+            viewModelScope.launch {
+                dataManager.setFirstExecuted()
+            }
+        }
+    }
     fun stopResultProgressBar() {
         viewModelScope.launch {
             _isResultProgressBar.emit(Pair(-1, false))

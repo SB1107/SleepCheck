@@ -48,8 +48,8 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
         lifecycleScope.launch(Dispatchers.IO) {
             tokenManager.saveFcmToken(token)
             tokenManager.setDifferentValue()
-            logHelper.insertLog("[FMS] UpdateFcm / FCMPushService: $token")
-            Log.d(TAG, "[FMS] UpdateFcm / MyFirebaseMessagingService: $token")
+            logHelper.insertLog("[FMS] UpdateFcm  FCMPushService: $token")
+            Log.d(TAG, "[FMS] UpdateFcm  MyFirebaseMessagingService: $token")
         }
         Log.d(TAG, "[FMS] Token created: $token")
     }

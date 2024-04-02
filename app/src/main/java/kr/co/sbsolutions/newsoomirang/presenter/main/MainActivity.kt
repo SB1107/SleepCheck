@@ -1,24 +1,19 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
-import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver
-import android.view.WindowManager
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -33,13 +28,13 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.guideAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityMainBinding
@@ -140,6 +135,14 @@ class MainActivity : BaseServiceActivity() {
                             ServiceCommend.START -> startSBService(ActionMessage.StartSBService)
                             ServiceCommend.STOP -> startSBService(ActionMessage.StopSBService)
                             ServiceCommend.CANCEL -> startSBService(ActionMessage.CancelSbService)
+                        }
+                    }
+                }
+                launch(Dispatchers.Main) {
+                    viewModel.isAppGuideFirst.filter { it }.collectLatest {
+                        Log.d(TAG, "onCreate11111: $it")
+                            guideAlertDialog{ isChecked ->
+                                viewModel.setAppGuide(isChecked)
                         }
                     }
                 }
