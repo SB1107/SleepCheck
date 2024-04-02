@@ -8,3 +8,4 @@ plugins {
     id ("com.google.firebase.crashlytics") version "2.9.2" apply false
     id("com.google.devtools.ksp") version "1.9.22-1.0.16" apply false
 }
+val myValue by extra("/Users/limjaehyo/Repository/Android/NewSoomirang/soomirangB2C")

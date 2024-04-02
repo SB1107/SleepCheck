@@ -8,6 +8,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -263,6 +264,9 @@ class BLEService : LifecycleService() {
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt = device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
+                ?.apply {
+                    setPreferredPhy(BluetoothDevice.PHY_LE_1M_MASK, BluetoothDevice.PHY_LE_1M_MASK, BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                }
         Log.d(TAG, "getCallback: ${bluetoothInfo.bluetoothGatt} ")
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {

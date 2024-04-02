@@ -285,7 +285,10 @@ private val bleScanCallback = object : ScanCallback() {
     private fun addScanResult(result: ScanResult) {
         val device = result.device
         if (_scanSet.add(device)) {
-            _scanList.tryEmit(_scanSet.toList())
+            _scanList.tryEmit(_scanSet.toList().filter { it.name.startsWith("AA")
+                    || it.name.startsWith("AB") 
+                    || it.name.startsWith("AC") }
+                .sortedBy { it.name })
         }
     }
 }
