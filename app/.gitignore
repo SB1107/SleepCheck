@@ -194,5 +194,3 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/androidstudio,macos,windows
 /keystore.properties
-fastlane/
-.ida/*
