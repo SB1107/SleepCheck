@@ -145,13 +145,13 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch(Dispatchers.Main) {
                     viewModel.isResultProgressBar.collectLatest {
+                        Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         resultDialog.run {
                             if (it.second) show() else dismiss()
                         }
-                        if (it.first != -1 && !it.second) {
+                        if (it.first != -1 ) {
                                 startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
-                                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                                     putExtra("id", it.first.toString())
                                 })
 

@@ -384,7 +384,6 @@ class BLEService : LifecycleService() {
                                 lifecycleScope.launch(IO) {
                                     val reason = workInfo.outputData.getString("reason")
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
-                                    Log.e(TAG, "서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
                                         uploadWorker(dataId, forceClose, sleepType, snoreTime, isFilePass)
                                     }

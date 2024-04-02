@@ -47,7 +47,7 @@ class MainViewModel @Inject constructor(
             job.cancel()
         }
         job = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(Pair(-1, true))
+
 
             if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
                 Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
@@ -67,7 +67,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
-
+            _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -83,6 +83,7 @@ class MainViewModel @Inject constructor(
 
     private fun noSeringResult() {
         viewModelScope.launch(Dispatchers.IO) {
+            _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -98,11 +99,11 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (_dataIDSet.contains(result.id.toInt()).not()) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
                     }else{
-                        _isResultProgressBar.emit(Pair(-1, false))
+                        _isResultProgressBar.emit(Pair(-1,  result.state == 1))
                     }
                         if((result.state != 1)){
                             job.cancel()
@@ -114,7 +115,7 @@ class MainViewModel @Inject constructor(
                             sleepDataResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(Pair(-1, false))
+                } ?: _isResultProgressBar.emit(Pair(-1, true))
             }
     }
 
@@ -122,11 +123,11 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (_dataIDSet.contains(result.id.toInt()).not()) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
                     }else{
-                        _isResultProgressBar.emit(Pair(-1, false))
+                        _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
                         if((result.state != 1).not()){
                             job.cancel()
@@ -138,7 +139,7 @@ class MainViewModel @Inject constructor(
                             noSeringResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(Pair(-1, false))
+                } ?: _isResultProgressBar.emit(Pair(-1, true))
             }
     }
 

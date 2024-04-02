@@ -61,7 +61,7 @@ interface AuthServiceAPI {
     suspend fun sleepDataDetail(@Query("data_id") id: String): Response<SleepDetailEntity>
 
     //수면데이터 측정 시작
-    @POST("sleepdata/createplus")
+    @POST("sleepdata/createv2")
     suspend fun postSleepDataCreate(@Body createModel: SleepCreateModel): Response<SleepCreateEntity>
 
     @POST("sleepdata/delete")

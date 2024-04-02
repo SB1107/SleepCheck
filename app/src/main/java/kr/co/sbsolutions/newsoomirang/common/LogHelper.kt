@@ -1,5 +1,8 @@
 package kr.co.sbsolutions.newsoomirang.common
 
+import android.util.Log
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+
 class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
 
     fun  insertLog(logMethod :() -> Unit  ){
@@ -13,6 +16,7 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
             tempData = message.replace("null", "").replace("", "").trim()
         }
         logWorkerHelper.insertLog(tempData)
+        Log.e(TAG, tempData)
     }
 
     private fun  getClazzName(request: () -> Unit): String {
