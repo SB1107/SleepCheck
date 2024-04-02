@@ -60,8 +60,8 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 
         //받은 remoteMessage의 값 출력해보기.   데이터메세지 / 알림 메세지
 
-        logHelper.insertLog("[FMS] Data / ${remoteMessage.data[DATA_KEY]}")
-        logHelper.insertLog("[FMS] Noti / title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
+        logHelper.insertLog("[FMS] Data  ${remoteMessage.data[DATA_KEY]}")
+        logHelper.insertLog("[FMS] Noti  title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         @SuppressLint("InvalidWakeLockTag") val wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG")
