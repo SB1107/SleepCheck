@@ -153,16 +153,16 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
 
-                //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
-                launch {
-                    viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
-                        binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
-                        if (!it) {
-                            viewModel.setMeasuringState(MeasuringState.Charging)
-                        }
-                    }
-                }
+//                //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
+//                launch {
+//                    viewModel.canMeasurement.collectLatest {
+//                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
+//                        binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
+//                        if (!it) {
+//                            viewModel.setMeasuringState(MeasuringState.Charging)
+//                        }
+//                    }
+//                }
                 //시작버튼 누를시 팝업 이벤트
                 launch {
                     viewModel.showMeasurementAlert.collectLatest {
@@ -212,15 +212,21 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    viewModel.bluetoothButtonState.collect {
-                        binding.startButton.text = getBluetoothState(it).getStartButtonText()
-                        binding.tvNameDes2.text = if (it.contains("시작").not()) "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n코골이을 측정해 보세요"
-                        val isEnabled = it.contains("시작")
+                    viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
+//                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
+                        binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
+                        if (!it.first) {
+                            viewModel.setMeasuringState(MeasuringState.Charging)
+                        }
+                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
+                        val isDisconnect = it.second.contains("시작").not()
+                        binding.tvNameDes2.text = if (isDisconnect) if(it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n코골이을 측정해 보세요"
+                        val isEnabled = it.second.contains("시작")
                             binding.motorCheckBox.isEnabled = isEnabled
                             binding.type0Chip.isEnabled = isEnabled
                             binding.type1Chip.isEnabled = isEnabled
                             binding.type2Chip.isEnabled = isEnabled
-                        setBluetoothStateIcon(getBluetoothState(it))
+                        setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
                 launch {

@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.bluetooth.BluetoothDevice
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,14 +25,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val dataManager: DataManager,
+    dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _isResultProgressBar: MutableSharedFlow<Pair<Int, Boolean>> = MutableSharedFlow()
+    private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
     val isResultProgressBar: SharedFlow<Pair<Int, Boolean>> = _isResultProgressBar.asSharedFlow()
-
+    private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
     private lateinit var resultJob: Job
 
@@ -46,6 +47,8 @@ class MainViewModel @Inject constructor(
             job.cancel()
         }
         job = viewModelScope.launch(Dispatchers.IO) {
+            _isResultProgressBar.emit(Pair(-1, true))
+
             if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
                 Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
 //                    _breathingResults.emit(0)
@@ -64,7 +67,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(Pair(-1, true))
+
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -80,7 +83,6 @@ class MainViewModel @Inject constructor(
 
     private fun noSeringResult() {
         viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -96,7 +98,12 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
+                    if (_dataIDSet.contains(result.id.toInt()).not()) {
+                        _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    }else{
+                        _isResultProgressBar.emit(Pair(-1, false))
+                    }
                         if((result.state != 1)){
                             job.cancel()
                             resultJob.cancel()
@@ -115,7 +122,12 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
+                    if (_dataIDSet.contains(result.id.toInt()).not()) {
+                        _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), result.state == 1))
+                    }else{
+                        _isResultProgressBar.emit(Pair(-1, false))
+                    }
                         if((result.state != 1).not()){
                             job.cancel()
                             resultJob.cancel()

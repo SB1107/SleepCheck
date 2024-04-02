@@ -207,6 +207,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     BluetoothState.Connected.SendRealtime,
                     BluetoothState.Connected.SendStart,
                     BluetoothState.Connected.SendStop,
+                       BluetoothState.Connected.End,
                     BluetoothState.Connected.MotCtrlSet,
                     BluetoothState.Connected.WaitStart -> {
                         Log.d(TAG, "NotIntent = NotIntent")

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -38,9 +39,12 @@ abstract class BaseServiceViewModel(
     val batteryState: StateFlow<String> = _batteryState
 
     private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val canMeasurement: SharedFlow<Boolean> = _canMeasurement
+//    val canMeasurement: SharedFlow<Boolean> = _canMeasurement
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
-    val bluetoothButtonState: SharedFlow<String> = _bluetoothButtonState.asSharedFlow()
+//    val bluetoothButtonState: SharedFlow<String> = _bluetoothButtonState.asSharedFlow()
+    val  canMeasurementAndBluetoothButtonState = _bluetoothButtonState.combine(_canMeasurement){ bluetoothButtonState,canMeasurement  ->
+    Pair(canMeasurement, bluetoothButtonState)
+    }
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
     private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
@@ -90,7 +94,9 @@ abstract class BaseServiceViewModel(
                             }
 
                             BluetoothState.Connected.ReceivingRealtime,
-                            BluetoothState.Connected.End -> {
+                            BluetoothState.Connected.End,
+                            BluetoothState.Connected.SendDownloadContinue,
+                            BluetoothState.Connected.WaitStart -> {
                                 launch(Dispatchers.Main) {
                                     _bluetoothButtonState.emit("시작")
                                 }

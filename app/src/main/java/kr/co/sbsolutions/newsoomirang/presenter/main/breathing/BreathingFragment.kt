@@ -144,16 +144,7 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
 
-                //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
-                launch {
-                    viewModel.canMeasurement.collectLatest {
-                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
-                        binding.startButton.visibility = if (it) View.VISIBLE else View.GONE
-                        if (!it) {
-                            viewModel.setMeasuringState(MeasuringState.Charging)
-                        }
-                    }
-                }
+
                 //시작버튼 누를시 팝업 이벤트
                 launch {
                     viewModel.showMeasurementAlert.collectLatest {
@@ -195,12 +186,19 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    viewModel.bluetoothButtonState.collectLatest {
-                        Log.e(TAG, "setObservers:!!!!!!!! $it", )
-                        binding.startButton.text = getBluetoothState(it).getStartButtonText()
-                        val isDisconnect = it.contains("시작").not()
-                        binding.tvNameDes2.text = if (isDisconnect) "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n호흡을 측정해 보세요"
-                        setBluetoothStateIcon(getBluetoothState(it))
+                    viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
+                        Log.e(TAG, "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}" )
+//                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
+                        binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
+                        if (!it.first) {
+                            viewModel.setMeasuringState(MeasuringState.Charging)
+                        }
+                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
+                        val isDisconnect = it.second.contains("시작").not()
+                        binding.tvNameDes2.text = if (isDisconnect) {
+                            if(it.first.not())"기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요."
+                        }else "시작버튼을 눌러\n호흡을 측정해 보세요"
+                        setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
                 launch {
