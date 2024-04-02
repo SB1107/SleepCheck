@@ -26,7 +26,7 @@ class AudioClassificationHelper(var context: Context, var listener: AudioClassif
     }
 
     companion object {
-        const val DISPLAY_THRESHOLD = 0.3f
+        const val DISPLAY_THRESHOLD = 0.4f
         const val DEFAULT_NUM_OF_RESULTS = 2
         const val DEFAULT_OVERLAP_VALUE = 0.2f
         const val NUM_THREADS = 2
