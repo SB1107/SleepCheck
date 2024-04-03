@@ -102,7 +102,7 @@ class BreathingViewModel @Inject constructor(
         insertLog {
             stopClick()
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             getService()?.checkDataSize()?.collectLatest {
                 if (it) {
                     _showMeasurementCancelAlert.emit(true)

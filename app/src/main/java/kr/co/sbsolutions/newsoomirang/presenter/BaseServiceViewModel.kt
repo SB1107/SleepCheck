@@ -72,14 +72,14 @@ abstract class BaseServiceViewModel(
 
                                 _isHomeBleProgressBar.emit(Pair(false, ""))
 
-                                launch(Dispatchers.Main) {
+                                launch {
                                     _batteryState.emit("")
                                     _bluetoothButtonState.emit("연결")
                                 }
                             }
 
                             BluetoothState.Connected.Reconnected -> {
-                                launch(Dispatchers.Main) {
+                                launch {
                                     _bluetoothButtonState.emit("재 연결중")
                                 }
                                 setBatteryInfo()
@@ -87,7 +87,7 @@ abstract class BaseServiceViewModel(
 
                             BluetoothState.DisconnectedNotIntent -> {
                                 bluetoothInfo.batteryInfo = null
-                                launch(Dispatchers.Main){
+                                launch{
                                     _batteryState.emit("")
                                     _bluetoothButtonState.emit("연결 끊김")
                                 }
@@ -97,21 +97,21 @@ abstract class BaseServiceViewModel(
                             BluetoothState.Connected.End,
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.WaitStart -> {
-                                launch(Dispatchers.Main) {
+                                launch {
                                     _bluetoothButtonState.emit("시작")
                                 }
                             }
 
                             BluetoothState.Connecting -> {
                                     _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
-                                launch(Dispatchers.Main) {
+                                launch {
                                     _bluetoothButtonState.emit("재 연결중")
                                 }
 //                                getService()?.timerOfDisconnection()
                             }
 
                             else -> {
-                                launch(Dispatchers.Main) {
+                                launch {
                                     _bluetoothButtonState.emit("시작")
                                 }
                                     _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))

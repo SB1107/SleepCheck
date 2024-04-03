@@ -120,35 +120,35 @@ class NoSeringFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
-                launch(Dispatchers.Main) {
+                launch{
                     viewModel.userName.collect {
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
 
                 //기기 연결 안되었을시 기기 등록 페이지 이동
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.gotoScan.collectLatest {
                         startActivity(Intent(this@NoSeringFragment.context, SensorActivity::class.java))
                     }
                 }
                 //배터리 상태
-                launch(Dispatchers.Main) {
+                launch{
                     viewModel.batteryState.collectLatest {
                         setBatteryInfo(it)
                     }
                 }
                 // 블루투스 연결 팝업
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.connectAlert.collectLatest {
                         showConnectDialog()
                     }
@@ -186,7 +186,7 @@ class NoSeringFragment : BluetoothFragment() {
                         })
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.motorCheckBox.collectLatest {
                         binding.motorCheckBox.isChecked = it
                         binding.type0Chip.isEnabled = it
@@ -195,7 +195,7 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
 
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.intensity.collectLatest {
                         when (it) {
                             0 -> {
@@ -212,7 +212,7 @@ class NoSeringFragment : BluetoothFragment() {
                         }
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
@@ -230,12 +230,12 @@ class NoSeringFragment : BluetoothFragment() {
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.isProgressBar.collect {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.isRegisteredMessage.collectLatest {
                         requireActivity().showAlertDialogWithCancel(message = it,  confirmButtonText = R.string.main_measuring_text, confirmAction = {
                             viewModel.forceStartClick()
@@ -244,7 +244,7 @@ class NoSeringFragment : BluetoothFragment() {
                         })
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch{
                     activityViewModel.isResultProgressBar.collectLatest {
                         if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
@@ -252,7 +252,7 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
                 //UI 변경
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.measuringState.collectLatest {
 //                        Log.d(TAG, "setObservers: ${it}")
                         when (it) {

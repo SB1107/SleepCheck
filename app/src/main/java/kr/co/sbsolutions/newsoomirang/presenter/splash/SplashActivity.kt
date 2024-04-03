@@ -16,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -47,16 +48,14 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 //        splashScreen.setKeepOnScreenCondition{true}
 
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.nextProcess.collectLatest {
-                        refreshPermissionViews()
+                    launch {
+                        viewModel.nextProcess.collectLatest {
+                            refreshPermissionViews()
+                        }
                     }
-                }
-            }
-            launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.whereActivity.collectLatest {
                         when (it) {
                             WHERE.None, WHERE.Policy -> {}
@@ -74,8 +73,10 @@ class SplashActivity : AppCompatActivity() {
                             }
                         }
                     }
+
                 }
             }
+
 
         }
     }

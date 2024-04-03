@@ -109,36 +109,36 @@ class BreathingFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 //유저이름 전달
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.userName.collect {
 //                        Log.d(TAG, "setObservers: $it ")
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
                 // 블루투스 연결 팝업
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.connectAlert.collect {
                         showConnectDialog()
                     }
                 }
                 //기기 연결 안되었을시 기기 등록 페이지 이동
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.gotoScan.collectLatest {
                         startActivity(Intent(this@BreathingFragment.context, SensorActivity::class.java))
                     }
                 }
                 //배터리 상태
-                launch(Dispatchers.Main) {
+                launch {
                     activityViewModel.batteryState.collectLatest {
                         setBatteryInfo(it)
                     }
@@ -146,19 +146,19 @@ class BreathingFragment : BluetoothFragment() {
 
 
                 //시작버튼 누를시 팝업 이벤트
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.showMeasurementAlert.collectLatest {
                         showChargingDialog()
                     }
                 }
                 //타이머 설정
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.measuringTimer.collectLatest {
                         viewModel.setMeasuringState(if (it.second >= 5 || it.first > 0) MeasuringState.Record else MeasuringState.FiveRecode)
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
-                launch(Dispatchers.Main){
+                launch{
                     viewModel.capacitanceFlow.collectLatest {
 
                         if (xCountResetFlag && graphCount > 50f) {
@@ -173,7 +173,7 @@ class BreathingFragment : BluetoothFragment() {
                 }
 
                 //300미만 취소 시
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 데이터가 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
                             binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
@@ -185,7 +185,7 @@ class BreathingFragment : BluetoothFragment() {
                         })
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
                         Log.e(TAG, "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}" )
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
@@ -201,20 +201,20 @@ class BreathingFragment : BluetoothFragment() {
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.isProgressBar.collect {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
 
-                launch(Dispatchers.Main) {
+                launch {
                     activityViewModel.isResultProgressBar.collectLatest {
                         if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }
                 }
-                launch(Dispatchers.Main){
+                launch{
                     activityViewModel.isHomeBleProgressBar.collectLatest {
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility = if (it.first) View.VISIBLE else View.GONE
@@ -222,7 +222,7 @@ class BreathingFragment : BluetoothFragment() {
                 }
 
                 //UI 변경
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.measuringState.collectLatest {
                         when (it) {
                             MeasuringState.InIt -> {
@@ -352,7 +352,7 @@ class BreathingFragment : BluetoothFragment() {
 
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-                lifecycleScope.launch {
+                lifecycleScope.launch(Dispatchers.Main) {
                     viewModel.sleepDataCreate().collect {
                         if (it) {
                             activityViewModel.setCommend(ServiceCommend.START)

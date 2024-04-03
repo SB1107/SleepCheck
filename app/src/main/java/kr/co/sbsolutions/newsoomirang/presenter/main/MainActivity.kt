@@ -127,7 +127,7 @@ class MainActivity : BaseServiceActivity() {
         }
         gotoFragment(intent)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.serviceCommend.collectLatest {
@@ -138,7 +138,7 @@ class MainActivity : BaseServiceActivity() {
                         }
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.isAppGuideFirst.filter { it }.collectLatest {
                         Log.d(TAG, "onCreate11111: $it")
                             guideAlertDialog{ isChecked ->
@@ -146,7 +146,7 @@ class MainActivity : BaseServiceActivity() {
                         }
                     }
                 }
-                launch(Dispatchers.Main) {
+                launch {
                     viewModel.isResultProgressBar.collectLatest {
                         Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
