@@ -3,7 +3,9 @@ package kr.co.sbsolutions.newsoomirang.presenter.sensor
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -12,7 +14,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.overlay.BalloonOverlayAnimation
+import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -24,7 +34,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class SensorActivity : BluetoothActivity() {
-
+    private lateinit var tooltip: Balloon
     override fun newBackPressed() {
         finish()
     }
@@ -80,6 +90,36 @@ class SensorActivity : BluetoothActivity() {
         viewModel.checkDeviceScan()
     }
 
+        private fun setToolTip(message: String) {
+            if (::tooltip.isInitialized) {
+                tooltip.dismiss()
+            }
+
+            tooltip = Balloon.Builder(this)
+                .setTextIsHtml(true)
+                .setHeight(BalloonSizeSpec.WRAP)
+                .setText(message)
+                .setTextColor(Color.BLACK)
+                .setTextSize(16f)
+                .setTextLineSpacing(7f)
+                .setTextGravity(Gravity.START)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                .setArrowSize(10)
+                .setArrowPosition(0.5f)
+                .setPadding(14)
+                .setMargin(16)
+                .setCornerRadius(8f)
+                .setBackgroundColor(Color.WHITE)
+                .setBalloonAnimation(BalloonAnimation.ELASTIC)
+                .setIsVisibleOverlay(true)
+                .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
+                .setOverlayColor(Color.parseColor("#CC000000"))
+                .setOverlayPadding(4f)
+                .setBalloonOverlayAnimation(BalloonOverlayAnimation.FADE)
+                .setLifecycleOwner(this)
+                .build()
+
+    }
     private fun bindViews() {
         with(binding) {
             deviceRecyclerView.apply {
@@ -89,11 +129,15 @@ class SensorActivity : BluetoothActivity() {
 
             actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
             actionBar.toolbarTitle.text = "센서 연결"
+
             actionBar.backButton.setOnClickListener {
                 newBackPressed()
             }
             btDiss.setOnClickListener {
                 viewModel.bleDisconnect()
+            }
+            binding.btSearch.setOnClickListener {
+                viewModel.bleConnect()
             }
 
             /*disconnectButton.setOnClickListener {
@@ -104,7 +148,7 @@ class SensorActivity : BluetoothActivity() {
         }
 
         with(viewModel) {
-            lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.Main) {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                     launch {
@@ -113,83 +157,90 @@ class SensorActivity : BluetoothActivity() {
                                 binding.deviceNameTextView.text = text
                                 binding.btDiss.visibility = View.VISIBLE
                             } ?: run {
-                                binding.deviceNameTextView.text = "연결된 기기가 없습니다."
+                                binding.deviceNameTextView.text = "등록된 기기가 없습니다."
                                 binding.btDiss.visibility = View.GONE
                             }
                         }
                     }
-                        launch {
-                            binding.btSearch.setOnClickListener {
-                                viewModel.bleConnect()
-                            }
-                        }
 
-                        launch {
-                            viewModel.isScanning.collectLatest {
-                                it?.let {
-                                    if (it) {
-                                        Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                        return@collectLatest
-                                    }
-                                }
-                            }
-                        }
-
-                        /*launch {
-                            isScanning.collectLatest { isScanning ->
-                                animator.also {
-                                    if (isScanning) it.start() else it.cancel()
-                                }
-                            }
-                        }*/
-
-                        /*launch {
-                            isRegistered.collectLatest {
+                    launch {
+                        viewModel.isScanning.collectLatest {
+                            it?.let {
                                 if (it) {
-    //                                delay(1000)
-                                    newBackPressed()
-
-                                } else {
-                                    Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }*/
-                        launch {
-                            viewModel.isBleProgressBar.collectLatest {
-                                binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
-                                if (it) newBackPressed()
-
-                            }
-                        }
-
-                        launch {
-                            viewModel.bleStateResultText.collectLatest {
-                                it?.let { resultText ->
-                                    binding.icBleProgress.tvDeviceId.text = resultText
+                                    Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
+                                    showToolTip()
+                                    return@collectLatest
                                 }
                             }
                         }
+                    }
 
-                        launch {
-                            scanList.collectLatest { list ->
-                                bleAdapter.submitList(list)
+                    /*launch {
+                        isScanning.collectLatest { isScanning ->
+                            animator.also {
+                                if (isScanning) it.start() else it.cancel()
                             }
                         }
+                    }*/
 
-                        launch {
-                            viewModel.errorMessage.collectLatest {
-                                showAlertDialog(R.string.common_title, it)
+                    /*launch {
+                        isRegistered.collectLatest {
+                            if (it) {
+//                                delay(1000)
+                                newBackPressed()
+
+                            } else {
+                                Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
                             }
                         }
-                        launch {
-                            viewModel.checkSensorResult.collectLatest {
-                                it?.let {
-                                    showAlertDialog(message = it)
-                                }
+                    }*/
+                    launch {
+                        viewModel.isBleProgressBar.collectLatest {
+                            binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
+                            if (it) newBackPressed()
+
+                        }
+                    }
+
+                    launch {
+                        viewModel.bleStateResultText.collectLatest {
+                            it?.let { resultText ->
+                                binding.icBleProgress.tvDeviceId.text = resultText
+                            }
+                        }
+                    }
+
+                    launch {
+                        scanList.collectLatest { list ->
+                            bleAdapter.submitList(list)
+                        }
+                    }
+
+                    launch {
+                        viewModel.errorMessage.collectLatest {
+                            showAlertDialog(R.string.common_title, it)
+                        }
+                    }
+                    launch {
+                        viewModel.checkSensorResult.collectLatest {
+                            it?.let {
+                                showAlertDialog(message = it)
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun showToolTip() {
+        setToolTip("아래 센서를 선택하여 센서를 등록해 주세요")
+        lifecycleScope.launch(Dispatchers.Main) {
+            tooltip.showAlignBottom(binding.deviceRecyclerView)
+            delay(5000)
+            if (::tooltip.isInitialized) {
+                tooltip.dismiss()
+            }
+        }
+    }
 }

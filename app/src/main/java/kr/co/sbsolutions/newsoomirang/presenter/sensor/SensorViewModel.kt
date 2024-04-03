@@ -45,7 +45,7 @@ class SensorViewModel @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
     private val dataManager: DataManager,
-    private val tokenManager: TokenManager,
+    tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     companion object {

@@ -22,7 +22,7 @@ class SensorBluetoothAdapter(val bleClickListener : (BluetoothDevice) -> Unit) :
 
     inner class ViewHolder(private val binding: AdapterBluetoothItemBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(item : BluetoothDevice) {
-            binding.tvBleName.setOnClickListener {
+            binding.cvRoot.setOnClickListener {
                 bleClickListener.invoke(item)
             }
             binding.tvBleName.text = item.name

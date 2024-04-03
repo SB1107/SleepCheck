@@ -204,4 +204,6 @@ dependencies {
     implementation ("com.kakao.sdk:v2-share:2.11.2") // 카카오 공유하기 API 모듈
 
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("com.github.skydoves:balloon:1.6.4")
+
 }
