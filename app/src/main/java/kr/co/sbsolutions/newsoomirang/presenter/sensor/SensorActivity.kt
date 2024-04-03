@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -22,7 +23,6 @@ import com.skydoves.balloon.overlay.BalloonOverlayAnimation
 import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -97,19 +97,20 @@ class SensorActivity : BluetoothActivity() {
 
             tooltip = Balloon.Builder(this)
                 .setTextIsHtml(true)
+                .setAutoDismissDuration(2000)
                 .setHeight(BalloonSizeSpec.WRAP)
                 .setText(message)
                 .setTextColor(Color.BLACK)
-                .setTextSize(16f)
+                .setTextSize(24f)
                 .setTextLineSpacing(7f)
                 .setTextGravity(Gravity.START)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setArrowSize(10)
                 .setArrowPosition(0.5f)
-                .setPadding(14)
+                .setPadding(30)
                 .setMargin(16)
                 .setCornerRadius(8f)
-                .setBackgroundColor(Color.WHITE)
+                .setBackgroundColor(Color.parseColor("#FFDB1C"))
                 .setBalloonAnimation(BalloonAnimation.ELASTIC)
                 .setIsVisibleOverlay(true)
                 .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
@@ -234,13 +235,9 @@ class SensorActivity : BluetoothActivity() {
     }
 
     private fun showToolTip() {
-        setToolTip("아래 센서를 선택하여 센서를 등록해 주세요")
+        setToolTip("<b>아래 센서를 선택하여<br>센서를 등록해 주세요</b>")
         lifecycleScope.launch(Dispatchers.Main) {
             tooltip.showAlignBottom(binding.deviceRecyclerView)
-            delay(5000)
-            if (::tooltip.isInitialized) {
-                tooltip.dismiss()
-            }
         }
     }
 }
