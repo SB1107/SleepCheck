@@ -28,6 +28,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -116,6 +117,7 @@ class MainActivity : BaseServiceActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        guideAlertDialog()
         binding.root.viewTreeObserver.addOnGlobalLayoutListener { rootHeight = binding.root.height }
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
         logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
@@ -139,17 +141,10 @@ class MainActivity : BaseServiceActivity() {
                     }
                 }
                 launch {
-                    viewModel.isAppGuideFirst.filter { it }.collectLatest {
-                        Log.d(TAG, "onCreate11111: $it")
-                            guideAlertDialog{ isChecked ->
-                                viewModel.setAppGuide(isChecked)
-                        }
-                    }
-                }
-                launch {
                     viewModel.isResultProgressBar.collectLatest {
                         Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
+                        delay(500)
                         resultDialog.run {
                             if (it.second) show() else dismiss()
                         }
@@ -215,4 +210,8 @@ class MainActivity : BaseServiceActivity() {
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    }
 }

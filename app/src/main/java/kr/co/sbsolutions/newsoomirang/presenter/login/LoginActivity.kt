@@ -43,7 +43,12 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private lateinit var gso: GoogleSignInOptions
+    private val gso: GoogleSignInOptions by lazy {
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+    }
 
     private lateinit var googleLoginActivityResultLauncher: ActivityResultLauncher<Intent>
 
@@ -53,7 +58,6 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val currentUser = mAuth.currentUser
         googleSignInClient.signOut()
     }
 
@@ -119,10 +123,10 @@ class LoginActivity : AppCompatActivity() {
         } else {
             // 로그인되지 않은 사용자입니다.
         }
-        gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        /*gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
-            .build()
+            .build()*/
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 

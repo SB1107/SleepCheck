@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.common
 
 import android.util.Log
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 
 class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
 
@@ -17,6 +18,11 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
         }
         logWorkerHelper.insertLog(tempData)
         Log.e(TAG, tempData)
+    }
+
+    fun insertLog(state: BluetoothState) {
+        logWorkerHelper.insertLog(state.toString())
+        Log.e(TAG, "insertLog: $state")
     }
 
     private fun  getClazzName(request: () -> Unit): String {

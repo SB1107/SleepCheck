@@ -111,7 +111,7 @@ class SensorActivity : BluetoothActivity() {
                 .setMargin(16)
                 .setCornerRadius(8f)
                 .setBackgroundColor(Color.parseColor("#FFDB1C"))
-                .setBalloonAnimation(BalloonAnimation.ELASTIC)
+                .setBalloonAnimation(BalloonAnimation.OVERSHOOT)
                 .setIsVisibleOverlay(true)
                 .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
                 .setOverlayColor(Color.parseColor("#CC000000"))
