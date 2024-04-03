@@ -41,26 +41,22 @@ class MainViewModel @Inject constructor(
     private lateinit var job: Job
     private lateinit var resultJob: Job
     
-    init {
-        getAppGuide()
-    }
-
-    private fun getAppGuide() {
+    /*private fun getAppGuide() {
         Log.d(TAG, "getAppGuide11111111: ")
         viewModelScope.launch(Dispatchers.IO) {
         Log.d(TAG, "getAppGuide22222222 ${dataManager.isFirstExecute().first()} ")
             _isAppGuideFirst.emit(dataManager.isFirstExecute().first())
         }
-    }
+    }*/
 
-    fun setAppGuide(check: Boolean) {
+    /*fun setAppGuide(check: Boolean) {
         if (check){
             Log.d(TAG, "setAppGuide: $check")
             viewModelScope.launch {
                 dataManager.setFirstExecuted()
             }
         }
-    }
+    }*/
     fun stopResultProgressBar() {
         viewModelScope.launch {
             _isResultProgressBar.emit(Pair(-1, false))
