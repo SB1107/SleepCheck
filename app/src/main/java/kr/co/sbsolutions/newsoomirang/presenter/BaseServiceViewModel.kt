@@ -38,7 +38,7 @@ abstract class BaseServiceViewModel(
     private val _batteryState: MutableStateFlow<String> = MutableStateFlow("")
     val batteryState: StateFlow<String> = _batteryState
 
-    private val _canMeasurement: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    private val _canMeasurement: MutableSharedFlow<Boolean> = MutableStateFlow(true)
 //    val canMeasurement: SharedFlow<Boolean> = _canMeasurement
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
 //    val bluetoothButtonState: SharedFlow<String> = _bluetoothButtonState.asSharedFlow()
