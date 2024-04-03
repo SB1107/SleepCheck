@@ -107,7 +107,7 @@ class SensorActivity : BluetoothActivity() {
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setArrowSize(10)
                 .setArrowPosition(0.5f)
-                .setPadding(14)
+                .setPadding(30)
                 .setMargin(16)
                 .setCornerRadius(8f)
                 .setBackgroundColor(Color.parseColor("#FFDB1C"))
@@ -235,7 +235,7 @@ class SensorActivity : BluetoothActivity() {
     }
 
     private fun showToolTip() {
-        setToolTip("아래 센서를 선택하여<br>센서를 등록해 주세요")
+        setToolTip("<b>아래 센서를 선택하여<br>센서를 등록해 주세요</b>")
         lifecycleScope.launch(Dispatchers.Main) {
             tooltip.showAlignBottom(binding.deviceRecyclerView)
         }
