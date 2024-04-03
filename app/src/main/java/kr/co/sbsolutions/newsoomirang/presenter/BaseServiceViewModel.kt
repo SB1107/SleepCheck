@@ -93,10 +93,11 @@ abstract class BaseServiceViewModel(
                                 }
                             }
 
+                            BluetoothState.Connected.Ready,
+                            BluetoothState.Connected.WaitStart,
                             BluetoothState.Connected.ReceivingRealtime,
-                            BluetoothState.Connected.End,
                             BluetoothState.Connected.SendDownloadContinue,
-                            BluetoothState.Connected.WaitStart -> {
+                            BluetoothState.Connected.End -> {
                                 launch {
                                     _bluetoothButtonState.emit("시작")
                                 }
