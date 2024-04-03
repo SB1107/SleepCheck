@@ -94,12 +94,25 @@ abstract class BaseServiceViewModel(
                             }
 
                             BluetoothState.Connected.Ready,
-                            BluetoothState.Connected.WaitStart,
                             BluetoothState.Connected.ReceivingRealtime,
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.End -> {
                                 launch {
                                     _bluetoothButtonState.emit("시작")
+                                }
+                            }
+                            BluetoothState.Connected.WaitStart ->{
+                                launch {
+                                    _bluetoothButtonState.emit("시작")
+                                    _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                                    getService()?.waitStart()
+                                }
+                            }
+                            BluetoothState.Connected.Finish ->{
+                                launch {
+                                    _bluetoothButtonState.emit("시작")
+                                    _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                                    getService()?.finishSenor()
                                 }
                             }
 

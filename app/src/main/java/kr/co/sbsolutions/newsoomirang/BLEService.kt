@@ -29,8 +29,10 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -96,6 +98,8 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
+        const val MAX_RETRY = 3
+        var isStartAndStopCancel = false
 
     }
 
@@ -164,9 +168,11 @@ class BLEService : LifecycleService() {
     lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
+    private var retryCount = 0
+    private lateinit var startJob: Job
+    private lateinit var stopJob: Job
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
-
     override fun onCreate() {
         super.onCreate()
         logHelper.insertLog("bleOnCreate")
@@ -248,10 +254,6 @@ class BLEService : LifecycleService() {
         }
     }
 
-    fun timerOfDisconnection() {
-        timerOfDisconnection?.cancel()
-        timerOfDisconnection = null
-    }
 
     private val mFilter = IntentFilter().apply {
         addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
@@ -282,8 +284,8 @@ class BLEService : LifecycleService() {
     }
 
     fun disconnectDevice() {
-            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
-            bluetoothNetworkRepository.releaseResource()
+        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+        bluetoothNetworkRepository.releaseResource()
 
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
@@ -342,14 +344,14 @@ class BLEService : LifecycleService() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        logHelper.insertLog{onTaskRemoved(rootIntent)}
-            if(isForegroundServiceRunning().not()){
-                Intent(this, BLEService::class.java).apply {
-                    action = ActionMessage.StartSBService.msg
-                    baseContext.startForegroundService(this)
-                    logHelper.insertLog("서비스 재시작 콜")
-                }
+        logHelper.insertLog { onTaskRemoved(rootIntent) }
+        if (isForegroundServiceRunning().not()) {
+            Intent(this, BLEService::class.java).apply {
+                action = ActionMessage.StartSBService.msg
+                baseContext.startForegroundService(this)
+                logHelper.insertLog("서비스 재시작 콜")
             }
+        }
     }
     /*
     // Job Scheduler 미사용 - Doze Issue
@@ -498,7 +500,7 @@ class BLEService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-         super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
@@ -661,15 +663,40 @@ class BLEService : LifecycleService() {
         awaitClose()
     }
 
+    fun waitStart() {
+        startJob.cancel()
+        isStartAndStopCancel = true
+        retryCount = 0
+        timerOfStartMeasure?.cancel()
+        logHelper.insertLog { waitStart() }
+        startTimer()
+        audioHelper.startAudioClassification()
+    }
+
     fun startSBSensor(dataId: Int, sleepType: SleepType) {
+        isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+            startJob = lifecycleScope.launch {
+                timerOfStartMeasure?.cancel()
+                while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                    delay(1500)
+                    timerOfStartMeasure = Timer().apply {
+                        schedule(timerTask {
+                            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                            logHelper.insertLog("startNetworkSBSensor")
+                        }, 0L)
+                    }
+                    retryCount += 1
+                }
+            }
+
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
         }
-        startTimer()
-        audioHelper.startAudioClassification()
+
+
 //        if (sleepType == SleepType.NoSering) {
 //        }
     }
@@ -678,11 +705,20 @@ class BLEService : LifecycleService() {
         audioHelper.stopAudioClassification()
     }
 
-    fun stopSBSensor(isCancel: Boolean = false) {
-        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+    fun finishSenor() {
+        stopJob.cancel()
+        timerOfStopMeasure?.cancel()
+        isStartAndStopCancel = true
+        retryCount = 0
+        logHelper.insertLog { finishSenor() }
         stopTimer()
-
         stopAudioClassification()
+    }
+
+    fun stopSBSensor(isCancel: Boolean = false) {
+        isStartAndStopCancel = false
+        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+
 //        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
 //        }
 
@@ -702,6 +738,20 @@ class BLEService : LifecycleService() {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+                stopJob = lifecycleScope.launch {
+                    timerOfStopMeasure?.cancel()
+                    while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                        delay(1500)
+                        timerOfStopMeasure = Timer().apply {
+                            schedule(timerTask {
+                                bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+                                logHelper.insertLog("stopNetworkSBSensor")
+                            }, 0L)
+                        }
+                        retryCount += 1
+                    }
+                }
+
             } else {
                 noSering(isCancel)
             }
@@ -723,7 +773,7 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60,  checkDataSize().first())
+                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, checkDataSize().first())
                     }
                 }
             }
@@ -841,6 +891,9 @@ class BLEService : LifecycleService() {
     private var timerOfDisconnection: Timer? = null
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
+    private var timerOfStartMeasure: Timer? = null
+    private var timerOfStopMeasure: Timer? = null
+
 
     private fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
@@ -867,7 +920,7 @@ class BLEService : LifecycleService() {
 
     }
 
-    fun isForegroundServiceRunning(): Boolean {
+    private fun isForegroundServiceRunning(): Boolean {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
