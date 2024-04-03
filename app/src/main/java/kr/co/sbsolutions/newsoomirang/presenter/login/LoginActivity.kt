@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -58,7 +59,9 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        googleSignInClient.signOut()
+        if (::googleSignInClient.isInitialized){
+            googleSignInClient.signOut()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.socialLogin(SocialType.KAKAO)
             }
         }
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.whereActivity.collectLatest {
@@ -131,8 +134,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun requestGoogleLoginActivation() {
-        val signInIntent = Intent(googleSignInClient.signInIntent)
-        googleLoginActivityResultLauncher.launch(signInIntent)
+        if (::googleSignInClient.isInitialized){
+            val signInIntent = Intent(googleSignInClient.signInIntent)
+            googleLoginActivityResultLauncher.launch(signInIntent)
+        }
     }
 
     private fun onGoogleLogin() {
