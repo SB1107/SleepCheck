@@ -340,6 +340,17 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.releaseResource()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        logHelper.insertLog{onTaskRemoved(rootIntent)}
+            if(isForegroundServiceRunning().not()){
+                Intent(this, BLEService::class.java).apply {
+                    action = ActionMessage.StartSBService.msg
+                    baseContext.startForegroundService(this)
+                    logHelper.insertLog("서비스 재시작 콜")
+                }
+            }
+    }
     /*
     // Job Scheduler 미사용 - Doze Issue
     private val jobScheduler : JobScheduler by lazy {
