@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -122,32 +123,32 @@ class NoSeringFragment : BluetoothFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.userName.collect {
                         binding.tvName.text = it
                         binding.actionResult.tvName.text = it
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
 
                 //기기 연결 안되었을시 기기 등록 페이지 이동
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.gotoScan.collectLatest {
                         startActivity(Intent(this@NoSeringFragment.context, SensorActivity::class.java))
                     }
                 }
                 //배터리 상태
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.batteryState.collectLatest {
                         setBatteryInfo(it)
                     }
                 }
                 // 블루투스 연결 팝업
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.connectAlert.collectLatest {
                         showConnectDialog()
                     }
@@ -164,20 +165,20 @@ class NoSeringFragment : BluetoothFragment() {
 //                    }
 //                }
                 //시작버튼 누를시 팝업 이벤트
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.showMeasurementAlert.collectLatest {
                         showChargingDialog()
                     }
                 }
 //                //타이머 설정
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.measuringTimer.collectLatest {
                         viewModel.setMeasuringState(MeasuringState.Record)
                         binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
                     }
                 }
                 //300미만 취소 시
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.showMeasurementCancelAlert.collectLatest {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 데이터가 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
                             binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
@@ -185,7 +186,7 @@ class NoSeringFragment : BluetoothFragment() {
                         })
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.motorCheckBox.collectLatest {
                         binding.motorCheckBox.isChecked = it
                         binding.type0Chip.isEnabled = it
@@ -194,7 +195,7 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
 
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.intensity.collectLatest {
                         when (it) {
                             0 -> {
@@ -211,7 +212,7 @@ class NoSeringFragment : BluetoothFragment() {
                         }
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
@@ -229,12 +230,12 @@ class NoSeringFragment : BluetoothFragment() {
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.isProgressBar.collect {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.isRegisteredMessage.collectLatest {
                         requireActivity().showAlertDialogWithCancel(message = it,  confirmButtonText = R.string.main_measuring_text, confirmAction = {
                             viewModel.forceStartClick()
@@ -243,7 +244,7 @@ class NoSeringFragment : BluetoothFragment() {
                         })
                     }
                 }
-                launch {
+                launch(Dispatchers.Main) {
                     activityViewModel.isResultProgressBar.collectLatest {
                         if (it.second.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
@@ -251,7 +252,7 @@ class NoSeringFragment : BluetoothFragment() {
                     }
                 }
                 //UI 변경
-                launch {
+                launch(Dispatchers.Main) {
                     viewModel.measuringState.collectLatest {
 //                        Log.d(TAG, "setObservers: ${it}")
                         when (it) {

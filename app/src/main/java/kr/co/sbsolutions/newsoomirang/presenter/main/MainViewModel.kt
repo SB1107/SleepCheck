@@ -107,7 +107,10 @@ class MainViewModel @Inject constructor(
     }
 
     private fun noSeringResult() {
-        viewModelScope.launch(Dispatchers.IO) {
+        if(::resultJob.isInitialized){
+            resultJob.cancel()
+        }
+        resultJob = viewModelScope.launch(Dispatchers.IO) {
             _isResultProgressBar.emit(Pair(-1, true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
@@ -121,6 +124,7 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun sleepDataResultRequest() {
+
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
@@ -131,8 +135,7 @@ class MainViewModel @Inject constructor(
                         _isResultProgressBar.emit(Pair(-1,  result.state == 1))
                     }
                         if((result.state != 1)){
-                            job.cancel()
-                            resultJob.cancel()
+                            jobCancel()
                         }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
@@ -142,6 +145,15 @@ class MainViewModel @Inject constructor(
                     }
                 } ?: _isResultProgressBar.emit(Pair(-1, true))
             }
+    }
+
+    private fun jobCancel() {
+        if (::job.isInitialized) {
+            job.cancel()
+        }
+        if (::resultJob.isInitialized) {
+            resultJob.cancel()
+        }
     }
 
     private suspend fun snoSeringResultRequest() {
@@ -155,8 +167,7 @@ class MainViewModel @Inject constructor(
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
                         if((result.state != 1).not()){
-                            job.cancel()
-                            resultJob.cancel()
+                            jobCancel()
                         }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)

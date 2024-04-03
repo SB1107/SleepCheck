@@ -68,7 +68,9 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
         this.logHelper = logHelper
     }
     fun insertLog(method : ()-> Unit) {
-        logHelper.insertLog(method)
+        if (::logHelper.isInitialized) {
+            logHelper.insertLog(method)
+        }
     }
 
     override fun onCleared() {
