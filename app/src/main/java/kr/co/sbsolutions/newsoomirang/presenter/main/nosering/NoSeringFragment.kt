@@ -214,6 +214,7 @@ class NoSeringFragment : BluetoothFragment() {
                 }
                 launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
+                        Log.e(Cons.TAG, "canMeasurementAndBluetoothButtonState: 2 = ${it.first} 2 = ${it.second}" )
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n코골이을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다..\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
                         if (!it.first) {
@@ -221,7 +222,9 @@ class NoSeringFragment : BluetoothFragment() {
                         }
                         binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
                         val isDisconnect = it.second.contains("시작").not()
-                        binding.tvNameDes2.text = if (isDisconnect) if(it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요." else "시작버튼을 눌러\n코골이을 측정해 보세요"
+                        binding.tvNameDes2.text = if (isDisconnect) {
+                            if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요."
+                        } else if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "시작버튼을 눌러\n호흡을 측정해 보세요"
                         val isEnabled = it.second.contains("시작")
                             binding.motorCheckBox.isEnabled = isEnabled
                             binding.type0Chip.isEnabled = isEnabled
