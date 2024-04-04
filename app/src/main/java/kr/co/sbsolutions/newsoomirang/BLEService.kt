@@ -335,7 +335,6 @@ class BLEService : LifecycleService() {
 
     override fun onDestroy() {
         unregisterReceiver(mReceiver)
-
         Log.e(TAG, "onDestroy: ")
         releaseResource()
         cancelJob()
@@ -562,7 +561,6 @@ class BLEService : LifecycleService() {
 //                unregisterListenSBSensorState()
                 stopScheduler()
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
-                serviceLiveCheckWorkerHelper.cancelWork()
             }
 
             ActionMessage.CancelSbService -> {
@@ -690,7 +688,9 @@ class BLEService : LifecycleService() {
     }
 
     fun noSensorSeringMeasurement(isCancel: Boolean = false) {
-        noSering(isCancel)
+        noSering(isCancel, false)
+        stopTimer()
+        stopAudioClassification()
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
@@ -714,7 +714,7 @@ class BLEService : LifecycleService() {
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
-                noSering(isCancel)
+                noSering(isCancel , true)
             }
         }
 
@@ -728,18 +728,18 @@ class BLEService : LifecycleService() {
 
     }
 
-    private fun noSering(isCancel: Boolean) {
+    private fun noSering(isCancel: Boolean, hasSensor: Boolean = true) {
         if (isCancel.not()) {
             sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, checkDataSize().first())
+                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, if (hasSensor) checkDataSize().first() else true)
                     }
                 }
             }
         } else {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            finishService(-1, false)
         }
     }
 
@@ -815,7 +815,7 @@ class BLEService : LifecycleService() {
         }
         timerOfTimeout?.cancel()
         timerOfTimeout = null
-
+        serviceLiveCheckWorkerHelper.cancelWork()
         unregisterDownloadCallback()
 //        endMeasure(dataId)
         stopForeground(STOP_FOREGROUND_REMOVE)

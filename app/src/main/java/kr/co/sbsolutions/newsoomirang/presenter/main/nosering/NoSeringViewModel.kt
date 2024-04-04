@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.nosering
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
@@ -56,7 +58,6 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private var noSensorMeasurement = false
 
 
     init {
@@ -85,7 +86,7 @@ class NoSeringViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
                 viewModelScope.launch {
-                    noSensorMeasurement = false
+                    dataManager.setHasSensor(true)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
@@ -105,7 +106,7 @@ class NoSeringViewModel @Inject constructor(
     fun forceStartClick() {
         viewModelScope.launch {
             _showMeasurementAlert.emit(true)
-            noSensorMeasurement = true
+            dataManager.setHasSensor(false)
         }
     }
 
@@ -116,14 +117,12 @@ class NoSeringViewModel @Inject constructor(
     fun cancelClick() {
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
-        if (noSensorMeasurement) {
-            viewModelScope.launch {
-                getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
-            }
-            return
-        }
         viewModelScope.launch {
-            getService()?.stopSBSensor(true)
+            if (dataManager.getHasSensor().first()) {
+                getService()?.stopSBSensor(true)
+                return@launch
+            }
+            getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
         }
     }
 
@@ -171,21 +170,22 @@ class NoSeringViewModel @Inject constructor(
         insertLog { stopClick() }
         setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
-            if (noSensorMeasurement) {
+            val hasSensor = dataManager.getHasSensor().first()
+            Log.e(TAG, "stopClick: ${hasSensor}", )
+            if (hasSensor) {
+                getService()?.checkDataSize()?.collectLatest {
+                    if (it) {
+                        _showMeasurementCancelAlert.emit(true)
+                        return@collectLatest
+                    }
+                    getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+                }
+            } else {
                 if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
                     _showMeasurementCancelAlert.emit(true)
                     return@launch
                 }
                 getService()?.noSensorSeringMeasurement() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
-                return@launch
-            }
-
-            getService()?.checkDataSize()?.collectLatest {
-                if (it) {
-                    _showMeasurementCancelAlert.emit(true)
-                    return@collectLatest
-                }
-                getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
         }
     }

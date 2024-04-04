@@ -17,7 +17,7 @@ class DataManager(private val context: Context) {
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
-        private val MOVE_VIEW = booleanPreferencesKey("move_view")
+        private val IS_SENSOR = booleanPreferencesKey("is_sensor")
 
         private const val ADDRESS = "_address"
         private const val NAME = "_name"
@@ -115,15 +115,15 @@ class DataManager(private val context: Context) {
         }
     }
 
-    suspend fun setMoveView(isMove: Boolean = true) {
+    suspend fun setHasSensor(hasSensor: Boolean = true) {
         context.moveStore.edit { preferences ->
-            preferences[MOVE_VIEW] = isMove
+            preferences[IS_SENSOR] = hasSensor
         }
     }
 
-    fun getMoveView(): Flow<Boolean> {
+    fun getHasSensor(): Flow<Boolean> {
         return context.moveStore.data.map { preferences ->
-            preferences[MOVE_VIEW] ?: false
+            preferences[IS_SENSOR] ?: true
         }
     }
 

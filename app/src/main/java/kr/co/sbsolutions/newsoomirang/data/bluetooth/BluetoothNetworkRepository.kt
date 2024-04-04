@@ -350,7 +350,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
             else -> {
-                "ForceEnd"
+               if(isForcedClose) "ForceEnd" else "End"
             }
         }
         logHelper.insertLog(log)
