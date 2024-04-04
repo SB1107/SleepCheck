@@ -97,9 +97,9 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
-        private  var instance: BLEService? = null
+        private var instance: BLEService? = null
         fun getInstance(): BLEService? {
-            return  instance
+            return instance
         }
 
     }
@@ -150,6 +150,7 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var uploadWorkerHelper: UploadWorkerHelper
+
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 
@@ -290,8 +291,8 @@ class BLEService : LifecycleService() {
     }
 
     fun disconnectDevice() {
-            bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
-            bluetoothNetworkRepository.releaseResource()
+        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+        bluetoothNetworkRepository.releaseResource()
 
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
@@ -350,14 +351,14 @@ class BLEService : LifecycleService() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        logHelper.insertLog{onTaskRemoved(rootIntent)}
-            if(isForegroundServiceRunning().not()){
-                Intent(this, BLEService::class.java).apply {
-                    action = ActionMessage.StartSBService.msg
-                    baseContext.startForegroundService(this)
-                    logHelper.insertLog("서비스 재시작 콜")
-                }
+        logHelper.insertLog { onTaskRemoved(rootIntent) }
+        if (isForegroundServiceRunning().not()) {
+            Intent(this, BLEService::class.java).apply {
+                action = ActionMessage.StartSBService.msg
+                baseContext.startForegroundService(this)
+                logHelper.insertLog("서비스 재시작 콜")
             }
+        }
     }
     /*
     // Job Scheduler 미사용 - Doze Issue
@@ -506,7 +507,7 @@ class BLEService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-         super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
@@ -688,6 +689,10 @@ class BLEService : LifecycleService() {
         audioHelper.stopAudioClassification()
     }
 
+    fun noSensorSeringMeasurement(isCancel: Boolean = false) {
+        noSering(isCancel)
+    }
+
     fun stopSBSensor(isCancel: Boolean = false) {
         notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         stopTimer()
@@ -702,11 +707,7 @@ class BLEService : LifecycleService() {
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             logHelper.insertLog("bluetoothState: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
             lifecycleScope.launch(IO) {
-                if (settingDataRepository.getSleepType() == SleepType.NoSering.name) {
-                    noSering(isCancel)
-                } else {
-                    stopSBServiceForced(isCancel)
-                }
+                stopSBServiceForced(isCancel)
             }
         } else {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
@@ -733,7 +734,7 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60,  checkDataSize().first())
+                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, checkDataSize().first())
                     }
                 }
             }

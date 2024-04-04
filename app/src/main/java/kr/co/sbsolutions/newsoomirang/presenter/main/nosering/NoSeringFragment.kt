@@ -48,7 +48,6 @@ class NoSeringFragment : BluetoothFragment() {
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
     }
-    private var clickCount = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,20 +102,6 @@ class NoSeringFragment : BluetoothFragment() {
         binding.stopButton.setOnClickListener {
             viewModel.stopClick()
         }
-
-        /*binding.batteryTextView.setOnClickListener {
-            clickCount++
-//            Log.d(Cons.TAG, "setBluetoothStateIcon1: $clickCount")
-            if (clickCount == 10 ){
-                binding.tvBluetooth.visibility = View.VISIBLE
-//                Log.d(Cons.TAG, "setBluetoothStateIcon2: $clickCount")
-            } else if (clickCount == 20){
-                binding.tvBluetooth.visibility = View.INVISIBLE
-//                Log.d(Cons.TAG, "setBluetoothStateIcon3: $clickCount")
-                clickCount = 0
-            }
-        }*/
-
     }
 
     private fun setObservers() {
