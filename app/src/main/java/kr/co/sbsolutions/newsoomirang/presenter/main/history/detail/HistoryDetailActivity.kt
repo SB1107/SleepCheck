@@ -787,7 +787,7 @@ class HistoryDetailActivity : BaseActivity() {
 
 
     private fun setObservers() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.errorMessage.collectLatest {

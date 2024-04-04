@@ -26,6 +26,7 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -57,6 +58,7 @@ class BreathingFragment : BluetoothFragment() {
     private val binding: FragmentBreathingBinding by lazy {
         FragmentBreathingBinding.inflate(layoutInflater)
     }
+    private lateinit var job: Job
 
     private val queueList = LimitedQueue<Entry>(50)
     private val dataSetList = LineDataSet(queueList.toList(), "Label")
@@ -108,8 +110,18 @@ class BreathingFragment : BluetoothFragment() {
         viewModel.setBatteryInfo()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::job.isInitialized){
+            job.cancel()
+        }
+    }
+
     private fun setObservers() {
-        lifecycleScope.launch(Dispatchers.Main) {
+        if (::job.isInitialized) {
+            job.cancel()
+        }
+        job = lifecycleScope.launch(Dispatchers.Main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 //유저이름 전달
@@ -134,7 +146,12 @@ class BreathingFragment : BluetoothFragment() {
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {
-                        startActivity(Intent(this@BreathingFragment.context, SensorActivity::class.java))
+                        startActivity(
+                            Intent(
+                                this@BreathingFragment.context,
+                                SensorActivity::class.java
+                            )
+                        )
                     }
                 }
                 //배터리 상태
@@ -155,10 +172,16 @@ class BreathingFragment : BluetoothFragment() {
                 launch {
                     viewModel.measuringTimer.collectLatest {
                         viewModel.setMeasuringState(if (it.second >= 5 || it.first > 0) MeasuringState.Record else MeasuringState.FiveRecode)
-                        binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third)
+                        binding.actionMeasurer.timerTextView.text = String.format(
+                            Locale.KOREA,
+                            "%02d:%02d:%02d",
+                            it.first,
+                            it.second,
+                            it.third
+                        )
                     }
                 }
-                launch{
+                launch {
                     viewModel.capacitanceFlow.collectLatest {
 
                         if (xCountResetFlag && graphCount > 50f) {
@@ -175,19 +198,26 @@ class BreathingFragment : BluetoothFragment() {
                 //300미만 취소 시
                 launch {
                     viewModel.showMeasurementCancelAlert.collectLatest {
-                        requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 데이터가 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
-                            binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
-                            graphCount = 0f
-                            queueList.clear()
-                            lineDataList.notifyDataChanged()
+                        requireActivity().showAlertDialogWithCancel(
+                            R.string.common_title,
+                            "측정 데이터가 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?",
+                            confirmAction = {
+                                binding.actionMeasurer.timerTextView.text =
+                                    String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
+                                graphCount = 0f
+                                queueList.clear()
+                                lineDataList.notifyDataChanged()
 
-                            viewModel.cancelClick()
-                        })
+                                viewModel.cancelClick()
+                            })
                     }
                 }
                 launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
-                        Log.e(TAG, "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}" )
+                        Log.e(
+                            TAG,
+                            "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}"
+                        )
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
                         if (!it.first) {
@@ -196,14 +226,15 @@ class BreathingFragment : BluetoothFragment() {
                         binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
                         val isDisconnect = it.second.contains("시작").not()
                         binding.tvNameDes2.text = if (isDisconnect) {
-                            if(it.first.not())"기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요."
-                        }else if (it.first.not())"기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "시작버튼을 눌러\n호흡을 측정해 보세요"
+                            if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요."
+                        } else if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "시작버튼을 눌러\n호흡을 측정해 보세요"
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
                 launch {
                     viewModel.isProgressBar.collect {
-                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
+                        binding.actionProgress.clProgress.visibility =
+                            if (it) View.VISIBLE else View.GONE
                     }
                 }
 
@@ -214,10 +245,11 @@ class BreathingFragment : BluetoothFragment() {
                         }
                     }
                 }
-                launch{
+                launch {
                     activityViewModel.isHomeBleProgressBar.collectLatest {
                         binding.icBleProgress.tvDeviceId.text = it.second
-                        binding.icBleProgress.root.visibility = if (it.first) View.VISIBLE else View.GONE
+                        binding.icBleProgress.root.visibility =
+                            if (it.first) View.VISIBLE else View.GONE
                     }
                 }
 
@@ -347,7 +379,6 @@ class BreathingFragment : BluetoothFragment() {
     }
 
 
-
     private fun showChargingDialog() {
 
         ChargingInfoDialog(object : AlertListener {
@@ -365,7 +396,11 @@ class BreathingFragment : BluetoothFragment() {
 
     private fun isPermission(): Flow<Boolean> = callbackFlow {
 
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+        if (ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
             TedPermission.create()
                 .setPermissionListener(object : PermissionListener {
                     override fun onPermissionGranted() {
@@ -389,10 +424,16 @@ class BreathingFragment : BluetoothFragment() {
 
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    override fun setBluetoothStateIcon(bluetoothState : BluetoothState){
-        binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(bluetoothState.getImage()), null)
+    override fun setBluetoothStateIcon(bluetoothState: BluetoothState) {
+        binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(
+            null,
+            null,
+            requireActivity().getDrawable(bluetoothState.getImage()),
+            null
+        )
         binding.tvBluetooth.text = bluetoothState.getText()
     }
+
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
     override fun setBatteryInfo(batteryInfo: String) {
         if (batteryInfo.isEmpty()) {
@@ -401,13 +442,33 @@ class BreathingFragment : BluetoothFragment() {
         }
         binding.batteryTextView.visibility = View.VISIBLE
         if (batteryInfo.toInt() <= 25) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_1), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                null,
+                requireActivity().getDrawable(R.drawable.new_ic_battery_1),
+                null
+            )
         } else if (batteryInfo.toInt() in 26..50) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_2), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                null,
+                requireActivity().getDrawable(R.drawable.new_ic_battery_2),
+                null
+            )
         } else if (batteryInfo.toInt() in 51..75) {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery_3), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                null,
+                requireActivity().getDrawable(R.drawable.new_ic_battery_3),
+                null
+            )
         } else {
-            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery), null)
+            binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(
+                null,
+                null,
+                requireActivity().getDrawable(R.drawable.new_ic_battery),
+                null
+            )
         }
         binding.batteryTextView.text = "배터리 $batteryInfo%"
     }

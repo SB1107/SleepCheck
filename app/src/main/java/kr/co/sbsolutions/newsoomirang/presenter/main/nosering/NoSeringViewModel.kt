@@ -171,7 +171,6 @@ class NoSeringViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
             val hasSensor = dataManager.getHasSensor().first()
-            Log.e(TAG, "stopClick: ${hasSensor}", )
             if (hasSensor) {
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
