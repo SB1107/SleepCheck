@@ -15,6 +15,7 @@ sealed interface AppToModule {
     object OperateChangeProcessDelayed : AppToModule
     object OperateDownloadContinue : AppToModule
     object OperateDownload : AppToModule
+    object OperateDataFlowDownload : AppToModule
     object OperateDeleteAll : AppToModule
     object OperateDeleteSector : AppToModule
 
@@ -39,6 +40,7 @@ fun AppToModule.getState() : BluetoothState.Connected {
         AppToModule.OperateChangeProcessDelayed -> BluetoothState.Connected.SendDelayed
         AppToModule.OperateDownloadContinue -> BluetoothState.Connected.SendDownloadContinue
         AppToModule.OperateDownload -> BluetoothState.Connected.SendDownload
+        AppToModule.OperateDataFlowDownload -> BluetoothState.Connected.DataFlow
         AppToModule.OperateDeleteAll, AppToModule.OperateDeleteSector -> BluetoothState.Connected.SendDelete
     }
 }
@@ -153,7 +155,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
-        AppToModule.OperateDownload, AppToModule.OperateDownloadContinue -> {
+        AppToModule.OperateDownload, AppToModule.OperateDownloadContinue, AppToModule.OperateDataFlowDownload -> {
             byteArrayOf(
                 // PREFIX
                 0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),

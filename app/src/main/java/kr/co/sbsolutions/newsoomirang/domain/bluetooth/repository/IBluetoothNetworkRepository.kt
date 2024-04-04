@@ -18,6 +18,9 @@ interface IBluetoothNetworkRepository {
     var lastDownloadCompleteCallback: ((state: BLEService.FinishState) -> Unit)?
     fun setOnLastDownloadCompleteCallback(callback: ((state: BLEService.FinishState) -> Unit)?)
 
+    var dataFlowCallback: (() -> Unit)?
+    fun setDataFlowForceFinish(callBack: (() -> Unit)?)
+
     var uploadCallback: (() -> Unit)?
     fun setOnUploadCallback(callback: (() -> Unit)?)
     fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice) : BluetoothGattCallback

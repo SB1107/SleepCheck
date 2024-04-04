@@ -427,6 +427,12 @@ class BluetoothNetworkRepository @Inject constructor(
         lastDownloadCompleteCallback = callback
     }
 
+    override var dataFlowCallback: (() -> Unit)? = null
+
+    override fun setDataFlowForceFinish(callBack: (() -> Unit)?) {
+        dataFlowCallback = callBack
+    }
+
     override var uploadCallback: (() -> Unit)? = null
     override fun setOnUploadCallback(callback: (() -> Unit)?) {
         uploadCallback = callback
@@ -719,7 +725,21 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.Init,
                                 BluetoothState.Connected.Ready,
-                                BluetoothState.Connecting -> {
+                                BluetoothState.Connecting-> {
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+//                                it.bluetoothState = BluetoothState.Connected.DataFlow
+//                                innerData.tryEmit(it)
+                                    insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                }
+                                BluetoothState.Connected.DataFlow -> {
+                                    writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
+                                        _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                                        insertLog(state)
+                                    }
+                                }
+
+                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                    dataFlowCallback?.invoke()
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {
@@ -742,7 +762,6 @@ class BluetoothNetworkRepository @Inject constructor(
                                             }
 
                                         }
-
                                     }
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
@@ -984,6 +1003,11 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                }
+
+                                BluetoothState.Connected.DataFlow,
+                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
                                 }
 
                                 else -> {
