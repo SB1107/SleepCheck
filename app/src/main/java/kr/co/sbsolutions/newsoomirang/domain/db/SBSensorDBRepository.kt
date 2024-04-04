@@ -48,6 +48,10 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
         return dao.deletePastData(dataId)
     }
 
+    fun getSensorDataByIndex(index: Int) : SBSensorData? {
+        return dao.getSensorDataByIndex(index)
+    }
+
 
 
 }

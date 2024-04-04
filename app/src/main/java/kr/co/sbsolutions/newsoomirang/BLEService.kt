@@ -915,7 +915,7 @@ class BLEService : LifecycleService() {
         return requestHelper.request(request, errorHandler)
     }
 
-    private fun setDataFlowFinish(){
+    private fun setDataFlowFinish() {
         bluetoothNetworkRepository.setDataFlowForceFinish {
             Log.d(TAG, "setDataFlowFinish: callback")
 //            test()
@@ -930,7 +930,7 @@ class BLEService : LifecycleService() {
                                     sbSensorInfo.value.let {
                                         Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
                                         lifecycleScope.launch(IO) {
-                                            logWorkerHelper.insertLog("uploading: register")
+                                            logHelper.insertLog("uploading: register")
                                             _resultMessage.emit(UPLOADING)
                                             uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
     //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
@@ -941,7 +941,7 @@ class BLEService : LifecycleService() {
                                     sbSensorInfo.value.let {
                                         Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
                                         lifecycleScope.launch(IO) {
-                                            logWorkerHelper.insertLog("uploading: register")
+                                            logHelper.insertLog("uploading: register")
                                             _resultMessage.emit(UPLOADING)
                                             uploadWorker(id, false, SleepType.NoSering, it.snoreTime)
 //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
@@ -964,7 +964,7 @@ class BLEService : LifecycleService() {
             stopSBServiceForced(isCancel)
             return
         } else {
-            logWorkerHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
+            logHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}")
 //            Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
