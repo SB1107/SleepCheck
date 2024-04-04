@@ -510,7 +510,7 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
-                    serviceLiveCheckWorkerHelper.serviceLiveCheck()
+                    serviceLiveWorkCheck()
                     val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
@@ -607,6 +607,30 @@ class BLEService : LifecycleService() {
             null -> {}
         }
         return START_REDELIVER_INTENT
+    }
+
+    private fun serviceLiveWorkCheck() {
+        serviceLiveCheckWorkerHelper.serviceLiveCheck()
+            .observe(this@BLEService) { workInfo: WorkInfo? ->
+                if (workInfo != null) {
+                    when (workInfo.state) {
+                        WorkInfo.State.ENQUEUED -> {}
+                        WorkInfo.State.RUNNING -> {}
+                        WorkInfo.State.FAILED -> {
+                            lifecycleScope.launch(IO) {
+                                logHelper.insertLog("서비스 살아있는지 확인 워커 - ${workInfo.outputData.keyValueMap}")
+                            }
+                        }
+
+                        WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {}
+                        WorkInfo.State.CANCELLED -> {
+                            lifecycleScope.launch(IO) {
+                                logHelper.insertLog("서비스 살아있는지 확인 취소}")
+                            }
+                        }
+                    }
+                }
+            }
     }
 
     private fun forcedFlow() {
