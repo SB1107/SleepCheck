@@ -610,27 +610,29 @@ class BLEService : LifecycleService() {
     }
 
     private fun serviceLiveWorkCheck() {
-        serviceLiveCheckWorkerHelper.serviceLiveCheck()
-            .observe(this@BLEService) { workInfo: WorkInfo? ->
-                if (workInfo != null) {
-                    when (workInfo.state) {
-                        WorkInfo.State.ENQUEUED -> {}
-                        WorkInfo.State.RUNNING -> {}
-                        WorkInfo.State.FAILED -> {
-                            lifecycleScope.launch(IO) {
-                                logHelper.insertLog("서비스 살아있는지 확인 워커 - ${workInfo.outputData.keyValueMap}")
+        lifecycleScope.launch(Dispatchers.Main) {
+            serviceLiveCheckWorkerHelper.serviceLiveCheck()
+                .observe(this@BLEService) { workInfo: WorkInfo? ->
+                    if (workInfo != null) {
+                        when (workInfo.state) {
+                            WorkInfo.State.ENQUEUED -> {}
+                            WorkInfo.State.RUNNING -> {}
+                            WorkInfo.State.FAILED -> {
+                                lifecycleScope.launch(IO) {
+                                    logHelper.insertLog("서비스 살아있는지 확인 워커 - ${workInfo.outputData.keyValueMap}")
+                                }
                             }
-                        }
 
-                        WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {}
-                        WorkInfo.State.CANCELLED -> {
-                            lifecycleScope.launch(IO) {
-                                logHelper.insertLog("서비스 살아있는지 확인 취소}")
+                            WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {}
+                            WorkInfo.State.CANCELLED -> {
+                                lifecycleScope.launch(IO) {
+                                    logHelper.insertLog("서비스 살아있는지 확인 취소}")
+                                }
                             }
                         }
                     }
                 }
-            }
+        }
     }
 
     private fun forcedFlow() {
