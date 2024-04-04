@@ -43,6 +43,6 @@ interface SBSensorDataDao {
     fun deletePastData(dataId: Int)
 
     @Query("Select * from SLEEP_DATA where `index`=:index order by `index` DESC LIMIT 1")
-    fun getSensorDataByIndex(index: Int): SBSensorData
+    fun getSensorDataByIndex(index: Int): SBSensorData?
 
 }
