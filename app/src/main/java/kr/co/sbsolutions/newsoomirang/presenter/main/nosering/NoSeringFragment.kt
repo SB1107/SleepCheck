@@ -19,6 +19,7 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -46,6 +47,7 @@ import javax.inject.Inject
 class NoSeringFragment : BluetoothFragment() {
     override val viewModel: NoSeringViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
+    private lateinit var job: Job
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
     }
@@ -61,6 +63,13 @@ class NoSeringFragment : BluetoothFragment() {
         super.onResume()
 //        viewModel.noSeringResult()
         viewModel.setBatteryInfo()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::job.isInitialized){
+            job.cancel()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -106,8 +115,11 @@ class NoSeringFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        if (::job.isInitialized) {
+            job.cancel()
+        }
+        job = lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch{
                     viewModel.userName.collect {
