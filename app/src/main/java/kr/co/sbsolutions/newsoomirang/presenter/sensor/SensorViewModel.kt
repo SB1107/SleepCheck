@@ -69,7 +69,7 @@ class SensorViewModel @Inject constructor(
     private val _bleStateResultText: MutableStateFlow<String?> = MutableStateFlow(null)
     val bleStateResultText: SharedFlow<String?> = _bleStateResultText.asSharedFlow()
 
-    protected val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
 
 //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
@@ -161,100 +161,92 @@ class SensorViewModel @Inject constructor(
     }
 
 
-@SuppressLint("MissingPermission")
-fun scanBLEDevices() {
-    if (!bluetoothAdapter.isEnabled) {
-        _isScanning.tryEmit(false)
-        return
+    @SuppressLint("MissingPermission")
+    fun scanBLEDevices() {
+        if (!bluetoothAdapter.isEnabled) {
+            _isScanning.tryEmit(false)
+            return
+        }
+
+        /*Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(1)} ")
+        Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(2)} ")*/
+
+        viewModelScope.launch(Dispatchers.IO) {
+            startTimer()
+            delay(1000)
+            _scanList.tryEmit(emptyList())
+            _scanSet.clear()
+            bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
+        }
     }
 
-    /*Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(1)} ")
-    Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(2)} ")*/
-
-    viewModelScope.launch(Dispatchers.IO) {
-        startTimer()
-        delay(1000)
-        _scanList.tryEmit(emptyList())
-        _scanSet.clear()
-        bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
+    @SuppressLint("MissingPermission")
+    suspend fun registerDevice(bluetoothDevice: BluetoothDevice) {
+        insertLog("registerDevice 사용자가 시도: ${bluetoothDevice.name}")
+        request { authAPIRepository.postCheckSensor(CheckSensor(sensorName = bluetoothDevice.name)) }
+            .collectLatest {
+                insertLog("registerDevice 서버: ${it.success}  ${it.message}")
+                if (it.success.not()) {
+                    _checkSensorResult.emit(it.message)
+                } else {
+                    stopTimer()
+                    registerBluetoothDevice(bluetoothDevice)
+                }
+            }
     }
-}
 
-@SuppressLint("MissingPermission")
-suspend fun registerDevice(bluetoothDevice: BluetoothDevice) {
-    insertLog("registerDevice 사용자가 시도: ${bluetoothDevice.name}")
-    request { authAPIRepository.postCheckSensor(CheckSensor(sensorName = bluetoothDevice.name)) }
-        .collectLatest {
-            insertLog("registerDevice 서버: ${it.success}  ${it.message}")
-            if (it.success.not()) {
-                _checkSensorResult.emit(it.message)
-            } else {
+    private fun startTimer() {
+        stopTimer()
+
+        _isScanning.tryEmit(true)
+        timer = Timer()
+        timer?.schedule(object : TimerTask() {
+            override fun run() {
                 stopTimer()
-                registerBluetoothDevice(bluetoothDevice)
             }
-        }
-}
-
-private fun startTimer() {
-    stopTimer()
-
-    _isScanning.tryEmit(true)
-    timer = Timer()
-    timer?.schedule(object : TimerTask() {
-        override fun run() {
-            stopTimer()
-        }
-    }, DELAY_TIMEOUT)
-}
-
-private val scanFilter: MutableList<ScanFilter> by lazy {
-    arrayListOf(
-        ScanFilter
-            .Builder()
-            .setServiceUuid(ParcelUuid(UUID.fromString(Cons.SERVICE_STRING)))
-            .build()
-    )
-}
-
-@SuppressLint("MissingPermission")
-private fun stopTimer() {
-    _isScanning.tryEmit(false)
-    timer?.let {
-        bluetoothAdapter.bluetoothLeScanner.stopScan(bleScanCallback)
-        it.cancel()
+        }, DELAY_TIMEOUT)
     }
-    timer = null
-}
 
-override fun whereTag(): String {
-    return "Sensor"
-}
-
-override fun onCleared() {
-    super.onCleared()
-    stopTimer()
-}
-
-private fun deviceConnect(info: BluetoothInfo) {
-    getService()?.connectDevice(info)
-}
-
-@SuppressLint("MissingPermission")
-private fun registerBluetoothDevice(device: BluetoothDevice) {
-    viewModelScope.launch(Dispatchers.IO) {
-        _isBleProgressBar.emit(false)
-        _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
-
-        bluetoothManagerUseCase.registerSBSensor(
-            SBBluetoothDevice.SB_SOOM_SENSOR,
-            device.name,
-            device.address
+    private val scanFilter: MutableList<ScanFilter> by lazy {
+        arrayListOf(
+            ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString(Cons.SERVICE_STRING))).build()
         )
-        getService()?.sbSensorInfo?.collectLatest {
-            if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
-                deviceConnect(it)
-            }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun stopTimer() {
+        _isScanning.tryEmit(false)
+        timer?.let { bluetoothAdapter.bluetoothLeScanner.stopScan(bleScanCallback)
+            it.cancel()
         }
+        timer = null
+    }
+
+    override fun whereTag(): String {
+        return "Sensor"
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopTimer()
+    }
+
+    private fun deviceConnect(info: BluetoothInfo) {
+        getService()?.connectDevice(info)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun registerBluetoothDevice(device: BluetoothDevice) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isBleProgressBar.emit(false)
+            _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
+
+            bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
+            getService()?.sbSensorInfo?.collectLatest {
+                if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
+                    deviceConnect(it)
+                }
+            }
 //            canMeasurement.collectLatest {
 //                Log.d(TAG, "registerBluetoothDevice: $it")
 //                if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready) {
@@ -262,37 +254,36 @@ private fun registerBluetoothDevice(device: BluetoothDevice) {
 //                }
 //            }
 
-    }
-}
-
-
-private val scanSettings: ScanSettings by lazy {
-    ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-}
-private val bleScanCallback = object : ScanCallback() {
-    override fun onScanResult(callbackType: Int, result: ScanResult) {
-        super.onScanResult(callbackType, result)
-        addScanResult(result)
+        }
     }
 
-    override fun onBatchScanResults(results: List<ScanResult>) {
-        for (result in results) {
+
+    private val scanSettings: ScanSettings by lazy {
+        ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
+    }
+    private val bleScanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            super.onScanResult(callbackType, result)
             addScanResult(result)
         }
-    }
 
-    @SuppressLint("MissingPermission")
-    private fun addScanResult(result: ScanResult) {
-        val device = result.device
-        if (_scanSet.add(device)) {
-            _scanList.tryEmit(_scanSet.toList().filter {
-                it.name.uppercase().startsWith("AA")
-                    || it.name.uppercase().startsWith("AB")
-                    || it.name.uppercase().startsWith("AC")
-                    || it.name.uppercase().startsWith("AP")}
-                .sortedBy { it.name })
+        override fun onBatchScanResults(results: List<ScanResult>) {
+            for (result in results) {
+                addScanResult(result)
+            }
+        }
 
+        @SuppressLint("MissingPermission")
+        private fun addScanResult(result: ScanResult) {
+            val device = result.device
+            if (_scanSet.add(device)) {
+                _scanList.tryEmit(_scanSet.toList().filter {
+                    it.name.uppercase().startsWith("AA")
+                            || it.name.uppercase().startsWith("AB")
+                            || it.name.uppercase().startsWith("AC")
+                            || it.name.uppercase().startsWith("AP")
+                }.sortedBy { it.name })
+            }
         }
     }
-}
 }
