@@ -206,4 +206,10 @@ dependencies {
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
     implementation("com.github.skydoves:balloon:1.6.4")
 
+    //Kotlin 코루틴
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+
 }
