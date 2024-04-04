@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.db
 
 import androidx.room.Query
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kr.co.sbsolutions.soomirang.db.SBSensorData
@@ -50,6 +51,10 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
 
     fun getSensorDataByIndex(index: Int) : SBSensorData? {
         return dao.getSensorDataByIndex(index)
+    }
+
+    fun getSensorDataIdBy(dataId: Int) : Flow<List<SBSensorData>> {
+        return  dao.getSensorDataIdBy(dataId)
     }
 
 

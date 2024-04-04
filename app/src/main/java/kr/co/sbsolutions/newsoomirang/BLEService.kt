@@ -880,12 +880,28 @@ class BLEService : LifecycleService() {
     private var timerOfDisconnection: Timer? = null
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
+    private var indexCountCheck: Int = 0
 
     private fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
             withContext(IO) {
-                sbSensorInfo.value.channel.consumeEach {
-                    sbSensorDBRepository.insert(it)
+                sbSensorInfo.value.channel.consumeEach { data ->
+                    val item = sbSensorDBRepository.getSensorDataByIndex(data.index)
+                    item?.let { item ->
+                        if (item.calcAccX == data.calcAccX && item.calcAccY == data.calcAccY && item.calcAccZ == data.calcAccZ && item.capacitance == data.capacitance) {
+                            indexCountCheck += 1
+                        }
+
+
+                    } ?:run {
+                        if (indexCountCheck >= 4 && data.dataId == -1) {
+                            settingDataRepository.getDataId()?.let { dataId ->
+                                sbSensorDBRepository.insert(data.copy(dataId = dataId))
+                            }
+                        } else {
+                            sbSensorDBRepository.insert(data)
+                        }
+                    }
                 }
             }
         }
@@ -922,7 +938,13 @@ class BLEService : LifecycleService() {
 
             lifecycleScope.launch(IO) {
                 launch {
-                    settingDataRepository.getDataId().let { id ->
+                    settingDataRepository.getDataId()?.let {
+                        sbSensorDBRepository.getSensorDataIdBy(it).collect{ data ->
+                            data.map { Log.d(TAG, "setDataFlowFinish: $data")}
+                        }
+                    }
+
+                    /*settingDataRepository.getDataId()?.let { id ->
                         Log.d(TAG, "setDataFlowFinish:  $id")
                         settingDataRepository.getSleepType().let {
                             when (it) {
@@ -951,7 +973,7 @@ class BLEService : LifecycleService() {
                                 }
                             }
                         }
-                    }
+                    }*/
 
                 }
             }

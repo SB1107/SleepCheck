@@ -45,4 +45,7 @@ interface SBSensorDataDao {
     @Query("Select * from SLEEP_DATA where `index`=:index order by `index` DESC LIMIT 1")
     fun getSensorDataByIndex(index: Int): SBSensorData?
 
+    @Query("Select * from SLEEP_DATA where dataId=:dataId")
+    fun getSensorDataIdBy(dataId: Int): Flow<List<SBSensorData>>
+
 }
