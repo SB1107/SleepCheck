@@ -8,6 +8,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -50,7 +51,7 @@ abstract class BaseServiceActivity : BluetoothActivity() {
 
     @CallSuper
     fun onServiceAvailable() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.Main) {
             launch {
                 service.get()?.let {
                     it.sbSensorInfo.collectLatest { info ->
