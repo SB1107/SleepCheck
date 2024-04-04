@@ -60,12 +60,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
-
-
 }
-
-
-
 
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.02.02")
@@ -97,11 +92,11 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //스플레시 스크린
-    implementation("androidx.core:core-splashscreen:1.1.0-alpha02")
+    implementation("androidx.core:core-splashscreen:1.1.0-rc01")
     implementation("androidx.activity:activity-ktx:1.8.2")
 
     //라이프 사이클
-    val lifecycle_version = "2.6.2"
+    val lifecycle_version = "2.7.0"
     implementation ("androidx.lifecycle:lifecycle-service:$lifecycle_version")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
 
@@ -146,11 +141,11 @@ dependencies {
 
     //주입
     val hiltVersion = "2.50"
-    implementation("androidx.hilt:hilt-work:1.1.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
     implementation("com.google.dagger:hilt-android:$hiltVersion")
 //    ksp ("com.google.dagger:dagger-compiler:$hiltVersion") // Dager
     ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
-    ksp("androidx.hilt:hilt-compiler:1.1.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
 
     //통신

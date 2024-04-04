@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -17,13 +16,10 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.common.FCMTokenUpdateHelper
-import kr.co.sbsolutions.newsoomirang.common.LogWorker
 import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import java.lang.ref.WeakReference
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltAndroidApp
