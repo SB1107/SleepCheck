@@ -47,6 +47,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
+import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
@@ -96,6 +97,10 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
+        private  var instance: BLEService? = null
+        fun getInstance(): BLEService? {
+            return  instance
+        }
 
     }
 
@@ -145,6 +150,8 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var uploadWorkerHelper: UploadWorkerHelper
+    @Inject
+    lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
@@ -169,6 +176,7 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         logHelper.insertLog("bleOnCreate")
 
         lifecycleScope.launch(IO) {
@@ -502,6 +510,7 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
+                    serviceLiveCheckWorkerHelper.serviceLiveCheck()
                     val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
@@ -552,17 +561,18 @@ class BLEService : LifecycleService() {
 //                unregisterListenSBSensorState()
                 stopScheduler()
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
+                serviceLiveCheckWorkerHelper.cancelWork()
             }
 
             ActionMessage.CancelSbService -> {
                 val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
                 logHelper.insertLog(message)
+                serviceLiveCheckWorkerHelper.cancelWork()
                 stopScheduler()
                 finishService(-1, false)
                 lifecycleScope.launch(IO) {
                     sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
                 }
-
             }
 
             ActionMessage.StopSBServiceForced -> {

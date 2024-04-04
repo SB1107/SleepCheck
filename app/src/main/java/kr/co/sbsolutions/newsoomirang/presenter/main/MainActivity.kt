@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -68,6 +69,9 @@ class MainActivity : BaseServiceActivity() {
     private val appUpdateManager: AppUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
+    private  val guideAlert : AlertDialog by lazy {
+        guideAlertDialog()
+    }
     private val appUpdateLauncher: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             viewModel.insertLog("Update success")
@@ -113,11 +117,10 @@ class MainActivity : BaseServiceActivity() {
             binding.navBottomView.selectedItemId = R.id.navigation_no_sering
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        guideAlertDialog()
+        guideAlert.show()
         binding.root.viewTreeObserver.addOnGlobalLayoutListener { rootHeight = binding.root.height }
         val logTime = SimpleDateFormat("MM월 dd일 HH시 mm분 ss초", Locale.getDefault()).format(Date(System.currentTimeMillis()))
         logWorkerHelper.insertLog("[M] Model Name: " + Build.MODEL + "  Device Name: " + Build.DEVICE + " 시간 :" + logTime)
@@ -212,6 +215,7 @@ class MainActivity : BaseServiceActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        guideAlert.dismiss()
         Log.d(TAG, "onDestroy: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     }
 }
