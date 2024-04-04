@@ -18,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
+import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
@@ -56,6 +57,8 @@ object ApplicationModule {
     @Provides
     fun provideUploadWorkHelper(workManager: WorkManager) = UploadWorkerHelper(workManager)
 
+    @Provides
+    fun provideServiceLiveWorkHelper(workManager: WorkManager) = ServiceLiveCheckWorkerHelper(workManager)
     @Provides
     fun provideTimeId() = "${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
 

@@ -153,8 +153,8 @@ fun Context.showAlertDialogWithCancel(
 }
 
 @SuppressLint("CutPasteId")
-fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null) {
-    val imageViewPagerAdapter: ImageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
+fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null) : AlertDialog {
+    val imageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
     val dialogView = LayoutInflater.from(this).inflate(R.layout.row_app_guide, null)
     val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
         .setView(dialogView)
@@ -189,7 +189,6 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
     // registering for page change callback
     dialogView.findViewById<ViewPager2>(R.id.vp_2).registerOnPageChangeCallback(
         object : ViewPager2.OnPageChangeCallback() {
-
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
 
@@ -206,7 +205,7 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
             }
         }
     }
-    dialog.show()
+    return  dialog
 }
 
 

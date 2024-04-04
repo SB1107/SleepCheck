@@ -120,8 +120,8 @@ class NoSeringFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch{
                     viewModel.userName.collect {
