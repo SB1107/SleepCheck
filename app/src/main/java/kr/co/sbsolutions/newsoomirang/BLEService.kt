@@ -503,8 +503,8 @@ class BLEService : LifecycleService() {
                 }
             }
             ActionMessage.ReStartSBService ->{
-                startSetting()
                 lifecycleScope.launch(IO) {
+                    startSetting()
                     val hasSensor = dataManager.getHasSensor().first()
                         serviceLiveWorkCheck()
                         val sleepType = settingDataRepository.getSleepType()
