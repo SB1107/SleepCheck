@@ -8,7 +8,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
@@ -179,6 +177,7 @@ class BLEService : LifecycleService() {
         super.onCreate()
         instance = this
         logHelper.insertLog("bleOnCreate")
+        listenChannelMessage()
 
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
@@ -517,7 +516,7 @@ class BLEService : LifecycleService() {
 
 //                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
 //                registerListenSBSensorState()
-                    listenChannelMessage()
+//                    listenChannelMessage()
                     startScheduler()
                     registerDownloadCallback()
                     // uploadStart()
@@ -867,30 +866,64 @@ class BLEService : LifecycleService() {
     private var timerOfDisconnection: Timer? = null
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
-    private var indexCountCheck: Int = 0
 
+
+    @SuppressLint("SimpleDateFormat")
     private fun listenChannelMessage() {
+        var indexCountCheck: Int = 0
+        var firstData : SBSensorData? = null
+        var lastData : SBSensorData? = null
+        var lastIndexCk : Boolean = false
         lifecycleScope.launch(IO) {
-            withContext(IO) {
+            launch {
+                settingDataRepository.getDataId()?.let {
+                    firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
+                    Log.d(TAG, "listenChannelMessage---")
+                    lastData = sbSensorDBRepository.getSensorDataIdByLast(it).first()
+                }
+            }
+
+            launch {
                 sbSensorInfo.value.channel.consumeEach { data ->
                     val item = sbSensorDBRepository.getSensorDataByIndex(data.index)
                     item?.let { item ->
                         if (item.calcAccX == data.calcAccX && item.calcAccY == data.calcAccY && item.calcAccZ == data.calcAccZ && item.capacitance == data.capacitance) {
                             indexCountCheck += 1
+                            Log.d(TAG, "listenChannelMessage000")
                         }
-
-
                     } ?:run {
                         if (indexCountCheck >= 4 && data.dataId == -1) {
-                            settingDataRepository.getDataId()?.let { dataId ->
-                                sbSensorDBRepository.insert(data.copy(dataId = dataId))
-                            }
+                            setDataFlowDBInsert(firstData, data)
+                        } else if (data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0)) {
+                            lastIndexCk = true
+                            setDataFlowDBInsert(firstData, data)
+                        } else if (lastIndexCk) {
+                            setDataFlowDBInsert(firstData, data)
                         } else {
+                            Log.d(TAG, "listenChannelMessage222:")
                             sbSensorDBRepository.insert(data)
                         }
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun setDataFlowDBInsert(
+        firstData: SBSensorData?,
+        data: SBSensorData
+    ) {
+        settingDataRepository.getDataId()?.let { dataId ->
+
+            val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+            val newTime = firstData?.time?.let { format.parse(it) }
+            val time1 = format.format((newTime?.time ?: 0) + (200 * data.index))
+
+            Log.d(TAG, "listenChannelMessage111: $format")
+            Log.d(TAG, "listenChannelMessage111: $newTime")
+            Log.d(TAG, "listenChannelMessage111: $time1")
+
+            data.copy(dataId = dataId, time = time1).let { sbSensorDBRepository.insert(it) }
         }
     }
 
@@ -926,12 +959,14 @@ class BLEService : LifecycleService() {
             lifecycleScope.launch(IO) {
                 launch {
                     settingDataRepository.getDataId()?.let {
-                        sbSensorDBRepository.getSensorDataIdBy(it).collect{ data ->
-                            data.map { Log.d(TAG, "setDataFlowFinish: $data")}
+                        sbSensorDBRepository.getSensorDataIdBy(it).collect { data ->
+//                            data.map { Log.d(TAG, "setDataFlowFinish: $data") }
                         }
                     }
+                }
 
-                    /*settingDataRepository.getDataId()?.let { id ->
+                /*launch {
+                    settingDataRepository.getDataId()?.let { id ->
                         Log.d(TAG, "setDataFlowFinish:  $id")
                         settingDataRepository.getSleepType().let {
                             when (it) {
@@ -942,10 +977,11 @@ class BLEService : LifecycleService() {
                                             logHelper.insertLog("uploading: register")
                                             _resultMessage.emit(UPLOADING)
                                             uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
-    //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
+                                            //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                                         }
                                     }
                                 }
+
                                 SleepType.NoSering.name -> {
                                     sbSensorInfo.value.let {
                                         Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
@@ -960,15 +996,15 @@ class BLEService : LifecycleService() {
                                 }
                             }
                         }
-                    }*/
-
+                    }
+                }*/
                 }
             }
-        }
+
 
     }
 
-    private fun test(isCancel: Boolean = false) {
+    /*private fun test(isCancel: Boolean = false) {
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             stopSBServiceForced(isCancel)
             return
@@ -993,6 +1029,6 @@ class BLEService : LifecycleService() {
 
             }
         }
-    }
+    }*/
 
 }

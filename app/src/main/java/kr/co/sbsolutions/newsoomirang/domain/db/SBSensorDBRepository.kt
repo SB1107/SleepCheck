@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.domain.db
 
-import androidx.room.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
@@ -55,6 +54,20 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
 
     fun getSensorDataIdBy(dataId: Int) : Flow<List<SBSensorData>> {
         return  dao.getSensorDataIdBy(dataId)
+    }
+
+    fun getSensorDataIdByFirst(dataId: Int) : Flow<SBSensorData?> {
+        return  dao.getSensorDataIdByFirst(dataId)
+    }
+    fun getSensorDataIdByLast(dataId: Int) : Flow<SBSensorData?> {
+        return dao.getSensorDataIdByLast(dataId)
+    }
+    fun updateSleepData(sleepData: SBSensorData) {
+        return dao.updateSleepData(sleepData)
+    }
+
+    fun getAllSensorDataList() : Flow<List<SBSensorData>> {
+        return dao.getAllSensorDataList()
     }
 
 

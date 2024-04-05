@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 
@@ -47,5 +48,14 @@ interface SBSensorDataDao {
 
     @Query("Select * from SLEEP_DATA where dataId=:dataId")
     fun getSensorDataIdBy(dataId: Int): Flow<List<SBSensorData>>
+
+    @Query("Select * from SLEEP_DATA where dataId=:dataId order by `index` ASC LIMIT 1")
+    fun getSensorDataIdByFirst(dataId: Int): Flow<SBSensorData?>
+
+    @Query("Select * from SLEEP_DATA where dataId=:dataId order by `index` DESC LIMIT 1")
+    fun getSensorDataIdByLast(dataId: Int): Flow<SBSensorData?>
+
+    @Update
+    fun updateSleepData(sleepData: SBSensorData)
 
 }

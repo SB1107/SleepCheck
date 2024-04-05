@@ -6,7 +6,7 @@ import androidx.room.Entity
 @Entity(tableName = "SLEEP_DATA" , primaryKeys = [ "index","time"])
 data class SBSensorData(
     @ColumnInfo(name = "index" ) val index: Int = 0,
-    @ColumnInfo(name = "time") val time: String,
+    @ColumnInfo(name = "time") var time: String,
     @ColumnInfo(name = "capacitance") val capacitance: Int,
     @ColumnInfo(name = "calcAccX") val calcAccX: String,
     @ColumnInfo(name = "calcAccY") val calcAccY: String,
