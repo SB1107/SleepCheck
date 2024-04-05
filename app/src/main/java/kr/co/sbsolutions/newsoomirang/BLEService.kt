@@ -98,6 +98,7 @@ class BLEService : LifecycleService() {
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
         private var instance: BLEService? = null
+        private  var bluetoothState: BluetoothState = BluetoothState.DisconnectedByUser
         fun getInstance(): BLEService? {
             return instance
         }
@@ -184,6 +185,7 @@ class BLEService : LifecycleService() {
             timeHelper.measuringTimer.collectLatest {
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
                 notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                dataManager.saveTimer(timeHelper.getTime().toString())
             }
         }
 
@@ -247,25 +249,22 @@ class BLEService : LifecycleService() {
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
+                    bluetoothState = BluetoothState.Connected.Init
                     //Log.d(TAG, "[RCV] ACTION_ACL_CONNECTED ${device?.name} / ${device?.address}")
                 }
 
                 BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
                     //Log.d(TAG, "[RCV] ACTION_ACL_DISCONNECTED ${device?.name} / ${device?.address}")
+                    bluetoothState = BluetoothState.DisconnectedByUser
                 }
             }
         }
     }
 
-    fun timerOfDisconnection() {
-        timerOfDisconnection?.cancel()
-        timerOfDisconnection = null
-    }
-
     private val mFilter = IntentFilter().apply {
         addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
         addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
-        //addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+        addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
 
     fun connectDevice(bluetoothInfo: BluetoothInfo) {
@@ -305,9 +304,6 @@ class BLEService : LifecycleService() {
                 bluetoothDevice?.createBond()
                 bluetoothAdapter?.cancelDiscovery()
             }
-
-            Log.i(TAG, "Connected device11: ${device.address}")
-            Log.i(TAG, "Connected device11: ${device.bondState}")
         }
     }
 
@@ -512,14 +508,17 @@ class BLEService : LifecycleService() {
                         else PendingIntent.FLAG_UPDATE_CURRENT
                     )
                     notificationBuilder.setContentIntent(pendingIntent)
-
-//                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID,notificationBuilder.build())
-//                registerListenSBSensorState()
                     listenChannelMessage()
                     startScheduler()
                     registerDownloadCallback()
-                    // uploadStart()
-                    //startNotification()
+                    if (dataManager.getHasSensor().first().not() && bluetoothState == BluetoothState.DisconnectedByUser) {
+                        connectDevice(sbSensorInfo.value)
+                        dataManager.getTimer().first()?.let {
+                            timeHelper.setTime(it.toInt())
+                            startTimer()
+                            audioHelper.startAudioClassification()
+                        }
+                    }
                     try {
                         ServiceCompat.startForeground(
                             this@BLEService, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),

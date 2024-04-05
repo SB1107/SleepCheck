@@ -14,7 +14,7 @@ class ServiceLiveCheckWorkerHelper @Inject constructor(
 ) {
     private val uuid = UUID.randomUUID()
     fun serviceLiveCheck(): LiveData<WorkInfo> {
-        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(30, TimeUnit.MINUTES).apply {
+        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(5, TimeUnit.MINUTES).apply {
             setId(uuid)
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,

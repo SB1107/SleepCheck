@@ -30,8 +30,8 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val isServiceRunning =  BLEService.getInstance()?.isForegroundServiceRunning() ?: false
-            logHelper.insertLog("service live check = $isServiceRunning")
             if (isServiceRunning.not()) {
+                logHelper.insertLog("service live check = $isServiceRunning")
                 Intent(context, BLEService::class.java).apply {
                     action = ActionMessage.StartSBService.msg
                     context.startForegroundService(this)

@@ -13,7 +13,7 @@ class DataManager(private val context: Context) {
     companion object {
         private val KEY_IS_FIRST_EXECUTE = booleanPreferencesKey("is_first_execute")
         private val KEY_DATA_ID = intPreferencesKey("data_id")
-        private val APP_UPDATE_CHECK = stringPreferencesKey("app_update_check")
+        private val APP_TIMER = stringPreferencesKey("app_timer")
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
@@ -128,15 +128,15 @@ class DataManager(private val context: Context) {
     }
 
 
-    suspend fun saveUpdateVersionCheck(version: String) {
+    suspend fun saveTimer(version: String) {
         context.dataStore.edit { preferences ->
-            preferences[APP_UPDATE_CHECK] = version
+            preferences[APP_TIMER] = version
         }
     }
 
-    fun getUpdateVersionCheck(): Flow<String?> {
+    fun getTimer(): Flow<String?> {
         return context.dataStore.data.map { preferences ->
-            preferences[APP_UPDATE_CHECK]
+            preferences[APP_TIMER] ?: "0"
         }
     }
 }
