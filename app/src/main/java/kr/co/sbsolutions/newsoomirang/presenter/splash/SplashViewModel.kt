@@ -32,7 +32,7 @@ class SplashViewModel @Inject constructor(
         gotoLogin()
         getFcmToken()
     }
-    fun getFcmToken() {
+    private fun getFcmToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
 
             if (!it.isSuccessful) {
@@ -50,7 +50,7 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    fun gotoLogin() {
+    private fun gotoLogin() {
         viewModelScope.launch {
             delay(2000)
             _nextProcess.emit(true)
