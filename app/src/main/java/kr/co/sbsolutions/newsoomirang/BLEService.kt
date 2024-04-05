@@ -8,7 +8,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -98,11 +97,10 @@ class BLEService : LifecycleService() {
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
         private var instance: BLEService? = null
-        private  var bluetoothState: BluetoothState = BluetoothState.DisconnectedByUser
+        private var bluetoothState: BluetoothState = BluetoothState.DisconnectedByUser
         fun getInstance(): BLEService? {
             return instance
         }
-
     }
 
     private val audioHelper: AudioClassificationHelper by lazy {
@@ -185,7 +183,8 @@ class BLEService : LifecycleService() {
             timeHelper.measuringTimer.collectLatest {
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
                 notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-                dataManager.saveTimer(timeHelper.getTime().toString())
+                dataManager.setTimer(timeHelper.getTime())
+                dataManager.setNoseRingTimer(noseRingHelper.getSnoreTime())
             }
         }
 
@@ -514,7 +513,8 @@ class BLEService : LifecycleService() {
                     if (dataManager.getHasSensor().first().not() && bluetoothState == BluetoothState.DisconnectedByUser) {
                         connectDevice(sbSensorInfo.value)
                         dataManager.getTimer().first()?.let {
-                            timeHelper.setTime(it.toInt())
+                            timeHelper.setTime(it)
+                            noseRingHelper.setSnoreTime(dataManager.getNoseRingTimer().first() ?: 0L)
                             startTimer()
                             audioHelper.startAudioClassification()
                         }
@@ -726,7 +726,7 @@ class BLEService : LifecycleService() {
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
-                noSering(isCancel , true)
+                noSering(isCancel, true)
             }
         }
 
@@ -835,6 +835,10 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
         noseRingHelper.clearData()
         logHelper.insertLog("finishService")
+        lifecycleScope.launch {
+            dataManager.setNoseRingTimer(0L)
+            dataManager.setTimer(0)
+        }
     }
 
     private fun uploading(dataId: Int, file: File?, list: List<SBSensorData>, isLast: Boolean = false, isForcedClose: Boolean = false, sleepType: SleepType, snoreTime: Long = 0, sensorName: String) {

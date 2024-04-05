@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 
 class DataManager(private val context: Context) {
     companion object {
         private val KEY_IS_FIRST_EXECUTE = booleanPreferencesKey("is_first_execute")
-        private val KEY_DATA_ID = intPreferencesKey("data_id")
-        private val APP_TIMER = stringPreferencesKey("app_timer")
+        private val NOSE_RING_TIME = longPreferencesKey("nose_ring_time")
+        private val APP_TIMER = intPreferencesKey("app_timer")
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
@@ -24,23 +24,7 @@ class DataManager(private val context: Context) {
 
     }
 
-    suspend fun setDataId(dataId: Int) {
-        context.dataStore.edit { preferences ->
-            preferences[KEY_DATA_ID] = dataId
-        }
-    }
 
-    suspend fun resetDataId() {
-        context.dataStore.edit { preferences ->
-            preferences.remove(KEY_DATA_ID)
-        }
-    }
-
-    fun getDataId(): Flow<Int?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[KEY_DATA_ID]
-        }
-    }
 
     fun isFirstExecute(): Flow<Boolean> {
         return context.dataStore.data.map { preferences ->
@@ -128,15 +112,27 @@ class DataManager(private val context: Context) {
     }
 
 
-    suspend fun saveTimer(version: String) {
-        context.dataStore.edit { preferences ->
-            preferences[APP_TIMER] = version
+    suspend fun setTimer(timer: Int) {
+        context.moveStore.edit { preferences ->
+            preferences[APP_TIMER] = timer
         }
     }
 
-    fun getTimer(): Flow<String?> {
-        return context.dataStore.data.map { preferences ->
-            preferences[APP_TIMER] ?: "0"
+    fun getTimer(): Flow<Int?> {
+        return context.moveStore.data.map { preferences ->
+            preferences[APP_TIMER]
+        }
+    }
+    suspend fun setNoseRingTimer(time: Long) {
+        context.moveStore.edit { preferences ->
+            preferences[NOSE_RING_TIME] = time
+        }
+    }
+
+
+    fun getNoseRingTimer(): Flow<Long?> {
+        return context.moveStore.data.map { preferences ->
+            preferences[NOSE_RING_TIME]
         }
     }
 }
