@@ -28,8 +28,10 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -103,14 +105,16 @@ class BLEService : LifecycleService() {
     }
 
     private val audioHelper: AudioClassificationHelper by lazy {
-        AudioClassificationHelper(this, object : AudioClassificationHelper.AudioClassificationListener {
-            override fun onError(error: String?) {
-            }
+        AudioClassificationHelper(
+            this,
+            object : AudioClassificationHelper.AudioClassificationListener {
+                override fun onError(error: String?) {
+                }
 
-            override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
-                noseRingHelper.noSeringResult(results, inferenceTime)
-            }
-        })
+                override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
+                    noseRingHelper.noSeringResult(results, inferenceTime)
+                }
+            })
     }
 
     @Inject
@@ -175,14 +179,26 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "onCreate: dataID ${sbSensorInfo.value.dataId}")
         instance = this
         logHelper.insertLog("bleOnCreate")
         listenChannelMessage()
 
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
-                notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                notificationBuilder.setContentText(
+                    String.format(
+                        Locale.KOREA,
+                        "%02d:%02d:%02d",
+                        it.first,
+                        it.second,
+                        it.third
+                    )
+                )
+                notificationManager.notify(
+                    FOREGROUND_SERVICE_NOTIFICATION_ID,
+                    notificationBuilder.build()
+                )
             }
         }
 
@@ -211,10 +227,11 @@ class BLEService : LifecycleService() {
         }
         createNotificationChannel()
 
-        requestHelper = RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
-            .apply {
-                setLogWorkerHelper(logHelper)
-            }
+        requestHelper =
+            RequestHelper(lifecycleScope, dataManager = dataManager, tokenManager = tokenManager)
+                .apply {
+                    setLogWorkerHelper(logHelper)
+                }
         setDataFlowFinish()
     }
 
@@ -228,7 +245,10 @@ class BLEService : LifecycleService() {
 
             when (intent.action) {
                 BluetoothAdapter.ACTION_STATE_CHANGED -> {
-                    when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
+                    when (intent.getIntExtra(
+                        BluetoothAdapter.EXTRA_STATE,
+                        BluetoothAdapter.ERROR
+                    )) {
                         BluetoothAdapter.STATE_OFF -> {
                             bluetoothNetworkRepository.changeBluetoothState(false)
                         }
@@ -273,7 +293,11 @@ class BLEService : LifecycleService() {
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothInfo.bluetoothAddress)
 
         bluetoothInfo.bluetoothGatt =
-            device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
+            device?.connectGatt(
+                baseContext,
+                true,
+                bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice)
+            )
         Log.d(TAG, "getCallback: ${bluetoothInfo.bluetoothGatt} ")
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
@@ -318,7 +342,9 @@ class BLEService : LifecycleService() {
 
     private fun notVibrationNotifyChannelCreate() {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+            NOTIFICATION_CHANNEL_ID,
+            Cons.NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_LOW
         ).apply {
             enableVibration(false)
         }
@@ -502,14 +528,18 @@ class BLEService : LifecycleService() {
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
                     }
-                    sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+                    sbSensorInfo.value.sleepType =
+                        if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
                     logHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                     notificationBuilder.setContentTitle("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 중")
                     val pendingIntent = PendingIntent.getActivity(
-                        this@BLEService, NOTIFICATION_ID, Intent(this@BLEService, SplashActivity::class.java).apply {
+                        this@BLEService,
+                        NOTIFICATION_ID,
+                        Intent(this@BLEService, SplashActivity::class.java).apply {
                             this.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                             putExtra("data", sbSensorInfo.value.sleepType.ordinal)
-                        }, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        },
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         else PendingIntent.FLAG_UPDATE_CURRENT
                     )
                     notificationBuilder.setContentIntent(pendingIntent)
@@ -523,7 +553,9 @@ class BLEService : LifecycleService() {
                     //startNotification()
                     try {
                         ServiceCompat.startForeground(
-                            this@BLEService, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
+                            this@BLEService,
+                            FOREGROUND_SERVICE_NOTIFICATION_ID,
+                            notificationBuilder.build(),
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                 ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
                             } else {
@@ -541,7 +573,8 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.StopSBService -> {
-                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
+                val message =
+                    "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
                 notificationBuilder.setContentTitle(message)
                 logHelper.insertLog(message)
                 // TODO 1.Cancel Alarm Manager 2.UploadAPI(End)
@@ -552,7 +585,8 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.CancelSbService -> {
-                val message = "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
+                val message =
+                    "${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
                 logHelper.insertLog(message)
                 serviceLiveCheckWorkerHelper.cancelWork()
                 stopScheduler()
@@ -631,7 +665,8 @@ class BLEService : LifecycleService() {
                     lifecycleScope.launch(IO) {
                         val max = sbSensorDBRepository.getMaxIndex(dataId)
                         val min = sbSensorDBRepository.getMinIndex(dataId)
-                        val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                        val size =
+                            sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
                         logHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
@@ -655,7 +690,9 @@ class BLEService : LifecycleService() {
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
+            NOTIFICATION_CHANNEL_ID,
+            Cons.NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
     }
@@ -673,7 +710,7 @@ class BLEService : LifecycleService() {
             sbSensorInfo.value.dataId?.let { dataId ->
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
-                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
                 send(size < 1000)
                 close()
             } ?: run {
@@ -728,7 +765,7 @@ class BLEService : LifecycleService() {
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
             } else {
-                noSering(isCancel , true)
+                noSering(isCancel, true)
             }
         }
 
@@ -748,7 +785,13 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        uploadWorker(dataId, false, it.sleepType, (noseRingHelper.getSnoreTime() / 1000) / 60, if (hasSensor) checkDataSize().first() else true)
+                        uploadWorker(
+                            dataId,
+                            false,
+                            it.sleepType,
+                            (noseRingHelper.getSnoreTime() / 1000) / 60,
+                            if (hasSensor) checkDataSize().first() else true
+                        )
                     }
                 }
             }
@@ -782,7 +825,7 @@ class BLEService : LifecycleService() {
         lifecycleScope.launch(IO) {
             //val max = sbSensorDBRepository.getMaxIndex(dataId, name)
             val min = sbSensorDBRepository.getMinIndex(dataId)
-            val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+            val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
 
             Log.d(TAG, "exportFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
             logHelper.insertLog("exportFile - Size : $size")
@@ -793,7 +836,7 @@ class BLEService : LifecycleService() {
                 return@launch
             }
 
-            val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
+            val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
             val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
             val filePath = "$filesDir/${time}($dataId).csv"
             val file = File(filePath)
@@ -866,22 +909,24 @@ class BLEService : LifecycleService() {
     private var timerOfDisconnection: Timer? = null
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
+    private var lastIndexCk: Boolean = false
+
+
 
 
     @SuppressLint("SimpleDateFormat")
     private fun listenChannelMessage() {
         var indexCountCheck: Int = 0
-        var firstData : SBSensorData? = null
-        var lastData : SBSensorData? = null
-        var lastIndexCk : Boolean = false
+        var firstData: SBSensorData? = null
+        var lastData: SBSensorData? = null
         lifecycleScope.launch(IO) {
-            launch {
+            async {
                 settingDataRepository.getDataId()?.let {
                     firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
                     Log.d(TAG, "listenChannelMessage---")
                     lastData = sbSensorDBRepository.getSensorDataIdByLast(it).first()
                 }
-            }
+            }.await()
 
             launch {
                 sbSensorInfo.value.channel.consumeEach { data ->
@@ -889,19 +934,36 @@ class BLEService : LifecycleService() {
                     item?.let { item ->
                         if (item.calcAccX == data.calcAccX && item.calcAccY == data.calcAccY && item.calcAccZ == data.calcAccZ && item.capacitance == data.capacitance) {
                             indexCountCheck += 1
-                            Log.d(TAG, "listenChannelMessage000")
+                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
                         }
-                    } ?:run {
-                        if (indexCountCheck >= 4 && data.dataId == -1) {
-                            setDataFlowDBInsert(firstData, data)
-                        } else if (data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0)) {
-                            lastIndexCk = true
-                            setDataFlowDBInsert(firstData, data)
-                        } else if (lastIndexCk) {
-                            setDataFlowDBInsert(firstData, data)
-                        } else {
-                            Log.d(TAG, "listenChannelMessage222:")
-                            sbSensorDBRepository.insert(data)
+                    } ?: run {
+                        when {
+                            indexCountCheck >= 4 && data.dataId == -1 -> {
+                                Log.d(TAG, "listenChannelMessage000: $data")
+                                setDataFlowDBInsert(firstData, data)
+                            }
+
+                            data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0) -> {
+                                Log.d(TAG, "listenChannelMessage111: $data")
+                                lastIndexCk = true
+                                setDataFlowDBInsert(firstData, data)
+                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk)
+                            }
+
+                            lastIndexCk -> {
+                                Log.d(TAG, "listenChannelMessage222: $data")
+                                setDataFlowDBInsert(firstData, data)
+                            }
+
+                            data.dataId != -1 && data.time.contains("1970") -> {
+                                Log.d(TAG, "listenChannelMessage333: $data")
+                                setDataFlowDBInsert(firstData, data)
+                            }
+
+                            else -> {
+                                Log.d(TAG, "listenChannelMessage444: $data")
+                                sbSensorDBRepository.insert(data)
+                            }
                         }
                     }
                 }
@@ -919,9 +981,9 @@ class BLEService : LifecycleService() {
             val newTime = firstData?.time?.let { format.parse(it) }
             val time1 = format.format((newTime?.time ?: 0) + (200 * data.index))
 
-            Log.d(TAG, "listenChannelMessage111: $format")
+            /*Log.d(TAG, "listenChannelMessage111: $format")
             Log.d(TAG, "listenChannelMessage111: $newTime")
-            Log.d(TAG, "listenChannelMessage111: $time1")
+            Log.d(TAG, "listenChannelMessage111: $time1")*/
 
             data.copy(dataId = dataId, time = time1).let { sbSensorDBRepository.insert(it) }
         }
@@ -952,20 +1014,25 @@ class BLEService : LifecycleService() {
     }
 
     private fun setDataFlowFinish() {
-        bluetoothNetworkRepository.setDataFlowForceFinish {
+        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
             Log.d(TAG, "setDataFlowFinish: callback")
 //            test()
-
             lifecycleScope.launch(IO) {
-                launch {
-                    settingDataRepository.getDataId()?.let {
-                        sbSensorDBRepository.getSensorDataIdBy(it).collect { data ->
-//                            data.map { Log.d(TAG, "setDataFlowFinish: $data") }
+                async {
+                    if (lastIndex) {
+                        Log.d(TAG, "나 들어왔다.!!!!!!!!!!!!")
+                        settingDataRepository.getDataId()?.let {
+                            val firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
+                            sbSensorDBRepository.getSensorDataIdBy(-1).collect { item ->
+                                item.map {
+                                    setDataFlowDBInsert(firstData, it)
+                                }
+                            }
                         }
                     }
-                }
+                }.await()
 
-                /*launch {
+                launch {
                     settingDataRepository.getDataId()?.let { id ->
                         Log.d(TAG, "setDataFlowFinish:  $id")
                         settingDataRepository.getSleepType().let {
@@ -974,7 +1041,7 @@ class BLEService : LifecycleService() {
                                     sbSensorInfo.value.let {
                                         Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
                                         lifecycleScope.launch(IO) {
-                                            logHelper.insertLog("uploading: register")
+                                            logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
                                             _resultMessage.emit(UPLOADING)
                                             uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
                                             //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
@@ -986,7 +1053,7 @@ class BLEService : LifecycleService() {
                                     sbSensorInfo.value.let {
                                         Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
                                         lifecycleScope.launch(IO) {
-                                            logHelper.insertLog("uploading: register")
+                                            logHelper.insertLog("uploading:코골이 dataFlow 좀비 업로드")
                                             _resultMessage.emit(UPLOADING)
                                             uploadWorker(id, false, SleepType.NoSering, it.snoreTime)
 //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
@@ -997,9 +1064,9 @@ class BLEService : LifecycleService() {
                             }
                         }
                     }
-                }*/
                 }
             }
+        }
 
 
     }

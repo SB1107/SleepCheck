@@ -21,12 +21,11 @@ interface SBSensorDataDao {
     @Query("SELECT * FROM SLEEP_DATA order by `index`  ASC")
     fun getAllSensorDataList(): Flow<List<SBSensorData>>
 
-    @Transaction
     @Query("SELECT * FROM SLEEP_DATA where dataId=:dataId AND `index` >= :min AND `index` <= :max order by `index` ASC")
-    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int): List<SBSensorData>
+    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int): Flow<List<SBSensorData>>
 
     @Query("SELECT COUNT(*) FROM SLEEP_DATA where dataId=:dataId AND `index` >= :min AND `index` <= :max order by time ASC")
-    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int): Int
+    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int): Flow<Int>
 
     @Query("SELECT `index` FROM SLEEP_DATA where dataId=:dataId order by `index` DESC LIMIT 1")
     fun getMaxIndex(dataId: Int): Int

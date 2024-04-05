@@ -18,11 +18,11 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
         dao.deleteSensorDataAll()
     }
 
-    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int) : List<SBSensorData> {
+    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int) : Flow<List<SBSensorData>> {
         return dao.getSelectedSensorDataListByIndex(dataId, min, max)
     }
 
-    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int) : Int{
+    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int) : Flow<Int>{
         return dao.getSelectedSensorDataListCount(dataId, min, max)
     }
 
