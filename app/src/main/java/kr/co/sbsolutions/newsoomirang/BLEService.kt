@@ -503,23 +503,24 @@ class BLEService : LifecycleService() {
                 }
             }
             ActionMessage.ReStartSBService ->{
+                startSetting()
                 lifecycleScope.launch(IO) {
-                    serviceLiveWorkCheck()
-                    val sleepType = settingDataRepository.getSleepType()
-                    settingDataRepository.getDataId()?.let {
-                        sbSensorInfo.value.dataId = it
-                    }
-                    sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
-                    logHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 리 스타트")
-                    startSetting()
-                    if (dataManager.getHasSensor().first().not() && bluetoothState == BluetoothState.Disconnected) {
-                        connectDevice(sbSensorInfo.value)
+                    val hasSensor = dataManager.getHasSensor().first()
+                        serviceLiveWorkCheck()
+                        val sleepType = settingDataRepository.getSleepType()
+                        settingDataRepository.getDataId()?.let {
+                            sbSensorInfo.value.dataId = it
+                        }
+                        sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+                        logHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 리 스타트")
                         dataManager.getTimer().first()?.let {
                             timeHelper.setTime(it)
                             noseRingHelper.setSnoreTime(dataManager.getNoseRingTimer().first() ?: 0L)
                             startTimer()
                             audioHelper.startAudioClassification()
                         }
+                    if ( hasSensor && bluetoothState == BluetoothState.Disconnected) {
+                        connectDevice(sbSensorInfo.value)
                     }
 
                 }
@@ -706,6 +707,7 @@ class BLEService : LifecycleService() {
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
+            dataManager.setHasSensor(true)
         }
         startTimer()
         audioHelper.startAudioClassification()
@@ -726,10 +728,7 @@ class BLEService : LifecycleService() {
     fun stopSBSensor(isCancel: Boolean = false) {
         notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         stopTimer()
-
         stopAudioClassification()
-//        if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.NoSering) {
-//        }
 
         logHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}   $isCancel")
         Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
