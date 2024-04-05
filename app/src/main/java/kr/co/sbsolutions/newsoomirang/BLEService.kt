@@ -274,9 +274,6 @@ class BLEService : LifecycleService() {
 
         bluetoothInfo.bluetoothGatt =
             device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(bluetoothInfo.sbBluetoothDevice))
-                ?.apply {
-                    setPreferredPhy(BluetoothDevice.PHY_LE_1M_MASK, BluetoothDevice.PHY_LE_1M_MASK, BluetoothGatt.CONNECTION_PRIORITY_HIGH)
-                }
         Log.d(TAG, "getCallback: ${bluetoothInfo.bluetoothGatt} ")
         timerOfDisconnection?.cancel()
         timerOfDisconnection = Timer().apply {
@@ -348,17 +345,6 @@ class BLEService : LifecycleService() {
         bluetoothNetworkRepository.releaseResource()
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        super.onTaskRemoved(rootIntent)
-        logHelper.insertLog { onTaskRemoved(rootIntent) }
-        if (isForegroundServiceRunning().not()) {
-            Intent(this, BLEService::class.java).apply {
-                action = ActionMessage.StartSBService.msg
-                baseContext.startForegroundService(this)
-                logHelper.insertLog("서비스 재시작 콜")
-            }
-        }
-    }
     /*
     // Job Scheduler 미사용 - Doze Issue
     private val jobScheduler : JobScheduler by lazy {
@@ -561,6 +547,7 @@ class BLEService : LifecycleService() {
 //                unregisterListenSBSensorState()
                 stopScheduler()
                 bluetoothNetworkRepository.operateDownloadSbSensor(false)
+                serviceLiveCheckWorkerHelper.cancelWork()
             }
 
             ActionMessage.CancelSbService -> {

@@ -19,7 +19,6 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     dataManager: DataManager,
     tokenManager: TokenManager,
-    private val kaKaoLinkHelper: KaKaoLinkHelper,
     private val authDataSource: RemoteAuthDataSource
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _sleepYearData: MutableSharedFlow<SleepDateEntity> = MutableSharedFlow()

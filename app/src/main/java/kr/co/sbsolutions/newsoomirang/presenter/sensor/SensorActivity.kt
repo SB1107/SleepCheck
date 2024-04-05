@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -24,8 +25,11 @@ import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
@@ -90,37 +94,38 @@ class SensorActivity : BluetoothActivity() {
         viewModel.checkDeviceScan()
     }
 
-        private fun setToolTip(message: String) {
-            if (::tooltip.isInitialized) {
-                tooltip.dismiss()
-            }
+    private fun setToolTip(message: String) {
+        if (::tooltip.isInitialized) {
+            tooltip.dismiss()
+        }
 
-            tooltip = Balloon.Builder(this)
-                .setTextIsHtml(true)
-                .setAutoDismissDuration(2000)
-                .setHeight(BalloonSizeSpec.WRAP)
-                .setText(message)
-                .setTextColor(Color.BLACK)
-                .setTextSize(24f)
-                .setTextLineSpacing(7f)
-                .setTextGravity(Gravity.START)
-                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                .setArrowSize(10)
-                .setArrowPosition(0.5f)
-                .setPadding(30)
-                .setMargin(16)
-                .setCornerRadius(8f)
-                .setBackgroundColor(Color.parseColor("#FFDB1C"))
-                .setBalloonAnimation(BalloonAnimation.OVERSHOOT)
-                .setIsVisibleOverlay(true)
-                .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
-                .setOverlayColor(Color.parseColor("#CC000000"))
-                .setOverlayPadding(4f)
-                .setBalloonOverlayAnimation(BalloonOverlayAnimation.FADE)
-                .setLifecycleOwner(this)
-                .build()
+        tooltip = Balloon.Builder(this)
+            .setTextIsHtml(true)
+            .setAutoDismissDuration(2000)
+            .setHeight(BalloonSizeSpec.WRAP)
+            .setText(message)
+            .setTextColor(Color.BLACK)
+            .setTextSize(24f)
+            .setTextLineSpacing(7f)
+            .setTextGravity(Gravity.START)
+            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+            .setArrowSize(10)
+            .setArrowPosition(0.5f)
+            .setPadding(30)
+            .setMargin(16)
+            .setCornerRadius(8f)
+            .setBackgroundColor(Color.parseColor("#FFDB1C"))
+            .setBalloonAnimation(BalloonAnimation.OVERSHOOT)
+            .setIsVisibleOverlay(true)
+            .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
+            .setOverlayColor(Color.parseColor("#CC000000"))
+            .setOverlayPadding(4f)
+            .setBalloonOverlayAnimation(BalloonOverlayAnimation.FADE)
+            .setLifecycleOwner(this)
+            .build()
 
     }
+
     private fun bindViews() {
         with(binding) {
             deviceRecyclerView.apply {
@@ -149,7 +154,7 @@ class SensorActivity : BluetoothActivity() {
         }
 
         with(viewModel) {
-            lifecycleScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                     launch {
@@ -212,9 +217,19 @@ class SensorActivity : BluetoothActivity() {
                     }
 
                     launch {
-                        scanList.collectLatest { list ->
+                        scanList.map { list ->
+                            list.filter {
+                                it.name.uppercase().startsWith("AA")
+                                        || it.name.uppercase().startsWith("AB")
+                                        || it.name.uppercase().startsWith("AC")
+                                        || it.name.uppercase().startsWith("AP")
+                            }.sortedBy { it.name }
+                        }.collectLatest { list ->
                             bleAdapter.submitList(list)
                         }
+//                        scanList.collectLatest { list ->
+//                            bleAdapter.submitList(list)
+//                        }
                     }
 
                     launch {

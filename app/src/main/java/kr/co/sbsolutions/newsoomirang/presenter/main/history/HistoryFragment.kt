@@ -307,7 +307,7 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setObservers() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.sleepYearData.collectLatest {

@@ -12,10 +12,12 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -53,21 +55,19 @@ class SensorViewModel @Inject constructor(
     }
 
     private val _isScanning: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    val isScanning: SharedFlow<Boolean?> = _isScanning.asSharedFlow()
-
+    val isScanning: StateFlow<Boolean?> = _isScanning
 
     private val _scanList: MutableStateFlow<List<BluetoothDevice>> = MutableStateFlow(emptyList())
-    val scanList: SharedFlow<List<BluetoothDevice>> = _scanList.asSharedFlow()
+    val scanList: StateFlow<List<BluetoothDevice>> = _scanList
 
     private val _bleName: MutableStateFlow<String?> = MutableStateFlow(null)
-    val bleName: SharedFlow<String?> = _bleName.asSharedFlow()
-
+    val bleName: StateFlow<String?> = _bleName
 
     private val _checkSensorResult: MutableStateFlow<String?> = MutableStateFlow(null)
-    val checkSensorResult: SharedFlow<String?> = _checkSensorResult.asSharedFlow()
+    val checkSensorResult: StateFlow<String?> = _checkSensorResult
 
     private val _bleStateResultText: MutableStateFlow<String?> = MutableStateFlow(null)
-    val bleStateResultText: SharedFlow<String?> = _bleStateResultText.asSharedFlow()
+    val bleStateResultText: StateFlow<String?> = _bleStateResultText
 
     private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
@@ -277,12 +277,7 @@ class SensorViewModel @Inject constructor(
         private fun addScanResult(result: ScanResult) {
             val device = result.device
             if (_scanSet.add(device)) {
-                _scanList.tryEmit(_scanSet.toList().filter {
-                    it.name.uppercase().startsWith("AA")
-                            || it.name.uppercase().startsWith("AB")
-                            || it.name.uppercase().startsWith("AC")
-                            || it.name.uppercase().startsWith("AP")
-                }.sortedBy { it.name })
+                    _scanList.tryEmit(_scanSet.toList())
             }
         }
     }

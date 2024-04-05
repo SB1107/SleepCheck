@@ -19,7 +19,6 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,8 +26,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
@@ -41,13 +38,11 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class NoSeringFragment : BluetoothFragment() {
     override val viewModel: NoSeringViewModel by viewModels()
     private val activityViewModel: MainViewModel by activityViewModels()
-    private lateinit var job: Job
     private val binding: FragmentNoSeringBinding by lazy {
         FragmentNoSeringBinding.inflate(layoutInflater)
     }
@@ -65,12 +60,6 @@ class NoSeringFragment : BluetoothFragment() {
         viewModel.setBatteryInfo()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        if (::job.isInitialized){
-            job.cancel()
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -115,11 +104,8 @@ class NoSeringFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        if (::job.isInitialized) {
-            job.cancel()
-        }
-        job = lifecycleScope.launch(Dispatchers.Main) {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch{
                     viewModel.userName.collect {

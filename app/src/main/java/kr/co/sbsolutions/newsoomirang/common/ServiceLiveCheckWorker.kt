@@ -35,7 +35,7 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
                 Intent(context, BLEService::class.java).apply {
                     action = ActionMessage.StartSBService.msg
                     context.startForegroundService(this)
-                    logHelper.insertLog("서비스 재시작 콜")
+                    logHelper.insertLog("ServiceLiveCheckWorker 서비스 재시작 콜")
                 }
             }
             return@withContext Result.success()
