@@ -26,8 +26,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
@@ -40,7 +38,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class NoSeringFragment : BluetoothFragment() {
@@ -62,6 +59,7 @@ class NoSeringFragment : BluetoothFragment() {
 //        viewModel.noSeringResult()
         viewModel.setBatteryInfo()
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -106,7 +104,7 @@ class NoSeringFragment : BluetoothFragment() {
     }
 
     private fun setObservers() {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 //유저이름 전달
                 launch{

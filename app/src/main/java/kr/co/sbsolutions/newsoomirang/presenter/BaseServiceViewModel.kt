@@ -6,10 +6,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
@@ -42,9 +44,9 @@ abstract class BaseServiceViewModel(
 //    val canMeasurement: SharedFlow<Boolean> = _canMeasurement
     private val _bluetoothButtonState: MutableStateFlow<String> = MutableStateFlow("시작")
 //    val bluetoothButtonState: SharedFlow<String> = _bluetoothButtonState.asSharedFlow()
-    val  canMeasurementAndBluetoothButtonState = _bluetoothButtonState.combine(_canMeasurement){ bluetoothButtonState,canMeasurement  ->
+    val  canMeasurementAndBluetoothButtonState : StateFlow<Pair<Boolean, String>> = _bluetoothButtonState.combine(_canMeasurement){ bluetoothButtonState,canMeasurement  ->
     Pair(canMeasurement, bluetoothButtonState)
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(true, "시작"))
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
     private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =

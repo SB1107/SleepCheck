@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.PERMISSION_REQUEST_CODE
@@ -48,11 +49,10 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 //        splashScreen.setKeepOnScreenCondition{true}
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            launch {
+        lifecycleScope.launch {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
-                        viewModel.nextProcess.collectLatest {
+                        viewModel.nextProcess.filter { it }.collectLatest {
                             refreshPermissionViews()
                         }
                     }
@@ -77,8 +77,6 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
 
-
-        }
     }
 
     private fun refreshPermissionViews() {

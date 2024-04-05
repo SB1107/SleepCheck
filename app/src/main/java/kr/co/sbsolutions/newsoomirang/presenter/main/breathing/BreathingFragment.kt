@@ -121,7 +121,7 @@ class BreathingFragment : BluetoothFragment() {
         if (::job.isInitialized) {
             job.cancel()
         }
-        job = lifecycleScope.launch(Dispatchers.Main) {
+        job = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 //유저이름 전달

@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
@@ -21,17 +22,17 @@ class SplashViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     dataManager: DataManager
 ) : BaseViewModel(dataManager, tokenManager){
-    private val _nextProcess: MutableSharedFlow<Boolean> = MutableSharedFlow()
-    val nextProcess: SharedFlow<Boolean> = _nextProcess
-    private val _whereActivity: MutableSharedFlow<WHERE> = MutableStateFlow(WHERE.None)
-    val whereActivity: SharedFlow<WHERE> = _whereActivity
+    private val _nextProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val nextProcess: StateFlow<Boolean> = _nextProcess
+    private val _whereActivity: MutableStateFlow<WHERE> = MutableStateFlow(WHERE.None)
+    val whereActivity: StateFlow<WHERE> = _whereActivity
 
 
     init {
         gotoLogin()
         getFcmToken()
     }
-    fun getFcmToken() {
+    private fun getFcmToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
 
             if (!it.isSuccessful) {
@@ -49,7 +50,7 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    fun gotoLogin() {
+    private fun gotoLogin() {
         viewModelScope.launch {
             delay(2000)
             _nextProcess.emit(true)

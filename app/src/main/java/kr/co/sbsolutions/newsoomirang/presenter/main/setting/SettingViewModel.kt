@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -36,7 +37,7 @@ class SettingViewModel @Inject constructor(
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
     private val _deviceName: MutableStateFlow<String?> = MutableStateFlow("")
-    val deviceName: SharedFlow<String?> = _deviceName.asStateFlow()
+    val deviceName: StateFlow<String?> = _deviceName
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
