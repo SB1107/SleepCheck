@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +28,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
@@ -143,10 +142,9 @@ class SensorActivity : BluetoothActivity() {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setConnectDeviceDialog(device: BluetoothDevice) {
-        val name = device.name.split("-").last()
-        val newName = "숨이랑-".plus(name)
-        connectDeviceBinding.tvBleInfoText.text = "${newName}를 찾았습니다\n연결하시겠습니까?"
+        connectDeviceBinding.tvBleInfoText.text = "${device.name.getChangeDeviceName()}를 찾았습니다\n연결하시겠습니까?"
         connectDeviceBinding.btConnect.setOnClickListener {
             bleClickListener.invoke(device)
         }
@@ -156,7 +154,7 @@ class SensorActivity : BluetoothActivity() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     connectDeviceDialog.show()
                 }
-            }, 500L)
+            }, 1000L)
         }
     }
 
@@ -194,7 +192,7 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.bleName.collectLatest { text ->
                             text?.let {
-                                binding.deviceNameTextView.text = text
+                                binding.deviceNameTextView.text = text.getChangeDeviceName()
                                 binding.btDiss.visibility = View.VISIBLE
                             } ?: run {
                                 binding.deviceNameTextView.text = "등록된 기기가 없습니다."
@@ -248,7 +246,7 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.bleStateResultText.collectLatest {
                             it?.let { resultText ->
-                                binding.icBleProgress.tvDeviceId.text = resultText
+                                binding.icBleProgress.tvDeviceId.text = resultText.getChangeDeviceName()
                             }
                         }
                     }

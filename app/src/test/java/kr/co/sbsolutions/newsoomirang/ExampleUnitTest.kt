@@ -20,6 +20,17 @@ import java.nio.ByteBuffer
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+
+    @Test
+    fun extractValueAfterHyphen(str: String = "11111 - 1111") {
+        val hyphenIndex = str.indexOf("-")
+        if (hyphenIndex != -1) {
+            println(str.substring(hyphenIndex + 1))
+        } else {
+            ""
+        }
+    }
+
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
