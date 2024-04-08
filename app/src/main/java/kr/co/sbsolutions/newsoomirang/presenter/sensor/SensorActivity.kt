@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -28,21 +27,22 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
-import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class SensorActivity : BluetoothActivity() {
     private lateinit var tooltip: Balloon
+    private var timer: Timer? = null
     private val connectDeviceBinding: DialogConnectDeviceBinding by lazy {
         DialogConnectDeviceBinding.inflate(layoutInflater)
     }
@@ -110,6 +110,7 @@ class SensorActivity : BluetoothActivity() {
         viewModel.checkDeviceScan()
     }
 
+    @Deprecated("안씀")
     private fun setToolTip(message: String) {
         if (::tooltip.isInitialized) {
             tooltip.dismiss()
@@ -142,13 +143,20 @@ class SensorActivity : BluetoothActivity() {
 
     }
 
-    private  fun setConnectDeviceDialog(device :BluetoothDevice){
+    private fun setConnectDeviceDialog(device: BluetoothDevice) {
         val name = device.name.split("-").last()
         val newName = "숨이랑-".plus(name)
         connectDeviceBinding.tvBleInfoText.text = "${newName}를 찾았습니다\n연결하시겠습니까?"
         connectDeviceBinding.btConnect.setOnClickListener {
             bleClickListener.invoke(device)
+        }
 
+        timer = Timer().apply {
+            schedule(timerTask {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    connectDeviceDialog.show()
+                }
+            }, 500L)
         }
     }
 
@@ -256,8 +264,9 @@ class SensorActivity : BluetoothActivity() {
                         }.collectLatest { list ->
                             if (list.size == 1) {
                                 setConnectDeviceDialog(list.first())
-                                connectDeviceDialog.show()
-                            }else{
+
+                            } else {
+                                timer?.cancel()
                                 bleAdapter.submitList(list)
                             }
                         }
