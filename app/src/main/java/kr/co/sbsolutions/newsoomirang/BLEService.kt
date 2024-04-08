@@ -36,9 +36,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
@@ -523,7 +526,7 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
-                    serviceLiveWorkCheck()
+//                    serviceLiveWorkCheck()
                     val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
@@ -920,13 +923,13 @@ class BLEService : LifecycleService() {
         var firstData: SBSensorData? = null
         var lastData: SBSensorData? = null
         lifecycleScope.launch(IO) {
-            async {
+            val getIndex = async {
                 settingDataRepository.getDataId()?.let {
                     firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
-//                    Log.d(TAG, "listenChannelMessage---")
                     lastData = sbSensorDBRepository.getSensorDataIdByLast(it).first()
                 }
-            }.await()
+            }
+            getIndex.await()
 
             launch {
                 sbSensorInfo.value.channel.consumeEach { data ->
@@ -1018,20 +1021,21 @@ class BLEService : LifecycleService() {
             Log.d(TAG, "setDataFlowFinish: callback")
 //            test()
             lifecycleScope.launch(IO) {
-                async {
+            val asyncResult =    async {
                     if (lastIndex) {
                         Log.d(TAG, "나 들어왔다.!!!!!!!!!!!!")
-                        settingDataRepository.getDataId()?.let {
-                            val firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
+                        settingDataRepository.getDataId()?.let { id ->
+                            val firstData = sbSensorDBRepository.getSensorDataIdByFirst(id).first()
+
                             sbSensorDBRepository.getSensorDataIdBy(-1).collect { item ->
                                 item.map {
                                     setDataFlowDBInsert(firstData, it)
                                 }
                             }
-                        }
+                        }?: run { Log.e(TAG, "setDataFlowFinish: dataId 없음" ) }
                     }
-                }.await()
-
+                }
+                asyncResult.await()
                 launch {
                     settingDataRepository.getDataId()?.let { id ->
                         Log.d(TAG, "setDataFlowFinish:  $id")
@@ -1039,13 +1043,14 @@ class BLEService : LifecycleService() {
                             when (it) {
                                 SleepType.Breathing.name -> {
                                     sbSensorInfo.value.let {
-                                        Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
-                                        lifecycleScope.launch(IO) {
-                                            logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
-                                            _resultMessage.emit(UPLOADING)
-                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
+                                        Log.d(TAG, "setDataFlowFinish value: ${sbSensorInfo.value}")
+                                            sbSensorDBRepository.getSelectedSensorDataListCount(id).collectLatest {
+                                                    Log.e(TAG, "setDataFlowFinish: size2 = ${it}")
+                                            }
+//                                            logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
+//                                            _resultMessage.emit(UPLOADING)
+//                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime)
                                             //                        exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
-                                        }
                                     }
                                 }
 

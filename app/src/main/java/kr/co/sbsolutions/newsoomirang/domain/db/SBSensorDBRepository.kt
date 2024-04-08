@@ -25,6 +25,9 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
     fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int) : Flow<Int>{
         return dao.getSelectedSensorDataListCount(dataId, min, max)
     }
+    fun getSelectedSensorDataListCount(dataId: Int) : Flow<Int>{
+        return dao.getSelectedSensorDataListCount(dataId)
+    }
 
     fun getMaxIndex(dataId: Int) : Int {
         return dao.getMaxIndex(dataId)
@@ -62,8 +65,8 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
     fun getSensorDataIdByLast(dataId: Int) : Flow<SBSensorData?> {
         return dao.getSensorDataIdByLast(dataId)
     }
-    fun updateSleepData(sleepData: SBSensorData) {
-        return dao.updateSleepData(sleepData)
+    suspend fun updateSleepData(sleepData: SBSensorData) {
+            return dao.updateSleepData(sleepData)
     }
 
     fun getAllSensorDataList() : Flow<List<SBSensorData>> {

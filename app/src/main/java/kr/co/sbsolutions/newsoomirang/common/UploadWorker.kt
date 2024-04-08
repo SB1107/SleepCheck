@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
@@ -64,17 +65,17 @@ class UploadWorker @AssistedInject constructor(
                 uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             } else {
                 Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
-                /*val min = sbSensorDBRepository.getMinIndex(dataId)
+                val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
-
-                sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).collect{}*/
-                val sbList = getData(dataId).first()
-
-                if (sbList.size < 1000) {
-                    Log.d(TAG, "exportLastFile - data size 1000 미만 : ${sbList.size}")
-                    logHelper.insertLog("exportLastFile -  size 1000 미만 : ${sbList.size}")
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).last()
+                Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
+                logHelper.insertLog("exportLastFile - Size : $size")
+                if (size < 1000) {
+                    Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
+                    logHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
+                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).last()
                 val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
                 val filePath = "${context.filesDir}/${time}($dataId).csv"
                 val file = File(filePath)
@@ -92,22 +93,6 @@ class UploadWorker @AssistedInject constructor(
                 uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }
         }
-    }
-    private suspend fun getData(dataId: Int) = callbackFlow {
-        withContext(ioDispatchers){
-            val min = sbSensorDBRepository.getMinIndex(dataId)
-            val max = sbSensorDBRepository.getMaxIndex(dataId)
-
-            sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).collect{
-                logHelper.insertLog("exportLastFile - Size : ${it.size}")
-                Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : ${it.size}")
-                trySend(it)
-                close()
-            }
-            awaitClose()
-        }
-
-
     }
 
     private suspend fun uploading(
