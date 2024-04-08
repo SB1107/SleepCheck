@@ -923,7 +923,7 @@ class BLEService : LifecycleService() {
             async {
                 settingDataRepository.getDataId()?.let {
                     firstData = sbSensorDBRepository.getSensorDataIdByFirst(it).first()
-                    Log.d(TAG, "listenChannelMessage---")
+//                    Log.d(TAG, "listenChannelMessage---")
                     lastData = sbSensorDBRepository.getSensorDataIdByLast(it).first()
                 }
             }.await()
@@ -934,34 +934,34 @@ class BLEService : LifecycleService() {
                     item?.let { item ->
                         if (item.calcAccX == data.calcAccX && item.calcAccY == data.calcAccY && item.calcAccZ == data.calcAccZ && item.capacitance == data.capacitance) {
                             indexCountCheck += 1
-                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
+//                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
                         }
                     } ?: run {
                         when {
                             indexCountCheck >= 4 && data.dataId == -1 -> {
-                                Log.d(TAG, "listenChannelMessage000: $data")
+//                                Log.d(TAG, "listenChannelMessage000: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
 
                             data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0) -> {
-                                Log.d(TAG, "listenChannelMessage111: $data")
+//                                Log.d(TAG, "listenChannelMessage111: $data")
                                 lastIndexCk = true
                                 setDataFlowDBInsert(firstData, data)
                                 bluetoothNetworkRepository.setLastIndexCk(lastIndexCk)
                             }
 
                             lastIndexCk -> {
-                                Log.d(TAG, "listenChannelMessage222: $data")
+//                                Log.d(TAG, "listenChannelMessage222: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
 
                             data.dataId != -1 && data.time.contains("1970") -> {
-                                Log.d(TAG, "listenChannelMessage333: $data")
+//                                Log.d(TAG, "listenChannelMessage333: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
 
                             else -> {
-                                Log.d(TAG, "listenChannelMessage444: $data")
+//                                Log.d(TAG, "listenChannelMessage444: $data")
                                 sbSensorDBRepository.insert(data)
                             }
                         }

@@ -977,7 +977,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                         val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
 
-                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
+//                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
                                         it.channel.send(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, it.dataId ?: -1))
                                     }
                                 }
