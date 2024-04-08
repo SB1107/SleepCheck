@@ -16,6 +16,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
@@ -32,6 +34,8 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
 
@@ -39,6 +43,18 @@ import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
 @AndroidEntryPoint
 class SensorActivity : BluetoothActivity() {
     private lateinit var tooltip: Balloon
+    private val connectDeviceBinding: DialogConnectDeviceBinding by lazy {
+        DialogConnectDeviceBinding.inflate(layoutInflater)
+    }
+
+    private val connectDeviceDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(connectDeviceBinding.root, null)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isFitToContents = true
+        }
+    }
+
     override fun newBackPressed() {
         finish()
     }
@@ -126,6 +142,16 @@ class SensorActivity : BluetoothActivity() {
 
     }
 
+    private  fun setConnectDeviceDialog(device :BluetoothDevice){
+        val name = device.name.split("-").last()
+        val newName = "숨이랑-".plus(name)
+        connectDeviceBinding.tvBleInfoText.text = "${newName}를 찾았습니다\n연결하시겠습니까?"
+        connectDeviceBinding.btConnect.setOnClickListener {
+            bleClickListener.invoke(device)
+
+        }
+    }
+
     private fun bindViews() {
         with(binding) {
             deviceRecyclerView.apply {
@@ -134,7 +160,7 @@ class SensorActivity : BluetoothActivity() {
             }
 
             actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
-            actionBar.toolbarTitle.text = "센서 연결"
+            actionBar.toolbarTitle.text = "센서 등록"
 
             actionBar.backButton.setOnClickListener {
                 newBackPressed()
@@ -174,7 +200,7 @@ class SensorActivity : BluetoothActivity() {
                             it?.let {
                                 if (it) {
                                     Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                    showToolTip()
+//                                    showToolTip()
                                     return@collectLatest
                                 }
                             }
@@ -203,7 +229,10 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.isBleProgressBar.collectLatest {
                             binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
-                            if (it) newBackPressed()
+                            if (it) {
+                                connectDeviceDialog.dismiss()
+                                newBackPressed()
+                            }
 
                         }
                     }
@@ -225,7 +254,12 @@ class SensorActivity : BluetoothActivity() {
                                         || it.name.uppercase().startsWith("AP")
                             }.sortedBy { it.name }
                         }.collectLatest { list ->
-                            bleAdapter.submitList(list)
+                            if (list.size == 1) {
+                                setConnectDeviceDialog(list.first())
+                                connectDeviceDialog.show()
+                            }else{
+                                bleAdapter.submitList(list)
+                            }
                         }
 //                        scanList.collectLatest { list ->
 //                            bleAdapter.submitList(list)
