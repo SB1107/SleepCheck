@@ -5,10 +5,8 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -16,6 +14,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
@@ -26,19 +26,34 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class SensorActivity : BluetoothActivity() {
     private lateinit var tooltip: Balloon
+    private var timer: Timer? = null
+    private val connectDeviceBinding: DialogConnectDeviceBinding by lazy {
+        DialogConnectDeviceBinding.inflate(layoutInflater)
+    }
+
+    private val connectDeviceDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(connectDeviceBinding.root, null)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isFitToContents = true
+        }
+    }
+
     override fun newBackPressed() {
         finish()
     }
@@ -94,6 +109,7 @@ class SensorActivity : BluetoothActivity() {
         viewModel.checkDeviceScan()
     }
 
+    @Deprecated("안씀")
     private fun setToolTip(message: String) {
         if (::tooltip.isInitialized) {
             tooltip.dismiss()
@@ -126,6 +142,22 @@ class SensorActivity : BluetoothActivity() {
 
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setConnectDeviceDialog(device: BluetoothDevice) {
+        connectDeviceBinding.tvBleInfoText.text = "${device.name.getChangeDeviceName()}를 찾았습니다\n연결하시겠습니까?"
+        connectDeviceBinding.btConnect.setOnClickListener {
+            bleClickListener.invoke(device)
+        }
+
+        timer = Timer().apply {
+            schedule(timerTask {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    connectDeviceDialog.show()
+                }
+            }, 1000L)
+        }
+    }
+
     private fun bindViews() {
         with(binding) {
             deviceRecyclerView.apply {
@@ -134,7 +166,7 @@ class SensorActivity : BluetoothActivity() {
             }
 
             actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
-            actionBar.toolbarTitle.text = "센서 연결"
+            actionBar.toolbarTitle.text = "센서 등록"
 
             actionBar.backButton.setOnClickListener {
                 newBackPressed()
@@ -160,7 +192,7 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.bleName.collectLatest { text ->
                             text?.let {
-                                binding.deviceNameTextView.text = text
+                                binding.deviceNameTextView.text = text.getChangeDeviceName()
                                 binding.btDiss.visibility = View.VISIBLE
                             } ?: run {
                                 binding.deviceNameTextView.text = "등록된 기기가 없습니다."
@@ -174,7 +206,7 @@ class SensorActivity : BluetoothActivity() {
                             it?.let {
                                 if (it) {
                                     Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
-                                    showToolTip()
+//                                    showToolTip()
                                     return@collectLatest
                                 }
                             }
@@ -203,7 +235,10 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.isBleProgressBar.collectLatest {
                             binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
-                            if (it) newBackPressed()
+                            if (it) {
+                                connectDeviceDialog.dismiss()
+                                newBackPressed()
+                            }
 
                         }
                     }
@@ -211,7 +246,7 @@ class SensorActivity : BluetoothActivity() {
                     launch {
                         viewModel.bleStateResultText.collectLatest {
                             it?.let { resultText ->
-                                binding.icBleProgress.tvDeviceId.text = resultText
+                                binding.icBleProgress.tvDeviceId.text = resultText.getChangeDeviceName()
                             }
                         }
                     }
@@ -225,7 +260,13 @@ class SensorActivity : BluetoothActivity() {
                                         || it.name.uppercase().startsWith("AP")
                             }.sortedBy { it.name }
                         }.collectLatest { list ->
-                            bleAdapter.submitList(list)
+                            if (list.size == 1) {
+                                setConnectDeviceDialog(list.first())
+
+                            } else {
+                                timer?.cancel()
+                                bleAdapter.submitList(list)
+                            }
                         }
 //                        scanList.collectLatest { list ->
 //                            bleAdapter.submitList(list)

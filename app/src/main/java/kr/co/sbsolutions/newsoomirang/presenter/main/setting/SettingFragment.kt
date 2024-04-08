@@ -20,6 +20,7 @@ import kr.co.sbsolutions.newsoomirang.common.WebType
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
@@ -107,14 +108,14 @@ class SettingFragment : Fragment() {
                 }
                 launch {
                     viewModel.deviceName.collectLatest {
-                        Log.d(TAG, "setObservers11: $it")
-                        if (it == ""){
-                            binding.tvDeviceName.visibility = View.GONE
-                        } else {
-                            binding.tvDeviceName.visibility = View.VISIBLE
-                            binding.tvDeviceName.text = it
-                        }
-
+                        it?.let {
+                            if (it == ""){
+                                binding.tvDeviceName.visibility = View.GONE
+                            } else {
+                                binding.tvDeviceName.visibility = View.VISIBLE
+                                binding.tvDeviceName.text = it.getChangeDeviceName()
+                            }
+                        } ?: ""
                     }
                 }
             }

@@ -103,6 +103,10 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
+    override fun setDataFlow(isDataFlow: Boolean) {
+        _sbSensorInfo.update { it.copy(isDataFlow = isDataFlow) }
+    }
+
     override suspend fun listenRegisterSpO2Sensor() {
 //        dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SPO2_SENSOR.toString())
 //            .zip(dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SPO2_SENSOR.toString()))
@@ -744,6 +748,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
                                     dataFlowCallback?.invoke(lastIndex)
+                                    setDataFlow(true)
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {

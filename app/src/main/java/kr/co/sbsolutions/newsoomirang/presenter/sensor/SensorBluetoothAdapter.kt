@@ -2,11 +2,14 @@ package kr.co.sbsolutions.newsoomirang.presenter.sensor
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.databinding.AdapterBluetoothItemBinding
 
 @SuppressLint("MissingPermission")
@@ -21,11 +24,12 @@ class SensorBluetoothAdapter(val bleClickListener : (BluetoothDevice) -> Unit) :
     }
 
     inner class ViewHolder(private val binding: AdapterBluetoothItemBinding) : RecyclerView.ViewHolder(binding.root){
+        @SuppressLint("SetTextI18n")
         fun bind(item : BluetoothDevice) {
             binding.cvRoot.setOnClickListener {
                 bleClickListener.invoke(item)
             }
-            binding.tvBleName.text = item.name
+            binding.tvBleName.text = item.name.getChangeDeviceName()
         }
     }
 

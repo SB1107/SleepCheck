@@ -20,7 +20,8 @@ data class BluetoothInfo(
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,
     val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),
-    var snoreTime : Long = 0
+    var snoreTime : Long = 0,
+    var isDataFlow : Boolean = false
 ) {
     companion object {
         var isOn = true

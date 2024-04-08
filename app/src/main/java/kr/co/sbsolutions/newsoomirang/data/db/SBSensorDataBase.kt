@@ -36,6 +36,7 @@ abstract class SBSensorDataBase  : RoomDatabase(){
             }
 
         }
+
         private fun buildDatabase(appContext: Context) = Room.databaseBuilder(appContext, SBSensorDataBase::class.java, "sb_sensor.db")
             .addMigrations(MIGRATION_1_2)
             .build()

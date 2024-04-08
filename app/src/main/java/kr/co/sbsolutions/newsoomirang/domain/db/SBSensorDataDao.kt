@@ -12,6 +12,7 @@ import kr.co.sbsolutions.soomirang.db.SBSensorData
 
 @Dao
 interface SBSensorDataDao {
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSensorData(sbSensorData: SBSensorData): Long
 
@@ -48,7 +49,6 @@ interface SBSensorDataDao {
     @Query("DELETE FROM SLEEP_DATA where dataId < :dataId")
     fun deletePastData(dataId: Int)
 
-    @Transaction
     @Query("Select * from SLEEP_DATA where `index`=:index order by `index` DESC LIMIT 1")
     fun getSensorDataByIndex(index: Int): SBSensorData?
 
@@ -56,11 +56,9 @@ interface SBSensorDataDao {
     @Query("Select * from SLEEP_DATA where dataId=:dataId")
     fun getSensorDataIdBy(dataId: Int): Flow<List<SBSensorData>>
 
-    @Transaction
     @Query("Select * from SLEEP_DATA where dataId=:dataId order by `index` ASC LIMIT 1")
     fun getSensorDataIdByFirst(dataId: Int): Flow<SBSensorData?>
 
-    @Transaction
     @Query("Select * from SLEEP_DATA where dataId=:dataId order by `index` DESC LIMIT 1")
     fun getSensorDataIdByLast(dataId: Int): Flow<SBSensorData?>
 

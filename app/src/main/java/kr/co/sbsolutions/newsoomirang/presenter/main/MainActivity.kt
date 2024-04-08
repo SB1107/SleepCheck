@@ -144,6 +144,16 @@ class MainActivity : BaseServiceActivity() {
                     }
                 }
                 launch {
+                    viewModel.guideAlert.collectLatest {
+                        when(it){
+                            true -> guideAlert.show()
+                            false -> {
+                                guideAlert.dismiss()
+                            }
+                        }
+                    }
+                }
+                launch {
                     viewModel.isResultProgressBar.collectLatest {
                         Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
@@ -155,8 +165,6 @@ class MainActivity : BaseServiceActivity() {
                                 startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
                                     putExtra("id", it.first.toString())
                                 })
-
-
                             viewModel.stopResultProgressBar()
                         }
                     }

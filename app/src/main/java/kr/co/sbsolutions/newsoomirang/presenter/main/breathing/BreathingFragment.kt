@@ -213,7 +213,7 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    viewModel.canMeasurementAndBluetoothButtonState.collectLatest {
+                    viewModel.canMeasurementAndBluetoothButtonState.collect {
                         Log.e(
                             TAG,
                             "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}"
@@ -246,7 +246,8 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    activityViewModel.isHomeBleProgressBar.collectLatest {
+                    activityViewModel.isHomeBleProgressBar.collect {
+                        Log.e(TAG, "isHomeBleProgressBar: 1 = ${it.first} 2 = ${it.second}", )
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility =
                             if (it.first) View.VISIBLE else View.GONE

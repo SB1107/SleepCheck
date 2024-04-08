@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.PowerManager
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageView
@@ -15,6 +16,7 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -26,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.presenter.main.ImageViewPagerAdapter
 import java.text.SimpleDateFormat
 import java.time.Duration
@@ -152,7 +155,7 @@ fun Context.showAlertDialogWithCancel(
     dialog.show()
 }
 
-@SuppressLint("CutPasteId")
+@SuppressLint("CutPasteId", "MissingInflatedId")
 fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null) : AlertDialog {
     val imageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
     val dialogView = LayoutInflater.from(this).inflate(R.layout.row_app_guide, null)
@@ -171,17 +174,20 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
     dialogView.findViewById<ViewPager2>(R.id.vp_2).orientation = ViewPager2.ORIENTATION_HORIZONTAL
 
     //select any page you want as your starting page
+    val guideTitle = dialogView.findViewById<AppCompatTextView>(R.id.tv_guide_title)
 
    val job = CoroutineScope(Dispatchers.Default).launch{
         while (true){
             delay(1000)
 
-            if (currentPageIndex == imageViewPagerAdapter.itemCount ){
-                currentPageIndex = 0
-            } else {
-                currentPageIndex++
-            }
             withContext(Dispatchers.Main){
+                if (currentPageIndex == imageViewPagerAdapter.itemCount ){
+                    currentPageIndex = 0
+                    guideTitle.text = "이미지와 같이 크래들에서\n 분리후 센서를 연결하세요."
+                } else {
+                    currentPageIndex++
+                    guideTitle.text = "이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요."
+                }
                 dialogView.findViewById<ViewPager2>(R.id.vp_2).currentItem = currentPageIndex
             }
         }
@@ -317,4 +323,9 @@ fun ByteArray.hexToString(): String{
 
 fun String.prefixToHex(): String{
     return this.replace("[","").replace("]","").replace(" ","").substring(0,8)
+}
+
+fun String.getChangeDeviceName(): String {
+    val name = this.split("-").last()
+    return "숨이랑 - $name"
 }

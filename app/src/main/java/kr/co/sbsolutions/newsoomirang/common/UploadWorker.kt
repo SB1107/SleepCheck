@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -56,6 +57,7 @@ class UploadWorker @AssistedInject constructor(
             val snoreTime = inputData.getLong("snoreTime", 0)
             val isFilePass = inputData.getBoolean("isFilePass", false)
             val sensorName = inputData.getString("sensorName") ?: ""
+            val isFileUpdate = inputData.getBoolean("isFileUpdate", false)
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
             if (dataId == -1) {
                 return@withContext Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
@@ -65,17 +67,34 @@ class UploadWorker @AssistedInject constructor(
                 uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             } else {
                 Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
+                var data : List<SBSensorData> = emptyList()
+                if (isFileUpdate) {
+                    if (isItemPass( -1)){
+                        val list = sbSensorDBRepository.getSensorDataIdBy(-1).first()
+                        data = list
+                    }
+                }
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
-                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).last()
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                 logHelper.insertLog("exportLastFile - Size : $size")
-                if (size < 1000) {
+                if (size.plus(data.size) < 1000) {
                     Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                     logHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
-                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).last()
+                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
+                val newList = sbList.toMutableList()
+                data.map {
+                    val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+                    val newTime = sbList.first().time.let { format.parse(it) }
+                    val time1 = format.format((newTime?.time ?: 0) + (200 * it.index))
+                    newList.add(it.copy(dataId = sbList.first().dataId , time = time1))
+                }
+
+                newList.sortedBy { it.index }
+
                 val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
                 val filePath = "${context.filesDir}/${time}($dataId).csv"
                 val file = File(filePath)
@@ -84,17 +103,34 @@ class UploadWorker @AssistedInject constructor(
                     CSVWriter(fw).use { cw ->
 //                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
                         cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ"))
-                        sbList.forEach { data ->
+                        newList.forEach { data ->
                             cw.writeNext(data.toArray())
                         }
                     }
                 }
                 logHelper.insertLog("uploading: exportFile")
-                uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
+                uploading(packageName, dataId, file, newList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
             }
         }
     }
+    private suspend fun isItemPass( dataId: Int): Boolean {
+        var size = 0
+        val reCount = 3
+        var tempCont = 0
 
+        while (tempCont != reCount) {
+            delay(200)
+            val itemSize =  sbSensorDBRepository.getSensorDataIdBy(-1).first().size
+            if (size != itemSize) {
+                size = itemSize
+                Log.e(TAG, "size: ${size}")
+            } else {
+                tempCont += 1
+            }
+        }
+        Log.e(TAG, "isItemPass: 와일종료")
+        return true
+    }
     private suspend fun uploading(
         packageName: String,
         dataId: Int,

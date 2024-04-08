@@ -8,7 +8,7 @@
     android:visibility="visible">
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_1"
+        android:id="@+id/tv_guide_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
@@ -29,7 +29,7 @@
         app:layout_constraintBottom_toTopOf="@id/cb_1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_1" />
+        app:layout_constraintTop_toBottomOf="@id/tv_guide_title" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="wrap_content"
