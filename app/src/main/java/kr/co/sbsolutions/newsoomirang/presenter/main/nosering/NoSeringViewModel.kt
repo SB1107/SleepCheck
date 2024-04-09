@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -148,7 +149,7 @@ class NoSeringViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
-                            getService()?.startSBSensor(id, SleepType.NoSering)
+                            getService()?.startSBSensor(dataId = id, sleepType = SleepType.NoSering, hasSensor = dataManager.getHasSensor().first())
                             setMeasuringState(MeasuringState.Record)
                             trySend(true)
                             close()
@@ -171,6 +172,7 @@ class NoSeringViewModel @Inject constructor(
         setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
             val hasSensor = dataManager.getHasSensor().first()
+            Log.d(TAG, "stopClick 코골이: $hasSensor")
             if (hasSensor) {
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {

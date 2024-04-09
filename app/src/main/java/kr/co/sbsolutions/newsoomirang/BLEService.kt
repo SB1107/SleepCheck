@@ -703,13 +703,13 @@ class BLEService : LifecycleService() {
         awaitClose()
     }
 
-    fun startSBSensor(dataId: Int, sleepType: SleepType) {
+    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
-            logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType ")
-            dataManager.setHasSensor(true)
+            logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
+            dataManager.setHasSensor(hasSensor)
         }
         startTimer()
         audioHelper.startAudioClassification()
