@@ -1021,51 +1021,33 @@ class BLEService : LifecycleService() {
 
     private fun setDataFlowFinish() {
         bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
-            lifecycleScope.launch(IO) {
-                sbSensorInfo
-                val dataIdJob = async {
-                    return@async settingDataRepository.getDataId()
-                }
-                val dataId = dataIdJob.await()
+            if (lastIndex){
+                lifecycleScope.launch(IO) {
+                    sbSensorInfo
+                    val dataIdJob = async {
+                        return@async settingDataRepository.getDataId()
+                    }
+                    val dataId = dataIdJob.await()
 
-                launch {
-                    dataId?.let { id ->
-                        Log.d(TAG, "setDataFlowFinish:  $id")
-
-                        settingDataRepository.getSleepType().let {
-                            when (it) {
-                                SleepType.Breathing.name -> {
-                                    sbSensorInfo.value.let {
-                                        Log.d(TAG, "setDataFlowFinish value: ${sbSensorInfo.value}")
-                                        val result = isItemPass(1, id)
-                                        if (result) {
-                                            noDataIdItemInsert(sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()!!)
-                                            logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
-                                            _resultMessage.emit(UPLOADING)
-                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime )
-                                            bluetoothNetworkRepository.setDataFlow(false)
-
-                                        }
-                                    }
-                                }
-
-                                SleepType.NoSering.name -> {
-                                    sbSensorInfo.value.let {
-                                        Log.d(TAG, "setDataFlowFinish: ${sbSensorInfo.value}")
-                                        val result = isItemPass(1, id)
-                                        if (result) {
-                                            logHelper.insertLog("uploading:코골이 dataFlow 좀비 업로드")
-                                            _resultMessage.emit(UPLOADING)
-                                            uploadWorker(id, false, SleepType.NoSering, it.snoreTime)
-                                            bluetoothNetworkRepository.setDataFlow(false)
-                                        }
-                                    }
-
+                    launch {
+                        dataId?.let { id ->
+                            Log.d(TAG, "setDataFlowFinish:  $id")
+                            sbSensorInfo.value.let {
+                                Log.d(TAG, "setDataFlowFinish value: ${sbSensorInfo.value}")
+                                val result = isItemPass(1, id)
+                                if (result) {
+                                    sbSensorDBRepository.getSensorDataIdByFirst(id).first()?.let { it1 -> noDataIdItemInsert(it1) }
+                                    logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
+                                    _resultMessage.emit(UPLOADING)
+                                    uploadWorker(id, false, if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering, it.snoreTime)
+                                    bluetoothNetworkRepository.setDataFlow(false)
                                 }
                             }
                         }
                     }
                 }
+            } else {
+                bluetoothNetworkRepository.setDataFlow(false)
             }
         }
     }
