@@ -2,15 +2,12 @@ package kr.co.sbsolutions.newsoomirang.presenter.sensor
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
-import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.sbsolutions.newsoomirang.BuildConfig
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.databinding.AdapterBluetoothItemBinding
 

@@ -326,7 +326,7 @@ fun String.prefixToHex(): String{
 }
 
 fun String.getChangeDeviceName(): String {
-    val nameCheck = this.contains("H")
+    val nameCheck = this.contains("ABH") or this.contains("ACH")
     val bleNumber = this.split("-").last()
     val resultName = if (!nameCheck)"Soomirang - $bleNumber" else "HSMD - $bleNumber"
     return resultName

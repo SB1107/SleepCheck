@@ -12,11 +12,12 @@ import kr.co.sbsolutions.newsoomirang.domain.db.SettingDao
 import kr.co.sbsolutions.soomirang.db.LogData
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 
-@Database(entities = [SBSensorData::class, LogData::class, SettingData::class] , version = 2)
+@Database(entities = [SBSensorData::class,LogData::class, SettingData::class] , version = 3)
 abstract class SBSensorDataBase  : RoomDatabase(){
     abstract  fun logDataDao() : LogDataDao
     abstract fun sbSensorDAO() : SBSensorDataDao
     abstract fun settingDao() : SettingDao
+
     companion object {
         @Volatile
         private  var instance : SBSensorDataBase? = null
@@ -34,10 +35,19 @@ abstract class SBSensorDataBase  : RoomDatabase(){
                 db.execSQL("ALTER TABLE New_Setting RENAME TO Setting")
 
             }
-
         }
+
+        private  val MIGRATION_2_3 = object : Migration(2,3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE NEW_SLEEP_DATA ( id INTEGER PRIMARY KEY NOT NULL , time TEXT NOT NULL, capacitance INTEGER NOT NULL, calcAccX TEXT NOT NULL, calcAccY TEXT NOT NULL, calcAccZ TEXT NOT NULL, dataId INTEGER  NOT NULL DEFAULT -1)")
+                db.execSQL("DROP TABLE SLEEP_DATA")
+                db.execSQL("ALTER TABLE NEW_SLEEP_DATA RENAME TO SLEEP_DATA")
+            }
+        }
+
         private fun buildDatabase(appContext: Context) = Room.databaseBuilder(appContext, SBSensorDataBase::class.java, "sb_sensor.db")
             .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_2_3)
             .build()
     }
 

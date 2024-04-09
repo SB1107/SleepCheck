@@ -52,6 +52,8 @@ abstract class BaseServiceViewModel(
     private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
         MutableSharedFlow()
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
+    private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(true)
+    val guideAlert : StateFlow<Boolean> = _guideAlert
     abstract fun whereTag(): String
 
     init {
@@ -71,28 +73,20 @@ abstract class BaseServiceViewModel(
                             BluetoothState.DisconnectedByUser -> {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
-
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
-
-                                launch {
+                                        _isHomeBleProgressBar.emit(Pair(false, ""))
                                     _batteryState.emit("")
                                     _bluetoothButtonState.emit("연결")
-                                }
                             }
 
                             BluetoothState.Connected.Reconnected -> {
-                                launch {
                                     _bluetoothButtonState.emit("재 연결중")
-                                }
                                 setBatteryInfo()
                             }
 
                             BluetoothState.DisconnectedNotIntent -> {
                                 bluetoothInfo.batteryInfo = null
-                                launch{
                                     _batteryState.emit("")
                                     _bluetoothButtonState.emit("연결 끊김")
-                                }
                             }
 
                             BluetoothState.Connected.Ready,
@@ -100,23 +94,25 @@ abstract class BaseServiceViewModel(
                             BluetoothState.Connected.ReceivingRealtime,
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.End -> {
-                                launch {
+                                if (it.isDataFlow) {
+
+                                }else{
                                     _bluetoothButtonState.emit("시작")
+
                                 }
                             }
 
                             BluetoothState.Connecting -> {
                                     _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
-                                launch {
                                     _bluetoothButtonState.emit("재 연결중")
-                                }
 //                                getService()?.timerOfDisconnection()
+                            }
+                            BluetoothState.Connected.DataFlow ->{
+                                _guideAlert.emit(false)
                             }
 
                             else -> {
-                                launch {
-                                    _bluetoothButtonState.emit("시작")
-                                }
+                                _bluetoothButtonState.emit("시작")
                                     _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                             }
                         }

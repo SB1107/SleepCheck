@@ -14,10 +14,13 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
@@ -65,7 +68,7 @@ class UploadWorker @AssistedInject constructor(
                 Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
-                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                 logHelper.insertLog("exportLastFile - Size : $size")
                 if (size < 1000) {
@@ -73,7 +76,8 @@ class UploadWorker @AssistedInject constructor(
                     logHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
-                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max)
+                val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
+                Log.e(TAG, "doWork: sbList = ${sbList.size} newList = ${sbList.size}" )
                 val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
                 val filePath = "${context.filesDir}/${time}($dataId).csv"
                 val file = File(filePath)
@@ -92,7 +96,6 @@ class UploadWorker @AssistedInject constructor(
             }
         }
     }
-
     private suspend fun uploading(
         packageName: String,
         dataId: Int,

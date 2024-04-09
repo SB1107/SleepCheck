@@ -103,6 +103,10 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
+    override fun setDataFlow(isDataFlow: Boolean) {
+        _sbSensorInfo.update { it.copy(isDataFlow = isDataFlow) }
+    }
+
     override suspend fun listenRegisterSpO2Sensor() {
 //        dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SPO2_SENSOR.toString())
 //            .zip(dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SPO2_SENSOR.toString()))
@@ -427,6 +431,17 @@ class BluetoothNetworkRepository @Inject constructor(
         lastDownloadCompleteCallback = callback
     }
 
+    private var dataFlowCallback: ((lastIndexCk: Boolean) -> Unit)? = null
+
+    override fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?) {
+        dataFlowCallback = callBack
+    }
+
+    private var lastIndex: Boolean = false
+    override fun setLastIndexCk(data: Boolean) {
+        this.lastIndex = data
+    }
+
     override var uploadCallback: (() -> Unit)? = null
     override fun setOnUploadCallback(callback: (() -> Unit)?) {
         uploadCallback = callback
@@ -718,8 +733,22 @@ class BluetoothNetworkRepository @Inject constructor(
                                 }
 
                                 BluetoothState.Connected.Init,
-                                BluetoothState.Connected.Ready,
-                                BluetoothState.Connecting -> {
+                                BluetoothState.Connected.Ready -> {
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+//                                it.bluetoothState = BluetoothState.Connected.DataFlow
+//                                innerData.tryEmit(it)
+                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                }
+                                BluetoothState.Connected.DataFlow -> {
+                                    writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
+                                        _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                                        logHelper.insertLog(state)
+                                    }
+                                }
+
+                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                    dataFlowCallback?.invoke(lastIndex)
+                                    setDataFlow(true)
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {
@@ -742,9 +771,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                             }
 
                                         }
-
                                     }
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
@@ -954,6 +982,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                         val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
 
+//                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
                                         it.channel.send(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, it.dataId ?: -1))
                                     }
                                 }
@@ -984,6 +1013,11 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                }
+
+                                BluetoothState.Connected.DataFlow,
+                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
                                 }
 
                                 else -> {

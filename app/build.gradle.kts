@@ -145,7 +145,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:$hiltVersion")
 //    ksp ("com.google.dagger:dagger-compiler:$hiltVersion") // Dager
     ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
-    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.1.0")
 
 
     //통신

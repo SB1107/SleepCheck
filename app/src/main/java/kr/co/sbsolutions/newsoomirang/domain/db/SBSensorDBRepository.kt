@@ -1,7 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.domain.db
 
-import androidx.room.Query
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kr.co.sbsolutions.soomirang.db.SBSensorData
@@ -18,12 +18,15 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
         dao.deleteSensorDataAll()
     }
 
-    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int) : List<SBSensorData> {
+    fun getSelectedSensorDataListByIndex(dataId: Int, min: Int, max: Int) : Flow<List<SBSensorData>> {
         return dao.getSelectedSensorDataListByIndex(dataId, min, max)
     }
 
-    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int) : Int{
+    fun getSelectedSensorDataListCount(dataId: Int, min: Int, max: Int) : Flow<Int>{
         return dao.getSelectedSensorDataListCount(dataId, min, max)
+    }
+    fun getSelectedSensorDataListCount(dataId: Int) : Flow<Int>{
+        return dao.getSelectedSensorDataListCount(dataId)
     }
 
     fun getMaxIndex(dataId: Int) : Int {
@@ -46,6 +49,28 @@ class SBSensorDBRepository @Inject constructor(private val dao: SBSensorDataDao)
 
     fun deletePastList(dataId: Int) {
         return dao.deletePastData(dataId)
+    }
+
+    fun getSensorDataByIndex(index: Int) : SBSensorData? {
+        return dao.getSensorDataByIndex(index)
+    }
+
+    fun getSensorDataIdBy(dataId: Int) : Flow<List<SBSensorData>> {
+        return  dao.getSensorDataIdBy(dataId)
+    }
+
+    fun getSensorDataIdByFirst(dataId: Int) : Flow<SBSensorData?> {
+        return  dao.getSensorDataIdByFirst(dataId)
+    }
+    fun getSensorDataIdByLast(dataId: Int) : Flow<SBSensorData?> {
+        return dao.getSensorDataIdByLast(dataId)
+    }
+    suspend fun updateSleepData(sleepData: SBSensorData) {
+            return dao.updateSleepData(sleepData)
+    }
+
+    fun getAllSensorDataList() : Flow<List<SBSensorData>> {
+        return dao.getAllSensorDataList()
     }
 
 

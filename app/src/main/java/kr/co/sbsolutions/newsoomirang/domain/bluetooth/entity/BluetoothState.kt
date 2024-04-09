@@ -18,6 +18,7 @@ sealed class BluetoothState(open val state: String) {
         object SendRealtime : Connected("SendRealtime")
         object ReceivingRealtime : Connected("ReceivingRealtime")
         object DataFlow : Connected("DataFlow")
+        object DataFlowUploadFinish : Connected("DataFlowUploadFinish")
         object SendDelayed : Connected("SendDelayed")
         object ReceivingDelayed : Connected("ReceivingDelayed")
         object SendDownloadContinue : Connected("SendDownloadContinue")

@@ -25,6 +25,7 @@ import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -252,7 +253,7 @@ class SensorActivity : BluetoothActivity() {
                     }
 
                     launch {
-                        scanList.map { list ->
+                        scanList.filter { it.isNotEmpty() }.map { list ->
                             list.filter {
                                 it.name.uppercase().startsWith("AA")
                                         || it.name.uppercase().startsWith("AB")

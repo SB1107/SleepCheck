@@ -17,7 +17,7 @@ import javax.inject.Inject
 class UploadWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
-    fun uploadData(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long,sensorName : String, isFilePass: Boolean = false): LiveData<WorkInfo> {
+    fun uploadData(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long,sensorName : String, isFilePass: Boolean = false, isFileUpdate : Boolean = false): LiveData<WorkInfo> {
         val uuid = UUID.randomUUID()
         val worker = OneTimeWorkRequestBuilder<UploadWorker>().apply {
             addTag("upload")
@@ -29,6 +29,7 @@ class UploadWorkerHelper @Inject constructor(
             )
         }.build()
         workManager.enqueue(worker)
+        Log.d(TAG, "uploadData: 된다된다.")
         return workManager.getWorkInfoByIdLiveData(uuid)
     }
 }

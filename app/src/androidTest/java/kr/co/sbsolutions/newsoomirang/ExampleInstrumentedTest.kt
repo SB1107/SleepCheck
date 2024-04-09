@@ -17,6 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -25,6 +27,20 @@ import org.junit.Assert.*
  */
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
+
+    @Test
+    fun testtest() {
+        val time = "2024-04-05 12:17:56.768"
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+        val t = dateFormat.parse(time)
+        val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(t.time)
+        if (t != null) {
+            println("time = ${t.time}")
+            println("time = ${time2}")
+
+        }
+    }
+
     @Test
     fun useAppContext() {
         // Context of the app under test.

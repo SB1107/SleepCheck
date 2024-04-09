@@ -14,6 +14,8 @@ import org.junit.Test
 import org.junit.Assert.*
 import java.math.BigInteger
 import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -24,11 +26,27 @@ class ExampleUnitTest {
 
     @Test
     fun getChangeDeviceName() {
-        val bleName = "APnb-0101"
-        val nameCheck = bleName.contains("H")
+        val bleName = "ACa-0101"
+        val nameCheck = bleName.contains("ABH") or bleName.contains("ACH")
+
         val bleNumber = bleName.split("-").last()
         val name = if (!nameCheck)"숨이랑 - $bleNumber" else "HSMD - $bleNumber"
         println(name)
+    }
+
+    @Test
+    fun testtest() {
+        val time = "2024-04-05 12:17:56.768"
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+        val t = dateFormat.parse(time)
+        val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(t.time)
+
+
+        if (t != null) {
+            println("time = ${t.time}")
+            println("time = ${time2}")
+
+        }
     }
 
     @Test
