@@ -95,7 +95,7 @@ abstract class BaseServiceViewModel(
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.End -> {
                                 if (it.isDataFlow) {
-                                        _isHomeBleProgressBar.emit(Pair(true, "이전 데이터를\n 받아오는 중입니다."))
+
                                 }else{
                                     _bluetoothButtonState.emit("시작")
 

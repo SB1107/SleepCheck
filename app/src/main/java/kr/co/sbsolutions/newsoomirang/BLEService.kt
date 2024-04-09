@@ -388,11 +388,11 @@ class BLEService : LifecycleService() {
 
     }
 
-    private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType, snoreTime: Long = 0, isFilePass: Boolean = false , isFileUpdate : Boolean = false) {
+    private suspend fun uploadWorker(dataId: Int, forceClose: Boolean, sleepType: SleepType, snoreTime: Long = 0, isFilePass: Boolean = false) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
             val sensorName = dataManager.getBluetoothDeviceName(sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
-            uploadWorkerHelper.uploadData(baseContext.packageName, dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName, isFilePass = isFilePass, isFileUpdate = isFileUpdate)
+            uploadWorkerHelper.uploadData(baseContext.packageName, dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName, isFilePass = isFilePass)
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
                         when (workInfo.state) {
@@ -953,7 +953,7 @@ class BLEService : LifecycleService() {
 
                             data.dataId != -1 && data.time.contains("1970") -> {
 //                                Log.d(TAG, "listenChannelMessage333: $data")
-                                setDataFlowDBInsert(firstData, data)
+                                setDataFlowDBInsert(firstData, data,true)
                             }
 
                             else -> {
@@ -969,7 +969,8 @@ class BLEService : LifecycleService() {
 
     private suspend fun setDataFlowDBInsert(
         firstData: SBSensorData?,
-        data: SBSensorData
+        data: SBSensorData,
+        isUpdate : Boolean = false
     ) {
         settingDataRepository.getDataId()?.let { dataId ->
 
@@ -981,6 +982,10 @@ class BLEService : LifecycleService() {
 //                Log.d(TAG, "listenChannelMessage111: $newTime")
 //                Log.d(TAG, "listenChannelMessage111: $time1")
             val item = data.copy(dataId = dataId, time = time1)
+            if (isUpdate) {
+                sbSensorDBRepository.updateSleepData(item)
+                return@let
+            }
                 sbSensorDBRepository.insert(item)
 //            Log.e(TAG, "setDataFlowDBInsert:data = ${item}", )
 
@@ -1032,10 +1037,12 @@ class BLEService : LifecycleService() {
                                         Log.d(TAG, "setDataFlowFinish value: ${sbSensorInfo.value}")
                                         val result = isItemPass(1, id)
                                         if (result) {
+                                            noDataIdItemInsert(sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()!!)
                                             logHelper.insertLog("uploading:호흡 dataFlow 좀비 업로드")
                                             _resultMessage.emit(UPLOADING)
-                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime , true)
+                                            uploadWorker(id, false, SleepType.Breathing, it.snoreTime )
                                             bluetoothNetworkRepository.setDataFlow(false)
+
                                         }
                                     }
                                 }
@@ -1047,7 +1054,7 @@ class BLEService : LifecycleService() {
                                         if (result) {
                                             logHelper.insertLog("uploading:코골이 dataFlow 좀비 업로드")
                                             _resultMessage.emit(UPLOADING)
-                                            uploadWorker(id, false, SleepType.NoSering, it.snoreTime, true)
+                                            uploadWorker(id, false, SleepType.NoSering, it.snoreTime)
                                             bluetoothNetworkRepository.setDataFlow(false)
                                         }
                                     }
@@ -1073,13 +1080,13 @@ class BLEService : LifecycleService() {
 
                     Log.e(TAG, "itemindex: ${itemSize.size}")
                     itemSize.map {
-                        setDataFlowDBInsert(firstData, it )
+                        setDataFlowDBInsert(firstData, it ,true)
                     }
                 } else {
                     tempCont += 1
                 }
             }
-            Log.e(TAG, "isItemPass: 와일종료")
+            Log.e(TAG, "isItemPass: -1 업데이트 와일종료")
             return true
 
     }
@@ -1094,6 +1101,7 @@ class BLEService : LifecycleService() {
             if (size != itemSize) {
                 size = itemSize
                 Log.e(TAG, "size: ${size}")
+                tempCont = 0
             } else {
                 tempCont += 1
             }

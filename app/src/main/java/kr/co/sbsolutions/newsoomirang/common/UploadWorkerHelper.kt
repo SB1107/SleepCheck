@@ -22,7 +22,7 @@ class UploadWorkerHelper @Inject constructor(
         val worker = OneTimeWorkRequestBuilder<UploadWorker>().apply {
             addTag("upload")
             setId(uuid)
-            setInputData(workDataOf("packageName" to packageName, "dataId" to dataId, "sleepType" to sleepType.ordinal, "snoreTime" to snoreTime, "isFilePass" to isFilePass , "sensorName" to sensorName , "isFileUpdate" to isFileUpdate))
+            setInputData(workDataOf("packageName" to packageName, "dataId" to dataId, "sleepType" to sleepType.ordinal, "snoreTime" to snoreTime, "isFilePass" to isFilePass , "sensorName" to sensorName))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 1, TimeUnit.MINUTES
