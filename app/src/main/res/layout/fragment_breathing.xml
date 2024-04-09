@@ -180,6 +180,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/ic_ble_progress"
-        layout="@layout/ble_progress"
-        />
+        layout="@layout/ble_progress" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

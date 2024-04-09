@@ -30,6 +30,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -173,6 +174,14 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.errorMessage.collectLatest {
                         viewModel.stopResultProgressBar()
                         showAlertDialog(message = it)
+                    }
+                }
+                launch {
+                    viewModel.dataFlowInfoMessage.collect {
+                        binding.icBleProgress.apply {
+                            tvDeviceId.text = "이전 데이터를 찾았습니다.\n 데이터 정리하고 있습니다.\n잠시만 기다려주세요."
+                            root.visibility = if (it) View.VISIBLE else View.GONE
+                        }
                     }
                 }
             }

@@ -742,6 +742,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.DataFlow -> {
                                     writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
                                         _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                                        setDataFlow(true)
                                         logHelper.insertLog(state)
                                     }
                                 }

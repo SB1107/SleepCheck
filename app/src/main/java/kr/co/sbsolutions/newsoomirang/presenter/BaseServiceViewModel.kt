@@ -54,6 +54,9 @@ abstract class BaseServiceViewModel(
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
     private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(true)
     val guideAlert : StateFlow<Boolean> = _guideAlert
+
+    private val _dataFlowInfoMessage: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val dataFlowInfoMessage : StateFlow<Boolean> = _dataFlowInfoMessage
     abstract fun whereTag(): String
 
     init {
@@ -65,6 +68,9 @@ abstract class BaseServiceViewModel(
                     bluetoothInfo = it
 
                     setBatteryInfo()
+                    launch {
+                        _dataFlowInfoMessage.emit(it.isDataFlow)
+                    }
                         when (it.bluetoothState) {
                             BluetoothState.Unregistered -> {
                                 _bluetoothButtonState.emit("연결")
@@ -94,12 +100,7 @@ abstract class BaseServiceViewModel(
                             BluetoothState.Connected.ReceivingRealtime,
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.End -> {
-                                if (it.isDataFlow) {
-
-                                }else{
                                     _bluetoothButtonState.emit("시작")
-
-                                }
                             }
 
                             BluetoothState.Connecting -> {
@@ -107,7 +108,9 @@ abstract class BaseServiceViewModel(
                                     _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                             }
-                            BluetoothState.Connected.DataFlow ->{
+
+                            BluetoothState.Connected.DataFlow,
+                            BluetoothState.Connected.DataFlowUploadFinish-> {
                                 _guideAlert.emit(false)
                             }
 
