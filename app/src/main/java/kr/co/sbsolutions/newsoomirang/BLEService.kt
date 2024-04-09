@@ -192,7 +192,9 @@ class BLEService : LifecycleService() {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
-                    callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
+                    if (timeHelper.getTime() > (60 * 30)){
+                        callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
+                    }
                 }
             }
         }
