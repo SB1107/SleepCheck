@@ -6,6 +6,7 @@ import android.widget.RelativeLayout
 import androidx.appcompat.widget.AppCompatTextView
 import com.google.android.material.card.MaterialCardView
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import org.junit.Test
@@ -22,13 +23,12 @@ import java.nio.ByteBuffer
 class ExampleUnitTest {
 
     @Test
-    fun extractValueAfterHyphen(str: String = "11111 - 1111") {
-        val hyphenIndex = str.indexOf("-")
-        if (hyphenIndex != -1) {
-            println(str.substring(hyphenIndex + 1))
-        } else {
-            ""
-        }
+    fun getChangeDeviceName() {
+        val bleName = "APnb-0101"
+        val nameCheck = bleName.contains("H")
+        val bleNumber = bleName.split("-").last()
+        val name = if (!nameCheck)"숨이랑 - $bleNumber" else "HSMD - $bleNumber"
+        println(name)
     }
 
     @Test
