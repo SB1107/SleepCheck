@@ -735,6 +735,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.Init,
                                 BluetoothState.Connected.Ready -> {
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+                                    setDataFlow(false)
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")

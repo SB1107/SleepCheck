@@ -91,8 +91,8 @@ abstract class BaseServiceViewModel(
 
                             BluetoothState.DisconnectedNotIntent -> {
                                 bluetoothInfo.batteryInfo = null
-                                    _batteryState.emit("")
-                                    _bluetoothButtonState.emit("연결 끊김")
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결 끊김")
                             }
 
                             BluetoothState.Connected.Ready,
@@ -100,12 +100,12 @@ abstract class BaseServiceViewModel(
                             BluetoothState.Connected.ReceivingRealtime,
                             BluetoothState.Connected.SendDownloadContinue,
                             BluetoothState.Connected.End -> {
-                                    _bluetoothButtonState.emit("시작")
+                                _bluetoothButtonState.emit("시작")
                             }
 
                             BluetoothState.Connecting -> {
-                                    _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
-                                    _bluetoothButtonState.emit("재 연결중")
+                                _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                                _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                             }
 
@@ -116,7 +116,7 @@ abstract class BaseServiceViewModel(
 
                             else -> {
                                 _bluetoothButtonState.emit("시작")
-                                    _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                             }
                         }
                     }
