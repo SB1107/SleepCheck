@@ -24,6 +24,7 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -163,6 +164,9 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 
+    @Inject
+    lateinit var  workManager: WorkManager
+
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
             return@run adapter
@@ -181,6 +185,7 @@ class BLEService : LifecycleService() {
     lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
+    private  var pruneWork : Boolean = true
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -189,7 +194,7 @@ class BLEService : LifecycleService() {
         instance = this
         logHelper.insertLog("bleOnCreate")
         listenChannelMessage()
-
+        pruneWork = true
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
@@ -232,6 +237,12 @@ class BLEService : LifecycleService() {
                     setLogWorkerHelper(logHelper)
                 }
         setDataFlowFinish()
+        lifecycleScope.launch(IO) {
+            while (pruneWork){
+                delay(1000)
+                workManager.pruneWork()
+            }
+        }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -347,6 +358,7 @@ class BLEService : LifecycleService() {
         cancelJob()
         stopSelf()
         logHelper.insertLog("BLEService onDestroy")
+        pruneWork = false
         super.onDestroy()
     }
 
@@ -507,7 +519,7 @@ class BLEService : LifecycleService() {
 
             ActionMessage.StartSBService -> {
                 lifecycleScope.launch(IO) {
-//                    serviceLiveWorkCheck()
+                    serviceLiveWorkCheck()
                     val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
@@ -522,7 +534,7 @@ class BLEService : LifecycleService() {
                 lifecycleScope.launch(IO) {
                     startSetting()
                     val hasSensor = dataManager.getHasSensor().first()
-//                    serviceLiveWorkCheck()
+                    serviceLiveWorkCheck()
                     val sleepType = settingDataRepository.getSleepType()
                     settingDataRepository.getDataId()?.let {
                         sbSensorInfo.value.dataId = it
@@ -637,18 +649,24 @@ class BLEService : LifecycleService() {
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
                         when (workInfo.state) {
-                            WorkInfo.State.ENQUEUED -> {}
-                            WorkInfo.State.RUNNING -> {}
+                            WorkInfo.State.ENQUEUED -> {
+                                Log.e(TAG, "serviceLiveWorkCheck: ENQUEUED", )
+                            }
+                            WorkInfo.State.RUNNING -> {
+                                Log.e(TAG, "serviceLiveWorkCheck: RUNNING", )
+                            }
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
                                     logHelper.insertLog("서비스 살아있는지 확인 워커 - ${workInfo.outputData.keyValueMap}")
                                 }
                             }
 
-                            WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {}
+                            WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {
+                                Log.e(TAG, "serviceLiveWorkCheck: SUCCEEDED", )
+                            }
                             WorkInfo.State.CANCELLED -> {
                                 lifecycleScope.launch(IO) {
-                                    logHelper.insertLog("서비스 살아있는지 확인 취소")
+                                    logHelper.insertLog("서비스 살아있는지 확인 취소 - ${workInfo.outputData.keyValueMap}")
                                 }
                             }
                         }
@@ -746,7 +764,7 @@ class BLEService : LifecycleService() {
         notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         stopTimer()
         stopAudioClassification()
-
+        serviceLiveCheckWorkerHelper.cancelWork()
         logHelper.insertLog("stopSBSensor 코골이 시간: ${noseRingHelper.getSnoreTime()}  isCancel: $isCancel dataId: ${sbSensorInfo.value.dataId}")
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
@@ -1023,9 +1041,8 @@ class BLEService : LifecycleService() {
 
     private fun setDataFlowFinish() {
         bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
-            logHelper.insertLog{setDataFlowFinish()}
             if (lastIndex) {
-                lifecycleScope.launch(IO) {
+                logHelper.registerJob("setDataFlowFinish lastIndex = true",lifecycleScope.launch(IO) {
                     val dataIdJob = async {
                         return@async settingDataRepository.getDataId()
                     }
@@ -1048,10 +1065,9 @@ class BLEService : LifecycleService() {
                             }
                         }
                     }
-                }
+                })
             } else {
-                Log.d(TAG, "setDataFlowFinish: 000")
-                lifecycleScope.launch(IO) {
+                logHelper.registerJob("setDataFlowFinish lastIndex = false",lifecycleScope.launch(IO) {
                     val dataIdJob = async {
                         return@async settingDataRepository.getDataId()
                     }
@@ -1071,7 +1087,7 @@ class BLEService : LifecycleService() {
                             logHelper.insertLog("dataId 없음 취소한다. ")
                         }
                     }
-                }
+                })
             }
         }
     }

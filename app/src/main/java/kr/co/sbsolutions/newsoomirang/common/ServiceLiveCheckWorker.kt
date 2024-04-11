@@ -34,11 +34,11 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
             if (isServiceRunning.not()) {
                 logHelper.insertLog("service live check = $isServiceRunning")
-                Intent(context, BLEService::class.java).apply {
-                    action = ActionMessage.ReStartSBService.msg
-                    context.startForegroundService(this)
-                    logHelper.insertLog("ServiceLiveCheckWorker 서비스 재시작 콜")
-                }
+//                Intent(context, BLEService::class.java).apply {
+//                    action = ActionMessage.ReStartSBService.msg
+//                    context.startForegroundService(this)
+//                    logHelper.insertLog("ServiceLiveCheckWorker 서비스 재시작 콜")
+//                }
             }
             return@withContext Result.success()
         }

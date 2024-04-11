@@ -14,6 +14,7 @@ class LogWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
     fun insertLog(message : String) {
+        workManager.pruneWork()
         val  worker = OneTimeWorkRequestBuilder<LogWorker>().apply {
             addTag("log")
             setInputData(workDataOf("log" to message))

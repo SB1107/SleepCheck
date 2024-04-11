@@ -5,14 +5,14 @@ import kotlinx.coroutines.Job
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 
-class LogHelper(private  val logWorkerHelper: LogWorkerHelper , private val coroutineScopeHandler : CoroutineScopeHandler) {
+class LogHelper(private val logWorkerHelper: LogWorkerHelper, private val coroutineScopeHandler: CoroutineScopeHandler) {
 
-    fun  insertLog(logMethod :() -> Unit  ){
+    fun insertLog(logMethod: () -> Unit) {
         val name = getClazzName(logMethod)
         logWorkerHelper.insertLog("Method : $name ")
     }
 
-    fun insertLog(message : String) {
+    fun insertLog(message: String) {
         var tempData = message
         if (tempData.contains("null")) {
             tempData = message.replace("null", "").replace("", "").trim()
@@ -26,18 +26,18 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper , private val coro
         Log.e(TAG, "insertLog: $state")
     }
 
-    fun registerJob(job: Job, method: () -> Unit){
+    fun registerJob(job: Job, method: () -> Unit) {
         val tag = getClazzName(method)
         insertLog("registerJob = $tag")
         return coroutineScopeHandler.registerJob(job, tag)
     }
 
-    fun registerJob(job: Job, tag : String){
+    fun registerJob(tag: String, job: Job) {
         insertLog("registerJob = $tag")
         return coroutineScopeHandler.registerJob(job, tag)
     }
 
-    private fun  getClazzName(request: () -> Unit): String {
+    private fun getClazzName(request: () -> Unit): String {
         val regex = Regex("[\\d\\p{Punct}$]")
         val clazzName = regex.replace(request.javaClass.name.split(".").last(), "")
 
