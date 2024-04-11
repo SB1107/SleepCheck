@@ -29,6 +29,7 @@ sealed interface AppToModuleResponse {
     object MemoryDataResponseNAK : AppToModuleResponse
     object PowerOffACK : AppToModuleResponse
     object MOTCtrlSetACK : AppToModuleResponse
+    object MOTCDataSetACK : AppToModuleResponse
 }
 
 fun AppToModule.getState() : BluetoothState.Connected {
@@ -287,6 +288,16 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+        AppToModuleResponse.MOTCDataSetACK -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xCF.toByte(),
+                // LEN
+                0x00.toByte()
+            ).addCheckSum()
+        }
     }
 }
 
@@ -302,6 +313,7 @@ sealed interface ModuleToApp {
     object MemoryDataACK : ModuleToApp
     object MemoryDataDeleteACK : ModuleToApp
     object PowerOff : ModuleToApp
+    object MOTCData : ModuleToApp
     object Error : ModuleToApp
     object BatteryState : ModuleToApp
 }
@@ -318,6 +330,7 @@ fun String.getCommand() : ModuleToApp {
         "C5" -> ModuleToApp.MemoryDataACK
         "C6" -> ModuleToApp.MemoryDataDeleteACK
         "FD" -> ModuleToApp.PowerOff
+        "FF" -> ModuleToApp.MOTCData
         "FA" -> ModuleToApp.BatteryState
         else -> ModuleToApp.Error
     }

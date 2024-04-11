@@ -1090,6 +1090,10 @@ class BluetoothNetworkRepository @Inject constructor(
                         }
                     }
 
+                    ModuleToApp.MOTCData -> {
+                        writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
+                    }
+
                     else -> {}
                 }
             }
