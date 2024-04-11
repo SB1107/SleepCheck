@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 
 @HiltWorker
@@ -30,6 +31,7 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val isServiceRunning =  BLEService.getInstance()?.isForegroundServiceRunning() ?: false
+            Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
             if (isServiceRunning.not()) {
                 logHelper.insertLog("service live check = $isServiceRunning")
                 Intent(context, BLEService::class.java).apply {

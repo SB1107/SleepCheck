@@ -1,10 +1,11 @@
 package kr.co.sbsolutions.newsoomirang.common
 
 import android.util.Log
+import kotlinx.coroutines.Job
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 
-class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
+class LogHelper(private  val logWorkerHelper: LogWorkerHelper , private val coroutineScopeHandler : CoroutineScopeHandler) {
 
     fun  insertLog(logMethod :() -> Unit  ){
         val name = getClazzName(logMethod)
@@ -23,6 +24,10 @@ class LogHelper(private  val logWorkerHelper: LogWorkerHelper) {
     fun insertLog(state: BluetoothState) {
         logWorkerHelper.insertLog(state.toString())
         Log.e(TAG, "insertLog: $state")
+    }
+
+    fun registerJob(job: Job, method: () -> Unit){
+        return coroutineScopeHandler.registerJob(job, getClazzName(method))
     }
 
     private fun  getClazzName(request: () -> Unit): String {

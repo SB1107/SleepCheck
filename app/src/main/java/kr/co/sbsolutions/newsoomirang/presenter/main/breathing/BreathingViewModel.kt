@@ -74,14 +74,17 @@ class BreathingViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.ForceEnd ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             ) {
-                viewModelScope.launch {
+                registerJob(viewModelScope.launch {
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
                         insertLog("서비스가 없습니다.")
                         reLoginCallBack()
                     }
+                }){
+                    startClick()
                 }
+
             } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                 sendErrorMessage("코골이 측정중 입니다. 종료후 사용해 주세요")
             }
@@ -91,11 +94,12 @@ class BreathingViewModel @Inject constructor(
     fun cancelClick() {
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
-        viewModelScope.launch {
+        val job = viewModelScope.launch {
 
             getService()?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
         }
+        job.invokeOnCompletion {  }
     }
 
     fun stopClick() {

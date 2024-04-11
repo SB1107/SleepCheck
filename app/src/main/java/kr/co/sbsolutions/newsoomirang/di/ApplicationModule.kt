@@ -15,6 +15,7 @@ import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
@@ -59,6 +60,7 @@ object ApplicationModule {
 
     @Provides
     fun provideServiceLiveWorkHelper(workManager: WorkManager) = ServiceLiveCheckWorkerHelper(workManager)
+
     @Provides
     fun provideTimeId() = "${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
 
@@ -71,15 +73,18 @@ object ApplicationModule {
     @Provides
     fun provideNoseRingManager() = NoseRingHelper()
 
+    @Provides
+    fun provideCoroutineScopeHandler() = CoroutineScopeHandler()
 
     @Provides
-    fun provideLogHelper(logWorkerHelper: LogWorkerHelper) = LogHelper(logWorkerHelper)
+    fun provideLogHelper(logWorkerHelper: LogWorkerHelper, coroutineScopeHandler: CoroutineScopeHandler) = LogHelper(logWorkerHelper, coroutineScopeHandler)
 
     @Provides
     fun provideNotificationBuilder(
         @ApplicationContext context: Context
     ) = NotificationCompat.Builder(context, Cons.NOTIFICATION_CHANNEL_ID).setAutoCancel(true).setOngoing(true).setSmallIcon(R.mipmap.ic_launcher) // TODO: Notification 아이콘 작업
         .setContentTitle("숨이랑 기기 연결 대기 중").setPriority(NotificationCompat.PRIORITY_HIGH)
+
     @Provides
     fun provideNotificationManager(@ApplicationContext context: Context) = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 }

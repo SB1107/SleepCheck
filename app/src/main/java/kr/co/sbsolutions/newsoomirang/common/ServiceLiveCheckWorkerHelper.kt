@@ -13,14 +13,11 @@ class ServiceLiveCheckWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
     private val uuid = UUID.randomUUID()
+    private  val tag = "ServiceLiveCheckWorkerHelper"
     fun serviceLiveCheck(): LiveData<WorkInfo> {
-        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(5, TimeUnit.MINUTES).apply {
+        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(1, TimeUnit.MINUTES).apply {
             setId(uuid)
-            addTag("ServiceLiveCheckWorkerHelper")
-            setBackoffCriteria(
-                BackoffPolicy.EXPONENTIAL,
-                1, TimeUnit.MINUTES
-            )
+            addTag(tag)
         }
             .build()
         workManager.enqueue(workRequest)
@@ -29,7 +26,7 @@ class ServiceLiveCheckWorkerHelper @Inject constructor(
 
     fun cancelWork() {
         workManager.cancelWorkById(uuid)
-        workManager.cancelAllWorkByTag("ServiceLiveCheckWorkerHelper")
+        workManager.cancelAllWorkByTag(tag)
     }
 
 }

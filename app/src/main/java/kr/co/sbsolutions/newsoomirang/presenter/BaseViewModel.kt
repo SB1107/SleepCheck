@@ -3,11 +3,14 @@ package kr.co.sbsolutions.newsoomirang.presenter
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
@@ -64,13 +67,19 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
             Log.d(TAG, "insertLog: $log")
         }
     }
+
     fun setLogHelper(logHelper: LogHelper) {
         this.logHelper = logHelper
     }
-    fun insertLog(method : ()-> Unit) {
+
+    fun insertLog(method: () -> Unit) {
         if (::logHelper.isInitialized) {
             logHelper.insertLog(method)
         }
+    }
+
+    fun registerJob(job: Job, method: () -> Unit) {
+        return logHelper.registerJob(job, method)
     }
 
     override fun onCleared() {
