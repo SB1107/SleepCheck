@@ -747,8 +747,7 @@ class BLEService : LifecycleService() {
         stopTimer()
         stopAudioClassification()
 
-        logHelper.insertLog("코골이 시간: ${noseRingHelper.getSnoreTime()}   $isCancel")
-        Log.d(TAG, "코골이 시간: ${noseRingHelper.getSnoreTime()}")
+        logHelper.insertLog("stopSBSensor 코골이 시간: ${noseRingHelper.getSnoreTime()}  isCancel: $isCancel dataId: ${sbSensorInfo.value.dataId}")
 
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             logHelper.insertLog("bluetoothState: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
