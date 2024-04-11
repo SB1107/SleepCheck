@@ -59,7 +59,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (::googleSignInClient.isInitialized){
+        if (::googleSignInClient.isInitialized) {
             googleSignInClient.signOut()
         }
     }

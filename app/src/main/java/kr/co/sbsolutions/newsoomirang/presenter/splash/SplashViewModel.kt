@@ -21,7 +21,7 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     dataManager: DataManager
-) : BaseViewModel(dataManager, tokenManager){
+) : BaseViewModel(dataManager, tokenManager) {
     private val _nextProcess: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val nextProcess: StateFlow<Boolean> = _nextProcess
     private val _whereActivity: MutableStateFlow<WHERE> = MutableStateFlow(WHERE.None)
@@ -58,11 +58,12 @@ class SplashViewModel @Inject constructor(
     }
 
     fun whereLocation() {
-        viewModelScope.launch {
-            val token = tokenManager.getToken().first()
-            _whereActivity.emit(if (token.isNullOrEmpty()) WHERE.Login else WHERE.Main)
-        }
-
+        registerJob("whereLocation()",
+            viewModelScope.launch {
+                val token = tokenManager.getToken().first()
+                _whereActivity.emit(if (token.isNullOrEmpty()) WHERE.Login else WHERE.Main)
+            }
+        )
     }
 }
 

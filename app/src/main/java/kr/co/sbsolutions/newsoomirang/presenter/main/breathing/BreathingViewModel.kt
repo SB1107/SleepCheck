@@ -105,19 +105,18 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun stopClick() {
-        insertLog {
-            stopClick()
-        }
-        viewModelScope.launch(Dispatchers.Main) {
-            getService()?.checkDataSize()?.collectLatest {
-                if (it) {
-                    _showMeasurementCancelAlert.emit(true)
-                    return@collectLatest
+        registerJob("stopClick()",
+            viewModelScope.launch(Dispatchers.Main) {
+                getService()?.checkDataSize()?.collectLatest {
+                    if (it) {
+                        _showMeasurementCancelAlert.emit(true)
+                        return@collectLatest
+                    }
+                    setMeasuringState(MeasuringState.InIt)
+                    getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
                 }
-                setMeasuringState(MeasuringState.InIt)
-                getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
-            }
-        }
+            })
+
     }
 
     private fun sleepDataDelete() {
@@ -130,26 +129,25 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun sleepDataCreate(): Flow<Boolean> = callbackFlow {
-        insertLog {
-            sleepDataCreate()
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
-                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
-                    .catch {
-                        trySend(false)
-                        close()
-                    }
-                    .collectLatest {
-                        it.result?.id?.let { id ->
-                            getService()?.startSBSensor(id, SleepType.Breathing)
-                            setMeasuringState(MeasuringState.FiveRecode)
-                            trySend(true)
+        registerJob("sleepDataCreate()",
+            viewModelScope.launch(Dispatchers.IO) {
+                dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first()?.let {
+                    request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it)) }
+                        .catch {
+                            trySend(false)
                             close()
                         }
-                    }
+                        .collectLatest {
+                            it.result?.id?.let { id ->
+                                getService()?.startSBSensor(id, SleepType.Breathing)
+                                setMeasuringState(MeasuringState.FiveRecode)
+                                trySend(true)
+                                close()
+                            }
+                        }
+                }
             }
-        }
+        )
         awaitClose()
     }
 
