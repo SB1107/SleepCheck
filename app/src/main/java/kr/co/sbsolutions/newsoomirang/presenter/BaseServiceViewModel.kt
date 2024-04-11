@@ -214,5 +214,10 @@ abstract class BaseServiceViewModel(
             null
         }
     }
+    fun dismissGuideAlert(){
+        viewModelScope.launch {
+            _guideAlert.emit(false)
+        }
+    }
 
 }

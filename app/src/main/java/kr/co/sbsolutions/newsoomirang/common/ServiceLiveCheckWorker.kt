@@ -1,7 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.common
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -14,7 +13,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 
 @HiltWorker
 class ServiceLiveCheckWorker @AssistedInject constructor(

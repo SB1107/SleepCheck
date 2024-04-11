@@ -266,6 +266,7 @@ class SensorActivity : BluetoothActivity() {
 
                             } else {
                                 timer?.cancel()
+                                connectDeviceDialog.dismiss()
                                 bleAdapter.submitList(list)
                             }
                         }

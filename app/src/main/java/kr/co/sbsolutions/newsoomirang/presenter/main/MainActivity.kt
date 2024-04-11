@@ -71,7 +71,9 @@ class MainActivity : BaseServiceActivity() {
         AppUpdateManagerFactory.create(this)
     }
     private  val guideAlert : AlertDialog by lazy {
-        guideAlertDialog()
+        guideAlertDialog{isChecked ->
+            viewModel.dismissGuideAlert()
+        }
     }
     private val appUpdateLauncher: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -131,7 +133,7 @@ class MainActivity : BaseServiceActivity() {
         }
         gotoFragment(intent)
 
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.serviceCommend.collectLatest {
@@ -144,6 +146,7 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch {
                     viewModel.guideAlert.collectLatest {
+                        Log.e(TAG, "collectLatest:${it} ", )
                         when(it){
                             true -> guideAlert.show()
                             false -> {
