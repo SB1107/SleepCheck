@@ -40,16 +40,19 @@ class SettingViewModel @Inject constructor(
     val deviceName: StateFlow<String?> = _deviceName
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                bluetoothManagerUseCase.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR).collectLatest {
-                    it?.let {
-                        Log.d(TAG, "getDeviceName:11r $it")
-                        _deviceName.emit(it)
-                    } ?: _deviceName.emit("")
+        registerJob("SettingViewModel",
+            viewModelScope.launch(Dispatchers.IO) {
+                launch {
+                    bluetoothManagerUseCase.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR).collectLatest {
+                        it?.let {
+                            Log.d(TAG, "getDeviceName:11r $it")
+                            _deviceName.emit(it)
+                        } ?: _deviceName.emit("")
+                    }
                 }
             }
-        }
+        )
+
     }
     //로그아웃
     fun logout() {
@@ -58,34 +61,40 @@ class SettingViewModel @Inject constructor(
         ) {
             sendErrorMessage("호흡 측정중 입니다.\n종료후 로그아웃을 시도해주세요")
         } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                launch {
-                    request { remoteAuthDataSource.postLogout() }.collectLatest {
-                        Log.d(TAG, "logout 결과: ${it.success}")
-                        if (it.success) {
-                            dataRemove()
+            registerJob("logout()",
+                viewModelScope.launch(Dispatchers.IO) {
+                    launch {
+                        request { remoteAuthDataSource.postLogout() }.collectLatest {
+                            Log.d(TAG, "logout 결과: ${it.success}")
+                            if (it.success) {
+                                dataRemove()
+                            }
                         }
                     }
                 }
-            }
+            )
         }
     }
 
     override fun dataRemove() {
-        viewModelScope.launch {
-            tokenManager.deleteToken()
-            dataManager.deleteUserName()
-            Firebase.auth.signOut()
-            FirebaseAuth.getInstance().signOut();
-            deleteDeviceName()
-            _logoutResult.emit(true)
-        }
+        registerJob("dataRemove()",
+            viewModelScope.launch {
+                tokenManager.deleteToken()
+                dataManager.deleteUserName()
+                Firebase.auth.signOut()
+                FirebaseAuth.getInstance().signOut();
+                deleteDeviceName()
+                _logoutResult.emit(true)
+            }
+        )
     }
 
     override fun deleteDeviceName() {
-        viewModelScope.launch(Dispatchers.IO) {
-            dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
-        }
+        registerJob("deleteDeviceName()",
+            viewModelScope.launch(Dispatchers.IO) {
+                dataManager.deleteBluetoothDevice(bluetoothInfo.sbBluetoothDevice.type.name)
+            }
+        )
     }
 
     override fun whereTag(): String {

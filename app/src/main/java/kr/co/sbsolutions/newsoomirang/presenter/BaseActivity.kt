@@ -17,7 +17,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import javax.inject.Inject
@@ -35,8 +34,6 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    @Inject
-    lateinit var  logWorkerHelper: LogWorkerHelper
     @Inject
     lateinit var  logHelper: LogHelper
 

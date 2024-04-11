@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,18 +18,23 @@ import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.log
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    val dataManager: DataManager,
-    tokenManager: TokenManager,
-    private val authAPIRepository: RemoteAuthDataSource
+    private val dataManager: DataManager,
+    private val tokenManager: TokenManager,
+    private val authAPIRepository: RemoteAuthDataSource,
+    private val logHelper: LogHelper
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
     private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
@@ -40,7 +46,15 @@ class MainViewModel @Inject constructor(
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
     private lateinit var resultJob: Job
-    
+    init {
+        userInfoLog()
+    }
+
+    private fun userInfoLog() {
+        viewModelScope.launch {
+            logHelper.insertLog("[M] Model Name: ${Build.MODEL} ${dataManager.getUserName().first().toString()}")
+        }
+    }
     /*private fun getAppGuide() {
         Log.d(TAG, "getAppGuide11111111: ")
         viewModelScope.launch(Dispatchers.IO) {
@@ -58,9 +72,11 @@ class MainViewModel @Inject constructor(
         }
     }*/
     fun stopResultProgressBar() {
-        viewModelScope.launch {
+        registerJob("stopResultProgressBar()",
+            viewModelScope.launch {
             _isResultProgressBar.emit(Pair(-1, false))
-        }
+            }
+        )
     }
 
     fun sendMeasurementResults() {
@@ -68,7 +84,6 @@ class MainViewModel @Inject constructor(
             job.cancel()
         }
         job = viewModelScope.launch(Dispatchers.IO) {
-
 
             if (ApplicationManager.getBluetoothInfo().sleepType == SleepType.Breathing) {
                 Log.d(TAG, "RESULT: ${ApplicationManager.getBluetoothInfo().sleepType} ")
@@ -159,7 +174,7 @@ class MainViewModel @Inject constructor(
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    }else{
+                    }else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
                         if((result.state != 1).not()){

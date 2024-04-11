@@ -62,20 +62,21 @@ class NoSeringViewModel @Inject constructor(
 
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                settingDataRepository.getSnoringOnOff().let {
-                    _motorCheckBox.emit(it)
+        registerJob("NoSeringViewModelInit",
+            viewModelScope.launch(Dispatchers.IO) {
+                launch {
+                    settingDataRepository.getSnoringOnOff().let {
+                        _motorCheckBox.emit(it)
+                    }
+                }
+
+                launch {
+                    settingDataRepository.getSnoringVibrationIntensity().let {
+                        _intensity.emit(it)
+                    }
                 }
             }
-
-            launch {
-                settingDataRepository.getSnoringVibrationIntensity().let {
-                    _intensity.emit(it)
-                }
-            }
-        }
-
+            )
     }
 
     fun startClick() {
@@ -105,10 +106,12 @@ class NoSeringViewModel @Inject constructor(
     }
 
     fun forceStartClick() {
-        viewModelScope.launch {
-            _showMeasurementAlert.emit(true)
-            dataManager.setHasSensor(false)
-        }
+        registerJob("forceStartClick()",
+            viewModelScope.launch {
+                _showMeasurementAlert.emit(true)
+                dataManager.setHasSensor(false)
+            }
+        )
     }
 
     fun bluetoothConnect() {
@@ -201,11 +204,12 @@ class NoSeringViewModel @Inject constructor(
 
     fun setMotorCheckBox(isChecked: Boolean) {
         this.motorCheckBok = isChecked
-        viewModelScope.launch(Dispatchers.IO) {
-            settingDataRepository.setSnoringOnOff(isChecked)
-            _motorCheckBox.emit(isChecked)
-        }
-
+        registerJob("setMotorCheckBox",
+            viewModelScope.launch(Dispatchers.IO) {
+                settingDataRepository.setSnoringOnOff(isChecked)
+                _motorCheckBox.emit(isChecked)
+            }
+        )
     }
 
     /*    fun noSeringResultData() {
