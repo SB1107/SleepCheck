@@ -164,9 +164,6 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 
-    @Inject
-    lateinit var  workManager: WorkManager
-
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
             return@run adapter
@@ -185,7 +182,6 @@ class BLEService : LifecycleService() {
     lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
-    private  var pruneWork : Boolean = true
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -194,7 +190,6 @@ class BLEService : LifecycleService() {
         instance = this
         logHelper.insertLog("bleOnCreate")
         listenChannelMessage()
-        pruneWork = true
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
@@ -237,12 +232,6 @@ class BLEService : LifecycleService() {
                     setLogWorkerHelper(logHelper)
                 }
         setDataFlowFinish()
-        lifecycleScope.launch(IO) {
-            while (pruneWork){
-                delay(1000)
-                workManager.pruneWork()
-            }
-        }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -358,7 +347,6 @@ class BLEService : LifecycleService() {
         cancelJob()
         stopSelf()
         logHelper.insertLog("BLEService onDestroy")
-        pruneWork = false
         super.onDestroy()
     }
 

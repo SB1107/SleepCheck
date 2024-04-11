@@ -14,16 +14,16 @@ import javax.inject.Inject
 class ServiceLiveCheckWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
-    private val uuid = UUID.randomUUID()
+    private val uuid = UUID.nameUUIDFromBytes("ServiceLiveCheckWorkerHelper".toByteArray())
     private val tag = "ServiceLiveCheckWorkerHelper"
     fun serviceLiveCheck(): LiveData<WorkInfo> {
-        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(1, TimeUnit.MINUTES).apply {
+        val workRequest = PeriodicWorkRequestBuilder<ServiceLiveCheckWorker>(15, TimeUnit.MINUTES).apply {
             setId(uuid)
             addTag(tag)
 
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
-                1, TimeUnit.MINUTES
+                2, TimeUnit.MINUTES
             )
         }.build()
         workManager.enqueue(workRequest)
