@@ -83,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.socialLogin(SocialType.KAKAO)
             }
         }
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch{
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.whereActivity.collectLatest {
