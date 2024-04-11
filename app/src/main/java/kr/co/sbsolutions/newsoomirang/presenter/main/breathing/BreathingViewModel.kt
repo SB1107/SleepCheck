@@ -48,6 +48,7 @@ class BreathingViewModel @Inject constructor(
 
 
     init {
+        registerJob("Breathing init",
         viewModelScope.launch {
             launch {
                 ApplicationManager.getBluetoothInfoFlow().collect { info ->
@@ -63,7 +64,7 @@ class BreathingViewModel @Inject constructor(
 
                 }
             }
-        }
+        })
     }
 
     fun startClick() {
@@ -94,12 +95,13 @@ class BreathingViewModel @Inject constructor(
     fun cancelClick() {
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
-        val job = viewModelScope.launch {
+        registerJob("cancelClick",
+        viewModelScope.launch {
 
             getService()?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
-        }
-        job.invokeOnCompletion {  }
+        })
+
     }
 
     fun stopClick() {

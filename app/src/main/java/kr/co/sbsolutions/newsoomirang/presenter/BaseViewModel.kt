@@ -82,6 +82,10 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
         return logHelper.registerJob(job, method)
     }
 
+    fun registerJob(tag : String ,job: Job ) {
+        return logHelper.registerJob(job, tag)
+    }
+
     override fun onCleared() {
         super.onCleared()
         cancelJob()
