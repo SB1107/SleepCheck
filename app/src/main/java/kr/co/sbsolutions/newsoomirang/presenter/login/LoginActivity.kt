@@ -92,6 +92,7 @@ class LoginActivity : AppCompatActivity() {
                             WHERE.Login -> {}
                             WHERE.Main -> {
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
+                                finish()
                             }
 
                             WHERE.Policy -> {

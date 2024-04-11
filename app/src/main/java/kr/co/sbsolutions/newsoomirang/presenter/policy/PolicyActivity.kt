@@ -127,6 +127,7 @@ class PolicyActivity : AppCompatActivity() {
                             finish()
                         } else {
                             startActivity(Intent(this@PolicyActivity, MainActivity::class.java).addFlag())
+                            finish()
                         }
                     }
                 }
