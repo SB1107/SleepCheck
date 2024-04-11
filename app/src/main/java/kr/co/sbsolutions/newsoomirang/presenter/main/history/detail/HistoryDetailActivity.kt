@@ -527,7 +527,6 @@ class HistoryDetailActivity : BaseActivity() {
                             color = Color.White,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Normal,
-                            overflow = TextOverflow.Ellipsis,
                             maxLines = 2,
                            modifier =  Modifier.weight(7f)
                         )
