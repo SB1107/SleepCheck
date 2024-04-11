@@ -32,12 +32,12 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
         withContext(ioDispatchers) {
             val isServiceRunning =  BLEService.getInstance()?.isForegroundServiceRunning() ?: false
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
+            logHelper.insertLog("service live check = $isServiceRunning")
             if (isServiceRunning.not()) {
-                logHelper.insertLog("service live check = $isServiceRunning")
 //                Intent(context, BLEService::class.java).apply {
 //                    action = ActionMessage.ReStartSBService.msg
 //                    context.startForegroundService(this)
-//                    logHelper.insertLog("ServiceLiveCheckWorker 서비스 재시작 콜")
+                    logHelper.insertLog("ServiceLiveCheckWorker ${BLEService.getInstance()}")
 //                }
             }
             return@withContext Result.success()
