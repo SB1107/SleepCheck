@@ -20,7 +20,7 @@ abstract class BluetoothActivity : BaseActivity() {
 
     private lateinit var bluetoothActivityResultLauncher: ActivityResultLauncher<Intent>
 
-//    private lateinit var gpsActivityResultLauncher: ActivityResultLauncher<Intent>
+    private lateinit var gpsActivityResultLauncher: ActivityResultLauncher<Intent>
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
@@ -28,18 +28,19 @@ abstract class BluetoothActivity : BaseActivity() {
         }
     }
 
-    /*private val locationManager: LocationManager by lazy {
+    private val locationManager: LocationManager by lazy {
         (this.applicationContext?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager)
             ?: throw IllegalStateException("Location manager not available")
-    }*/
+    }
 
-//    private var isGpsEnabled: Boolean = false
+    private val isGpsEnabled by lazy {
+        locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onBluetoothActive()
-//        onGpsActive()
-//        isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        onGpsActive()
     }
 
     override fun onResume() {
@@ -67,7 +68,7 @@ abstract class BluetoothActivity : BaseActivity() {
             }
         )
 
-        /*Log.d(TAG, "onResume11111111: $isGpsEnabled")
+        Log.d(TAG, "onResume11111111: $isGpsEnabled")
         if (!isGpsEnabled) {
             showAlertDialogWithCancel(
                 R.string.common_title, "블루투스 스캔을 위해 GPS활성화가 필요합니다. \n활성화 하시겠습니까?",
@@ -79,7 +80,7 @@ abstract class BluetoothActivity : BaseActivity() {
                     finish()
                 }
             )
-        }*/
+        }
     }
 
 
@@ -102,7 +103,7 @@ abstract class BluetoothActivity : BaseActivity() {
         bluetoothActivityResultLauncher.launch(enableBluetoothIntent)
     }
 
-    /*private fun onGpsActive() {
+    private fun onGpsActive() {
         gpsActivityResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
@@ -112,10 +113,10 @@ abstract class BluetoothActivity : BaseActivity() {
                     finish()
                 }
             }
-    }*/
+    }
 
-    /*private fun requestGpsActivation() {
+    private fun requestGpsActivation() {
         val enableBluetoothIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         gpsActivityResultLauncher.launch(enableBluetoothIntent)
-    }*/
+    }
 }
