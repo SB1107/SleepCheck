@@ -1,23 +1,22 @@
 package kr.co.sbsolutions.newsoomirang.data.bluetooth
 
 import android.annotation.SuppressLint
-import android.bluetooth.*
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothStatusCodes
 import android.os.Build
 import android.util.Log
-import androidx.collection.floatSetOf
-import androidx.compose.animation.fadeIn
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -41,7 +40,8 @@ import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
@@ -605,7 +605,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 disconnectedDevice(gatt)
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
-                logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS ${gatt.device.name} - ${gatt.device.address}")
+                logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }
