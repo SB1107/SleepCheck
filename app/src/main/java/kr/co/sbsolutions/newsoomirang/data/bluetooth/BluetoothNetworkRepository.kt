@@ -13,6 +13,8 @@ import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,6 +64,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
+    private  lateinit var sendDownloadContinueJob : Job
 
     companion object{
         private  var isSBSensorConnect = false
@@ -470,6 +473,27 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun startNetworkEEGSensor() {
         // TODO write command
     }
+    private  fun sendDownloadContinue(gatt : BluetoothGatt , innerData : MutableStateFlow<BluetoothInfo>) {
+        if (::sendDownloadContinueJob.isInitialized) {
+            sendDownloadContinueJob.cancel()
+        }
+        sendDownloadContinueJob = logCoroutine.launch {
+            logHelper.insertLog("sendDownloadContinue 등록")
+          while (true){
+              delay(600000)
+              writeData(gatt, AppToModule.OperateDownloadJob) { state ->
+                      innerData.update { it.copy(bluetoothState = state) }
+                      logHelper.insertLog(state)
+              }
+          }
+        }
+    }
+    private  fun sendDownloadContinueEnd(){
+        if (::sendDownloadContinueJob.isInitialized) {
+            sendDownloadContinueJob.cancel()
+            logHelper.insertLog("sendDownloadContinue 등록 취소")
+        }
+    }
 
     private fun writeResponse(gatt: BluetoothGatt, command: AppToModuleResponse) {
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
@@ -707,6 +731,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                it.bluetoothState = BluetoothState.Connected.Finish
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> Finish")
+                                    sendDownloadContinueEnd()
                                 }
 
                                 BluetoothState.Connected.DataFlow -> {
@@ -734,6 +759,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
 
                                     startTime = System.currentTimeMillis()
+                                    sendDownloadContinue(gatt , innerData)
                                 }
 
                                 BluetoothState.Connected.ReceivingDelayed, BluetoothState.Connected.Reconnected -> {
@@ -1028,6 +1054,10 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                 }
+                                BluetoothState.Connected.SendDownloadJob ->{
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                }
 
                                 BluetoothState.Connected.DataFlow,
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
@@ -1040,6 +1070,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                 }
                             }
                             if (value.verifyCheckSum()) {
+                                val memoryTotalIndex = String.format("%02X%02X", value[6], value[7]).toUInt(16).toInt()
+                                logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                             } else {
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)

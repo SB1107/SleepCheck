@@ -22,6 +22,7 @@ sealed class BluetoothState(open val state: String) {
         object SendDelayed : Connected("SendDelayed")
         object ReceivingDelayed : Connected("ReceivingDelayed")
         object SendDownloadContinue : Connected("SendDownloadContinue")
+        object SendDownloadJob : Connected("SendDownloadJob")
         object SendDownload : Connected("SendDownload")
         object FinishDownload : Connected("FinishDownload")
         object SendDelete : Connected("SendDelete")
