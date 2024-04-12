@@ -48,7 +48,7 @@ abstract class BluetoothActivity : BaseActivity() {
         bluetoothAdapter?.let {
             if (!it.isEnabled) {
                 showAlertDialogWithCancel(
-                    R.string.common_title, "블루투스를 활성화가 필요합니다. \n활성화 하시겠습니까?",
+                    R.string.common_title, "블루투스 활성화가 필요합니다. \n활성화 하시겠습니까?",
                     confirmButtonText = R.string.setting_bluetooth_connect,
                     confirmAction = {
                         requestBluetoothActivation()
