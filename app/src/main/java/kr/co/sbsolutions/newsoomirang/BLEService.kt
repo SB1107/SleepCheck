@@ -1016,6 +1016,15 @@ class BLEService : LifecycleService() {
         requestHelper.netWorkCancel()
 
     }
+    fun isBleDeviceConnect() : Boolean{
+        return bluetoothNetworkRepository.isSBSensorConnect()
+    }
+    fun forceBleDeviceConnect(){
+        val device = bluetoothAdapter?.getRemoteDevice(sbSensorInfo.value.bluetoothAddress)
+        sbSensorInfo.value.bluetoothGatt =
+            device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(sbSensorInfo.value.sbBluetoothDevice))
+        logHelper.insertLog("forceBleDeviceConnect call")
+    }
 
     fun isForegroundServiceRunning(): Boolean {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

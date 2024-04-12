@@ -63,6 +63,10 @@ class BluetoothNetworkRepository @Inject constructor(
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
 
+    companion object{
+        private  var isSBSensorConnect = false
+    }
+
     override suspend fun listenRegisterSBSensor() {
 
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
@@ -105,6 +109,10 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun setDataFlow(isDataFlow: Boolean) {
         _sbSensorInfo.update { it.copy(isDataFlow = isDataFlow) }
+    }
+
+    override fun isSBSensorConnect(): Boolean {
+        return isSBSensorConnect
     }
 
     override suspend fun listenRegisterSpO2Sensor() {
@@ -603,19 +611,23 @@ class BluetoothNetworkRepository @Inject constructor(
             if (status == BluetoothGatt.GATT_FAILURE) {
                 logHelper.insertLog("onConnectionStateChange: GATT_FAILURE ${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
+                isSBSensorConnect = false
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
                 logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
+                isSBSensorConnect = false
                 return
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
+                isSBSensorConnect = true
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
+                isSBSensorConnect = false
                 return
             }
         }
@@ -624,7 +636,7 @@ class BluetoothNetworkRepository @Inject constructor(
             super.onServicesDiscovered(gatt, status)
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "[NR] onServicesDiscovered: NOT GATT_SUCCESS ${gatt.device.name} / ${gatt.device.address}")
+                Log.d(TAG, "[NR] onServicesDiscovered: NOT GATT_SUCCESS  status = $status - ${gatt.device.name} / ${gatt.device.address}")
                 disconnectedDevice(gatt)
                 return
             }

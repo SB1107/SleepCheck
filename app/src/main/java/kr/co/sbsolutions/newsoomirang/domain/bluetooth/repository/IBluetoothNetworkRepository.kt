@@ -50,6 +50,7 @@ interface IBluetoothNetworkRepository {
 
     fun setSBSensorCancel(isCancel: Boolean)
     fun setDataFlow(isDataFlow: Boolean)
+    fun isSBSensorConnect() : Boolean
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>
     val eegSensorInfo : StateFlow<BluetoothInfo>
