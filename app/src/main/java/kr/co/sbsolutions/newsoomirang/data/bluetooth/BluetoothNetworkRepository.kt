@@ -1074,6 +1074,7 @@ class BluetoothNetworkRepository @Inject constructor(
                             if (value.verifyCheckSum()) {
                                 val memoryTotalIndex = String.format("%02X%02X", value[6], value[7]).toUInt(16).toInt()
                                 logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
+                                setDataFlow(true , 0 , memoryTotalIndex * 20)
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                             } else {
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)

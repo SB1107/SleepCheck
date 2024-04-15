@@ -179,13 +179,16 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch {
                     viewModel.dataFlowInfoMessage.collect {
-                        Log.e(TAG, "onCreate: 33")
                         binding.icBleProgress.apply {
                             tvDeviceId.text = "이전 데이터를 찾았습니다.\n 데이터 정리하고 있습니다.\n잠시만 기다려주세요."
                             root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
-                            var tempPer = 0
                             if (it.totalCount != 0) {
-                                tempPer = (it.currentCount.toFloat() / it.totalCount.toFloat() * 100).toInt()
+                                Log.e(TAG, "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}" )
+                                var tempCurrent : Int = it.currentCount
+                                if(it.currentCount > it.totalCount){
+                                    tempCurrent = it.totalCount
+                                }
+                               val tempPer = (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
                                 lpProgress.setProgressCompat(tempPer, true)
                                 lpProgress.visibility = View.VISIBLE
                             } else {

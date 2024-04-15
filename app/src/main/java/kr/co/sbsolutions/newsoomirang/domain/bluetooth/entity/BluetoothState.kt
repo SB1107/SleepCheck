@@ -6,7 +6,6 @@ sealed class BluetoothState(open val state: String) {
     object Connecting : BluetoothState("Connecting")
     object DisconnectedByUser : BluetoothState("DisconnectedByUser")
     object DisconnectedNotIntent : BluetoothState("DisconnectedNotIntent")
-    object Disconnected : BluetoothState("Disconnected")
     sealed class Connected(override val state: String) : BluetoothState(state) {
         object Init : Connected("Init")
         object Ready : Connected("Ready")
