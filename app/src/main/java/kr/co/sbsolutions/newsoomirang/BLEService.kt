@@ -249,10 +249,10 @@ class BLEService : LifecycleService() {
                 }
 
                 BluetoothDevice.ACTION_ACL_CONNECTED -> {
-                    Log.e(TAG, "onReceive: ACTION_ACL_CONNECTED")
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = null
                     bluetoothNetworkRepository.connectedDevice(device)
+                    logHelper.insertLog("onReceive: ACTION_ACL_CONNECTED")
                     //Log.d(TAG, "[RCV] ACTION_ACL_CONNECTED ${device?.name} / ${device?.address}")
                 }
 
@@ -1000,9 +1000,9 @@ class BLEService : LifecycleService() {
     }
     private fun forceBleDeviceConnect(){
         val device = bluetoothAdapter?.getRemoteDevice(sbSensorInfo.value.bluetoothAddress)
-        sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
         sbSensorInfo.value.bluetoothGatt =
             device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(sbSensorInfo.value.sbBluetoothDevice))
+        sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
         logHelper.insertLog("forceBleDeviceConnect call")
     }
 
