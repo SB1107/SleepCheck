@@ -110,8 +110,8 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun setDataFlow(isDataFlow: Boolean) {
-        _sbSensorInfo.update { it.copy(isDataFlow = isDataFlow) }
+    override fun setDataFlow(isDataFlow: Boolean , currentCount : Int  ,totalCount : Int ) {
+        _sbSensorInfo.value.isDataFlow.update { it.copy(isDataFlow = isDataFlow , currentCount = currentCount , totalCount = totalCount) }
     }
 
     override fun isSBSensorConnect(): Boolean {
@@ -442,15 +442,17 @@ class BluetoothNetworkRepository @Inject constructor(
         lastDownloadCompleteCallback = callback
     }
 
-    private var dataFlowCallback: ((lastIndexCk: Boolean) -> Unit)? = null
+    private var dataFlowCallback: ((lastIndexCk: Boolean , dataCount : Int) -> Unit)? = null
 
-    override fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?) {
+    override fun setDataFlowForceFinish(callBack: ((Boolean, Int) -> Unit)?) {
         dataFlowCallback = callBack
     }
 
     private var lastIndex: Boolean = false
-    override fun setLastIndexCk(data: Boolean) {
+    private var  dataCount: Int = 0
+    override fun setLastIndexCk(data: Boolean , dataCount : Int) {
         this.lastIndex = data
+        this.dataCount = dataCount
     }
 
     override var uploadCallback: (() -> Unit)? = null
@@ -781,14 +783,14 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.DataFlow -> {
                                     writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
                                         _sbSensorInfo.update { it.copy(bluetoothState = state) }
-                                        setDataFlow(true)
+                                        setDataFlow(true , 0 , dataCount)
                                         logHelper.insertLog(state)
                                     }
                                 }
 
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
-                                    dataFlowCallback?.invoke(lastIndex)
-                                    setDataFlow(true)
+                                    dataFlowCallback?.invoke(lastIndex, dataCount)
+                                    setDataFlow(true , 0 , dataCount)
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {

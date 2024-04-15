@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cl_progress"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_80000000"
+    android:clickable="true"
+    android:visibility="visible">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_device_id"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="숨이랑 기기와 연결중입니다"
+        android:layout_marginHorizontal="16dp"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/lv_1"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/lp_progress"
+        app:layout_constraintTop_toBottomOf="@id/tv_device_id"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginHorizontal="30dp"
+        android:layout_width="0dp"
+        android:progress= "0"
+        app:indicatorColor="@color/color_yellow"
+        app:trackColor="@color/white"
+        android:layout_height="50dp"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lv_1"
+        android:layout_width="wrap_content"
+        android:layout_height="168dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_device_id"
+        app:lottie_autoPlay="true"
+        app:lottie_colorFilter="@color/color_yellow"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/sleep_animation" />
+</androidx.constraintlayout.widget.ConstraintLayout>

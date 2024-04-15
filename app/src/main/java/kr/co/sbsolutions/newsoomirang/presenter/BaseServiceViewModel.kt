@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -19,6 +20,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.DataFlowInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import java.lang.ref.WeakReference
 
@@ -52,11 +54,11 @@ abstract class BaseServiceViewModel(
     private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
         MutableSharedFlow()
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
-    private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(true)
+    private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(false)
     val guideAlert : StateFlow<Boolean> = _guideAlert
 
-    private val _dataFlowInfoMessage: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val dataFlowInfoMessage : StateFlow<Boolean> = _dataFlowInfoMessage
+    private val _dataFlowInfoMessage: MutableStateFlow<DataFlowInfo> = MutableStateFlow(DataFlowInfo())
+    val dataFlowInfoMessage : StateFlow<DataFlowInfo> = _dataFlowInfoMessage
     abstract fun whereTag(): String
 
     init {
@@ -69,7 +71,10 @@ abstract class BaseServiceViewModel(
 
                     setBatteryInfo()
                     launch {
-                        _dataFlowInfoMessage.emit(it.isDataFlow)
+                        bluetoothInfo.isDataFlow.collectLatest {
+                            _dataFlowInfoMessage.emit(it.copy())
+                            return@collectLatest
+                        }
                     }
                         when (it.bluetoothState) {
                             BluetoothState.Unregistered -> {

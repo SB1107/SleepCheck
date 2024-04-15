@@ -19,8 +19,8 @@ interface IBluetoothNetworkRepository {
     var lastDownloadCompleteCallback: ((state: BLEService.FinishState) -> Unit)?
     fun setOnLastDownloadCompleteCallback(callback: ((state: BLEService.FinishState) -> Unit)?)
 
-    fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?)
-    fun setLastIndexCk(data: Boolean)
+    fun setDataFlowForceFinish(callBack: ((Boolean, Int) -> Unit)?)
+    fun setLastIndexCk(data: Boolean , dataCount : Int)
     var uploadCallback: (() -> Unit)?
     fun setOnUploadCallback(callback: (() -> Unit)?)
     fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice) : BluetoothGattCallback
@@ -49,7 +49,7 @@ interface IBluetoothNetworkRepository {
     fun callVibrationNotifications(Intensity : Int)
 
     fun setSBSensorCancel(isCancel: Boolean)
-    fun setDataFlow(isDataFlow: Boolean)
+    fun setDataFlow(isDataFlow: Boolean, currentCount : Int = 0 ,maxCount : Int = 0)
     fun isSBSensorConnect() : Boolean
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>

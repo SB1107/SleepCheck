@@ -53,7 +53,7 @@ import java.util.Locale
 @AndroidEntryPoint
 class MainActivity : BaseServiceActivity() {
 
-    private  var rootHeight : Int = 0
+    private var rootHeight: Int = 0
 
     override fun newBackPressed() {
         twiceBackPressed()
@@ -70,8 +70,8 @@ class MainActivity : BaseServiceActivity() {
     private val appUpdateManager: AppUpdateManager by lazy {
         AppUpdateManagerFactory.create(this)
     }
-    private  val guideAlert : AlertDialog by lazy {
-        guideAlertDialog{isChecked ->
+    private val guideAlert: AlertDialog by lazy {
+        guideAlertDialog { isChecked ->
             viewModel.dismissGuideAlert()
         }
     }
@@ -120,10 +120,10 @@ class MainActivity : BaseServiceActivity() {
             binding.navBottomView.selectedItemId = R.id.navigation_no_sering
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        guideAlert.show()
         binding.root.viewTreeObserver.addOnGlobalLayoutListener { rootHeight = binding.root.height }
         ContextCompat.registerReceiver(this, receiver, IntentFilter(Cons.NOTIFICATION_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
         val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
@@ -146,8 +146,8 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch {
                     viewModel.guideAlert.collectLatest {
-                        Log.e(TAG, "collectLatest:${it} ", )
-                        when(it){
+                        Log.e(TAG, "collectLatest:${it} ")
+                        when (it) {
                             true -> guideAlert.show()
                             false -> {
                                 guideAlert.dismiss()
@@ -163,10 +163,10 @@ class MainActivity : BaseServiceActivity() {
                         resultDialog.run {
                             if (it.second) show() else dismiss()
                         }
-                        if (it.first != -1 ) {
-                                startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
-                                    putExtra("id", it.first.toString())
-                                })
+                        if (it.first != -1) {
+                            startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
+                                putExtra("id", it.first.toString())
+                            })
                             viewModel.stopResultProgressBar()
                         }
                     }
@@ -179,9 +179,20 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch {
                     viewModel.dataFlowInfoMessage.collect {
+                        Log.e(TAG, "onCreate: 33")
                         binding.icBleProgress.apply {
                             tvDeviceId.text = "이전 데이터를 찾았습니다.\n 데이터 정리하고 있습니다.\n잠시만 기다려주세요."
-                            root.visibility = if (it) View.VISIBLE else View.GONE
+                            root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
+                            var tempPer = 0
+                            if (it.totalCount != 0) {
+                                tempPer = (it.currentCount.toFloat() / it.totalCount.toFloat() * 100).toInt()
+                                lpProgress.setProgressCompat(tempPer, true)
+                                lpProgress.visibility = View.VISIBLE
+                            } else {
+                                lpProgress.visibility = View.INVISIBLE
+                            }
+
+
                         }
                     }
                 }
@@ -197,14 +208,15 @@ class MainActivity : BaseServiceActivity() {
         super.onResume()
         appUpdateCheck()
     }
-    private  fun appUpdateCheck() {
+
+    private fun appUpdateCheck() {
         val appUpdateInfo = appUpdateManager.appUpdateInfo
         appUpdateInfo.addOnSuccessListener { info ->
             Log.e(TAG, "addOnSuccessListener: ${info.availableVersionCode()}")
             if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
-                showAlertDialogWithCancel(message =  "숨이랑  새로운 버전이 출시  되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
+                showAlertDialogWithCancel(message = "숨이랑  새로운 버전이 출시  되었어요!\n업데이트 를 진행해 주세요.", confirmAction = {
                     appUpdateManager.startUpdateFlowForResult(
                         info,
                         appUpdateLauncher,
@@ -217,7 +229,7 @@ class MainActivity : BaseServiceActivity() {
 //                    finish()
                 }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_next_update, cancelable = false)
 
-            }else if(info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS){
+            } else if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                 appUpdateManager.startUpdateFlowForResult(
                     info,
                     appUpdateLauncher,
@@ -226,7 +238,7 @@ class MainActivity : BaseServiceActivity() {
             }
         }
         appUpdateInfo.addOnFailureListener { e ->
-            Log.e(TAG, "addOnFailureListener: ${e.message}",)
+            Log.e(TAG, "addOnFailureListener: ${e.message}")
         }
 
     }

@@ -908,9 +908,11 @@ class BLEService : LifecycleService() {
 
     @SuppressLint("SimpleDateFormat")
     private fun listenChannelMessage() {
-        var indexCountCheck: Int = 0
+        var indexCountCheck = 0
         var firstData: SBSensorData? = null
         var lastData: SBSensorData? = null
+        var dataFlowCont = 0
+
         lifecycleScope.launch(IO) {
             val getIndex = async {
                 settingDataRepository.getDataId()?.let {
@@ -932,6 +934,11 @@ class BLEService : LifecycleService() {
 //                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
                         }
                     } ?: run {
+                        if (sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow) {
+                            dataFlowCont +=1
+                        }else if(sbSensorInfo.value.bluetoothState != BluetoothState.Connected.DataFlowUploadFinish){
+                            dataFlowCont = 0
+                        }
                         when {
                             indexCountCheck >= 4 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
@@ -942,7 +949,7 @@ class BLEService : LifecycleService() {
 //                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 lastIndexCk = true
                                 setDataFlowDBInsert(firstData, data)
-                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk)
+                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk, dataFlowCont)
                             }
 
                             lastIndexCk -> {
@@ -1027,7 +1034,8 @@ class BLEService : LifecycleService() {
 
 
     private fun setDataFlowFinish() {
-        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
+        serviceLiveCheckWorkerHelper.cancelWork()
+        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex , dataCount ->
             if (lastIndex) {
                 logHelper.registerJob("setDataFlowFinish lastIndex = true",lifecycleScope.launch(IO) {
                     val dataIdJob = async {
@@ -1045,9 +1053,9 @@ class BLEService : LifecycleService() {
                                     val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
                                     sbSensorDBRepository.getSensorDataIdByFirst(id).first()?.let { it1 -> noDataIdItemInsert(it1) }
                                     logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
-                                    _resultMessage.emit(UPLOADING)
-                                    uploadWorker(id, false, sleepType, it.snoreTime)
-                                    bluetoothNetworkRepository.setDataFlow(false)
+//                                    _resultMessage.emit(UPLOADING)
+//                                    uploadWorker(id, false, sleepType, it.snoreTime)
+                                    bluetoothNetworkRepository.setDataFlow(false , dataCount , dataCount )
                                 }
                             }
                         }
@@ -1101,7 +1109,7 @@ class BLEService : LifecycleService() {
             return true
 
     }
-    private suspend fun isItemPass(type: Int, dataId: Int): Boolean {
+    private suspend fun isItemPass(type: Int, dataId: Int , totalCount  : Int = 0): Boolean {
         var size = 0
         val reCount = 3
         var tempCont = 0
@@ -1113,6 +1121,7 @@ class BLEService : LifecycleService() {
                 size = itemSize
                 Log.e(TAG, "size: ${size}")
                 tempCont = 0
+                bluetoothNetworkRepository.setDataFlow(false , size , totalCount )
             } else {
                 tempCont += 1
             }
