@@ -43,6 +43,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
@@ -154,6 +155,8 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 
+    lateinit var dataFlowLogHelper: DataFlowLogHelper
+
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         this.applicationContext?.getSystemService(BluetoothManager::class.java)?.run {
             return@run adapter
@@ -177,6 +180,7 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        dataFlowLogHelper = DataFlowLogHelper(logHelper)
         instance = this
         logHelper.insertLog("bleOnCreate")
         listenChannelMessage()
@@ -925,10 +929,12 @@ class BLEService : LifecycleService() {
                             indexCountCheck >= 2 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
                                 setDataFlowDBInsert(firstData, data)
+                                dataFlowLogHelper.countCase1()
                             }
 
                             data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0) -> {
                                 lastIndexCk = true
+                                dataFlowLogHelper.countCase2()
 //                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 setDataFlowDBInsert(firstData, data)
                                 bluetoothNetworkRepository.setLastIndexCk(true)
@@ -936,18 +942,23 @@ class BLEService : LifecycleService() {
 
                             lastIndexCk -> {
                                 bluetoothNetworkRepository.setLastIndexCk(true)
+                                dataFlowLogHelper.countCase3()
 //                                Log.d(TAG, "listenChannelMessage222: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
 
                             data.dataId != -1 && data.time.contains("1970") -> {
 //                                Log.d(TAG, "listenChannelMessage333: $data")
+                                dataFlowLogHelper.countCase4()
                                 setDataFlowDBInsert(firstData, data, true)
                             }
 
                             else -> {
 //                                Log.d(TAG, "listenChannelMessage444: $data")
                                 sbSensorDBRepository.insert(data)
+                                if (sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
+                                    sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish)
+                                dataFlowLogHelper.countCase5()
                             }
                         }
                     }
@@ -1018,6 +1029,7 @@ class BLEService : LifecycleService() {
 
     private fun setDataFlowFinish() {
         serviceLiveCheckWorkerHelper.cancelWork()
+        dataFlowLogHelper.onCaseLog()
         bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex  ->
             logHelper.registerJob("setDataFlowFinish" , lifecycleScope.launch(IO) {
                 DataFlowHelper(isUpload = lastIndex , logHelper = logHelper , coroutineScope = this ,
