@@ -922,19 +922,20 @@ class BLEService : LifecycleService() {
                         }
                     } ?: run {
                         when {
-                            indexCountCheck >= 4 && data.dataId == -1 -> {
+                            indexCountCheck >= 2 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
 
                             data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0) -> {
-//                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 lastIndexCk = true
+//                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 setDataFlowDBInsert(firstData, data)
-                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk)
+                                bluetoothNetworkRepository.setLastIndexCk(true)
                             }
 
                             lastIndexCk -> {
+                                bluetoothNetworkRepository.setLastIndexCk(true)
 //                                Log.d(TAG, "listenChannelMessage222: $data")
                                 setDataFlowDBInsert(firstData, data)
                             }
