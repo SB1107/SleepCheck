@@ -442,17 +442,16 @@ class BluetoothNetworkRepository @Inject constructor(
         lastDownloadCompleteCallback = callback
     }
 
-    private var dataFlowCallback: ((lastIndexCk: Boolean , dataCount : Int) -> Unit)? = null
+    private var dataFlowCallback: ((lastIndexCk: Boolean ) -> Unit)? = null
 
-    override fun setDataFlowForceFinish(callBack: ((Boolean, Int) -> Unit)?) {
+    override fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?) {
         dataFlowCallback = callBack
     }
 
     private var lastIndex: Boolean = false
     private var  dataCount: Int = 0
-    override fun setLastIndexCk(data: Boolean , dataCount : Int) {
+    override fun setLastIndexCk(data: Boolean) {
         this.lastIndex = data
-        this.dataCount = dataCount
     }
 
     override var uploadCallback: (() -> Unit)? = null
@@ -783,14 +782,14 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.DataFlow -> {
                                     writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
                                         _sbSensorInfo.update { it.copy(bluetoothState = state) }
-                                        setDataFlow(true , 0 , dataCount)
+                                        setDataFlow(true , 0 )
                                         logHelper.insertLog(state)
                                     }
                                 }
 
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
-                                    dataFlowCallback?.invoke(lastIndex, dataCount)
-                                    setDataFlow(true , 0 , dataCount)
+                                    dataFlowCallback?.invoke(lastIndex)
+                                    setDataFlow(true , 0 )
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {

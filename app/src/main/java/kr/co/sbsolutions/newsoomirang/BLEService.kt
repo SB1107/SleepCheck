@@ -899,7 +899,6 @@ class BLEService : LifecycleService() {
         var indexCountCheck = 0
         var firstData: SBSensorData? = null
         var lastData: SBSensorData? = null
-        var dataFlowCont = 0
 
         lifecycleScope.launch(IO) {
             val getIndex = async {
@@ -922,11 +921,6 @@ class BLEService : LifecycleService() {
 //                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
                         }
                     } ?: run {
-                        if (sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow) {
-                            dataFlowCont +=1
-                        }else if(sbSensorInfo.value.bluetoothState != BluetoothState.Connected.DataFlowUploadFinish){
-                            dataFlowCont = 0
-                        }
                         when {
                             indexCountCheck >= 4 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
@@ -937,7 +931,7 @@ class BLEService : LifecycleService() {
 //                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 lastIndexCk = true
                                 setDataFlowDBInsert(firstData, data)
-                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk, dataFlowCont)
+                                bluetoothNetworkRepository.setLastIndexCk(lastIndexCk)
                             }
 
                             lastIndexCk -> {
@@ -1023,7 +1017,7 @@ class BLEService : LifecycleService() {
 
     private fun setDataFlowFinish() {
         serviceLiveCheckWorkerHelper.cancelWork()
-        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex , dataCount ->
+        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex  ->
             logHelper.registerJob("setDataFlowFinish" , lifecycleScope.launch(IO) {
                 DataFlowHelper(isUpload = lastIndex , logHelper = logHelper , coroutineScope = this ,
                     settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
@@ -1033,7 +1027,7 @@ class BLEService : LifecycleService() {
                         logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
 //                                    _resultMessage.emit(UPLOADING)
 //                                    uploadWorker(id, false, sleepType, it.snoreTime)
-                        bluetoothNetworkRepository.setDataFlow(false , dataCount , dataCount )
+                        bluetoothNetworkRepository.setDataFlow(false)
 
                     }
                 }
