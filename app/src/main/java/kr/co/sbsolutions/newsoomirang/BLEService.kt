@@ -1008,8 +1008,9 @@ class BLEService : LifecycleService() {
     fun isBleDeviceConnect() : Boolean{
         return bluetoothNetworkRepository.isSBSensorConnect()
     }
-    fun forceBleDeviceConnect(){
+    private fun forceBleDeviceConnect(){
         val device = bluetoothAdapter?.getRemoteDevice(sbSensorInfo.value.bluetoothAddress)
+        sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
         sbSensorInfo.value.bluetoothGatt =
             device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(sbSensorInfo.value.sbBluetoothDevice))
         logHelper.insertLog("forceBleDeviceConnect call")
