@@ -515,32 +515,21 @@ class BLEService : LifecycleService() {
                     sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
                     logHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
                     startSetting()
+                    //서비스 리스타트 일때 아래 코드 실행 기도
+                    delay(1000)
+                    if ( bluetoothState == BluetoothState.Registered) {
+                        dataManager.getTimer().first()?.let {
+                            timeHelper.setTime(it)
+                            noseRingHelper.setSnoreTime(dataManager.getNoseRingTimer().first() ?: 0L)
+                            startTimer()
+                            audioHelper.startAudioClassification()
+                        }
+                        val hasSensor = dataManager.getHasSensor().first()
+                        if(hasSensor){
+                            forceBleDeviceConnect()
+                        }
+                    }
                 }
-            }
-
-            ActionMessage.ReStartSBService -> {
-                lifecycleScope.launch(IO) {
-                    startSetting()
-                    val hasSensor = dataManager.getHasSensor().first()
-                    serviceLiveWorkCheck()
-                    val sleepType = settingDataRepository.getSleepType()
-                    settingDataRepository.getDataId()?.let {
-                        sbSensorInfo.value.dataId = it
-                    }
-                    sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
-                    logHelper.insertLog("${if (sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 리 스타트")
-                    dataManager.getTimer().first()?.let {
-                        timeHelper.setTime(it)
-                        noseRingHelper.setSnoreTime(dataManager.getNoseRingTimer().first() ?: 0L)
-                        startTimer()
-                        audioHelper.startAudioClassification()
-                    }
-                    if (hasSensor && bluetoothState == BluetoothState.Disconnected) {
-                        connectDevice(sbSensorInfo.value)
-                    }
-
-                }
-
             }
 
             ActionMessage.StopSBService -> {

@@ -3,7 +3,6 @@ package kr.co.sbsolutions.newsoomirang.presenter
 sealed class ActionMessage(val msg: String) {
     object StartSBService : ActionMessage(startSBService)
     object StopSBService : ActionMessage(stopSBService)
-    object ReStartSBService : ActionMessage(reStartSBService)
 
     object CancelSbService : ActionMessage(cancelSBService)
     object StopSBServiceForced : ActionMessage(stopSBServiceForced)
@@ -20,7 +19,6 @@ sealed class ActionMessage(val msg: String) {
     companion object {
         private const val startSBService = "startSBService"
         private const val stopSBService = "stopSBService"
-        private const val reStartSBService = "reStartSBService"
         private const val stopSBServiceForced = "stopSBServiceForced"
         private const val cancelSBService = "cancelSBService"
 //        private const val startSBSensor = "startSBSensor"
@@ -39,7 +37,6 @@ sealed class ActionMessage(val msg: String) {
             return when (msg) {
                 startSBService -> StartSBService
                 stopSBService -> StopSBService
-                reStartSBService -> ReStartSBService
                 stopSBServiceForced -> StopSBServiceForced
 //                    startSBSensor -> StartSBSensor
 //                    stopSBSensor -> StopSBSensor
