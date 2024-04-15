@@ -182,6 +182,7 @@ class MainActivity : BaseServiceActivity() {
                         binding.icBleProgress.apply {
                             tvDeviceId.text = "이전 데이터를 찾았습니다.\n 데이터 정리하고 있습니다.\n잠시만 기다려주세요."
                             root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
+                            lpProgress.visibility = View.VISIBLE
                             if (it.totalCount != 0) {
                                 Log.e(TAG, "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}" )
                                 var tempCurrent : Int = it.currentCount
@@ -190,12 +191,7 @@ class MainActivity : BaseServiceActivity() {
                                 }
                                val tempPer = (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
                                 lpProgress.setProgressCompat(tempPer, true)
-                                lpProgress.visibility = View.VISIBLE
-                            } else {
-                                lpProgress.visibility = View.INVISIBLE
                             }
-
-
                         }
                     }
                 }

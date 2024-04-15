@@ -1029,8 +1029,8 @@ class BLEService : LifecycleService() {
 
     private fun setDataFlowFinish() {
         serviceLiveCheckWorkerHelper.cancelWork()
-        dataFlowLogHelper.onCaseLog()
         bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex  ->
+        dataFlowLogHelper.onCaseLog()
             logHelper.registerJob("setDataFlowFinish" , lifecycleScope.launch(IO) {
                 DataFlowHelper(isUpload = lastIndex , logHelper = logHelper , coroutineScope = this ,
                     settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,

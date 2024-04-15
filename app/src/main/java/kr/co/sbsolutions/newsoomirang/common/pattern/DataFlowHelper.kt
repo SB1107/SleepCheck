@@ -122,7 +122,7 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
                 size = itemSize
                 Log.e(TAG, "size: ${size}")
                 tempCont = 0
-                networkRepository.setDataFlow(true,size , networkRepository.getDataFlowMaxCount())
+                networkRepository.setDataFlow(true, size , networkRepository.getDataFlowMaxCount())
             } else {
                 tempCont += 1
             }
@@ -143,6 +143,7 @@ class NoDataItemCheckProcessor(private val info: BluetoothInfo, private val sbSe
         chainData.dataId?.let {
             scope.launch {
                 if (noDataItemPass()) {
+                    callback.invoke(chainData)
                     nextInChain.process(logHelper, scope, chainData, callback)
                 }
             }
