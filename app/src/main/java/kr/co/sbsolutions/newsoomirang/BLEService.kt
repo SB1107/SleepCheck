@@ -1026,62 +1026,15 @@ class BLEService : LifecycleService() {
                     launch {
                         val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
                         logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
-//                                    _resultMessage.emit(UPLOADING)
-//                                    uploadWorker(id, false, sleepType, it.snoreTime)
+                        _resultMessage.emit(UPLOADING)
+                        chainData.dataId?.let { dataId ->
+                            uploadWorker(dataId, false, sleepType, noseRingHelper.getSnoreTime())
+                        }
                         bluetoothNetworkRepository.setDataFlow(false)
 
                     }
                 }
             })
-//            if (lastIndex) {
-//                logHelper.registerJob("setDataFlowFinish lastIndex = true",lifecycleScope.launch(IO) {
-//
-//                    val dataIdJob = async {
-//                        return@async settingDataRepository.getDataId()
-//                    }
-//                    val dataId = dataIdJob.await()
-//
-//                    launch {
-//                        dataId?.let { id ->
-//                            Log.d(TAG, "setDataFlowFinish:  $id")
-//                            sbSensorInfo.value.let {
-//                                Log.d(TAG, "setDataFlowFinish value: ${sbSensorInfo.value}")
-//                                val result = isItemPass(1, id)
-//                                if (result) {
-//                                    val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
-//                                    sbSensorDBRepository.getSensorDataIdByFirst(id).first()?.let { it1 -> noDataIdItemInsert(it1) }
-//                                    logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
-////                                    _resultMessage.emit(UPLOADING)
-////                                    uploadWorker(id, false, sleepType, it.snoreTime)
-//                                    bluetoothNetworkRepository.setDataFlow(false , dataCount , dataCount )
-//                                }
-//                            }
-//                        }
-//                    }
-//                })
-//            } else {
-//                logHelper.registerJob("setDataFlowFinish lastIndex = false",lifecycleScope.launch(IO) {
-//                    val dataIdJob = async {
-//                        return@async settingDataRepository.getDataId()
-//                    }
-//                    val dataId = dataIdJob.await()
-//                    launch {
-//                        dataId?.let { id ->
-//                            val result1 = isItemPass(1, id)
-//                            val result2 = isItemPass(0, id)
-//                            if (result1 && result2) {
-//                                sbSensorDBRepository.deleteAll()
-//                                bluetoothNetworkRepository.setDataFlow(false)
-//                                logHelper.insertLog("내 데이터 아니다. 취소힌다.")
-//                            }
-//                        } ?: run {
-//                            sbSensorDBRepository.deleteAll()
-//                            bluetoothNetworkRepository.setDataFlow(false)
-//                            logHelper.insertLog("dataId 없음 취소한다. ")
-//                        }
-//                    }
-//                })
-//            }
         }
     }
 
