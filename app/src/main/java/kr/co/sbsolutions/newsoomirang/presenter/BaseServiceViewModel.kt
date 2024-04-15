@@ -71,8 +71,8 @@ abstract class BaseServiceViewModel(
 
                     setBatteryInfo()
                     launch {
-                        bluetoothInfo.isDataFlow.collectLatest {
-                            _dataFlowInfoMessage.emit(it.copy())
+                        bluetoothInfo.isDataFlow.collectLatest { isDataFlow ->
+                            _dataFlowInfoMessage.emit(isDataFlow.copy())
                             return@collectLatest
                         }
                     }
