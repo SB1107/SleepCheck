@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.common.pattern
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class DataFlowHelper(
     private val callback: (ChainData) -> Unit
 ) {
     private val dataIdProcessor = DataIdProcessor(settingDataRepository)
-    private val itemCheckProcessor = ItemCheckProcessor(bluetoothNetworkRepository.sbSensorInfo.value, sbSensorDBRepository)
+    private val itemCheckProcessor = ItemCheckProcessor(bluetoothNetworkRepository, sbSensorDBRepository)
     private val noDataIdItemInsertProcessor = NoDataIdItemInsertProcessor(sbSensorDBRepository)
     private  val noDataItemCheckProcessor = NoDataItemCheckProcessor(bluetoothNetworkRepository.sbSensorInfo.value, sbSensorDBRepository)
 
@@ -84,20 +85,21 @@ class DataIdProcessor(private val settingDataRepository: SettingDataRepository) 
     }
 }
 
-class ItemCheckProcessor(private val info: BluetoothInfo, private val sbSensorDBRepository: SBSensorDBRepository) : Chain {
+class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkRepository, private val sbSensorDBRepository: SBSensorDBRepository) : Chain {
     private lateinit var nextInChain: Chain
     override fun setNext(nextInChain: Chain) {
         this.nextInChain = nextInChain
     }
 
     override fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
-        chainData.bluetoothInfo = info
+        chainData.bluetoothInfo = networkRepository.sbSensorInfo.value
+
         chainData.dataId?.let {
             scope.launch {
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(it).first()
-                Log.e(TAG, "totalCount = ${info.isDataFlow.value.totalCount}"+ "list = ${size}" )
-//                info.isDataFlow.update { it.copy(totalCount =  it.totalCount.plus(size)) }
-                if (isItemPass(it , info)) {
+                Log.e(TAG, "totalCount = ${networkRepository.sbSensorInfo.value.isDataFlow.value.totalCount}"+ " list = ${size}" )
+                networkRepository.setDataFlow(true , 0 ,networkRepository.getDataFlowMaxCount().plus(size))
+                if (isItemPass(it , networkRepository)) {
                     nextInChain.process(logHelper, scope, chainData, callback)
                 }
             }
@@ -106,7 +108,7 @@ class ItemCheckProcessor(private val info: BluetoothInfo, private val sbSensorDB
         }
     }
 
-    private suspend fun isItemPass(dataId: Int,  info: BluetoothInfo): Boolean {
+    private suspend fun isItemPass(dataId: Int,  networkRepository: IBluetoothNetworkRepository): Boolean {
         var size = 0
         val reCount = 3
         var tempCont = 0
@@ -118,7 +120,7 @@ class ItemCheckProcessor(private val info: BluetoothInfo, private val sbSensorDB
                 size = itemSize
                 Log.e(TAG, "size: ${size}")
                 tempCont = 0
-                info.isDataFlow.update { it.copy(currentCount = size) }
+                networkRepository.setDataFlow(true,size , networkRepository.getDataFlowMaxCount())
             } else {
                 tempCont += 1
             }

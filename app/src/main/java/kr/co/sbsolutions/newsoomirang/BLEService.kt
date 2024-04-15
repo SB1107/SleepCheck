@@ -1021,7 +1021,7 @@ class BLEService : LifecycleService() {
             logHelper.registerJob("setDataFlowFinish" , lifecycleScope.launch(IO) {
                 DataFlowHelper(isUpload = lastIndex , logHelper = logHelper , coroutineScope = this ,
                     settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
-                    bluetoothNetworkRepository = bluetoothNetworkRepository){ chainData ->
+                    bluetoothNetworkRepository = bluetoothNetworkRepository ){ chainData ->
                     launch {
                         val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
                         logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")

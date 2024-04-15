@@ -111,6 +111,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun setDataFlow(isDataFlow: Boolean , currentCount : Int  ,totalCount : Int ) {
+        dataFlowMaxCount = totalCount
         _sbSensorInfo.value.isDataFlow.update { it.copy(isDataFlow = isDataFlow , currentCount = currentCount , totalCount = totalCount) }
     }
 
@@ -449,9 +450,13 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     private var lastIndex: Boolean = false
-    private var  dataCount: Int = 0
+    private  var dataFlowMaxCount = 0
     override fun setLastIndexCk(data: Boolean) {
         this.lastIndex = data
+    }
+
+    override fun getDataFlowMaxCount(): Int {
+        return  dataFlowMaxCount
     }
 
     override var uploadCallback: (() -> Unit)? = null
@@ -608,6 +613,8 @@ class BluetoothNetworkRepository @Inject constructor(
         private val DOWNLOAD_RETRY_INTERVAL = 5
         private val DOWNLOAD_RETRY_COUNT = 3
         private var downloadContinueCount = 0
+        private  var dataFlowCurrentCount = 0
+
 
         private val innerData = when (sbBluetoothDevice) {
             SBBluetoothDevice.SB_SOOM_SENSOR -> _sbSensorInfo
@@ -782,14 +789,14 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.DataFlow -> {
                                     writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
                                         _sbSensorInfo.update { it.copy(bluetoothState = state) }
-                                        setDataFlow(true , 0 )
+                                        setDataFlow(true , dataFlowCurrentCount , dataFlowMaxCount )
                                         logHelper.insertLog(state)
                                     }
                                 }
 
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
                                     dataFlowCallback?.invoke(lastIndex)
-                                    setDataFlow(true , 0 )
+                                    setDataFlow(true , dataFlowCurrentCount , dataFlowMaxCount )
                                     coroutine.launch {
                                         launch {
                                             settingDataRepository.getSleepType().let {
@@ -1073,7 +1080,8 @@ class BluetoothNetworkRepository @Inject constructor(
                             if (value.verifyCheckSum()) {
                                 val memoryTotalIndex = String.format("%02X%02X", value[6], value[7]).toUInt(16).toInt()
                                 logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
-                                setDataFlow(true , 0 , memoryTotalIndex * 20)
+                                dataFlowMaxCount = memoryTotalIndex * 20
+                                setDataFlow(true , currentCount = dataFlowCurrentCount , dataFlowMaxCount)
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                             } else {
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)
