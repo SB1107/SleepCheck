@@ -39,12 +39,14 @@ class DataFlowHelper(
     }
 
     private fun uploadProcess() {
+        logHelper.insertLog("uploadProcess()")
         dataIdProcessor.setNext(itemCheckProcessor)
         itemCheckProcessor.setNext(noDataIdItemInsertProcessor)
         dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData(), callback = callback)
     }
 
     private fun cancelProcess() {
+        logHelper.insertLog("cancelProcess()")
         dataIdProcessor.setNext(itemCheckProcessor)
         itemCheckProcessor.setNext(noDataItemCheckProcessor)
         dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData()){ chainData ->
