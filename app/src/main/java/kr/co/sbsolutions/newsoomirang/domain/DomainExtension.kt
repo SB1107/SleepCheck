@@ -52,6 +52,6 @@ fun <T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiRe
 //            emit(ApiResponse.Failure(e.message ?: e.toString(), "400"))
             emit(ApiResponse.Failure(ResultError.ErrorCustom(e.message ?: e.toString())))
         }
-    } ?: emit(ApiResponse.Failure(ResultError.ErrorCustom("연결시간을 초과하였습니다. 다시 시도해주세요.")))
+    } ?: emit(ApiResponse.Failure(ResultError.ErrorCustom("네트워크 연결이 원할하지 않습니다. 확인후  다시 시도해주세요.")))
 //    emit(ApiResponse.Failure("Timeout! Please try again.", "408"))
 }.flowOn(Dispatchers.IO)
