@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -39,9 +40,6 @@ class MainViewModel @Inject constructor(
 
     private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
     val isResultProgressBar: SharedFlow<Pair<Int, Boolean>> = _isResultProgressBar.asSharedFlow()
-
-    private val _isAppGuideFirst: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isAppGuideFirst: SharedFlow<Boolean> = _isAppGuideFirst.asSharedFlow()
 
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
@@ -95,6 +93,12 @@ class MainViewModel @Inject constructor(
                 noSeringResult()
             }
         }
+    }
+    fun forceDataFlowUpdate(){
+        getService()?.forceDataFlowDataUpload()
+    }
+    fun forceDataFlowCancel(){
+        getService()?.forceDataFlowDataUploadCancel()
     }
 
 

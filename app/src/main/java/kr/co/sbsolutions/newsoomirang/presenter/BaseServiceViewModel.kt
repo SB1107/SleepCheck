@@ -59,6 +59,10 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowInfoMessage: MutableStateFlow<DataFlowInfo> = MutableStateFlow(DataFlowInfo())
     val dataFlowInfoMessage : StateFlow<DataFlowInfo> = _dataFlowInfoMessage
+
+    private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
+     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+
     abstract fun whereTag(): String
 
     init {
@@ -141,7 +145,13 @@ abstract class BaseServiceViewModel(
         }
     }
 
-    open fun serviceSettingCall() {}
+    open fun serviceSettingCall() {
+        viewModelScope.launch {
+            getService()?.dataFlowPopUp?.collectLatest {
+                _dataFlowPopUp.emit(it)
+            }
+        }
+    }
     fun setBatteryInfo() {
         viewModelScope.launch {
             bluetoothInfo = ApplicationManager.getBluetoothInfo()

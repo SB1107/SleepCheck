@@ -75,6 +75,7 @@ class MainActivity : BaseServiceActivity() {
             viewModel.dismissGuideAlert()
         }
     }
+
     private val appUpdateLauncher: ActivityResultLauncher<IntentSenderRequest> = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             viewModel.insertLog("Update success")
@@ -193,6 +194,21 @@ class MainActivity : BaseServiceActivity() {
                                 lpProgress.setProgressCompat(tempPer, true)
                             }
                         }
+                    }
+                }
+                launch {
+                    viewModel.dataFlowPopUp.collectLatest {
+                        when (it) {
+                            true -> showAlertDialogWithCancel(message = "최근 측정한 데이터를 복원 하시 겠습니까?",
+                                cancelable =  false,
+                                confirmAction = {
+                                viewModel.forceDataFlowUpdate()
+                            }, cancelAction = {
+                                    viewModel.forceDataFlowCancel()
+                            })
+                            false -> {}
+                        }
+
                     }
                 }
             }

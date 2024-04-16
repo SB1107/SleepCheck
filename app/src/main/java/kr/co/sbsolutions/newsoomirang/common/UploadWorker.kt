@@ -69,14 +69,23 @@ class UploadWorker @AssistedInject constructor(
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
+
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
-                logHelper.insertLog("exportLastFile - Size : $size")
+                logHelper.insertLog("exportLastFile Index From $min~$max = ${max - min + 1} / Data Size : $size")
                 if (size < 1000) {
                     Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-                    logHelper.insertLog("exportLastFile -  size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
+                val firstData = sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()
+
                 val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
+                    .map {  if(it.time.contains("1970")){
+                        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+                        val newTime = firstData?.time?.let { format.parse(it) }
+                        val time1 = format.format((newTime?.time ?: 0) + (200 * it.index))
+                        it.time = time1
+                        it
+                    }else it }
                 Log.e(TAG, "doWork: sbList = ${sbList.size} newList = ${sbList.size}" )
                 val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
                 val filePath = "${context.filesDir}/${time}($dataId).csv"

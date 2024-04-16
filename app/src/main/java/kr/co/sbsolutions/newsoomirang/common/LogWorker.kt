@@ -38,7 +38,7 @@ class LogWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val message = inputData.getString("log") ?: ""
-            LogData(0, SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), message).log()
+            LogData(0, SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), message).log()
                 .first()
         }
 //        saveData(data)

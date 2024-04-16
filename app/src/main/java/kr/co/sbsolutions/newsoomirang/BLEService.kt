@@ -34,6 +34,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -172,11 +173,13 @@ class BLEService : LifecycleService() {
     val eegSensorInfo by lazy {
         bluetoothNetworkRepository.eegSensorInfo
     }
-    lateinit var requestHelper: RequestHelper
+    private lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
+     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
 
     override fun onCreate() {
         super.onCreate()
@@ -197,7 +200,7 @@ class BLEService : LifecycleService() {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
-                    if (timeHelper.getTime() > (60 * 30)){
+                    if (timeHelper.getTime() > (60 * 30)) {
                         callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
                     }
                 }
@@ -509,7 +512,7 @@ class BLEService : LifecycleService() {
                     startSetting()
                     //서비스 리스타트 일때 아래 코드 실행 기도
                     delay(1000)
-                    if ( sbSensorInfo.value.bluetoothState == BluetoothState.Registered) {
+                    if (sbSensorInfo.value.bluetoothState == BluetoothState.Registered) {
                         dataManager.getTimer().first()?.let {
                             timeHelper.setTime(it)
                             noseRingHelper.setSnoreTime(dataManager.getNoseRingTimer().first() ?: 0L)
@@ -517,7 +520,7 @@ class BLEService : LifecycleService() {
                             audioHelper.startAudioClassification()
                         }
                         val hasSensor = dataManager.getHasSensor().first()
-                        if(hasSensor){
+                        if (hasSensor) {
                             forceBleDeviceConnect()
                         }
                     }
@@ -619,11 +622,13 @@ class BLEService : LifecycleService() {
                     if (workInfo != null) {
                         when (workInfo.state) {
                             WorkInfo.State.ENQUEUED -> {
-                                Log.e(TAG, "serviceLiveWorkCheck: ENQUEUED", )
+                                Log.e(TAG, "serviceLiveWorkCheck: ENQUEUED")
                             }
+
                             WorkInfo.State.RUNNING -> {
-                                Log.e(TAG, "serviceLiveWorkCheck: RUNNING", )
+                                Log.e(TAG, "serviceLiveWorkCheck: RUNNING")
                             }
+
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
                                     logHelper.insertLog("서비스 살아있는지 확인 워커 - ${workInfo.outputData.keyValueMap}")
@@ -631,8 +636,9 @@ class BLEService : LifecycleService() {
                             }
 
                             WorkInfo.State.BLOCKED, WorkInfo.State.SUCCEEDED -> {
-                                Log.e(TAG, "serviceLiveWorkCheck: SUCCEEDED", )
+                                Log.e(TAG, "serviceLiveWorkCheck: SUCCEEDED")
                             }
+
                             WorkInfo.State.CANCELLED -> {
                                 lifecycleScope.launch(IO) {
                                     logHelper.insertLog("서비스 살아있는지 확인 취소 - ${workInfo.outputData.keyValueMap}")
@@ -853,7 +859,6 @@ class BLEService : LifecycleService() {
         }
         timerOfTimeout?.cancel()
         timerOfTimeout = null
-        logHelper.insertLog { finishService(dataId, isForcedClose) }
         serviceLiveCheckWorkerHelper.cancelWork()
         unregisterDownloadCallback()
 //        endMeasure(dataId)
@@ -920,7 +925,8 @@ class BLEService : LifecycleService() {
                         if (item.calcAccX == data.calcAccX &&
                             item.calcAccY == data.calcAccY &&
                             item.calcAccZ == data.calcAccZ &&
-                            item.capacitance == data.capacitance) {
+                            item.capacitance == data.capacitance
+                        ) {
                             indexCountCheck += 1
 //                            Log.d(TAG, "listenChannelMessage ${item} \n ${data}")
                         }
@@ -957,8 +963,9 @@ class BLEService : LifecycleService() {
 //                                Log.d(TAG, "listenChannelMessage444: $data")
                                 sbSensorDBRepository.insert(data)
                                 if (sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
-                                    sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish)
-                                dataFlowLogHelper.countCase5()
+                                    sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
+                                )
+                                    dataFlowLogHelper.countCase5()
                             }
                         }
                     }
@@ -970,7 +977,7 @@ class BLEService : LifecycleService() {
     private suspend fun setDataFlowDBInsert(
         firstData: SBSensorData?,
         data: SBSensorData,
-        isUpdate : Boolean = false
+        isUpdate: Boolean = false
     ) {
         settingDataRepository.getDataId()?.let { dataId ->
 
@@ -986,7 +993,7 @@ class BLEService : LifecycleService() {
                 sbSensorDBRepository.updateSleepData(item)
                 return@let
             }
-                sbSensorDBRepository.insert(item)
+            sbSensorDBRepository.insert(item)
 //            Log.e(TAG, "setDataFlowDBInsert:data = ${item}", )
 
         }
@@ -1006,10 +1013,12 @@ class BLEService : LifecycleService() {
         requestHelper.netWorkCancel()
 
     }
-    fun isBleDeviceConnect() : Boolean{
+
+    fun isBleDeviceConnect(): Boolean {
         return bluetoothNetworkRepository.isSBSensorConnect()
     }
-    private fun forceBleDeviceConnect(){
+
+    private fun forceBleDeviceConnect() {
         val device = bluetoothAdapter?.getRemoteDevice(sbSensorInfo.value.bluetoothAddress)
         sbSensorInfo.value.bluetoothGatt =
             device?.connectGatt(baseContext, true, bluetoothNetworkRepository.getGattCallback(sbSensorInfo.value.sbBluetoothDevice))
@@ -1026,24 +1035,71 @@ class BLEService : LifecycleService() {
         return requestHelper.request(request, errorHandler)
     }
 
+    fun forceDataFlowDataUploadCancel() {
+        logHelper.registerJob("forceDataFlowDataUploadCancel", lifecycleScope.launch(IO) {
+            sbSensorDBRepository.deleteAll()
+            _dataFlowPopUp.emit(false)
+        })
+    }
+
+    fun forceDataFlowDataUpload() {
+        logHelper.registerJob("forceDataFlowDataUpload", lifecycleScope.launch(IO) {
+            DataFlowHelper(
+                isUpload = true, logHelper = logHelper, coroutineScope = this,
+                settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
+                bluetoothNetworkRepository = bluetoothNetworkRepository
+            ) { chainData ->
+                launch {
+                    when (chainData.isSuccess) {
+                        true -> {
+                            val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+                            logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
+                            _resultMessage.emit(UPLOADING)
+                            chainData.dataId?.let { dataId ->
+                                uploadWorker(dataId, false, sleepType, noseRingHelper.getSnoreTime())
+                            }
+                            bluetoothNetworkRepository.setDataFlow(false)
+                        }
+
+                        false -> {
+
+                        }
+                    }
+                }
+            }
+        })
+    }
 
     private fun setDataFlowFinish() {
         serviceLiveCheckWorkerHelper.cancelWork()
-        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex  ->
-        dataFlowLogHelper.onCaseLog()
-            logHelper.registerJob("setDataFlowFinish" , lifecycleScope.launch(IO) {
-                DataFlowHelper(isUpload = lastIndex , logHelper = logHelper , coroutineScope = this ,
+        bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
+            dataFlowLogHelper.onCaseLog()
+            logHelper.registerJob("setDataFlowFinish", lifecycleScope.launch(IO) {
+                DataFlowHelper(
+                    isUpload = lastIndex, logHelper = logHelper, coroutineScope = this,
                     settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
-                    bluetoothNetworkRepository = bluetoothNetworkRepository ){ chainData ->
+                    bluetoothNetworkRepository = bluetoothNetworkRepository
+                ) { chainData ->
                     launch {
-                        val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
-                        logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
-                        _resultMessage.emit(UPLOADING)
-                        chainData.dataId?.let { dataId ->
-                            uploadWorker(dataId, false, sleepType, noseRingHelper.getSnoreTime())
-                        }
-                        bluetoothNetworkRepository.setDataFlow(false)
+                        when (chainData.isSuccess) {
+                            true -> {
+                                val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+                                logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
+                                _resultMessage.emit(UPLOADING)
+                                chainData.dataId?.let { dataId ->
+                                    uploadWorker(dataId, false, sleepType, noseRingHelper.getSnoreTime())
+                                }
+                                bluetoothNetworkRepository.setDataFlow(false)
+                            }
 
+                            false -> {
+                                if (chainData.reasonMessage != "DataId 가없음") {
+                                    _dataFlowPopUp.emit(true)
+                                }else{
+                                    bluetoothNetworkRepository.setDataFlow(false)
+                                }
+                            }
+                        }
                     }
                 }
             })

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
+import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
@@ -49,16 +50,7 @@ class DataFlowHelper(
         logHelper.insertLog("cancelProcess()")
         dataIdProcessor.setNext(itemCheckProcessor)
         itemCheckProcessor.setNext(noDataItemCheckProcessor)
-        dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData()){ chainData ->
-            if(chainData.dataId != null){
-                logHelper.insertLog("내 데이터 아니다. 취소힌다.")
-            }
-            coroutineScope.launch {
-                sbSensorDBRepository.deleteAll()
-
-            }
-            bluetoothNetworkRepository.setDataFlow(false)
-        }
+        dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData(),  callback = callback)
     }
 }
 
@@ -69,7 +61,7 @@ interface Chain {
 }
 
 data class ChainData(
-    var dataId: Int? = null, var bluetoothInfo: BluetoothInfo? = null
+    var dataId: Int? = null, var bluetoothInfo: BluetoothInfo? = null , var isSuccess: Boolean = true , var reasonMessage :String = ""
 )
 
 class DataIdProcessor(private val settingDataRepository: SettingDataRepository) : Chain {
@@ -107,6 +99,9 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
             }
         } ?: run {
             logHelper.insertLog("DataId 가없음")
+            chainData.isSuccess = false
+            chainData.reasonMessage ="DataId 가없음"
+            callback.invoke(chainData)
         }
     }
 
@@ -143,8 +138,10 @@ class NoDataItemCheckProcessor(private val info: BluetoothInfo, private val sbSe
         chainData.dataId?.let {
             scope.launch {
                 if (noDataItemPass()) {
+                    chainData.isSuccess = false
+                    chainData.reasonMessage = "데이터 확인 필요"
                     callback.invoke(chainData)
-                    nextInChain.process(logHelper, scope, chainData, callback)
+//                    nextInChain.process(logHelper, scope, chainData, callback)
                 }
             }
         } ?: run {
@@ -183,6 +180,7 @@ class NoDataIdItemInsertProcessor(private val sbSensorDBRepository: SBSensorDBRe
         scope.launch {
             chainData.dataId?.let { id ->
                 sbSensorDBRepository.getSensorDataIdByFirst(id).first()?.let { noDataIdItemInsert(it, id) }
+                chainData.isSuccess = true
                 callback.invoke(chainData)
             } ?: run {
                 logHelper.insertLog("DataId 가없음")
