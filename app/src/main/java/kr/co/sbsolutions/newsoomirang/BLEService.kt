@@ -1045,6 +1045,9 @@ class BLEService : LifecycleService() {
     }
 
     fun forceDataFlowDataUpload() {
+        lifecycleScope.launch {
+            _dataFlowPopUp.emit(false)
+        }
         logHelper.registerJob("forceDataFlowDataUpload", lifecycleScope.launch(IO) {
             DataFlowHelper(
                 isUpload = true, logHelper = logHelper, coroutineScope = this,
