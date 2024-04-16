@@ -12,30 +12,31 @@
         android:id="@+id/tv_device_id"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:gravity="center"
         android:text="숨이랑 기기와 연결중입니다"
-        android:layout_marginHorizontal="16dp"
         android:textColor="@color/color_FFFFFF"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/lv_1"
-        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/lp_progress"
-        app:layout_constraintTop_toBottomOf="@id/tv_device_id"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="30dp"
         android:layout_width="0dp"
-        android:progress= "0"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="16dp"
+        android:progress="0"
+        app:trackThickness="10dp"
         app:indicatorColor="@color/color_yellow"
-        app:trackColor="@color/white"
-        android:layout_height="50dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_device_id"
+        app:trackColor="@color/white" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lv_1"
