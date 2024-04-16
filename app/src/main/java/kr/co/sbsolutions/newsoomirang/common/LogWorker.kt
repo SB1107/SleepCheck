@@ -38,8 +38,9 @@ class LogWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val message = inputData.getString("log") ?: ""
-            LogData(0, SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), message).log()
-                .first()
+            val timeStamp = inputData.getString("time") ?: ""
+            val logMessage = "$message  [시간:$timeStamp]"
+            LogData(0, SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), logMessage).log().first()
         }
 //        saveData(data)
 //        val data = downloadSynchronously("https://www.google.com")
