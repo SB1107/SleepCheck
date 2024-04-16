@@ -31,6 +31,7 @@
         android:layout_marginHorizontal="30dp"
         android:layout_marginTop="16dp"
         android:progress="0"
+        android:indeterminate="true"
         app:trackThickness="10dp"
         app:indicatorColor="@color/color_yellow"
         app:layout_constraintEnd_toEndOf="parent"
