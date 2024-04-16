@@ -34,7 +34,7 @@ class DataFlowLogHelper(private val logHelper: LogHelper? = null) {
     }
 
     fun onCaseLog() {
-        logHelper?.insertLog("case1: $case1 case2: $case2 case3: $case3 case4: $case4 case5: $case5")
+        logHelper?.insertLog("case1:$case1 case2:$case2 case3:$case3 case4:$case4 case5:$case5")
     }
 
     fun getString(): String {
