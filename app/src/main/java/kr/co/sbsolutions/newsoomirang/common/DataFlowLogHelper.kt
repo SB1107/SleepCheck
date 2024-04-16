@@ -40,4 +40,12 @@ class DataFlowLogHelper(private val logHelper: LogHelper? = null) {
     fun getString(): String {
         return "case1: $case1 case2: $case2 case3: $case3 case4: $case4 case5: $case5"
     }
+
+    fun dataClear() {
+        case1 = 0
+        case2 = 0
+        case3 = 0
+        case4 = 0
+        case5 = 0
+    }
 }

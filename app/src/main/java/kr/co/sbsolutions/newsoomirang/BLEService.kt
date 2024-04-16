@@ -865,6 +865,7 @@ class BLEService : LifecycleService() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
+        dataFlowLogHelper.dataClear()
         noseRingHelper.clearData()
         logHelper.insertLog("finishService")
         lifecycleScope.launch {
@@ -934,15 +935,17 @@ class BLEService : LifecycleService() {
                         when {
                             indexCountCheck >= 2 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
+                                lastIndexCk = true
+                                bluetoothNetworkRepository.setLastIndexCk(true)
                                 setDataFlowDBInsert(firstData, data)
                                 dataFlowLogHelper.countCase1()
                             }
 
                             data.dataId == -1 && data.index - 1 == (lastData?.index ?: 0) -> {
-                                lastIndexCk = true
                                 dataFlowLogHelper.countCase2()
 //                                Log.d(TAG, "listenChannelMessage111: data -${data.index -1} last - ${lastData!!.index} ")
                                 setDataFlowDBInsert(firstData, data)
+                                lastIndexCk = true
                                 bluetoothNetworkRepository.setLastIndexCk(true)
                             }
 
