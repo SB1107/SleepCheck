@@ -7,6 +7,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -15,9 +17,10 @@ class LogWorkerHelper @Inject constructor(
 ) {
     fun insertLog(message : String) {
         workManager.pruneWork()
+        val timeStamp = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault()).format(System.currentTimeMillis())
         val  worker = OneTimeWorkRequestBuilder<LogWorker>().apply {
             addTag("log")
-            setInputData(workDataOf("log" to message))
+            setInputData(workDataOf("log" to message, "time" to timeStamp))
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
               1
