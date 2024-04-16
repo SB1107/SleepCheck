@@ -935,7 +935,6 @@ class BLEService : LifecycleService() {
                         when {
                             indexCountCheck >= 2 && data.dataId == -1 -> {
 //                                Log.d(TAG, "listenChannelMessage000: $data")
-                                lastIndexCk = true
                                 bluetoothNetworkRepository.setLastIndexCk(true)
                                 setDataFlowDBInsert(firstData, data)
                                 dataFlowLogHelper.countCase1()
