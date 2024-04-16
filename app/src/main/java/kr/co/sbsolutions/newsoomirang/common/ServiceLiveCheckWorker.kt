@@ -29,9 +29,11 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = coroutineScope {
         withContext(ioDispatchers) {
             val isServiceRunning =  BLEService.getInstance()?.isForegroundServiceRunning() ?: false
-            val isConnect = BLEService.getInstance()?.isBleDeviceConnect() ?: false
+            val device = BLEService.getInstance()?.isBleDeviceConnect()
+            val isConnect = device?.first ?: false
+            val deviceName = device?.second ?: ""
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
-            logHelper.insertLog("service live check = $isServiceRunning isConnect = $isConnect")
+            logHelper.insertLog("service live check = $isServiceRunning isConnect = $isConnect deviceName = $deviceName")
 //            if(isConnect.not()){
 //                BLEService.getInstance()?.forceBleDeviceConnect()
 //            }

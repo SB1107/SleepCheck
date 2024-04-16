@@ -67,7 +67,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private  lateinit var sendDownloadContinueJob : Job
 
     companion object{
-        private  var isSBSensorConnect = false
+        private  var isSBSensorConnect :Pair<Boolean , String> = Pair(false , "")
     }
 
     override suspend fun listenRegisterSBSensor() {
@@ -115,7 +115,7 @@ class BluetoothNetworkRepository @Inject constructor(
         _sbSensorInfo.value.isDataFlow.update { it.copy(isDataFlow = isDataFlow , currentCount = currentCount , totalCount = totalCount) }
     }
 
-    override fun isSBSensorConnect(): Boolean {
+    override fun isSBSensorConnect(): Pair<Boolean ,String> {
         return isSBSensorConnect
     }
 
@@ -643,7 +643,7 @@ class BluetoothNetworkRepository @Inject constructor(
             if (status == BluetoothGatt.GATT_FAILURE) {
                 logHelper.insertLog("onConnectionStateChange: GATT_FAILURE ${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
-                isSBSensorConnect = false
+                isSBSensorConnect = Pair(false , gatt.device.name)
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
                 logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
@@ -653,18 +653,18 @@ class BluetoothNetworkRepository @Inject constructor(
                     return
                 }
                 disconnectedDevice(gatt)
-                isSBSensorConnect = false
+                isSBSensorConnect = Pair(false , gatt.device.name)
                 return
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
-                isSBSensorConnect = true
+                isSBSensorConnect = Pair(true , gatt.device.name)
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
                 disconnectedDevice(gatt)
-                isSBSensorConnect = false
+                isSBSensorConnect = Pair(false , gatt.device.name)
                 return
             }
         }
@@ -777,9 +777,9 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.ReceivingDelayed, BluetoothState.Connected.Reconnected -> {
                                     safetyMode = 0
+                                    uploadCallbackQuotient = 0
+                                    sendDownloadContinue(gatt , innerData)
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-//                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
-//                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                 }
 
@@ -1086,7 +1086,6 @@ class BluetoothNetworkRepository @Inject constructor(
                                 val memoryTotalIndex = String.format("%02X%02X", value[6], value[7]).toUInt(16).toInt()
                                 logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
                                 dataFlowMaxCount = memoryTotalIndex * 20
-                                setDataFlow(false , currentCount = dataFlowCurrentCount , dataFlowMaxCount)
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                             } else {
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)

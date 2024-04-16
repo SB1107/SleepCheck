@@ -1016,7 +1016,7 @@ class BLEService : LifecycleService() {
 
     }
 
-    fun isBleDeviceConnect(): Boolean {
+    fun isBleDeviceConnect(): Pair<Boolean , String> {
         return bluetoothNetworkRepository.isSBSensorConnect()
     }
 
