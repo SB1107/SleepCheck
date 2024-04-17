@@ -23,14 +23,14 @@ class DataFlowHelper(
     private val logHelper: LogHelper,
     private val coroutineScope: CoroutineScope,
     settingDataRepository: SettingDataRepository,
-    private  val sbSensorDBRepository: SBSensorDBRepository,
-    private  val bluetoothNetworkRepository : IBluetoothNetworkRepository,
+    private val sbSensorDBRepository: SBSensorDBRepository,
+    private val bluetoothNetworkRepository : IBluetoothNetworkRepository,
     private val callback: (ChainData) -> Unit
 ) {
     private val dataIdProcessor = DataIdProcessor(settingDataRepository)
     private val itemCheckProcessor = ItemCheckProcessor(bluetoothNetworkRepository, sbSensorDBRepository)
     private val noDataIdItemInsertProcessor = NoDataIdItemInsertProcessor(sbSensorDBRepository)
-    private  val noDataItemCheckProcessor = NoDataItemCheckProcessor(bluetoothNetworkRepository.sbSensorInfo.value, sbSensorDBRepository)
+    private val noDataItemCheckProcessor = NoDataItemCheckProcessor(bluetoothNetworkRepository.sbSensorInfo.value, sbSensorDBRepository)
 
     init {
         when {
@@ -94,7 +94,9 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
                 Log.e(TAG, "totalCount = ${networkRepository.sbSensorInfo.value.isDataFlow.value.totalCount}"+ " list = ${size}" )
                 networkRepository.setDataFlow(true , 0 ,networkRepository.getDataFlowMaxCount().plus(size))
                 if (isItemPass(it , networkRepository)) {
-                    nextInChain.process(logHelper, scope, chainData, callback)
+                    if (::nextInChain.isInitialized) {
+                        nextInChain.process(logHelper, scope, chainData, callback)
+                    }
                 }
             }
         } ?: run {
