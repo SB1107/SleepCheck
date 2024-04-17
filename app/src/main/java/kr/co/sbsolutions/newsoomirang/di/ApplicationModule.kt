@@ -62,7 +62,7 @@ object ApplicationModule {
     fun provideServiceLiveWorkHelper(workManager: WorkManager) = ServiceLiveCheckWorkerHelper(workManager)
 
     @Provides
-    fun provideTimeId() = "${BuildConfig.VERSION_NAME}  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
+    fun provideTimeId() = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})  " + SimpleDateFormat("yy-MM-dd ", Locale.KOREA).format(System.currentTimeMillis())
 
     @Provides
     fun provideAESHelper() = AESHelper()
