@@ -8,6 +8,8 @@ class NoseRingHelper {
     private var mSnoreTime: Long = 0
     private var mLastEventTime: Long = 0
     private var mContSnoringTime: Long = 0
+    private var mCoughCount: Int = 0
+    private var mSnoreCount: Int = 0
     private lateinit var callback: () -> Unit
     fun noSeringResult(results: List<Category?>?, inferenceTime: Long?) {
         results?.forEach { value ->
@@ -20,6 +22,7 @@ class NoseRingHelper {
                     if (mContSnoringTime > 20000) {
                         if (::callback.isInitialized) {
                             callback.invoke()
+                            mSnoreCount++
                         }
 //                        callVibrationNotifications()
                     }
@@ -34,11 +37,23 @@ class NoseRingHelper {
                 }
                 Log.d(TAG, "currentTime: $currentTime  mLastEventTime: $mLastEventTime currentTime: $currentTime")
             }
+            if (value?.index == 42) {
+                mCoughCount++
+                Log.d(TAG, "mCoughCount: $mCoughCount ")
+            }
         }
     }
 
     fun getSnoreTime(): Long {
         return mSnoreTime
+    }
+
+    fun getCoughCount() : Int {
+        return mCoughCount
+    }
+
+    fun getSnoreCount() : Int {
+        return mSnoreCount
     }
 
     fun setCallVibrationNotifications(callback: (() -> Unit)) {
@@ -52,5 +67,7 @@ class NoseRingHelper {
         mSnoreTime = 0
         mLastEventTime = 0
         mContSnoringTime = 0
+        mCoughCount = 0
+        mSnoreCount = 0
     }
 }
