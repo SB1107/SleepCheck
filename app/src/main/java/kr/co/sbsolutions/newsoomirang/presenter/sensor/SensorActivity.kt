@@ -254,7 +254,8 @@ class SensorActivity : BluetoothActivity() {
 
                     launch {
                         scanList.filter { it.isNotEmpty() }.map { list ->
-                            list.filter {
+                            list.filter { it.name.isNullOrEmpty().not() }
+                            .filter {
                                 it.name.uppercase().startsWith("AA")
                                         || it.name.uppercase().startsWith("AB")
                                         || it.name.uppercase().startsWith("AC")
