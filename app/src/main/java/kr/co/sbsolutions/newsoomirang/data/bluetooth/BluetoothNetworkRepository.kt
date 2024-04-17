@@ -192,6 +192,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
+            Log.e(TAG, "connectedDevice: ${value.bluetoothState}", )
             val result = updateAndGet {
                 it.copy(
                     bluetoothState =
@@ -497,10 +498,10 @@ class BluetoothNetworkRepository @Inject constructor(
                     if (isConnected.not()) {
                         return@isConnect
                     }
-                    writeData(gatt, AppToModule.OperateDownloadJob) { state ->
-                        innerData.update { it.copy(bluetoothState = state) }
-                        logHelper.insertLog(state)
-                    }
+                    // Todo: callback 형태에서는  상태를 변경해야되기 때문에 상태 변경시  기기 연결 해제 일경우  문제가 발생 되기 때문에 Response 형태로 요청함
+                    writeResponse(gatt , AppToModuleResponse.OperateDownloadJob)
+                    logHelper.insertLog("OperateDownloadJob")
+
                 }
             }
         }
@@ -1113,11 +1114,6 @@ class BluetoothNetworkRepository @Inject constructor(
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
-                                }
-
-                                BluetoothState.Connected.SendDownloadJob -> {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                 }
 
