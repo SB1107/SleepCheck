@@ -22,7 +22,6 @@ class AudioClassificationHelper(var context: Context, var listener: AudioClassif
 
     enum class Model(val fileName: String) {
         YAMNET("yamnet.tflite"),
-        SPEECH_COMMAND("speech.tflite")
     }
 
     companion object {
