@@ -720,6 +720,7 @@ class BLEService : LifecycleService() {
     fun waitStart() {
         if (::startJob.isInitialized){
             startJob.cancel()
+            logHelper.insertLog("waitStart() isInitialized")
         }
         isStartAndStopCancel = true
         retryCount = 0
