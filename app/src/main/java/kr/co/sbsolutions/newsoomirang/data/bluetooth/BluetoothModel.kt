@@ -300,7 +300,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
             ).addCheckSum()
         }
 
-        AppToModuleResponse.OperateDownloadJob ->{
+        AppToModuleResponse.OperateDownloadJob -> {
             byteArrayOf(
                 // PREFIX
                 0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
@@ -323,6 +323,7 @@ sealed interface ModuleToApp {
     object MOTCtrlSetACK : ModuleToApp
     object MemoryData : ModuleToApp
     object MemoryDataACK : ModuleToApp
+    @Deprecated("사라짐")
     object MemoryDataDeleteACK : ModuleToApp
     object PowerOff : ModuleToApp
     object MOTCData : ModuleToApp
