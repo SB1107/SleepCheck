@@ -96,7 +96,7 @@ class NoSeringViewModel @Inject constructor(
                         reLoginCallBack()
                     }
                 } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
-                sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
+                sendErrorMessage("코골이 측정중 입니다. 종료후 사용해 주세요")
             }
         } else {
             viewModelScope.launch {
