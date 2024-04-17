@@ -29,12 +29,12 @@ class LogHelper(private val logWorkerHelper: LogWorkerHelper, private val corout
     fun registerJob(job: Job, method: () -> Unit) {
         val tag = getClazzName(method)
         insertLog("registerJob = $tag")
-        return coroutineScopeHandler.registerJob(job, tag)
+        return coroutineScopeHandler.registerJob(job, tag,logWorkerHelper)
     }
 
     fun registerJob(tag: String, job: Job) {
         insertLog("registerJob = $tag")
-        return coroutineScopeHandler.registerJob(job, tag)
+        return coroutineScopeHandler.registerJob(job, tag, logWorkerHelper)
     }
 
     private fun getClazzName(request: () -> Unit): String {
