@@ -688,14 +688,14 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             } else if (status != BluetoothGatt.GATT_SUCCESS) {
                 logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
+                logCoroutine.launch {
+                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
+                }
                 if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION) {
                     innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
                     gatt.connect()
                     logHelper.insertLog("onConnectionStateChange: NOT GATT_INSUFFICIENT_AUTHORIZATION gatt.connect")
                     return
-                }
-                logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
                 }
                 disconnectedDevice(gatt)
                 return

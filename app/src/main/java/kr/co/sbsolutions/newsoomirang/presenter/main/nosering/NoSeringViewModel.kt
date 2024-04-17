@@ -152,6 +152,7 @@ class NoSeringViewModel @Inject constructor(
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
+                            Log.d(TAG, "sleepDataCreate: ${dataManager.getHasSensor().first()}")
                             getService()?.startSBSensor(dataId = id, sleepType = SleepType.NoSering, hasSensor = dataManager.getHasSensor().first())
                             setMeasuringState(MeasuringState.Record)
                             trySend(true)
@@ -172,17 +173,21 @@ class NoSeringViewModel @Inject constructor(
 
     fun stopClick() {
         insertLog { stopClick() }
-        setMeasuringState(MeasuringState.InIt)
         viewModelScope.launch {
             val hasSensor = dataManager.getHasSensor().first()
             Log.d(TAG, "stopClick 코골이: $hasSensor")
             if (hasSensor) {
+                if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
+                    sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
+                    return@launch
+                }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
                         return@collectLatest
                     }
                     getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+                    setMeasuringState(MeasuringState.InIt)
                 }
             } else {
                 if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
@@ -190,8 +195,10 @@ class NoSeringViewModel @Inject constructor(
                     return@launch
                 }
                 getService()?.noSensorSeringMeasurement() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+                setMeasuringState(MeasuringState.InIt)
             }
         }
+
     }
 
     fun setType(type: Int) {

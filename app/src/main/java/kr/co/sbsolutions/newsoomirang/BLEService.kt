@@ -28,6 +28,7 @@ import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.consumeEach
@@ -69,6 +70,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
+import okhttp3.internal.wait
 import org.tensorflow.lite.support.label.Category
 import java.io.File
 import java.io.FileWriter
@@ -100,6 +102,8 @@ class BLEService : LifecycleService() {
         private const val TIME_OUT_MEASURE: Long = 12 * 60 * 60 * 1000L
         const val UPLOADING: String = "uploading"
         const val FINISH: String = "finish"
+        const val MAX_RETRY = 3
+        var isStartAndStopCancel = false
         private var instance: BLEService? = null
         fun getInstance(): BLEService? {
             return instance
@@ -176,6 +180,9 @@ class BLEService : LifecycleService() {
     private lateinit var requestHelper: RequestHelper
 
     private val mBinder: IBinder = LocalBinder()
+    private var retryCount = 0
+    private lateinit var startJob: Job
+    private lateinit var stopJob: Job
 
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -710,23 +717,63 @@ class BLEService : LifecycleService() {
         }
         awaitClose()
     }
+    fun waitStart() {
+        if (::startJob.isInitialized){
+            startJob.cancel()
+        }
+        isStartAndStopCancel = true
+        retryCount = 0
+        timerOfStartMeasure?.cancel()
+        logHelper.insertLog { waitStart() }
+        startTimer()
+        audioHelper.startAudioClassification()
+    }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
+        if (!hasSensor) {
+            waitStart()
+            return
+        }
+        isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+            startJob = lifecycleScope.launch {
+                timerOfStartMeasure?.cancel()
+                while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                    delay(1500)
+                    timerOfStartMeasure = Timer().apply {
+                        schedule(timerTask {
+                            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                            logHelper.insertLog("startNetworkSBSensor")
+                        }, 0L)
+                    }
+                    retryCount += 1
+                }
+            }
+
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
             dataManager.setHasSensor(hasSensor)
         }
-        startTimer()
-        audioHelper.startAudioClassification()
+
+
 //        if (sleepType == SleepType.NoSering) {
 //        }
     }
 
     private fun stopAudioClassification() {
         audioHelper.stopAudioClassification()
+    }
+
+    fun finishSenor() {
+        stopJob.cancel()
+        timerOfStopMeasure?.cancel()
+        isStartAndStopCancel = true
+        retryCount = 0
+        logHelper.insertLog { finishSenor() }
+        stopTimer()
+        stopAudioClassification()
     }
 
     fun noSensorSeringMeasurement(isCancel: Boolean = false) {
@@ -736,9 +783,8 @@ class BLEService : LifecycleService() {
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
+        isStartAndStopCancel = false
         notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
-        stopTimer()
-        stopAudioClassification()
         serviceLiveCheckWorkerHelper.cancelWork()
         logHelper.insertLog("stopSBSensor 코골이 시간: ${noseRingHelper.getSnoreTime()}  isCancel: $isCancel dataId: ${sbSensorInfo.value.dataId}")
 
@@ -751,6 +797,20 @@ class BLEService : LifecycleService() {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
                 bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+                stopJob = lifecycleScope.launch {
+                    timerOfStopMeasure?.cancel()
+                    while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                        delay(1500)
+                        timerOfStopMeasure = Timer().apply {
+                            schedule(timerTask {
+                                bluetoothNetworkRepository.stopNetworkSBSensor((noseRingHelper.getSnoreTime() / 1000) / 60)
+                                logHelper.insertLog("stopNetworkSBSensor")
+                            }, 0L)
+                        }
+                        retryCount += 1
+                    }
+                }
+
             } else {
                 noSering(isCancel, true)
             }
@@ -901,7 +961,11 @@ class BLEService : LifecycleService() {
     private var timerOfDisconnection: Timer? = null
     private var timerOfReconnection: Timer? = null
     private var timerOfTimeout: Timer? = null
+    private var timerOfStartMeasure: Timer? = null
+    private var timerOfStopMeasure: Timer? = null
     private var lastIndexCk: Boolean = false
+
+
 
 
     @SuppressLint("SimpleDateFormat")

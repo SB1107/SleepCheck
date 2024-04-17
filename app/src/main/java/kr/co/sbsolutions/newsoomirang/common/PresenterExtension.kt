@@ -311,7 +311,7 @@ fun String.hexToBytes(): ByteArray {
     return data
 }
 
-fun ByteArray.hexToString(): String{
+fun ByteArray.hexToString(): String {
     val strBuilder = StringBuffer()
     strBuilder.append("[ ")
     for (v in this) {
@@ -321,12 +321,12 @@ fun ByteArray.hexToString(): String{
     return strBuilder.toString()
 }
 
-fun String.prefixToHex(): String{
-    return this.replace("[","").replace("]","").replace(" ","").substring(0,8)
+fun String.prefixToHex(): String {
+    return this.replace("[", "").replace("]", "").replace(" ", "").substring(0, 8)
 }
 
 fun String.getChangeDeviceName(): String {
-    val nameCheck = this.contains("ABH") or this.contains("ACH")
+    val nameCheck = this.contains("H")
     val bleNumber = this.split("-").last()
     val resultName = if (!nameCheck)"Soomirang - $bleNumber" else "HSMD - $bleNumber"
     return resultName
