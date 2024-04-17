@@ -83,14 +83,15 @@ abstract class BaseServiceViewModel(
                         when (it.bluetoothState) {
                             BluetoothState.Unregistered -> {
                                 _bluetoothButtonState.emit("연결")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
                             }
 
                             BluetoothState.DisconnectedByUser -> {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
-                                        _isHomeBleProgressBar.emit(Pair(false, ""))
-                                    _batteryState.emit("")
-                                    _bluetoothButtonState.emit("연결")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결")
                             }
 
                             BluetoothState.Connected.Reconnected -> {

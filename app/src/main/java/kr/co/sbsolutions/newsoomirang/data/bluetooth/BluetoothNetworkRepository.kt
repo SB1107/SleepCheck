@@ -316,7 +316,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 dataId = null
                 bluetoothGatt = null
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
 //
@@ -865,12 +865,13 @@ class BluetoothNetworkRepository @Inject constructor(
                                                         Log.d(TAG, "DataFlow: 호흡 종료 ")
                                                     }
                                                 }
-                                            } ?: launch {
+                                            }
+                                                /*?: launch {
                                                 // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
                                                 writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                                 delay(1000)
                                                 writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                            }
+                                            }*/
 
                                         }
                                     }
