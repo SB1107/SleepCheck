@@ -1,4 +1,4 @@
-package kr.co.sbsolutions.newsoomirang
+package kr.co.sbsolutions.newsoomirang.service
 
 import android.annotation.SuppressLint
 import android.app.ForegroundServiceStartNotAllowedException
@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
@@ -72,7 +73,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import kr.co.sbsolutions.soomirang.db.SBSensorData
-import okhttp3.internal.wait
 import org.tensorflow.lite.support.label.Category
 import java.io.File
 import java.io.FileWriter
@@ -122,6 +122,9 @@ class BLEService : LifecycleService() {
             }
         })
     }
+
+    @Inject
+    lateinit var bleServiceHelper: BLEServiceHelper
 
     @Inject
     lateinit var notificationBuilder: NotificationCompat.Builder
@@ -192,29 +195,29 @@ class BLEService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        dataFlowLogHelper = DataFlowLogHelper(logHelper)
         instance = this
         logHelper.insertLog("bleOnCreate")
-        listenChannelMessage()
-        lifecycleScope.launch(IO) {
-            timeHelper.measuringTimer.collectLatest {
-                notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
-                dataManager.setTimer(timeHelper.getTime())
-                dataManager.setNoseRingTimer(noseRingHelper.getSnoreTime())
-            }
-        }
+        bleServiceHelper.setLifecycleScope(this.lifecycleScope)
 
-        noseRingHelper.setCallVibrationNotifications {
-            lifecycleScope.launch(IO) {
-                val onOff = settingDataRepository.getSnoringOnOff()
-                if (onOff) {
-                    if (timeHelper.getTime() > (60 * 30)) {
-                        callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
-                    }
-                }
-            }
-        }
+//        lifecycleScope.launch(IO) {
+//            timeHelper.measuringTimer.collectLatest {
+//                notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
+//                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+//                dataManager.setTimer(timeHelper.getTime())
+//                dataManager.setNoseRingTimer(noseRingHelper.getSnoreTime())
+//            }
+//        }
+
+//        noseRingHelper.setCallVibrationNotifications {
+//            lifecycleScope.launch(IO) {
+//                val onOff = settingDataRepository.getSnoringOnOff()
+//                if (onOff) {
+//                    if (timeHelper.getTime() > (60 * 30)) {
+//                        callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
+//                    }
+//                }
+//            }
+//        }
         bluetoothAdapter?.let {
             bluetoothNetworkRepository.changeBluetoothState(it.isEnabled)
         }
@@ -383,7 +386,13 @@ class BLEService : LifecycleService() {
                 sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
-                            val data =UploadData(dataId = dataId , sleepType = it.sleepType , snoreTime = it.snoreTime, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                            val data = UploadData(
+                                dataId = dataId,
+                                sleepType = it.sleepType,
+                                snoreTime = it.snoreTime,
+                                snoreCount = noseRingHelper.getSnoreCount(),
+                                coughCount = noseRingHelper.getCoughCount()
+                            )
                             uploadWorker(data, forceClose)
 //                            exportLastFile(dataId, sbSensorDBRepository.getMaxIndex(dataId), forceClose, sleepType = it.sleepType, snoreTime = it.snoreTime)
                         }
@@ -399,7 +408,7 @@ class BLEService : LifecycleService() {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
             val sensorName = dataManager.getBluetoothDeviceName(sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
-            val newUploadData = uploadData.copy(packageName = baseContext.packageName , sensorName = sensorName)
+            val newUploadData = uploadData.copy(packageName = baseContext.packageName, sensorName = sensorName)
             uploadWorkerHelper.uploadData(newUploadData)
                 .observe(this@BLEService) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
@@ -411,7 +420,7 @@ class BLEService : LifecycleService() {
                                     val reason = workInfo.outputData.getString("reason")
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
-                                        uploadWorker(uploadData, forceClose,isFilePass)
+                                        uploadWorker(uploadData, forceClose, isFilePass)
                                     }
                                 }
                             }
@@ -465,7 +474,8 @@ class BLEService : LifecycleService() {
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("uploading: register")
                         _resultMessage.emit(UPLOADING)
-                        val data =UploadData(dataId = dataId , sleepType = it.sleepType , snoreTime = it.snoreTime, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                        val data =
+                            UploadData(dataId = dataId, sleepType = it.sleepType, snoreTime = it.snoreTime, snoreCount = noseRingHelper.getSnoreCount(), coughCount = noseRingHelper.getCoughCount())
                         uploadWorker(data, forceClose)
                     }
                 } ?: finishService(-1, forceClose)
@@ -674,7 +684,13 @@ class BLEService : LifecycleService() {
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
                             _resultMessage.emit(UPLOADING)
-                            val data =UploadData(dataId = dataId , sleepType = it.sleepType , snoreTime = it.snoreTime, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                            val data = UploadData(
+                                dataId = dataId,
+                                sleepType = it.sleepType,
+                                snoreTime = it.snoreTime,
+                                snoreCount = noseRingHelper.getSnoreCount(),
+                                coughCount = noseRingHelper.getCoughCount()
+                            )
                             uploadWorker(data, false)
 //                            uploadWorkerHelper.uploadData(dataId ,false, sleepType = it.sleepType, snoreTime = it.snoreTime)
 //                            exportLastFile(dataId, max, true, sleepType = it.sleepType, snoreTime = it.snoreTime)
@@ -842,7 +858,13 @@ class BLEService : LifecycleService() {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        val data = UploadData(dataId = dataId , sleepType = it.sleepType , snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                        val data = UploadData(
+                            dataId = dataId,
+                            sleepType = it.sleepType,
+                            snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60,
+                            snoreCount = noseRingHelper.getSnoreCount(),
+                            coughCount = noseRingHelper.getCoughCount()
+                        )
                         uploadWorker(
                             data,
                             false,
@@ -1133,7 +1155,13 @@ class BLEService : LifecycleService() {
                             logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
                             _resultMessage.emit(UPLOADING)
                             chainData.dataId?.let { dataId ->
-                                val data = UploadData(dataId = dataId , sleepType = sleepType , snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                                val data = UploadData(
+                                    dataId = dataId,
+                                    sleepType = sleepType,
+                                    snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60,
+                                    snoreCount = noseRingHelper.getSnoreCount(),
+                                    coughCount = noseRingHelper.getCoughCount()
+                                )
                                 uploadWorker(data, false)
                             }
                             bluetoothNetworkRepository.setDataFlow(false)
@@ -1165,7 +1193,13 @@ class BLEService : LifecycleService() {
                                 logHelper.insertLog("uploading:${sleepType} dataFlow 좀비 업로드")
                                 _resultMessage.emit(UPLOADING)
                                 chainData.dataId?.let { dataId ->
-                                    val data = UploadData(dataId = dataId , sleepType = sleepType , snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60, snoreCount = noseRingHelper.getSnoreCount() , coughCount = noseRingHelper.getCoughCount())
+                                    val data = UploadData(
+                                        dataId = dataId,
+                                        sleepType = sleepType,
+                                        snoreTime = (noseRingHelper.getSnoreTime() / 1000) / 60,
+                                        snoreCount = noseRingHelper.getSnoreCount(),
+                                        coughCount = noseRingHelper.getCoughCount()
+                                    )
                                     uploadWorker(data, false)
                                 }
                                 bluetoothNetworkRepository.setDataFlow(false)

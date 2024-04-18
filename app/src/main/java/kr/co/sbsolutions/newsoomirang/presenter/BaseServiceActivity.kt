@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
-import kr.co.sbsolutions.newsoomirang.BLEService
-import kr.co.sbsolutions.newsoomirang.BLEService.Companion.DATA_ID
+import kr.co.sbsolutions.newsoomirang.service.BLEService
+import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.DATA_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
