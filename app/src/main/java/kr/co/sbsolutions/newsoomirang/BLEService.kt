@@ -82,6 +82,7 @@ import java.util.Locale
 import java.util.Timer
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
+import kotlin.math.log
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -1151,6 +1152,7 @@ class BLEService : LifecycleService() {
     private fun setDataFlowFinish() {
         serviceLiveCheckWorkerHelper.cancelWork()
         bluetoothNetworkRepository.setDataFlowForceFinish { lastIndex ->
+            logHelper.insertLog("setDataFlowFinish() $lastIndex")
             dataFlowLogHelper.onCaseLog()
             logHelper.registerJob("setDataFlowFinish", lifecycleScope.launch(IO) {
                 DataFlowHelper(
@@ -1174,9 +1176,8 @@ class BLEService : LifecycleService() {
                             false -> {
                                 if (chainData.reasonMessage != "DataId 가없음") {
                                     _dataFlowPopUp.emit(true)
-                                } else {
-                                    bluetoothNetworkRepository.setDataFlow(false)
                                 }
+                                bluetoothNetworkRepository.setDataFlow(false)
                             }
                         }
                     }
