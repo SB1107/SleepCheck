@@ -185,12 +185,12 @@ class MainActivity : BaseServiceActivity() {
                             root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
                             lpProgress.visibility = View.VISIBLE
                             if (it.totalCount != 0) {
-                                Log.e(TAG, "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}" )
-                                var tempCurrent : Int = it.currentCount
-                                if(it.currentCount > it.totalCount){
+                                Log.e(TAG, "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}")
+                                var tempCurrent: Int = it.currentCount
+                                if (it.currentCount > it.totalCount) {
                                     tempCurrent = it.totalCount
                                 }
-                               val tempPer = (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
+                                val tempPer = (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
                                 lpProgress.setProgressCompat(tempPer, true)
                             }
                         }

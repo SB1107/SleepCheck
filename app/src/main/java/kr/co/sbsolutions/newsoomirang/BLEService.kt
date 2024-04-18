@@ -712,7 +712,7 @@ class BLEService : LifecycleService() {
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
-                send(size < 100)
+                send(size < 1000)
                 close()
             } ?: run {
                 send(true)
