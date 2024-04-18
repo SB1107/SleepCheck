@@ -55,6 +55,8 @@ class UploadWorker @AssistedInject constructor(
             val dataId = inputData.getInt("dataId", -1)
             val sleepType = inputData.getInt("sleepType", 0)
             val snoreTime = inputData.getLong("snoreTime", 0)
+            val snoreCount = inputData.getInt("snoreCount", 0)
+            val coughCount = inputData.getInt("coughCount", 0)
             val isFilePass = inputData.getBoolean("isFilePass", false)
             val sensorName = inputData.getString("sensorName") ?: ""
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
@@ -63,7 +65,7 @@ class UploadWorker @AssistedInject constructor(
             }
 
             if (isFilePass) {
-                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
+                uploading(packageName, dataId, null, emptyList(), sleepType = type, snoreTime = snoreTime, snoreCount = snoreCount, coughCount = coughCount, sensorName = sensorName).first()
             } else {
                 Log.e(TAG, "exportLastFile -dataId = $dataId sleepType = $sleepType  snoreTime = $snoreTime")
                 val min = sbSensorDBRepository.getMinIndex(dataId)
@@ -79,14 +81,16 @@ class UploadWorker @AssistedInject constructor(
                 val firstData = sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()
 
                 val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
-                    .map {  if(it.time.contains("1970")){
-                        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
-                        val newTime = firstData?.time?.let { format.parse(it) }
-                        val time1 = format.format((newTime?.time ?: 0) + (200 * it.index))
-                        it.time = time1
-                        it
-                    }else it }
-                Log.e(TAG, "doWork: sbList = ${sbList.size} newList = ${sbList.size}" )
+                    .map {
+                        if (it.time.contains("1970")) {
+                            val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+                            val newTime = firstData?.time?.let { format.parse(it) }
+                            val time1 = format.format((newTime?.time ?: 0) + (200 * it.index))
+                            it.time = time1
+                            it
+                        } else it
+                    }
+                Log.e(TAG, "doWork: sbList = ${sbList.size} newList = ${sbList.size}")
                 val time = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date(System.currentTimeMillis()))
                 val filePath = "${context.filesDir}/${time}($dataId).csv"
                 val file = File(filePath)
@@ -101,10 +105,11 @@ class UploadWorker @AssistedInject constructor(
                     }
                 }
                 logHelper.insertLog("uploading: exportFile")
-                uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, sensorName = sensorName).first()
+                uploading(packageName, dataId, file, sbList, sleepType = type, snoreTime = snoreTime, snoreCount = snoreCount, coughCount = coughCount, sensorName = sensorName).first()
             }
         }
     }
+
     private suspend fun uploading(
         packageName: String,
         dataId: Int,
@@ -112,6 +117,8 @@ class UploadWorker @AssistedInject constructor(
         list: List<SBSensorData>,
         sleepType: SleepType,
         snoreTime: Long = 0,
+        snoreCount: Int = 0,
+        coughCount: Int = 0,
         sensorName: String
     ) =
         callbackFlow {
@@ -127,7 +134,17 @@ class UploadWorker @AssistedInject constructor(
                     context.sendBroadcast(intent)
                 }
                 requestHelper.request(
-                    request = { remoteAuthDataSource.postUploading(file = file, dataId = dataId, sleepType = sleepType, snoreTime = snoreTime, sensorName = sensorName) },
+                    request = {
+                        remoteAuthDataSource.postUploading(
+                            file = file,
+                            dataId = dataId,
+                            sleepType = sleepType,
+                            snoreTime = snoreTime,
+                            snoreCount = snoreCount,
+                            coughCount = coughCount,
+                            sensorName = sensorName
+                        )
+                    },
                     errorHandler = { error ->
                         logHelper.insertLog("uploading error: $error")
                         trySend(Result.retry())
