@@ -17,12 +17,23 @@ import javax.inject.Inject
 class UploadWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
-    fun uploadData(packageName: String, dataId: Int, sleepType: SleepType, snoreTime: Long,sensorName : String, isFilePass: Boolean = false, isFileUpdate : Boolean = false): LiveData<WorkInfo> {
+    fun uploadData(uploadData: UploadData): LiveData<WorkInfo> {
         val uuid = UUID.randomUUID()
         val worker = OneTimeWorkRequestBuilder<UploadWorker>().apply {
             addTag("upload")
             setId(uuid)
-            setInputData(workDataOf("packageName" to packageName, "dataId" to dataId, "sleepType" to sleepType.ordinal, "snoreTime" to snoreTime, "isFilePass" to isFilePass , "sensorName" to sensorName))
+            setInputData(
+                workDataOf(
+                    "packageName" to uploadData.packageName,
+                    "dataId" to uploadData.dataId,
+                    "sleepType" to uploadData.sleepType.ordinal,
+                    "snoreTime" to uploadData.snoreTime,
+                    "snoreCount" to uploadData.snoreCount,
+                    "coughCount" to uploadData.coughCount,
+                    "isFilePass" to uploadData.isFilePass,
+                    "sensorName" to uploadData.sensorName
+                )
+            )
             setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 1, TimeUnit.MINUTES
@@ -33,3 +44,14 @@ class UploadWorkerHelper @Inject constructor(
         return workManager.getWorkInfoByIdLiveData(uuid)
     }
 }
+
+data class UploadData(
+    var packageName: String = "",
+    val dataId: Int,
+    val sleepType: SleepType = SleepType.Breathing,
+    val snoreTime: Long = 0,
+    val snoreCount: Int = 0,
+    val coughCount: Int = 0,
+    var sensorName: String = "",
+    val isFilePass: Boolean = false
+)
