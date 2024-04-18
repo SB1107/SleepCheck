@@ -6,13 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import android.text.SpannableString
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,7 +19,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,10 +32,8 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
-import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.AlertListener
 import kr.co.sbsolutions.newsoomirang.presenter.main.BluetoothFragment
@@ -48,7 +43,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.MainViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BreathingFragment : BluetoothFragment() {

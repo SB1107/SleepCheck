@@ -217,6 +217,7 @@ class MainActivity : BaseServiceActivity() {
 
     fun getBroadcastData() {
         viewModel.sendMeasurementResults()
+        viewModel.stopResultProgressBar()
     }
 
     override fun onResume() {

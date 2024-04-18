@@ -731,26 +731,27 @@ class BLEService : LifecycleService() {
     }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
-        if (!hasSensor) {
-            waitStart()
-            return
-        }
+
         isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
-            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
-            startJob = lifecycleScope.launch {
-                timerOfStartMeasure?.cancel()
-                while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
-                    delay(1500)
-                    timerOfStartMeasure = Timer().apply {
-                        schedule(timerTask {
-                            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
-                            logHelper.insertLog("startNetworkSBSensor")
-                        }, 0L)
+            if (hasSensor) {
+                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                startJob = lifecycleScope.launch {
+                    timerOfStartMeasure?.cancel()
+                    while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                        delay(1500)
+                        timerOfStartMeasure = Timer().apply {
+                            schedule(timerTask {
+                                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                                logHelper.insertLog("startNetworkSBSensor")
+                            }, 0L)
+                        }
+                        retryCount += 1
                     }
-                    retryCount += 1
                 }
+            }else{
+                waitStart()
             }
 
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
@@ -768,7 +769,9 @@ class BLEService : LifecycleService() {
     }
 
     fun finishSenor() {
-        stopJob.cancel()
+        if (::stopJob.isInitialized) {
+            stopJob.cancel()
+        }
         timerOfStopMeasure?.cancel()
         isStartAndStopCancel = true
         retryCount = 0
@@ -926,7 +929,8 @@ class BLEService : LifecycleService() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
-        dataFlowLogHelper.dataClear()
+        bluetoothNetworkRepository.sendDownloadContinueCancel()
+        finishSenor()
         noseRingHelper.clearData()
         logHelper.insertLog("finishService")
         lifecycleScope.launch {

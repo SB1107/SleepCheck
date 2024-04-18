@@ -39,8 +39,7 @@ class LogWorker @AssistedInject constructor(
         withContext(ioDispatchers) {
             val message = inputData.getString("log") ?: ""
             val timeStamp = inputData.getString("time") ?: ""
-            val logMessage = "$message  [시간:$timeStamp]"
-            LogData(0, SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis()), logMessage).log().first()
+            LogData(0, timeStamp, message).log().first()
         }
 //        saveData(data)
 //        val data = downloadSynchronously("https://www.google.com")

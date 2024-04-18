@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
     private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
-    val isResultProgressBar: SharedFlow<Pair<Int, Boolean>> = _isResultProgressBar.asSharedFlow()
+    val isResultProgressBar: StateFlow<Pair<Int, Boolean>> = _isResultProgressBar
 
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job

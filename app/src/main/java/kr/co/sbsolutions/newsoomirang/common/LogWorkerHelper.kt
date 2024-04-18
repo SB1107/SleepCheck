@@ -17,7 +17,7 @@ class LogWorkerHelper @Inject constructor(
 ) {
     fun insertLog(message : String) {
         workManager.pruneWork()
-        val timeStamp = SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault()).format(System.currentTimeMillis())
+        val timeStamp = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis())
         val  worker = OneTimeWorkRequestBuilder<LogWorker>().apply {
             addTag("log")
             setInputData(workDataOf("log" to message, "time" to timeStamp))

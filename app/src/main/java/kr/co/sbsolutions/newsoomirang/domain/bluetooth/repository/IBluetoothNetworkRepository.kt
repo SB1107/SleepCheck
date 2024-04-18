@@ -52,6 +52,7 @@ interface IBluetoothNetworkRepository {
     fun setDataFlow(isDataFlow: Boolean, currentCount : Int = 0 ,totalCount : Int = 0)
     fun isSBSensorConnect() : Pair<Boolean , String>
     fun getDataFlowMaxCount() : Int
+    fun sendDownloadContinueCancel()
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>
     val eegSensorInfo : StateFlow<BluetoothInfo>

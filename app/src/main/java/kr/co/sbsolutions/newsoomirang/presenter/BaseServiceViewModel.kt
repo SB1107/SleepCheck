@@ -54,7 +54,7 @@ abstract class BaseServiceViewModel(
     private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
         MutableSharedFlow()
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
-    private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(false)
+    private  val _guideAlert : MutableStateFlow<Boolean>  = MutableStateFlow(true)
     val guideAlert : StateFlow<Boolean> = _guideAlert
 
     private val _dataFlowInfoMessage: MutableStateFlow<DataFlowInfo> = MutableStateFlow(DataFlowInfo())

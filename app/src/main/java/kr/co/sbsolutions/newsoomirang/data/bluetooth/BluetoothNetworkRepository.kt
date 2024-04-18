@@ -14,12 +14,10 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -513,9 +511,8 @@ class BluetoothNetworkRepository @Inject constructor(
             return
         }
         innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
-        if (::isSBSensorConnectJob.isInitialized) {
-            isSBSensorConnectJob.cancel()
-        }
+        sendDownloadContinueCancel()
+
         isSBSensorConnectJob = logCoroutine.launch {
             withTimeoutOrNull(20000L) {
 
@@ -533,7 +530,7 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    private fun sendDownloadContinueEnd() {
+     override fun sendDownloadContinueCancel() {
         if (::sendDownloadContinueJob.isInitialized) {
             sendDownloadContinueJob.cancel()
             logHelper.insertLog("sendDownloadContinue 등록 취소")
@@ -792,7 +789,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                it.bluetoothState = BluetoothState.Connected.Finish
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> Finish")
-                                    sendDownloadContinueEnd()
+                                    sendDownloadContinueCancel()
                                 }
 
                                 BluetoothState.Connected.DataFlow -> {
