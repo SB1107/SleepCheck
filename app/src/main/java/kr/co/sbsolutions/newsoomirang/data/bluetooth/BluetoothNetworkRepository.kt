@@ -297,8 +297,8 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 dataId = null
                 bluetoothGatt = null
-            } catch (e: Exception) {
-                logHelper.insertLog(e.message.toString())
+            } catch (_e: Exception) {
+                logHelper.insertLog("_sbSensorInfo ${_e.message.toString()}")
             }
         }
         _spo2SensorInfo.value.apply {
@@ -314,22 +314,27 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 dataId = null
                 bluetoothGatt = null
-            } catch (_: Exception) {
+            } catch (_e: Exception) {
+                logHelper.insertLog("_spo2SensorInfo ${_e.message.toString()}")
             }
         }
 //
         _eegSensorInfo.value.apply {
-            if (bluetoothState != BluetoothState.Unregistered) {
-                bluetoothState = BluetoothState.DisconnectedByUser
-//                Log.d(TAG, "disconnectedDevice: 4")
+            try {
+                if (bluetoothState != BluetoothState.Unregistered) {
+                    bluetoothState = BluetoothState.DisconnectedByUser
+    //                Log.d(TAG, "disconnectedDevice: 4")
+                }
+                bluetoothGatt?.let {
+                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.disconnect()
+                    it.close()
+                }
+                dataId = null
+                bluetoothGatt = null
+            } catch (_e: Exception) {
+                logHelper.insertLog("_eegSensorInfo ${_e.message.toString()}")
             }
-            bluetoothGatt?.let {
-                it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
-                it.disconnect()
-                it.close()
-            }
-            dataId = null
-            bluetoothGatt = null
         }
         Log.d(TAG, "releaseResource: ")
     }
@@ -338,21 +343,22 @@ class BluetoothNetworkRepository @Inject constructor(
         val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
         if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered) {
             _sbSensorInfo.update { it.copy(dataId = dataId, sleepType = sleepType, snoreTime = 0) }
-        } else {
-            Log.d(TAG, "startNetworkSBSensor: ")
+            return
+        }
+
+        if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
             writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
                 _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
                 logHelper.insertLog(state)
             }
+            return
         }
-
     }
 
     override fun stopNetworkSBSensor(snoreTime: Long) {
         val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-            Log.d(TAG, "stopNetworkSBSensor snoreTime: $snoreTime")
-            logHelper.insertLog("stopNetworkSBSensor: ${state}   $module")
+            logHelper.insertLog("stopNetworkSBSensor: $state   $module  snoreTime: $snoreTime")
             _sbSensorInfo.update { it.copy(bluetoothState = state, snoreTime = snoreTime) }
             logHelper.insertLog(state)
         }
@@ -524,7 +530,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
                 }
             } ?: run {
-                isSBSensorConnectJob.cancel(CancellationException("시간초가"))
+                isSBSensorConnectJob.cancel(CancellationException("시간초과"))
                 isConnect(gatt, innerData, callback)
             }
         }

@@ -708,7 +708,7 @@ class BLEService : LifecycleService() {
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
-                send(size < 1000)
+                send(size < 100)
                 close()
             } ?: run {
                 send(true)
@@ -731,12 +731,13 @@ class BLEService : LifecycleService() {
     }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
-
         isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             if (hasSensor) {
-                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType).run {
+                    logHelper.insertLog("startNetworkSBSensor")
+                }
                 startJob = lifecycleScope.launch {
                     timerOfStartMeasure?.cancel()
                     while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
@@ -744,7 +745,7 @@ class BLEService : LifecycleService() {
                         timerOfStartMeasure = Timer().apply {
                             schedule(timerTask {
                                 bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
-                                logHelper.insertLog("startNetworkSBSensor")
+                                logHelper.insertLog("timerOfStartMeasure - startNetworkSBSensor")
                             }, 0L)
                         }
                         retryCount += 1
@@ -758,8 +759,6 @@ class BLEService : LifecycleService() {
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
             dataManager.setHasSensor(hasSensor)
         }
-
-
 //        if (sleepType == SleepType.NoSering) {
 //        }
     }

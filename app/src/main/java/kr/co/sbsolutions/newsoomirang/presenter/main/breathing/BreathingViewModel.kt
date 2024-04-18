@@ -109,7 +109,6 @@ class BreathingViewModel @Inject constructor(
     fun stopClick() {
         registerJob("stopClick()",
             viewModelScope.launch(Dispatchers.Main) {
-                Log.d(TAG, "stopClick: 123123123 ${getService()?.isBleDeviceConnect()?.first}")
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
                     sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
                     return@launch
@@ -120,8 +119,8 @@ class BreathingViewModel @Inject constructor(
                         return@collectLatest
                     }
 
-                    setMeasuringState(MeasuringState.InIt)
                     getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
+                    setMeasuringState(MeasuringState.InIt)
                 }
             })
 
