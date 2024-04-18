@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -712,7 +713,8 @@ class BLEService : LifecycleService() {
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
-                send(size < 1000)
+                send(size < MINIMUM_UPLOAD_NUMBER)
+                Log.d(TAG, "send(size < MINIMUM_UPLOAD_NUMBER):  ${size < MINIMUM_UPLOAD_NUMBER}")
                 close()
             } ?: run {
                 send(true)
@@ -884,7 +886,7 @@ class BLEService : LifecycleService() {
             Log.d(TAG, "exportFile - Index From $min~$max = ${max - min + 1} / Data Size : $size")
             logHelper.insertLog("exportFile - Size : $size")
 
-            if (size < 1000) {
+            if (size < MINIMUM_UPLOAD_NUMBER) {
                 Log.d(TAG, "exportFile - data size 1000 미만 $size")
                 logHelper.insertLog("exportFile -  size 1000 미만 $size")
                 return@launch

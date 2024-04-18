@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
+import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -74,7 +75,7 @@ class UploadWorker @AssistedInject constructor(
 
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1}  Data Size : $size")
                 logHelper.insertLog("exportLastFile Index From $min~$max = ${max - min + 1}  Data Size : $size")
-                if (size < 1000) {
+                if (size < MINIMUM_UPLOAD_NUMBER) {
                     Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
                 }
