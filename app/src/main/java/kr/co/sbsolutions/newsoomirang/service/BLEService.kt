@@ -40,14 +40,9 @@ import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
-import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
-import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
-import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
-import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
@@ -81,7 +76,6 @@ class BLEService : LifecycleService() {
         }
     }
 
-
     @Inject
     lateinit var bleServiceHelper: BLEServiceHelper
 
@@ -93,15 +87,6 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var bluetoothNetworkRepository: IBluetoothNetworkRepository
-
-    @Inject
-    lateinit var remoteAuthDataSource: RemoteAuthDataSource
-
-    @Inject
-    lateinit var sbSensorDBRepository: SBSensorDBRepository
-
-    @Inject
-    lateinit var settingDataRepository: SettingDataRepository
 
     @Inject
     lateinit var logHelper: LogHelper
@@ -432,7 +417,7 @@ class BLEService : LifecycleService() {
     }
 
     fun isBleDeviceConnect(): Pair<Boolean, String> {
-        return bluetoothNetworkRepository.isSBSensorConnect()
+        return bleServiceHelper.isBleDeviceConnect()
     }
 
 
@@ -440,11 +425,6 @@ class BLEService : LifecycleService() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
-
-    private suspend fun <T : BaseEntity> request(request: () -> Flow<ApiResponse<T>>, errorHandler: RequestHelper.CoroutinesErrorHandler): Flow<T> {
-        return requestHelper.request(request, errorHandler)
-    }
-
     fun forceDataFlowDataUploadCancel() {
         bleServiceHelper.forceDataFlowDataUploadCancel()
     }

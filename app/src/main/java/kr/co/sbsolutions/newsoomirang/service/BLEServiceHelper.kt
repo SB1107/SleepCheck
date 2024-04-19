@@ -283,4 +283,9 @@ class BLEServiceHelper(
     fun getNotificationManager(): NotificationManager {
         return timeCountUseCase?.getNotificationManager() ?: notificationManager
     }
+
+    fun isBleDeviceConnect(): Pair<Boolean, String> {
+        return blueToothUseCase?.isBleDeviceConnect() ?: Pair(false, "")
+
+    }
 }

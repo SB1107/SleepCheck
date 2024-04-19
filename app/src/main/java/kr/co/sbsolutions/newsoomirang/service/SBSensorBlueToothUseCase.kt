@@ -279,6 +279,9 @@ class SBSensorBlueToothUseCase(
             }, TIME_OUT_MEASURE)
         }
     }
+    fun isBleDeviceConnect(): Pair<Boolean, String>{
+        return bluetoothNetworkRepository.isSBSensorConnect()
+    }
 
      fun finishStop(callback: () -> Unit) {
         lifecycleScope.launch(IO) {
