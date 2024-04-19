@@ -242,7 +242,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun startScheduler() {
-        bleServiceHelper.startScheduler(notifyPowerOff(FinishState.FinishTimeOut))
+        bleServiceHelper.startScheduler()
     }
 
 

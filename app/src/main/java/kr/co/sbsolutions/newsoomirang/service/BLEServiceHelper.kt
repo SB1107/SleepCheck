@@ -138,8 +138,8 @@ class BLEServiceHelper(
         blueToothUseCase?.releaseResource()
     }
 
-    fun startScheduler(forceClose: Boolean) {
-        blueToothUseCase?.startScheduler(forceClose)
+    fun startScheduler() {
+        blueToothUseCase?.startScheduler()
     }
 
     fun registerDownloadCallback() {

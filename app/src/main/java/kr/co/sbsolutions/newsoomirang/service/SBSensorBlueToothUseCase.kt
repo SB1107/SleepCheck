@@ -241,7 +241,7 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.operateDownloadSbSensor(false)
     }
 
-    fun startScheduler(forceClose: Boolean) {
+    fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
@@ -253,6 +253,7 @@ class SBSensorBlueToothUseCase(
         timerOfTimeout = Timer().apply {
             schedule(timerTask {
                 stopSBSensor()
+                val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                 bluetoothNetworkRepository.sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
