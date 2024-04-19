@@ -13,6 +13,8 @@ class DataManager(private val context: Context) {
     companion object {
         private val KEY_IS_FIRST_EXECUTE = booleanPreferencesKey("is_first_execute")
         private val NOSE_RING_TIME = longPreferencesKey("nose_ring_time")
+        private val COUGH_COUNT = intPreferencesKey("cough_count")
+        private val SNORE_COUNT = intPreferencesKey("snore_count")
         private val APP_TIMER = intPreferencesKey("app_timer")
         private val USER_NAME = stringPreferencesKey("user_name")
         private val SNS_TYPE = stringPreferencesKey("sns_type")
@@ -23,7 +25,6 @@ class DataManager(private val context: Context) {
         private const val NAME = "_name"
 
     }
-
 
 
     fun isFirstExecute(): Flow<Boolean> {
@@ -123,16 +124,42 @@ class DataManager(private val context: Context) {
             preferences[APP_TIMER]
         }
     }
+
     suspend fun setNoseRingTimer(time: Long) {
         context.moveStore.edit { preferences ->
             preferences[NOSE_RING_TIME] = time
         }
     }
 
-
-    fun getNoseRingTimer(): Flow<Long?> {
-        return context.moveStore.data.map { preferences ->
-            preferences[NOSE_RING_TIME]
+    suspend fun setCoughCount(time: Int) {
+        context.moveStore.edit { preferences ->
+            preferences[COUGH_COUNT] = time
         }
     }
+
+    suspend fun setNoseRingCount(time: Int) {
+        context.moveStore.edit { preferences ->
+            preferences[SNORE_COUNT] = time
+        }
+    }
+
+
+    fun getNoseRingTimer(): Flow<Long> {
+        return context.moveStore.data.map { preferences ->
+            preferences[NOSE_RING_TIME] ?: 0L
+        }
+    }
+
+    fun getNoseRingCount(): Flow<Int> {
+        return context.moveStore.data.map { preferences ->
+            preferences[SNORE_COUNT] ?: 0
+        }
+    }
+
+    fun getCoughCount(): Flow<Int> {
+        return context.moveStore.data.map { preferences ->
+            preferences[COUGH_COUNT] ?: 0
+        }
+    }
+
 }

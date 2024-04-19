@@ -96,14 +96,14 @@ class SensorViewModel @Inject constructor(
 
     fun connectState() {
         viewModelScope.launch {
-            Log.d(TAG, "connectState: ${getService()?.sbSensorInfo}")
+            Log.d(TAG, "connectState: ${getService()?.getSbSensorInfo()}")
             launch {
-                getService()?.sbSensorInfo?.filter { it.batteryInfo != null }?.collectLatest { it ->
-                    Log.e(TAG, "배터리1: ${getService()?.sbSensorInfo?.value?.batteryInfo}")
+                getService()?.getSbSensorInfo()?.filter { it.batteryInfo != null }?.collectLatest { it ->
+                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
                     Log.e(
                         TAG,
                         "배터리2: ${
-                            getService()?.sbSensorInfo?.value?.batteryInfo.isNullOrEmpty().not()
+                            getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()
                         }"
                     )
                     _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
@@ -113,7 +113,7 @@ class SensorViewModel @Inject constructor(
     }
 
     fun bleDisconnect() {
-        when (getService()?.sbSensorInfo?.value?.bluetoothState) {
+        when (getService()?.getSbSensorInfo()?.value?.bluetoothState) {
             //측정중
             BluetoothState.Connected.ReceivingRealtime,
             BluetoothState.Connected.SendDownloadContinue -> {
@@ -129,7 +129,7 @@ class SensorViewModel @Inject constructor(
     fun bleConnect() {
         insertLog("스캔 사용자가 직접 bleConnect() ${bluetoothInfo.bluetoothState}")
         viewModelScope.launch(Dispatchers.IO) {
-            when (getService()?.sbSensorInfo?.value?.bluetoothState) {
+            when (getService()?.getSbSensorInfo()?.value?.bluetoothState) {
                 //연결
                 BluetoothState.Unregistered,
                 BluetoothState.DisconnectedByUser -> {
@@ -242,7 +242,7 @@ class SensorViewModel @Inject constructor(
             _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
 
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
-            getService()?.sbSensorInfo?.collectLatest {
+            getService()?.getSbSensorInfo()?.collectLatest {
                 if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
                     deviceConnect(it)
                 }

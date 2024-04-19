@@ -8,14 +8,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
-import kr.co.sbsolutions.newsoomirang.BLEService
+import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
@@ -115,14 +114,12 @@ abstract class BaseServiceViewModel(
                                 launch {
                                     _bluetoothButtonState.emit("시작")
                                     _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
-                                    getService()?.waitStart()
                                 }
                             }
                             BluetoothState.Connected.Finish ->{
                                 launch {
                                     _bluetoothButtonState.emit("시작")
                                     _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
-                                    getService()?.finishSenor()
                                 }
                             }
 
@@ -161,7 +158,7 @@ abstract class BaseServiceViewModel(
 
     open fun serviceSettingCall() {
         viewModelScope.launch {
-            getService()?.dataFlowPopUp?.collectLatest {
+            getService()?.getDataFlowPopUp()?.collectLatest {
                 _dataFlowPopUp.emit(it)
             }
         }

@@ -16,15 +16,22 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
+import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDao
+import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
+import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.newsoomirang.service.BLEServiceHelper
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -75,6 +82,26 @@ object ApplicationModule {
 
     @Provides
     fun provideCoroutineScopeHandler() = CoroutineScopeHandler()
+
+    @Provides
+    fun provideBLEServiceHelper(
+        dataManager: DataManager, tokenManager: TokenManager,
+        bluetoothNetworkRepository: IBluetoothNetworkRepository,
+        remoteAuthDataSource: RemoteAuthDataSource,
+        sbSensorDBRepository: SBSensorDBRepository,
+        settingDataRepository: SettingDataRepository,
+        timeHelper: TimeHelper,
+        noseRingHelper: NoseRingHelper,
+        logHelper: LogHelper,
+        uploadWorkerHelper: UploadWorkerHelper,
+        notificationBuilder: NotificationCompat.Builder,
+        notificationManager: NotificationManager,
+        serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
+    ) = BLEServiceHelper(
+        dataManager, tokenManager, bluetoothNetworkRepository, remoteAuthDataSource, sbSensorDBRepository,
+        settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper,  serviceLiveCheckWorkerHelper,
+        notificationBuilder, notificationManager,
+    )
 
     @Provides
     fun provideLogHelper(logWorkerHelper: LogWorkerHelper, coroutineScopeHandler: CoroutineScopeHandler) = LogHelper(logWorkerHelper, coroutineScopeHandler)

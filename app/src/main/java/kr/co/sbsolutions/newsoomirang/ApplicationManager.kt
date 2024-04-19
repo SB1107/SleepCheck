@@ -19,6 +19,7 @@ import kr.co.sbsolutions.newsoomirang.common.FCMTokenUpdateHelper
 import kr.co.sbsolutions.newsoomirang.common.NetworkUtil
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.newsoomirang.service.BLEService
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 

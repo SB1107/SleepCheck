@@ -111,7 +111,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".BLEService"
+            android:name=".service.BLEService"
             android:exported="true"
             android:stopWithTask="false"
             android:foregroundServiceType="connectedDevice|microphone"
