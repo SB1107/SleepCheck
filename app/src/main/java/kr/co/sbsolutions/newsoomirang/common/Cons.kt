@@ -47,4 +47,7 @@ object Cons {
 
     /** UPLOAD CHECK **/
     const val MINIMUM_UPLOAD_NUMBER = 1000
+    
+    /** OnClickInterval**/
+    const val ON_CLICK_INTERVAL = 1000L
 }

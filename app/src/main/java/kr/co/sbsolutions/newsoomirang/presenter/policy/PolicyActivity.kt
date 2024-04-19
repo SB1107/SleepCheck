@@ -21,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.WebType
 import kr.co.sbsolutions.newsoomirang.common.addFlag
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toBoolean
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityPolicyBinding
@@ -52,14 +53,14 @@ class PolicyActivity : AppCompatActivity() {
         binding.apply {
             actionBar.toolbarTitle.setText(R.string.privacy_title)
             actionBar.backButton.visibility = View.GONE
-            binding.actionBar.backButton.setOnClickListener { finish() }
+            binding.actionBar.backButton.setOnSingleClickListener { finish() }
             //서비스 이용 약관 보기
-            btnServiceTerms.setOnClickListener {
+            btnServiceTerms.setOnSingleClickListener {
                 webViewActivity(WebType.TERMS0)
             }
 
             //개인 정보 수집 및 이용 정책 보기
-            btnPersonalInformationCollection.setOnClickListener {
+            btnPersonalInformationCollection.setOnSingleClickListener {
                 webViewActivity(WebType.TERMS1)
             }
 
@@ -77,11 +78,11 @@ class PolicyActivity : AppCompatActivity() {
             }
 
             //동의하기 버튼
-            btnAgree.setOnClickListener {
+            btnAgree.setOnSingleClickListener {
                 if (!viewModel.checkServerDataFlow.value.toBoolean()) {
                     Toast.makeText(this@PolicyActivity, "필수 약관을 동의해주세요.", Toast.LENGTH_SHORT)
                         .show()
-                    return@setOnClickListener
+                    return@setOnSingleClickListener
                 }
                 viewModel.joinAgree(accessToken)
             }

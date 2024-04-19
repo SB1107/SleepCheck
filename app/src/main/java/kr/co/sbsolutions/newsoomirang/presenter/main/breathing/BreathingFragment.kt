@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LimitedQueue
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentBreathingBinding
@@ -71,7 +72,7 @@ class BreathingFragment : BluetoothFragment() {
         binding.batteryTextView.visibility = View.GONE
 
         setObservers()
-        binding.startButton.setOnClickListener {
+        binding.startButton.setOnSingleClickListener {
             lifecycleScope.launch {
                 isPermission().collectLatest {
                     if (it) {
@@ -80,10 +81,10 @@ class BreathingFragment : BluetoothFragment() {
                 }
             }
         }
-        binding.stopButton.setOnClickListener {
+        binding.stopButton.setOnSingleClickListener {
             viewModel.stopClick()
         }
-        /*binding.batteryTextView.setOnClickListener {
+        /*binding.batteryTextView.setOnSingleClickListener {
             clickCount++
 //            Log.d(TAG, "setBluetoothStateIcon1: $clickCount")
             if (clickCount == 10 ){

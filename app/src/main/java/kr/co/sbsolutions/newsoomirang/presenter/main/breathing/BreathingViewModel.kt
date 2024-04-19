@@ -122,8 +122,8 @@ class BreathingViewModel @Inject constructor(
                     getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
                 }
-            })
-
+            }
+        )
     }
 
     private fun sleepDataDelete() {

@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentNoSeringBinding
@@ -70,26 +71,26 @@ class NoSeringFragment : BluetoothFragment() {
                 viewModel.setMotorCheckBox(isChecked)
             }
         }
-        binding.type0Chip.setOnClickListener {
+        binding.type0Chip.setOnSingleClickListener {
             binding.type0Chip.isChecked = true
             binding.type1Chip.isChecked = false
             binding.type2Chip.isChecked = false
             viewModel.setType(0)
         }
-        binding.type1Chip.setOnClickListener {
+        binding.type1Chip.setOnSingleClickListener {
             binding.type0Chip.isChecked = false
             binding.type1Chip.isChecked = true
             binding.type2Chip.isChecked = false
             viewModel.setType(1)
         }
-        binding.type2Chip.setOnClickListener {
+        binding.type2Chip.setOnSingleClickListener {
             binding.type0Chip.isChecked = false
             binding.type1Chip.isChecked = false
             binding.type2Chip.isChecked = true
             viewModel.setType(2)
         }
 
-        binding.startButton.setOnClickListener {
+        binding.startButton.setOnSingleClickListener {
             lifecycleScope.launch {
                 isPermission().collectLatest {
                     if (it) {
@@ -98,7 +99,7 @@ class NoSeringFragment : BluetoothFragment() {
                 }
             }
         }
-        binding.stopButton.setOnClickListener {
+        binding.stopButton.setOnSingleClickListener {
             viewModel.stopClick()
         }
     }

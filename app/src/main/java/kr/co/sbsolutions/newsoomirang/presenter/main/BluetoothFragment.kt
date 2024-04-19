@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
@@ -32,11 +33,11 @@ abstract class BluetoothFragment : Fragment() {
     private val connectInfoDialog by lazy {
         BottomSheetDialog(requireContext()).apply {
             setContentView(connectInfoBinding.root, null)
-            connectInfoBinding.btConnect.setOnClickListener {
+            connectInfoBinding.btConnect.setOnSingleClickListener {
                 viewModel.connectClick()
                 this.dismiss()
             }
-            connectInfoBinding.btLater.setOnClickListener {
+            connectInfoBinding.btLater.setOnSingleClickListener {
                 this.dismiss()
             }
         }

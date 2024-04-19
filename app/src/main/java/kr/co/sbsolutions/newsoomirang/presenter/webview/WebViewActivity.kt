@@ -13,6 +13,7 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.common.WebType
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityWebViewBinding
 
 class WebViewActivity : AppCompatActivity() {
@@ -29,7 +30,7 @@ class WebViewActivity : AppCompatActivity() {
             binding.actionBar.toolbarTitle.text = it.getStringExtra("webTypeTitle").toString()
         }
         initWebView()
-        binding.actionBar.backButton.setOnClickListener {
+        binding.actionBar.backButton.setOnSingleClickListener {
             finish()
         }
     }

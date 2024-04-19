@@ -21,6 +21,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.card.MaterialCardView
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
@@ -124,7 +125,7 @@ class HistoryAdapter(private  val clickItem : (String , String) -> Unit) : ListA
                     binding.resultDurationTextView.text = durationType
 
 
-                    binding.clLayout.setOnClickListener {
+                    binding.clLayout.setOnSingleClickListener {
                         clickItem.invoke(result.id , durationType)
                     }
                 } ?: run {

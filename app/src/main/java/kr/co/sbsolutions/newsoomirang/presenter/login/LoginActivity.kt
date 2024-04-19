@@ -23,6 +23,7 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.addFlag
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
@@ -75,11 +76,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun bindView() {
         binding.apply {
-            btGoogle.setOnClickListener {
+            btGoogle.setOnSingleClickListener {
                 logWorkerHelper.insertLog("login 클릭 사용자가 직접")
                 requestGoogleLoginActivation()
             }
-            btKakao.setOnClickListener {
+            btKakao.setOnSingleClickListener {
                 viewModel.socialLogin(SocialType.KAKAO)
             }
         }

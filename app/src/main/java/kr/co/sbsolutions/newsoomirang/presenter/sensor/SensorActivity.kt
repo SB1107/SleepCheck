@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
@@ -29,12 +30,18 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
+import kr.co.sbsolutions.newsoomirang.common.time
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
@@ -146,7 +153,7 @@ class SensorActivity : BluetoothActivity() {
     @SuppressLint("SetTextI18n")
     private fun setConnectDeviceDialog(device: BluetoothDevice) {
         connectDeviceBinding.tvBleInfoText.text = "${device.name.getChangeDeviceName()}를 찾았습니다\n연결하시겠습니까?"
-        connectDeviceBinding.btConnect.setOnClickListener {
+        connectDeviceBinding.btConnect.setOnSingleClickListener {
             bleClickListener.invoke(device)
         }
 
@@ -169,17 +176,17 @@ class SensorActivity : BluetoothActivity() {
             actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
             actionBar.toolbarTitle.text = "센서 등록"
 
-            actionBar.backButton.setOnClickListener {
+            actionBar.backButton.setOnSingleClickListener {
                 newBackPressed()
             }
-            btDiss.setOnClickListener {
+            btDiss.setOnSingleClickListener {
                 viewModel.bleDisconnect()
             }
-            binding.btSearch.setOnClickListener {
+            binding.btSearch.setOnSingleClickListener {
                 viewModel.bleConnect()
             }
 
-            /*disconnectButton.setOnClickListener {
+            /*disconnectButton.setOnSingleClickListener {
                 btSearch.visibility = View.VISIBLE
                 disconnectButton.visibility = View.GONE
                 deviceNameTextView.text = "연결된 기기가 없습니다."

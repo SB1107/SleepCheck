@@ -292,7 +292,7 @@ class HistoryFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun bindViews() {
 //        binding.dateTextView.text = mSelectedDate.year.toString()
-//        binding.dateTextView.setOnClickListener {
+//        binding.dateTextView.setOnSingleClickListener {
 //            requireActivity().showYearDialog(mSelectedDate.year, null) {
 //                mSelectedDate = LocalDate.of(it, 1, 1)
 //                binding.dateTextView.text = mSelectedDate.year.toString()

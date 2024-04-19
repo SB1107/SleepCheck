@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.databinding.DialogChargingInfoBinding
 
 class ChargingInfoDialog(val alertListener: AlertListener) : BottomSheetDialogFragment() {
@@ -24,7 +25,7 @@ class ChargingInfoDialog(val alertListener: AlertListener) : BottomSheetDialogFr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btDone.setOnClickListener {  confirmTouched()}
+        binding.btDone.setOnSingleClickListener {  confirmTouched()}
     }
     /**
      * 확인 터치

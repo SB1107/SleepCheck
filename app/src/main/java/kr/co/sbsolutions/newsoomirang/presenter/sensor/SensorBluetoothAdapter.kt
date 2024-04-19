@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.databinding.AdapterBluetoothItemBinding
 
 @SuppressLint("MissingPermission")
@@ -25,7 +26,7 @@ class SensorBluetoothAdapter(val bleClickListener : (BluetoothDevice) -> Unit) :
     inner class ViewHolder(private val binding: AdapterBluetoothItemBinding) : RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
         fun bind(item : BluetoothDevice) {
-            binding.cvRoot.setOnClickListener {
+            binding.cvRoot.setOnSingleClickListener {
                 bleClickListener.invoke(item)
             }
             when(BuildConfig.DEBUG) {

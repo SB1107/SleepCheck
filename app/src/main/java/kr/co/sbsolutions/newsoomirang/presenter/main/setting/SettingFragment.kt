@@ -21,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
@@ -53,23 +54,23 @@ class SettingFragment : Fragment() {
         setObservers()
 
         //내센서 클릭
-        binding.clSensor.setOnClickListener {
+        binding.clSensor.setOnSingleClickListener {
             startActivity(Intent(requireContext(), SensorActivity::class.java))
         }
         //센서 설명서
-        binding.clGuide.setOnClickListener {
+        binding.clGuide.setOnSingleClickListener {
             webViewActivity(WebType.TERMS2)
         }
         //개인정보 방침
-        binding.clPolicy.setOnClickListener {
+        binding.clPolicy.setOnSingleClickListener {
             startActivity(Intent(requireContext(), PolicyActivity::class.java).putExtra("where", "setting"))
         }
         //문의하기
-        binding.clQuestion.setOnClickListener {
+        binding.clQuestion.setOnSingleClickListener {
             startActivity(Intent(requireContext(), QuestionActivity::class.java))
         }
         //로그아웃
-        binding.clLogout.setOnClickListener {
+        binding.clLogout.setOnSingleClickListener {
             requireActivity().showAlertDialogWithCancel(message = "로그아웃 하시겠습니까?", confirmAction = {
                 viewModel.logout()
             })
@@ -77,7 +78,7 @@ class SettingFragment : Fragment() {
 
 
         //회원 탈퇴
-        binding.clLeave.setOnClickListener {
+        binding.clLeave.setOnSingleClickListener {
             startActivity(Intent(requireContext(), LeaveActivity::class.java))
         }
 

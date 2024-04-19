@@ -10,6 +10,7 @@ import android.os.PowerManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.NumberPicker
@@ -77,13 +78,13 @@ fun Context.showYearDialog(currentYear : Int,  cancelAction: (() -> Unit)? = nul
         piker.maxValue = maxYear
         piker.value = currentYear
         findViewById<Button>(R.id.btnConfirm).apply {
-            setOnClickListener {
+            setOnSingleClickListener {
                 confirmAction.invoke(piker.value)
                 dialog.dismiss()
             }
         }
         findViewById<Button>(R.id.btnCancel).apply {
-            setOnClickListener {
+            setOnSingleClickListener {
                 cancelAction?.invoke()
                 dialog.dismiss()
             }
@@ -107,7 +108,7 @@ fun Context.showAlertDialog(title: Int? = null, message: String, buttonText: Int
         }
         findViewById<Button>(R.id.btnConfirm).apply {
             setText(buttonText)
-            setOnClickListener {
+            setOnSingleClickListener {
                 confirmAction?.invoke()
                 dialog.dismiss()
             }
@@ -139,14 +140,14 @@ fun Context.showAlertDialogWithCancel(
         }
         findViewById<Button>(R.id.btnConfirm).apply {
             setText(confirmButtonText)
-            setOnClickListener {
+            setOnSingleClickListener {
                 confirmAction.invoke()
                 dialog.dismiss()
             }
         }
         findViewById<Button>(R.id.btnCancel).apply {
             setText(cancelButtonText)
-            setOnClickListener {
+            setOnSingleClickListener {
                 cancelAction?.invoke()
                 dialog.dismiss()
             }
@@ -204,7 +205,7 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
 
     with(dialogView) {
         findViewById<Button>(R.id.btn_3).apply {
-            setOnClickListener {
+            setOnSingleClickListener {
                 job.cancel()
                 confirmAction?.invoke(checkBox.isChecked)
                 dialog.dismiss()
@@ -227,7 +228,7 @@ fun Context.showAlertDialogWithToolTip() {
         .load(R.mipmap.ic_launcher)
         .into(imageView)
 
-    dialogView.setOnClickListener {
+    dialogView.setOnSingleClickListener {
         dialog.dismiss()
     }
     dialog.show()
@@ -330,4 +331,14 @@ fun String.getChangeDeviceName(): String {
     val bleNumber = this.split("-").last()
     val resultName = if (!nameCheck)"Soomirang - $bleNumber" else "HSMD - $bleNumber"
     return resultName
+}
+
+fun View.setOnSingleClickListener(onClickListener: (view: View) -> Unit) {
+    setOnClickListener(OnSingleClickListenerHelper(onClickListener))
+}
+
+fun Any.timeStamp(dateFormat: String = "yyyy년 MM월 dd일 HH시 mm분 SS.sss초"): String {
+    val timeStamp = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(System.currentTimeMillis()))
+    Log.d(TAG, "시간: $timeStamp ")
+    return timeStamp
 }
