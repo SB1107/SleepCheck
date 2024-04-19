@@ -1,11 +1,17 @@
 package kr.co.sbsolutions.newsoomirang.service
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
@@ -32,5 +38,39 @@ class TimeCountUseCase(
                 dataManager.setNoseRingCount(noseRingHelper.getSnoreCount())
             }
         }
+    }
+
+    fun startTimer() {
+        notVibrationNotifyChannelCreate()
+        lifecycleScope.launch { timeHelper.startTimer(this) }
+    }
+
+    fun stopTimer() {
+        timeHelper.stopTimer()
+    }
+
+    fun setContentTitle(message: String) {
+        notificationBuilder.setContentText(message)
+    }
+
+    fun setContentIntent(pendingIntent: PendingIntent) {
+        notificationBuilder.setContentIntent(pendingIntent)
+    }
+
+    private fun notVibrationNotifyChannelCreate() {
+        val channel = NotificationChannel(
+            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            enableVibration(false)
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {
+        return timeHelper.measuringTimer
+    }
+
+    fun getTime(): Int {
+    return  timeHelper.getTime()
     }
 }
