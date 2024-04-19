@@ -143,7 +143,6 @@ class BLEService : LifecycleService() {
     @Inject
     lateinit var logHelper: LogHelper
 
-
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
 

@@ -18,7 +18,7 @@ import java.util.Locale
 class SBSensorUseCase(
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val settingDataRepository: SettingDataRepository,
-    private val bluetoothNetworkRepository: IBluetoothNetworkRepository,
+    private val sbSensorBlueToothUseCase: SBSensorBlueToothUseCase?,
     private val lifecycleScope: LifecycleCoroutineScope,
     private val dataFlowLogHelper: DataFlowLogHelper
 ) {
@@ -40,7 +40,7 @@ class SBSensorUseCase(
             getIndex.await()
 
             launch {
-                bluetoothNetworkRepository.sbSensorInfo.value.channel.consumeEach { data ->
+                sbSensorBlueToothUseCase?.getSbSensorChannel()?.consumeEach { data ->
                     val item = sbSensorDBRepository.getSensorDataByIndex(data.index)
                     item?.let { item ->
                         if (item.calcAccX == data.calcAccX &&
@@ -53,7 +53,7 @@ class SBSensorUseCase(
                     } ?: run {
                         when {
                             indexCountCheck >= 2 && data.dataId == -1 -> {
-                                bluetoothNetworkRepository.setLastIndexCk(true)
+                                sbSensorBlueToothUseCase.setLastIndexCkDone()
                                 setDataFlowDBInsert(firstData, data)
                                 dataFlowLogHelper.countCase1()
                             }
@@ -62,11 +62,11 @@ class SBSensorUseCase(
                                 dataFlowLogHelper.countCase2()
                                 setDataFlowDBInsert(firstData, data)
                                 lastIndexCk = true
-                                bluetoothNetworkRepository.setLastIndexCk(true)
+                                sbSensorBlueToothUseCase.setLastIndexCkDone()
                             }
 
                             lastIndexCk -> {
-                                bluetoothNetworkRepository.setLastIndexCk(true)
+                                sbSensorBlueToothUseCase.setLastIndexCkDone()
                                 dataFlowLogHelper.countCase3()
                                 setDataFlowDBInsert(firstData, data)
                             }
@@ -78,9 +78,7 @@ class SBSensorUseCase(
 
                             else -> {
                                 sbSensorDBRepository.insert(data)
-                                if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
-                                    bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
-                                )
+                                if (sbSensorBlueToothUseCase.isDataFlowState())
                                     dataFlowLogHelper.countCase5()
                             }
                         }
