@@ -99,7 +99,10 @@ class SBSensorBlueToothUseCase(
 
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
-        bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+        if (isForceBleDeviceConnect){
+            bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+            return
+        }
         if (isForceBleDeviceConnect.not()) {
             timerOfDisconnection?.cancel()
             timerOfDisconnection = Timer().apply {
