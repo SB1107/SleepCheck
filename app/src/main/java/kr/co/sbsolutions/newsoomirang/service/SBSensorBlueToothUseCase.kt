@@ -25,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -47,6 +48,7 @@ class SBSensorBlueToothUseCase(
     private val settingDataRepository: SettingDataRepository,
     private val dataManager: DataManager,
     private val sbDataUploadingUseCase: SBDataUploadingUseCase,
+    private val fireBaseRealRepository: FireBaseRealRepository,
     private val logHelper: LogHelper,
     private val packageName: String
 ) {
@@ -96,7 +98,6 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
-
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
         if (isForceBleDeviceConnect){
@@ -144,10 +145,10 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-     fun checkWaitStart(callback : () -> Unit) {
+    fun checkWaitStart(callback: () -> Unit) {
         lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.sbSensorInfo.collectLatest {
-                Log.e(TAG, "checkWaitStart: ${it.bluetoothState}", )
+                Log.e(TAG, "checkWaitStart: ${it.bluetoothState}")
                 if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
                     callback.invoke()
                     return@collectLatest
@@ -156,8 +157,18 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+    private fun sleepDataCreate(dataId: Int, sleepType: SleepType) {
+        lifecycleScope.launch(IO) {
+            val sensorName = getSensorName()
+            val userName = dataManager.getUserName().first() ?: ""
+            // FIXME: 리얼데이터 베이스 처리 
+//            fireBaseRealRepository.writeValue(sensorName, dataId, sleepType, userName)
+        }
+    }
+
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         isStartAndStopCancel = false
+        sleepDataCreate(dataId , sleepType)
         lifecycleScope.launch(IO) {
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
@@ -282,11 +293,12 @@ class SBSensorBlueToothUseCase(
             }, TIME_OUT_MEASURE)
         }
     }
-    fun isBleDeviceConnect(): Pair<Boolean, String>{
+
+    fun isBleDeviceConnect(): Pair<Boolean, String> {
         return bluetoothNetworkRepository.isSBSensorConnect()
     }
 
-     fun finishStop(callback: () -> Unit) {
+    fun finishStop(callback: () -> Unit) {
         lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 if (it.bluetoothState == BluetoothState.Connected.Finish) {
@@ -496,12 +508,12 @@ class SBSensorBlueToothUseCase(
     fun getSleepType(): SleepType {
         return bluetoothNetworkRepository.sbSensorInfo.value.sleepType
     }
-    
+
     fun setDataId() {
         lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = settingDataRepository.getDataId()
         }
-        
+
     }
 
     fun isBlueToothStateRegistered(): Boolean {
@@ -514,13 +526,16 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    private suspend fun getSensorName(): String {
+     suspend fun getSensorName(): String {
         return dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
     }
 
     fun unregisterDownloadCallback() {
         bluetoothNetworkRepository.setOnDownloadCompleteCallback(null)
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback(null)
+    }
+    suspend  fun getDataId() : Int {
+            return settingDataRepository.getDataId() ?: -1
     }
 
 }

@@ -5,7 +5,11 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.work.WorkManager
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +29,7 @@ import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.db.SBSensorDataBase
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDataDao
@@ -84,6 +89,12 @@ object ApplicationModule {
     fun provideCoroutineScopeHandler() = CoroutineScopeHandler()
 
     @Provides
+    fun provideRealDataBaseDB() = Firebase.database
+
+    @Provides
+    fun provideRealDatabaseRepository(realDatabase: FirebaseDatabase) = FireBaseRealRepository(realDatabase)
+
+    @Provides
     fun provideBLEServiceHelper(
         dataManager: DataManager, tokenManager: TokenManager,
         bluetoothNetworkRepository: IBluetoothNetworkRepository,
@@ -96,10 +107,10 @@ object ApplicationModule {
         uploadWorkerHelper: UploadWorkerHelper,
         notificationBuilder: NotificationCompat.Builder,
         notificationManager: NotificationManager,
-        serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
+        fireBaseRealRepository: FireBaseRealRepository,
     ) = BLEServiceHelper(
         dataManager, tokenManager, bluetoothNetworkRepository, remoteAuthDataSource, sbSensorDBRepository,
-        settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper,  serviceLiveCheckWorkerHelper,
+        settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper, fireBaseRealRepository,
         notificationBuilder, notificationManager,
     )
 

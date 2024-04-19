@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1062852226027",
+    "firebase_url": "https://soom-e54df-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "soom-e54df",
     "storage_bucket": "soom-e54df.appspot.com"
   },
@@ -14,11 +15,19 @@
       },
       "oauth_client": [
         {
+          "client_id": "1062852226027-7f93ri3rsd53ol69pg8km2r9sfgatra1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.sbsolutions.newsoomirang",
+            "certificate_hash": "820fcbb02e837caade87aa9588231e45be3b876f"
+          }
+        },
+        {
           "client_id": "1062852226027-8u2e1n3a9qjfdl5ub96o6dqmv50o3cp0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "kr.co.sbsolutions.newsoomirang",
-            "certificate_hash": "ba8858186fb9c673d571a46e48e5c59ead104151"
+            "certificate_hash": "967efa6d7b2a1cc4b254812e59dab0ff823aa128"
           }
         },
         {
@@ -215,22 +224,6 @@
           "android_info": {
             "package_name": "rocateer.sumirang",
             "certificate_hash": "967efa6d7b2a1cc4b254812e59dab0ff823aa128"
-          }
-        },
-        {
-          "client_id": "1062852226027-d2qokp802jhub3qgfmo1i49sa83n0a2p.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "rocateer.sumirang",
-            "certificate_hash": "9de6674c911e2b8f364d059c74a147bcf2feac20"
-          }
-        },
-        {
-          "client_id": "1062852226027-mrdo9s7f1nhk6avdkrae4ru49ps6pv32.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "rocateer.sumirang",
-            "certificate_hash": "7598b59b2f1c777beb9a99dfbb0696f4ea82b403"
           }
         },
         {

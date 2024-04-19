@@ -138,7 +138,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
-
+    implementation ("com.google.firebase:firebase-database-ktx")
     //주입
     val hiltVersion = "2.50"
     implementation("androidx.hilt:hilt-work:1.2.0")

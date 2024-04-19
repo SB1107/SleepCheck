@@ -27,6 +27,7 @@ import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -46,7 +47,7 @@ class BLEServiceHelper(
     private val noseRingHelper: NoseRingHelper,
     private val logHelper: LogHelper,
     private val uploadWorkerHelper: UploadWorkerHelper,
-    private val serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper,
+    private val fireBaseRealRepository: FireBaseRealRepository,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val dataFlowLogHelper: DataFlowLogHelper = DataFlowLogHelper(logHelper),
@@ -81,6 +82,8 @@ class BLEServiceHelper(
 
     fun setLifecycleScope(context: Context, lifecycleScope: LifecycleCoroutineScope, lifecycleOwner: LifecycleOwner, packageName: String) {
         this.lifecycleScope = lifecycleScope
+        fireBaseRealRepository.setLifecycleScope(lifecycleScope)
+
         this.sbDataUploadingUseCase = SBDataUploadingUseCase(settingDataRepository, lifecycleScope, logHelper, lifecycleOwner, uploadWorkerHelper)
         this.blueToothUseCase = SBSensorBlueToothUseCase(
             lifecycleScope,
@@ -90,6 +93,7 @@ class BLEServiceHelper(
             settingDataRepository,
             dataManager,
             sbDataUploadingUseCase!!,
+            fireBaseRealRepository,
             logHelper,
             packageName
         )
@@ -103,6 +107,10 @@ class BLEServiceHelper(
         listenDataFlowForceFinish()
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
+        // FIXME: 리얼 데이터 베이스 처리
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(),blueToothUseCase!!.getDataId().toString())
+//        }
     }
 
     fun blueToothState(isEnabled: Boolean) {
