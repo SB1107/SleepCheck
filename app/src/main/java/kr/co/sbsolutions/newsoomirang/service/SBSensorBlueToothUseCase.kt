@@ -332,7 +332,7 @@ class SBSensorBlueToothUseCase(
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId}")
-                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, if (hasSensor) checkDataSize().first() else true)
+                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isFilePass = if (hasSensor) checkDataSize().first() else true)
                     }
                 }
             }
@@ -492,6 +492,13 @@ class SBSensorBlueToothUseCase(
 
     fun getSleepType(): SleepType {
         return bluetoothNetworkRepository.sbSensorInfo.value.sleepType
+    }
+    
+    fun setDataId() {
+        lifecycleScope.launch(IO) {
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId = settingDataRepository.getDataId()
+        }
+        
     }
 
     fun isBlueToothStateRegistered(): Boolean {

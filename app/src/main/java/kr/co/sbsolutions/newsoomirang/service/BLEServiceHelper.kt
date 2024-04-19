@@ -183,6 +183,7 @@ class BLEServiceHelper(
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
         if (blueToothUseCase?.isBlueToothStateRegistered() == true) {
+            blueToothUseCase?.setDataId()
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
         }
@@ -212,6 +213,7 @@ class BLEServiceHelper(
         return blueToothUseCase?.getSleepType() ?: SleepType.Breathing
     }
 
+    
     fun setContentIntent(pendingIntent: PendingIntent) {
         timeCountUseCase?.setContentIntent(pendingIntent)
     }

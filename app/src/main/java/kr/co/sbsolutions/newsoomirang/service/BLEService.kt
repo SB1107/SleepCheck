@@ -382,6 +382,7 @@ class BLEService : LifecycleService() {
 
     fun noSensorSeringMeasurement(isCancel: Boolean = false) {
         bleServiceHelper.noSensorSeringMeasurement(isCancel)
+        serviceLiveCheckWorkerHelper.cancelWork()
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
@@ -406,7 +407,7 @@ class BLEService : LifecycleService() {
         val service: BLEService
             get() = this@BLEService
     }
-
+    
     fun getResultMessage(): String? {
         return bleServiceHelper.getResultMessage()
     }
