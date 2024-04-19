@@ -102,10 +102,6 @@ class LeaveActivity : AppCompatActivity() {
                 ),
                 CheckBoxData(
                     isChecked = false,
-                    text = "소리가 불편해요.",
-                ),
-                CheckBoxData(
-                    isChecked = false,
                     text = "효과를 보지 못했어요.",
                 ),
                 CheckBoxData(

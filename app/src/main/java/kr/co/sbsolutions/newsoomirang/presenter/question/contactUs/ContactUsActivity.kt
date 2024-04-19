@@ -238,7 +238,7 @@ class ContactUsActivity : BaseServiceActivity() {
                 }
             },
         ) {
-            DetailText(text = "문의하기", textSize = 16, color = Color.Black)
+            DetailText(text = "등록하기", textSize = 16, color = Color.Black)
         }
         SpacerHeight(size = 15)
 

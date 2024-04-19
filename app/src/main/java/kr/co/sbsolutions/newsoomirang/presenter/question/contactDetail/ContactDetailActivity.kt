@@ -179,7 +179,7 @@ class ContactDetailActivity : BaseServiceActivity() {
         SpacerHeight(size = 20)
         HorizontalDivider(thickness = 1.dp, color = Color.White)
         SpacerHeight(size = 20)
-        if (answer == "Y") AnsState(endAt.toString(), ansContent) else NoAnsState()
+        if (answer == "Y") AnsState(endAt.toString(), ansContent)
         SpacerHeight(size = 10)
     }
 

@@ -133,7 +133,7 @@ class QuestionActivity : BaseActivity() {
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "저장된 이력이 없습니다.",
+                                        text = "문의 내역이 없습니다.",
                                         fontSize = 21.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.White,
