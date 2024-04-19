@@ -125,9 +125,7 @@ class UploadWorker @AssistedInject constructor(
         callbackFlow {
             withContext(ioDispatchers) {
                 val requestHelper = RequestHelper(this@withContext, dataManager = dataManager, tokenManager = tokenManager)
-                    .apply {
-                        setLogWorkerHelper(logHelper)
-                    }
+                    .apply { setLogWorkerHelper(logHelper) }
                 logHelper.insertLog("서버 업로드 시작")
                 Intent().also { intent ->
                     intent.setAction(Cons.NOTIFICATION_ACTION)

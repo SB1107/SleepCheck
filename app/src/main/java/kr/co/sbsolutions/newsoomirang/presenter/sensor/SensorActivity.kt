@@ -34,7 +34,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
-import kr.co.sbsolutions.newsoomirang.common.time
 import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel

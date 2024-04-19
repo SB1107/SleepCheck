@@ -76,7 +76,7 @@ class SBDataUploadingUseCase(
     private suspend fun uploadWorker(uploadData: UploadData, packageName: String, sensorName: String, forceClose: Boolean, isFilePass: Boolean = false) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
-            val newUploadData = uploadData.copy(packageName = packageName, sensorName = sensorName)
+            val newUploadData = uploadData.copy(packageName = packageName, sensorName = sensorName, isFilePass = isFilePass)
             uploadWorkerHelper.uploadData(newUploadData)
                 .observe(lifecycleOwner) { workInfo: WorkInfo? ->
                     if (workInfo != null) {

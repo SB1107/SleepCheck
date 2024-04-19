@@ -331,7 +331,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
-                        logHelper.insertLog("isCancel.not: ${dataId}")
+                        logHelper.insertLog("isCancel.not: ${dataId} hasSensor: ${hasSensor} isCancel: ${isCancel}")
                         sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isFilePass = if (hasSensor) checkDataSize().first() else true)
                     }
                 }
