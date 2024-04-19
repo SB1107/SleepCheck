@@ -186,7 +186,7 @@ class NoSeringViewModel @Inject constructor(
                     setMeasuringState(MeasuringState.InIt)
                 }
             } else {
-                if ((getService()?.timeHelper?.getTime() ?: 0) < 300) {
+                if ((getService()?.getTime() ?: 0) < 300) {
                     _showMeasurementCancelAlert.emit(true)
                     return@launch
                 }
@@ -232,7 +232,7 @@ class NoSeringViewModel @Inject constructor(
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            getService()?.timeHelper?.measuringTimer?.collectLatest {
+            getService()?.getTimeHelper()?.collectLatest {
                 if (bluetoothInfo.sleepType == SleepType.NoSering) {
                     _measuringTimer.emit(it)
                 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
@@ -249,5 +251,20 @@ class BLEServiceHelper(
             dataManager.setNoseRingTimer(0L)
             dataManager.setTimer(0)
         }
+    }
+
+    fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
+        return blueToothUseCase?.getSbSensorInfo() ?: MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
+    }
+
+    fun getDataFlowPopUp(): StateFlow<Boolean> {
+        return sbDataUploadingUseCase?.getDataFlowPopUp() ?: MutableStateFlow(false)
+    }
+
+    fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {
+        return timeCountUseCase?.getTimeHelper() ?: MutableStateFlow(Triple(0, 0, 0))
+    }
+    fun  getTime(): Int {
+        return  timeCountUseCase?.getTime() ?:0
     }
 }

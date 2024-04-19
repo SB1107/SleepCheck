@@ -28,7 +28,7 @@ class SBDataUploadingUseCase(
     private var noseRingUseCase: NoseRingUseCase? = null
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+    private val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
 
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
@@ -111,5 +111,8 @@ class SBDataUploadingUseCase(
                     }
                 }
         }
+    }
+    fun getDataFlowPopUp() : StateFlow<Boolean>{
+        return  dataFlowPopUp
     }
 }

@@ -8,13 +8,13 @@ import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -24,6 +24,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -194,6 +195,9 @@ class SBSensorBlueToothUseCase(
         lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.listenRegisterSBSensor()
         }
+    }
+    fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
+        return bluetoothNetworkRepository.sbSensorInfo
     }
 
     fun listenDataFlowForceFinish() {

@@ -35,6 +35,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -255,7 +256,6 @@ class BLEService : LifecycleService() {
     }
 
 
-
     private fun registerDownloadCallback() {
 //        bluetoothNetworkRepository.setOnDownloadCompleteCallback {
 //            logHelper.insertLog("setOnDownloadCompleteCallback")
@@ -430,7 +430,7 @@ class BLEService : LifecycleService() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    suspend fun checkDataSize() : Flow<Boolean> {
+    suspend fun checkDataSize(): Flow<Boolean> {
         return bleServiceHelper.checkDataSize()
     }
 
@@ -515,4 +515,19 @@ class BLEService : LifecycleService() {
         }
     }
 
+    fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
+        return bleServiceHelper.getSbSensorInfo()
+    }
+
+    fun getDataFlowPopUp(): StateFlow<Boolean> {
+        return bleServiceHelper.getDataFlowPopUp()
+    }
+
+    fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {
+        return bleServiceHelper.getTimeHelper()
+    }
+
+    fun getTime(): Int {
+        return bleServiceHelper.getTime()
+    }
 }

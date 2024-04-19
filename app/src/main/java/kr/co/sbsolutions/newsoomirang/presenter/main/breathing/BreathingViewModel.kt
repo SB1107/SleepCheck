@@ -165,7 +165,7 @@ class BreathingViewModel @Inject constructor(
 
     override fun serviceSettingCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            getService()?.timeHelper?.measuringTimer?.collectLatest {
+            getService()?.getTimeHelper()?.collectLatest {
                 if (bluetoothInfo.sleepType == SleepType.Breathing) {
                     _measuringTimer.emit(it)
                 }

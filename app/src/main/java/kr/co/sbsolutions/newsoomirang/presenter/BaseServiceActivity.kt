@@ -54,7 +54,7 @@ abstract class BaseServiceActivity : BluetoothActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             launch {
                 service.get()?.let {
-                    it.sbSensorInfo.collectLatest { info ->
+                    it.getSbSensorInfo().collectLatest { info ->
                         if (info.bluetoothState == BluetoothState.Registered) {
                             service.get()?.connectDevice(info)
                         } else if (info.bluetoothState == BluetoothState.Connected.Finish) {

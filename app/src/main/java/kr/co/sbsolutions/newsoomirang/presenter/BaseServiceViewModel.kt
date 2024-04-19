@@ -160,7 +160,7 @@ abstract class BaseServiceViewModel(
 
     open fun serviceSettingCall() {
         viewModelScope.launch {
-            getService()?.dataFlowPopUp?.collectLatest {
+            getService()?.getDataFlowPopUp()?.collectLatest {
                 _dataFlowPopUp.emit(it)
             }
         }
