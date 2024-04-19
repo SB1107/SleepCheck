@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
@@ -140,6 +141,18 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+     fun checkWaitStart(callback : () -> Unit) {
+        lifecycleScope.launch(IO) {
+            bluetoothNetworkRepository.sbSensorInfo.collectLatest {
+                Log.e(TAG, "checkWaitStart: ${it.bluetoothState}", )
+                if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
+                    callback.invoke()
+                    return@collectLatest
+                }
+            }
+        }
+    }
+
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
@@ -195,6 +208,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.listenRegisterSBSensor()
         }
     }
+
     fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
         return bluetoothNetworkRepository.sbSensorInfo
     }
@@ -259,14 +273,23 @@ class SBSensorBlueToothUseCase(
                         lifecycleScope.launch(IO) {
                             sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId)
                         }
-                    } ?:
-                        sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
+                    } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
                 }
 
             }, TIME_OUT_MEASURE)
         }
     }
 
+     fun finishStop(callback: () -> Unit) {
+        lifecycleScope.launch(IO) {
+            bluetoothNetworkRepository.sbSensorInfo.collectLatest {
+                if (it.bluetoothState == BluetoothState.Connected.Finish) {
+                    callback.invoke()
+                    return@collectLatest
+                }
+            }
+        }
+    }
 
     fun stopSBSensor(isCancel: Boolean = false) {
         isStartAndStopCancel = false
@@ -399,10 +422,12 @@ class SBSensorBlueToothUseCase(
             }
         }
     }
-    fun endNetworkSBSensor(isForcedClose: Boolean){
+
+    fun endNetworkSBSensor(isForcedClose: Boolean) {
         bluetoothNetworkRepository.endNetworkSBSensor(isForcedClose)
     }
-    fun sendDownloadContinueCancel(){
+
+    fun sendDownloadContinueCancel() {
         bluetoothNetworkRepository.sendDownloadContinueCancel()
     }
 

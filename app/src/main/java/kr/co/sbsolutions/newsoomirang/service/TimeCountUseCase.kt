@@ -85,4 +85,10 @@ class TimeCountUseCase(
     fun getTime(): Int {
     return  timeHelper.getTime()
     }
+    fun getNotificationBuilder() : NotificationCompat.Builder{
+        return  notificationBuilder
+    }
+    fun getNotificationManager() : NotificationManager{
+        return  notificationManager
+    }
 }

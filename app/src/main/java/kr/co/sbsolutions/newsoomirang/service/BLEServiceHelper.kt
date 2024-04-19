@@ -93,7 +93,7 @@ class BLEServiceHelper(
             logHelper,
             packageName
         )
-        this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager,blueToothUseCase )
+        this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
         this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope, dataFlowLogHelper)
         this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper)
         listenChannelMessage()
@@ -164,9 +164,12 @@ class BLEServiceHelper(
 
     fun stopSBSensor(isCancel: Boolean = false) {
         blueToothUseCase?.stopSBSensor(isCancel)
+        blueToothUseCase?.finishStop {
+            finishSenor()
+        }
     }
 
-    fun stopAudioClassification() {
+    private fun stopAudioClassification() {
         noseRingUseCase?.stopAudioClassification()
     }
 
@@ -218,18 +221,18 @@ class BLEServiceHelper(
         if (hasSensor.not()) {
             waitStart()
         }
-    }
-
-    fun waitStart() {
-        if ((timeCountUseCase?.getTime()) == 0) {
-            blueToothUseCase?.waitStart()
-            startTimer()
-            noseRingUseCase?.startAudioClassification()
+        blueToothUseCase?.checkWaitStart {
+            waitStart()
         }
-
     }
 
-    fun finishSenor() {
+    private fun waitStart() {
+        blueToothUseCase?.waitStart()
+        startTimer()
+        noseRingUseCase?.startAudioClassification()
+    }
+
+    private fun finishSenor() {
         blueToothUseCase?.finishSenor()
         stopTimer()
         stopAudioClassification()
@@ -271,5 +274,13 @@ class BLEServiceHelper(
 
     fun getTime(): Int {
         return timeCountUseCase?.getTime() ?: 0
+    }
+
+    fun getNotificationBuilder(): NotificationCompat.Builder {
+        return timeCountUseCase?.getNotificationBuilder() ?: notificationBuilder
+    }
+
+    fun getNotificationManager(): NotificationManager {
+        return timeCountUseCase?.getNotificationManager() ?: notificationManager
     }
 }

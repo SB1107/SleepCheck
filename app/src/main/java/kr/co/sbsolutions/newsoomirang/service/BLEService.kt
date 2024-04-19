@@ -9,7 +9,6 @@ import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -24,47 +23,26 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.work.WorkInfo
-import com.opencsv.CSVWriter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_ID
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
-import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
-import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
-import kr.co.sbsolutions.newsoomirang.common.UploadData
-import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
-import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
-import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
@@ -73,16 +51,7 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
-import kr.co.sbsolutions.soomirang.db.SBSensorData
-import org.tensorflow.lite.support.label.Category
-import java.io.File
-import java.io.FileWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.Timer
 import javax.inject.Inject
-import kotlin.concurrent.timerTask
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -115,12 +84,6 @@ class BLEService : LifecycleService() {
 
     @Inject
     lateinit var bleServiceHelper: BLEServiceHelper
-
-    @Inject
-    lateinit var notificationBuilder: NotificationCompat.Builder
-
-    @Inject
-    lateinit var notificationManager: NotificationManager
 
     @Inject
     lateinit var dataManager: DataManager
@@ -171,7 +134,10 @@ class BLEService : LifecycleService() {
                 .apply {
                     setLogWorkerHelper(logHelper)
                 }
-        setDataFlowFinish()
+        serviceLiveCheckWorkerHelper.cancelWork()
+        bleServiceHelper.uploadingFinishForceCloseCallback { forceClose ->
+            finishService(-1, forceClose)
+        }
     }
 
     private val mReceiver = object : BroadcastReceiver() {
@@ -361,7 +327,7 @@ class BLEService : LifecycleService() {
         registerDownloadCallback()
         try {
             ServiceCompat.startForeground(
-                this@BLEService, FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build(),
+                this@BLEService, FOREGROUND_SERVICE_NOTIFICATION_ID, bleServiceHelper.getNotificationBuilder().build(),
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
                 } else {
@@ -417,23 +383,16 @@ class BLEService : LifecycleService() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
         )
-        notificationManager.createNotificationChannel(channel)
+        bleServiceHelper.getNotificationManager().createNotificationChannel(channel)
     }
 
     suspend fun checkDataSize(): Flow<Boolean> {
         return bleServiceHelper.checkDataSize()
     }
 
-    fun waitStart() {
-        bleServiceHelper.waitStart()
-    }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
-    }
-
-    fun finishSenor() {
-        bleServiceHelper.finishSenor()
     }
 
     fun noSensorSeringMeasurement(isCancel: Boolean = false) {
@@ -441,7 +400,7 @@ class BLEService : LifecycleService() {
     }
 
     fun stopSBSensor(isCancel: Boolean = false) {
-        notificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+        bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
 
@@ -494,12 +453,6 @@ class BLEService : LifecycleService() {
         bleServiceHelper.forceDataFlowDataUpload()
     }
 
-    private fun setDataFlowFinish() {
-        serviceLiveCheckWorkerHelper.cancelWork()
-        bleServiceHelper.uploadingFinishForceCloseCallback { forceClose ->
-            finishService(-1, forceClose)
-        }
-    }
 
     fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
         return bleServiceHelper.getSbSensorInfo()
