@@ -226,15 +226,6 @@ class BLEService : LifecycleService() {
         bleServiceHelper.sbDisconnectDevice()
     }
 
-    private fun startTimer() {
-        bleServiceHelper.startTimer()
-    }
-
-
-    private fun stopTimer() {
-        bleServiceHelper.stopTimer()
-    }
-
     override fun onDestroy() {
         unregisterReceiver(mReceiver)
         Log.e(TAG, "onDestroy: ")
@@ -439,10 +430,6 @@ class BLEService : LifecycleService() {
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
-    }
-
-    private fun stopAudioClassification() {
-        bleServiceHelper.stopAudioClassification()
     }
 
     fun finishSenor() {

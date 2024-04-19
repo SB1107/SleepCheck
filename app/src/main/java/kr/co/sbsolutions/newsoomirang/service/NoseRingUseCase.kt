@@ -2,8 +2,11 @@ package kr.co.sbsolutions.newsoomirang.service
 
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
@@ -16,6 +19,7 @@ class NoseRingUseCase(
     private val noseRingHelper: NoseRingHelper,
     private val timeHelper: TimeHelper,
     private val settingDataRepository: SettingDataRepository,
+    private  val dataManager: DataManager,
     private val sbSensorBlueToothUseCase: SBSensorBlueToothUseCase?,
 ) {
     private var audioClassificationHelper: AudioClassificationHelper = AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
@@ -66,6 +70,20 @@ class NoseRingUseCase(
     }
     fun clearData(){
         noseRingHelper.clearData()
+    }
+    private  fun setSnoreTime(){
+        lifecycleScope.launch(Dispatchers.IO) {
+            val time = dataManager.getNoseRingTimer().first()
+            val noseRingCount = dataManager.getNoseRingCount().first()
+            val coughCount = dataManager.getCoughCount().first()
+            noseRingHelper.setSnoreTime(time)
+            noseRingHelper.setSnoreCount(noseRingCount)
+            noseRingHelper.setCoughCount(coughCount)
+        }
+    }
+    fun setNoseRingDataAndStart(){
+        setSnoreTime()
+        startAudioClassification()
     }
 }
 

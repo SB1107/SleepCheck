@@ -143,6 +143,9 @@ class SBSensorBlueToothUseCase(
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         isStartAndStopCancel = false
         lifecycleScope.launch(IO) {
+            settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
+            logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
+            dataManager.setHasSensor(hasSensor)
             sbSensorDBRepository.deleteAll()
             if (hasSensor) {
                 bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType).run {
@@ -162,10 +165,6 @@ class SBSensorBlueToothUseCase(
                     }
                 }
             }
-
-            settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
-            logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
-            dataManager.setHasSensor(hasSensor)
         }
     }
 

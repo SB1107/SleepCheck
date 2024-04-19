@@ -62,7 +62,12 @@ class NoseRingHelper {
     fun setSnoreTime(time : Long){
         this.mSnoreTime  = time
     }
-
+    fun setSnoreCount(count : Int){
+      this.mSnoreCount = count
+    }
+    fun setCoughCount(count: Int){
+        this.mCoughCount = count
+    }
     fun clearData() {
         mSnoreTime = 0
         mLastEventTime = 0

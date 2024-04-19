@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
@@ -38,6 +39,17 @@ class TimeCountUseCase(
                 dataManager.setNoseRingCount(noseRingHelper.getSnoreCount())
             }
         }
+    }
+    private fun setTimer(){
+        lifecycleScope.launch {
+            dataManager.getTimer().first()?.let {
+                timeHelper.setTime(it)
+            }
+        }
+    }
+    fun setTimeAndStart(){
+        setTimer()
+        startTimer()
     }
 
     fun startTimer() {

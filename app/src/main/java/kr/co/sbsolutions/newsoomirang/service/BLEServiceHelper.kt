@@ -93,7 +93,7 @@ class BLEServiceHelper(
             logHelper,
             packageName
         )
-        this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, blueToothUseCase)
+        this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager,blueToothUseCase )
         this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope, dataFlowLogHelper)
         this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper)
         listenChannelMessage()
@@ -115,6 +115,7 @@ class BLEServiceHelper(
 
     fun uploadingFinishForceCloseCallback(callback: ((Boolean) -> Unit)) {
         sbDataUploadingUseCase?.setCallback(callback)
+        listenDataFlowForceFinish()
     }
 
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
@@ -125,11 +126,11 @@ class BLEServiceHelper(
         blueToothUseCase?.disconnectDevice()
     }
 
-    fun startTimer() {
+    private fun startTimer() {
         timeCountUseCase?.startTimer()
     }
 
-    fun stopTimer() {
+    private fun stopTimer() {
         timeCountUseCase?.stopTimer()
     }
 
@@ -145,7 +146,7 @@ class BLEServiceHelper(
         blueToothUseCase?.registerDownloadCallback()
     }
 
-    fun unregisterDownloadCallback() {
+    private fun unregisterDownloadCallback() {
         blueToothUseCase?.unregisterDownloadCallback()
     }
 
@@ -179,8 +180,8 @@ class BLEServiceHelper(
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
         if (blueToothUseCase?.isBlueToothStateRegistered() == true) {
-            timeCountUseCase?.startTimer()
-            noseRingUseCase?.startAudioClassification()
+            timeCountUseCase?.setTimeAndStart()
+            noseRingUseCase?.setNoseRingDataAndStart()
         }
     }
 
@@ -220,9 +221,12 @@ class BLEServiceHelper(
     }
 
     fun waitStart() {
-        blueToothUseCase?.waitStart()
-        startTimer()
-        noseRingUseCase?.startAudioClassification()
+        if ((timeCountUseCase?.getTime()) == 0) {
+            blueToothUseCase?.waitStart()
+            startTimer()
+            noseRingUseCase?.startAudioClassification()
+        }
+
     }
 
     fun finishSenor() {
@@ -264,7 +268,8 @@ class BLEServiceHelper(
     fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {
         return timeCountUseCase?.getTimeHelper() ?: MutableStateFlow(Triple(0, 0, 0))
     }
-    fun  getTime(): Int {
-        return  timeCountUseCase?.getTime() ?:0
+
+    fun getTime(): Int {
+        return timeCountUseCase?.getTime() ?: 0
     }
 }
