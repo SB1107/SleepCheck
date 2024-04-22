@@ -1,8 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.data.firebasedb
 
-import android.bluetooth.BluetoothLeAudio
 import android.util.Log
-import androidx.compose.ui.util.trace
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -18,7 +16,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
@@ -48,7 +46,7 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
         override fun onCancelled(databaseError: DatabaseError) {
             callback?.invoke(false)
             // Getting Post failed, log a message
-            logHelper.insertLog("\"loadPost:onCancelled: ${databaseError.toException()}")
+            logHelper.insertLog("loadPost:onCancelled: ${databaseError.toException()}")
         }
     }
 
@@ -76,7 +74,9 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
     fun writeValue(sensorName: String, dataId: Int, sleepType: SleepType, userName: String) {
         lifecycleScope?.launch(Dispatchers.IO) {
             if (isCheckSensorUse(sensorName)) {
-
+                getDataIdList(sensorName).first()?.map {
+                    remove(sensorName, it)
+                }
             }
             val timeStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis())
             val data = RealData(sensorName = sensorName, dataId = dataId.toString(), userName = userName, sleepType = sleepType.name, timeStamp = timeStamp)
@@ -84,8 +84,8 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
         }
     }
 
-    fun remove(sensorName: String, dataId: Int) {
-        realDatabase.reference.child("sensorNames").child(sensorName).child(dataId.toString()).removeValue()
+    fun remove(sensorName: String, dataId: String) {
+        realDatabase.reference.child("sensorNames").child(sensorName).child(dataId).removeValue()
     }
 
     fun getDataIdList(sensorName: String) = callbackFlow {

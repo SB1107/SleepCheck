@@ -92,10 +92,11 @@ class SBSensorBlueToothUseCase(
     fun removeDataId() {
         lifecycleScope.launch(IO) {
             settingDataRepository.getDataId()?.let {
-                fireBaseRealRepository.remove(getSensorName(), it)
+                fireBaseRealRepository.remove(getSensorName(), it.toString())
             }
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
             bluetoothNetworkRepository.setRemoveDataId(true)
+            bluetoothNetworkRepository.setIsDataChange(true)
         }
     }
 
