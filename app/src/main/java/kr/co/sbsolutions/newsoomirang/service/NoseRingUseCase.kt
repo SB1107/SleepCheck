@@ -22,14 +22,16 @@ class NoseRingUseCase(
     private  val dataManager: DataManager,
     private val sbSensorBlueToothUseCase: SBSensorBlueToothUseCase?,
 ) {
-    private var audioClassificationHelper: AudioClassificationHelper = AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
-        override fun onError(error: String?) {
-        }
+    private val audioClassificationHelper: AudioClassificationHelper by lazy {
+        AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
+            override fun onError(error: String?) {
+            }
 
-        override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
-            noseRingHelper.noSeringResult(results, inferenceTime)
-        }
-    })
+            override fun onResult(results: List<Category?>?, inferenceTime: Long?) {
+                noseRingHelper.noSeringResult(results, inferenceTime)
+            }
+        })
+    }
 
 
     fun setCallVibrationNotifications() {
