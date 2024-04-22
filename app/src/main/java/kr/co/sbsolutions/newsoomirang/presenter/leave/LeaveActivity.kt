@@ -94,6 +94,8 @@ class LeaveActivity : AppCompatActivity() {
         val maxChars = 100
         var checkBoxText by remember { mutableStateOf("") }
         var isButtonEnable by remember { mutableStateOf(false) }
+        var isAgreeEnable by remember { mutableStateOf(false) }
+
         val radioButtons = remember {
             mutableStateListOf(
                 CheckBoxData(
@@ -187,8 +189,37 @@ class LeaveActivity : AppCompatActivity() {
                             )
                             Spacer(modifier = Modifier.height(20.dp))
                         }
-
                     }
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 30.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                isAgreeEnable = !isAgreeEnable
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            modifier = Modifier.height(50.dp),
+                            colors = CheckboxDefaults.colors(
+                                checkmarkColor = Color.White,
+                                checkedColor = colorResource(id = R.color.color_0F63C8),
+                                uncheckedColor = Color.White
+                            ),
+                            checked = isAgreeEnable,
+                            onCheckedChange = { isAgree ->
+                                isAgreeEnable = isAgree
+                            },
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 5.dp),
+                            text = "안내사항을 모두 확인하였으며, 이에 동의합니다.", style = TextStyle(color = Color.White, fontSize = 19.sp),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -202,7 +233,7 @@ class LeaveActivity : AppCompatActivity() {
                             disabledContainerColor = colorResource(id = R.color.color_777777),
                             disabledContentColor = Color.Black
                         ),
-                        enabled = isButtonEnable,
+                        enabled = isButtonEnable and isAgreeEnable,
                         onClick = {
                             if (checkBoxText.isEmpty()) {
                                 showAlertDialog(message = "동의사항을 체크해주세요.")
@@ -242,7 +273,7 @@ class LeaveActivity : AppCompatActivity() {
                             click(data)
                         },
                     verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                ) {
                     Checkbox(
                         modifier = Modifier.height(50.dp),
                         colors = CheckboxDefaults.colors(

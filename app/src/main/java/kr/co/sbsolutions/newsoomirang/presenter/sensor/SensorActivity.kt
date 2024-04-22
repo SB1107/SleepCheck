@@ -4,11 +4,16 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
-import android.util.Log
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -30,7 +35,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.getChangeDeviceName
 import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
@@ -38,11 +42,9 @@ import kr.co.sbsolutions.newsoomirang.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectDeviceBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.Timer
 import kotlin.concurrent.timerTask
+
 
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
@@ -201,8 +203,10 @@ class SensorActivity : BluetoothActivity() {
                             text?.let {
                                 binding.deviceNameTextView.text = text.getChangeDeviceName()
                                 binding.btDiss.visibility = View.VISIBLE
+                                binding.deviceSelectMessage.visibility = View.GONE
                             } ?: run {
                                 binding.deviceNameTextView.text = "등록된 기기가 없습니다."
+                                binding.deviceSelectMessage.visibility = View.VISIBLE
                                 binding.btDiss.visibility = View.GONE
                             }
                         }

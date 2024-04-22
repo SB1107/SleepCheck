@@ -239,9 +239,11 @@ class HistoryFragment : Fragment() {
             color = Color.White,
             modifier = Modifier.padding(16.dp, 0.dp)
         )
-        YearButton(imageResource = R.drawable.arrow_right, click = {
-            yearText = nextYear(yearText)
-        })
+        if (yearText != LocalDate.now().year) {
+            YearButton(imageResource = R.drawable.arrow_right, click = {
+                yearText = nextYear(yearText)
+            })
+        }
     }
 
     private fun prevYear(currentYear: Int): Int {

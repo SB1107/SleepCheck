@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -116,7 +117,6 @@ class QuestionActivity : BaseActivity() {
                 Box {
                     Column(
                         modifier = Modifier
-                            .padding(horizontal = 30.dp, vertical = 0.dp)
                             .fillMaxSize(),
                     ) {
                         Box(
@@ -124,8 +124,6 @@ class QuestionActivity : BaseActivity() {
                                 .fillMaxSize()
                                 .padding(bottom = 16.dp)
                         ) {
-
-
                             if (contactData.result?.data?.isEmpty() != false) {
                                 Column(
                                     modifier = Modifier.fillMaxSize(),
@@ -141,18 +139,16 @@ class QuestionActivity : BaseActivity() {
                                     )
                                 }
                             } else {
-                                LazyColumn(
-                                    state = scrollState
-
-                                ) {
-                                    items(
-                                        contactData.result.data ?: emptyList()
-                                    ) { data ->
-                                        ContactList(data)
+                                Column {
+                                    Spacer(modifier = Modifier.height(30.dp))
+                                    LazyColumn(
+                                        state = scrollState
+                                    ) {
+                                        itemsIndexed(contactData.result.data ?: emptyList()) { index, data ->
+                                            ContactList(index, data)
+                                        }
                                     }
-
                                 }
-
                             }
 
                             ScrollToContactView(!scrollState.isScrollInProgress) {
@@ -183,11 +179,13 @@ class QuestionActivity : BaseActivity() {
     }
 
     @Composable
-    fun ContactList(data: ContactData) {
+    fun ContactList(index: Int, data: ContactData) {
         val endedAt = data.createdAt?.toDate("yy-MM-dd HH:mm")
         val titleDate = endedAt?.toDayString("yy년 MM월 dd일")
 
-        HorizontalDivider(thickness = 1.dp, color = Color.White)
+        if (index != 0) {
+            HorizontalDivider(thickness = 1.dp, color = Color.White)
+        }
         Row(
             modifier = Modifier
                 .padding(16.dp)

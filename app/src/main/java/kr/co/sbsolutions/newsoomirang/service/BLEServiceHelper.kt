@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
@@ -17,8 +18,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
@@ -108,9 +111,15 @@ class BLEServiceHelper(
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         // FIXME: 리얼 데이터 베이스 처리
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(),blueToothUseCase!!.getDataId().toString())
-//        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString())
+            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
+                Log.e(TAG, "oneReadData:11 ${it}")
+            }
+//            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
+//                Log.e(TAG, "oneReadData:11 ${it}")
+//            }
+        }
     }
 
     fun blueToothState(isEnabled: Boolean) {
@@ -221,7 +230,7 @@ class BLEServiceHelper(
         return blueToothUseCase?.getSleepType() ?: SleepType.Breathing
     }
 
-    
+
     fun setContentIntent(pendingIntent: PendingIntent) {
         timeCountUseCase?.setContentIntent(pendingIntent)
     }
