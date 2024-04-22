@@ -98,6 +98,13 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+    fun uploadingFinish() {
+        lifecycleScope.launch(IO) {
+            fireBaseRealRepository.remove(getSensorName(), bluetoothNetworkRepository.sbSensorInfo.value.dataId.toString())
+        }
+    }
+
+    @Deprecated("삭제됨?")
     fun isDataFlowState(): Boolean {
         return bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
                 bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
@@ -476,7 +483,7 @@ class SBSensorBlueToothUseCase(
             sbDataUploadingUseCase.dataFlowPopUpDismiss()
             DataFlowHelper(
                 sensorName = getSensorName(),
-                 logHelper = logHelper, coroutineScope = this,
+                logHelper = logHelper, coroutineScope = this,
                 settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
                 bluetoothNetworkRepository = bluetoothNetworkRepository,
                 fireBaseRealRepository = fireBaseRealRepository

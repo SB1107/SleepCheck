@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
-import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.UploadData
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.FINISH
@@ -25,10 +25,15 @@ class SBDataUploadingUseCase(
     private val uploadWorkerHelper: UploadWorkerHelper,
     private var callback: ((Boolean) -> Unit)? = null
 ) {
+    private var sbSensorBlueToothUseCase: SBSensorBlueToothUseCase? = null
     private var noseRingUseCase: NoseRingUseCase? = null
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+
+    fun setDataUploadingUseCase(sbSensorBlueToothUseCase: SBSensorBlueToothUseCase) {
+        this.sbSensorBlueToothUseCase = sbSensorBlueToothUseCase
+    }
 
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
@@ -69,7 +74,8 @@ class SBDataUploadingUseCase(
             _resultMessage.emit(null)
         }
     }
-    fun getResultMessage(): String?{
+
+    fun getResultMessage(): String? {
         return _resultMessage.value
     }
 
@@ -104,6 +110,7 @@ class SBDataUploadingUseCase(
                                 lifecycleScope.launch(IO) {
                                     logHelper.insertLog("서버 업로드 종료")
                                     _resultMessage.emit(FINISH)
+                                    sbSensorBlueToothUseCase?.uploadingFinish()
                                     callback?.invoke(forceClose)
                                 }
                             }
@@ -112,7 +119,8 @@ class SBDataUploadingUseCase(
                 }
         }
     }
-    fun getDataFlowPopUp() : StateFlow<Boolean>{
-        return  dataFlowPopUp
+
+    fun getDataFlowPopUp(): StateFlow<Boolean> {
+        return dataFlowPopUp
     }
 }

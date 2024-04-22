@@ -90,6 +90,7 @@ class BLEServiceHelper(
             logHelper,
             packageName
         )
+
         this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
         this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope)
         this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper)
@@ -100,6 +101,7 @@ class BLEServiceHelper(
         listenDataFlowForceFinish()
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
+        this.sbDataUploadingUseCase?.setDataUploadingUseCase(blueToothUseCase!!)
 
         // TODO: 리얼 데이터 베이스 실시간 감시 처리
         lifecycleScope.launch(Dispatchers.IO) {
