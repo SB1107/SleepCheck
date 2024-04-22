@@ -25,7 +25,61 @@ import java.util.Locale
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
-
+    
+    @Test
+    fun breathingScore() {
+        val apneaCount: Int = 50
+        val noSeringTime: Int = 120
+        val apneaTime: Int = 20
+        val sleepTime: Int = 300
+        var resultScore =
+            (60 - ((apneaCount.toFloat() / apneaTime.toFloat()) * 2)) +
+                    (30 - ((noSeringTime.toFloat() / apneaTime.toFloat()) * 30)) +
+                    (10 - ((apneaTime.toFloat() / apneaTime.toFloat()) * 30))
+        
+        when {
+            resultScore <= 10 -> resultScore = 10F
+            resultScore >= 90 -> resultScore = 90F
+            else -> "-"
+        }
+        println("${resultScore.toInt()}")
+    }
+    
+    @Test
+    fun noseringScore() {
+        val noSeringTime: Int = 350
+        val sleepTime: Int = 400
+        
+        var resultScore = (100 - ((noSeringTime.toFloat() / sleepTime.toFloat()) * 100))
+        
+        if (10 > resultScore){
+            resultScore = 10F
+        }
+        
+        println("$resultScore.toI")
+    }
+    
+    @Test
+    fun calculateSleepScore() {
+        val noSeringTime: Int = 380
+        val sleepTime: Int = 400
+        // 1. 코골이 시간과 수면 시간의 유효성 검사
+        if (noSeringTime < 0 || sleepTime <= 0) {
+            throw IllegalArgumentException("코골이 시간과 수면 시간은 0보다 커야 합니다.")
+        }
+        
+        // 2. 코골이 점수 계산
+        val snoringScore = 100 - ((noSeringTime.toFloat() / sleepTime.toFloat()) * 100)
+        
+        // 3. 최소/최대 점수 결정
+        val minScore = 10
+        val maxScore = 100
+        val score = minScore.coerceAtLeast(Math.min(maxScore, snoringScore.toInt()))
+        
+        println(score)
+    }
+    
+    
     @Test
     fun getChangeDeviceName() {
         val bleName = "ACa-0101"
