@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -146,12 +147,12 @@ class SBSensorBlueToothUseCase(
     }
 
     fun checkWaitStart(callback: () -> Unit) {
-        lifecycleScope.launch(IO) {
+       lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 Log.e(TAG, "checkWaitStart: ${it.bluetoothState}")
                 if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
                     callback.invoke()
-                    return@collectLatest
+                    cancel()
                 }
             }
         }
@@ -207,10 +208,10 @@ class SBSensorBlueToothUseCase(
     }
 
     fun finishSenor() {
+        timerOfStopMeasure?.cancel()
         if (::stopJob.isInitialized) {
             stopJob.cancel()
         }
-        timerOfStopMeasure?.cancel()
         isStartAndStopCancel = true
         retryCount = 0
         logHelper.insertLog { finishSenor() }
@@ -303,7 +304,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 if (it.bluetoothState == BluetoothState.Connected.Finish) {
                     callback.invoke()
-                    return@collectLatest
+                    cancel()
                 }
             }
         }

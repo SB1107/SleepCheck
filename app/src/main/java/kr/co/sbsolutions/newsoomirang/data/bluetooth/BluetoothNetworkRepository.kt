@@ -381,7 +381,7 @@ class BluetoothNetworkRepository @Inject constructor(
         }
         logHelper.insertLog(log)
 
-        val result = _sbSensorInfo.updateAndGet {
+        _sbSensorInfo.update {
             it.copy(
                 bluetoothState =
                 when (_sbSensorInfo.value.bluetoothState) {
@@ -402,7 +402,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
             )
         }
-        logHelper.insertLog(result.bluetoothState)
+//        logHelper.insertLog(result.bluetoothState)
 //        _sbSensorInfo.value.let {
 //            if (isForcedClose) {
 //                it.bluetoothState = BluetoothState.Connected.ForceEnd

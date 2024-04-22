@@ -399,6 +399,7 @@ class BLEService : LifecycleService() {
 
     private fun finishService(dataId: Int, isForcedClose: Boolean) {
         bleServiceHelper.finishService(isForcedClose)
+        serviceLiveCheckWorkerHelper.cancelWork()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
