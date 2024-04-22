@@ -43,7 +43,6 @@ class BLEServiceHelper(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val bluetoothNetworkRepository: IBluetoothNetworkRepository,
-    private val remoteAuthDataSource: RemoteAuthDataSource,
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val settingDataRepository: SettingDataRepository,
     private val timeHelper: TimeHelper,
@@ -110,12 +109,18 @@ class BLEServiceHelper(
         listenDataFlowForceFinish()
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
-        // FIXME: 리얼 데이터 베이스 처리
+
+        // TODO: 리얼 데이터 베이스 실시간 감시 처리
         lifecycleScope.launch(Dispatchers.IO) {
-            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString())
-            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
-                Log.e(TAG, "oneReadData:11 ${it}")
+            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()){ onDataChange ->
+                Log.e(TAG, "listenerData: $onDataChange" )
+                blueToothUseCase?.setRealDataChange(onDataChange)
             }
+            // TODO: 데이터 아이디 확인 메소드 샘플
+            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
+                Log.e(TAG, "oneReadData:11 $it")
+            }
+            // TODO: 한번 데이터 아이디로 조회 용
 //            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
 //                Log.e(TAG, "oneReadData:11 ${it}")
 //            }
@@ -184,6 +189,10 @@ class BLEServiceHelper(
         blueToothUseCase?.finishStop {
             finishSenor()
         }
+    }
+
+    fun removeDataId() {
+        blueToothUseCase?.removeDataId()
     }
 
     private fun stopAudioClassification() {

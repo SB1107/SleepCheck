@@ -94,7 +94,6 @@ class BreathingViewModel @Inject constructor(
         sleepDataDelete()
         registerJob("cancelClick",
         viewModelScope.launch {
-
             getService()?.stopSBSensor(true)
             setCommend(ServiceCommend.CANCEL)
         })
@@ -125,7 +124,7 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
                 .collectLatest {
-                    bluetoothInfo.dataId = null
+                    getService()?.removeDataId()
                 }
         }
     }

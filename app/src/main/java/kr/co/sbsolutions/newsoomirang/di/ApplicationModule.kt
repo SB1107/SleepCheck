@@ -92,13 +92,12 @@ object ApplicationModule {
     fun provideRealDataBaseDB() = Firebase.database
 
     @Provides
-    fun provideRealDatabaseRepository(realDatabase: FirebaseDatabase) = FireBaseRealRepository(realDatabase)
+    fun provideRealDatabaseRepository(realDatabase: FirebaseDatabase, logHelper: LogHelper) = FireBaseRealRepository(realDatabase, logHelper = logHelper)
 
     @Provides
     fun provideBLEServiceHelper(
         dataManager: DataManager, tokenManager: TokenManager,
         bluetoothNetworkRepository: IBluetoothNetworkRepository,
-        remoteAuthDataSource: RemoteAuthDataSource,
         sbSensorDBRepository: SBSensorDBRepository,
         settingDataRepository: SettingDataRepository,
         timeHelper: TimeHelper,
@@ -109,7 +108,7 @@ object ApplicationModule {
         notificationManager: NotificationManager,
         fireBaseRealRepository: FireBaseRealRepository,
     ) = BLEServiceHelper(
-        dataManager, tokenManager, bluetoothNetworkRepository, remoteAuthDataSource, sbSensorDBRepository,
+        dataManager, tokenManager, bluetoothNetworkRepository, sbSensorDBRepository,
         settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper, fireBaseRealRepository,
         notificationBuilder, notificationManager,
     )

@@ -1,6 +1,8 @@
 package kr.co.sbsolutions.newsoomirang.data.firebasedb
 
+import android.bluetooth.BluetoothLeAudio
 import android.util.Log
+import androidx.compose.ui.util.trace
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -19,12 +21,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class FireBaseRealRepository(private val realDatabase: FirebaseDatabase) {
+class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private val logHelper: LogHelper) {
     private var lifecycleScope: LifecycleCoroutineScope? = null
+    private var callback: ((Boolean) -> Unit)? = null
 
     fun setLifecycleScope(lifecycleScope: LifecycleCoroutineScope) {
         this.lifecycleScope = lifecycleScope
@@ -35,19 +39,21 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase) {
     private val postListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             dataSnapshot.value?.let {
-//                val realData = parserData(it)
-                Log.e(TAG, "onDataChange: $it")
+                logHelper.insertLog("onDataChange: $it")
+                callback?.invoke(true)
             }
 
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
+            callback?.invoke(false)
             // Getting Post failed, log a message
-            Log.e(TAG, "loadPost:onCancelled", databaseError.toException())
+            logHelper.insertLog("\"loadPost:onCancelled: ${databaseError.toException()}")
         }
     }
 
-    fun listenerData(sensorName: String, dataId: String) {
+    fun listenerData(sensorName: String, dataId: String, callback: (Boolean) -> Unit) {
+        this.callback = callback
         realDatabase.reference.child("sensorNames").child(sensorName).child(dataId).addValueEventListener(postListener)
     }
 
@@ -126,9 +132,6 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase) {
         awaitClose()
     }
 }
-
-@IgnoreExtraProperties
-data class RealWriteValue(val dataId: String)
 
 @IgnoreExtraProperties
 data class RealData(val sensorName: String, val dataId: String, val userName: String, val sleepType: String, val timeStamp: String) {

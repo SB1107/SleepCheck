@@ -85,6 +85,20 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.setLastIndexCk(true)
     }
 
+    fun setRealDataChange(isChange: Boolean) {
+        bluetoothNetworkRepository.setIsDataChange(isChange)
+    }
+
+    fun removeDataId() {
+        lifecycleScope.launch(IO) {
+            settingDataRepository.getDataId()?.let {
+                fireBaseRealRepository.remove(getSensorName(), it)
+            }
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
+            bluetoothNetworkRepository.setRemoveDataId(true)
+        }
+    }
+
     fun isDataFlowState(): Boolean {
         return bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
                 bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
@@ -101,7 +115,7 @@ class SBSensorBlueToothUseCase(
         this.bluetoothAdapter = bluetoothAdapter
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
-        if (isForceBleDeviceConnect){
+        if (isForceBleDeviceConnect) {
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             return
         }
@@ -147,7 +161,7 @@ class SBSensorBlueToothUseCase(
     }
 
     fun checkWaitStart(callback: () -> Unit) {
-       lifecycleScope.launch(IO) {
+        lifecycleScope.launch(IO) {
             bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 Log.e(TAG, "checkWaitStart: ${it.bluetoothState}")
                 if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
@@ -169,7 +183,7 @@ class SBSensorBlueToothUseCase(
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         isStartAndStopCancel = false
-        sleepDataCreate(dataId , sleepType)
+        sleepDataCreate(dataId, sleepType)
         lifecycleScope.launch(IO) {
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
@@ -527,7 +541,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-     suspend fun getSensorName(): String {
+    suspend fun getSensorName(): String {
         return dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
     }
 
@@ -535,8 +549,9 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.setOnDownloadCompleteCallback(null)
         bluetoothNetworkRepository.setOnLastDownloadCompleteCallback(null)
     }
-    suspend  fun getDataId() : Int {
-            return settingDataRepository.getDataId() ?: -1
+
+    suspend fun getDataId(): Int {
+        return settingDataRepository.getDataId() ?: -1
     }
 
 }

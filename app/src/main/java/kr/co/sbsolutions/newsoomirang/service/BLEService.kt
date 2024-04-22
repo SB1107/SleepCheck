@@ -375,6 +375,10 @@ class BLEService : LifecycleService() {
         return bleServiceHelper.checkDataSize()
     }
 
+    fun removeDataId() {
+        bleServiceHelper.removeDataId()
+    }
+
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
@@ -408,7 +412,7 @@ class BLEService : LifecycleService() {
         val service: BLEService
             get() = this@BLEService
     }
-    
+
     fun getResultMessage(): String? {
         return bleServiceHelper.getResultMessage()
     }
@@ -427,6 +431,7 @@ class BLEService : LifecycleService() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         return notificationManager.activeNotifications.find { it.id == FOREGROUND_SERVICE_NOTIFICATION_ID } != null
     }
+
     fun forceDataFlowDataUploadCancel() {
         bleServiceHelper.forceDataFlowDataUploadCancel()
     }

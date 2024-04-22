@@ -190,7 +190,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            Log.e(TAG, "connectedDevice: ${value.bluetoothState}", )
+            Log.e(TAG, "connectedDevice: ${value.bluetoothState}")
             val result = updateAndGet {
                 it.copy(
                     bluetoothState =
@@ -323,7 +323,7 @@ class BluetoothNetworkRepository @Inject constructor(
             try {
                 if (bluetoothState != BluetoothState.Unregistered) {
                     bluetoothState = BluetoothState.DisconnectedByUser
-    //                Log.d(TAG, "disconnectedDevice: 4")
+                    //                Log.d(TAG, "disconnectedDevice: 4")
                 }
                 bluetoothGatt?.let {
                     it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -337,6 +337,14 @@ class BluetoothNetworkRepository @Inject constructor(
             }
         }
         Log.d(TAG, "releaseResource: ")
+    }
+
+    override fun setRemoveDataId(isRemoveDataId: Boolean) {
+        _sbSensorInfo.update { it.copy(isRemoveDataId = isRemoveDataId) }
+    }
+
+    override fun setIsDataChange(isRealDataChange: Boolean) {
+        _sbSensorInfo.update { it.copy(isRealDataChange = isRealDataChange) }
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
@@ -503,7 +511,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         return@isConnect
                     }
                     // Todo: callback 형태에서는  상태를 변경해야되기 때문에 상태 변경시  기기 연결 해제 일경우  문제가 발생 되기 때문에 Response 형태로 요청함
-                    writeResponse(gatt , AppToModuleResponse.OperateDownloadJob)
+                    writeResponse(gatt, AppToModuleResponse.OperateDownloadJob)
                     logHelper.insertLog("OperateDownloadJob")
 
                 }
@@ -536,7 +544,7 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-     override fun sendDownloadContinueCancel() {
+    override fun sendDownloadContinueCancel() {
         if (::sendDownloadContinueJob.isInitialized) {
             sendDownloadContinueJob.cancel()
             logHelper.insertLog("sendDownloadContinue 등록 취소")
@@ -869,12 +877,12 @@ class BluetoothNetworkRepository @Inject constructor(
                                                     }
                                                 }
                                             }
-                                                /*?: launch {
-                                                // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
-                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
-                                                delay(1000)
-                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                            }*/
+                                            /*?: launch {
+                                            // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
+                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                            delay(1000)
+                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                        }*/
 
                                         }
                                     }
