@@ -11,6 +11,8 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,6 +74,8 @@ class ApplicationManager: Application() ,  Configuration.Provider  {
         // Kakao SDK 초기화
         KakaoSdk.init(this, BuildConfig.KAKAO)
         NetworkUtil.registerNetworkCallback(getSystemService(ConnectivityManager::class.java), networkCallback)
+        Firebase.database.setPersistenceEnabled(true)
+
     }
     // 네트워크 체크를 위한 Callback 함수
     private val networkCallback: ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
