@@ -28,6 +28,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/action_bar" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/device_select_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nanumsquarebold"
+        android:layout_marginHorizontal="30dp"
+        android:gravity="center"
+        android:text="검색된 기기를 선택해주세요"
+        android:textColor="@color/color_000000"
+        android:textSize="20sp"
+        app:layout_constraintVertical_bias="0.8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/device_name_text_view"
+        app:layout_constraintBottom_toBottomOf="@id/device_name_text_view" />
+
     <ImageView
         android:id="@+id/iv_device"
         android:contentDescription="device"
