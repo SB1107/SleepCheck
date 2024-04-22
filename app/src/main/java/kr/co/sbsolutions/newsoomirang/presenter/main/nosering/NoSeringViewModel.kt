@@ -130,7 +130,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
                 .collectLatest {
-                    bluetoothInfo.dataId = null
+                    getService()?.removeDataId()
                 }
         }
     }

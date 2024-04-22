@@ -17,7 +17,7 @@ interface IBluetoothNetworkRepository {
     var lastDownloadCompleteCallback: ((state: BLEService.FinishState) -> Unit)?
     fun setOnLastDownloadCompleteCallback(callback: ((state: BLEService.FinishState) -> Unit)?)
 
-    fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?)
+    fun setDataFlowForceFinish(callBack: (() -> Unit)?)
     fun setLastIndexCk(data: Boolean)
     var uploadCallback: (() -> Unit)?
     fun setOnUploadCallback(callback: (() -> Unit)?)

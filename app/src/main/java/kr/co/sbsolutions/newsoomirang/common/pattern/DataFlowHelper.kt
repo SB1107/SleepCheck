@@ -2,13 +2,17 @@ package kr.co.sbsolutions.newsoomirang.common.pattern
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -19,12 +23,13 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class DataFlowHelper(
-    isUpload: Boolean,
     private val logHelper: LogHelper,
+    private val sensorName: String,
     private val coroutineScope: CoroutineScope,
     settingDataRepository: SettingDataRepository,
     private val sbSensorDBRepository: SBSensorDBRepository,
-    private val bluetoothNetworkRepository : IBluetoothNetworkRepository,
+    private val bluetoothNetworkRepository: IBluetoothNetworkRepository,
+    private val fireBaseRealRepository: FireBaseRealRepository,
     private val callback: (ChainData) -> Unit
 ) {
     private val dataIdProcessor = DataIdProcessor(settingDataRepository)
@@ -32,10 +37,15 @@ class DataFlowHelper(
     private val noDataIdItemInsertProcessor = NoDataIdItemInsertProcessor(sbSensorDBRepository)
     private val noDataItemCheckProcessor = NoDataItemCheckProcessor(bluetoothNetworkRepository.sbSensorInfo.value, sbSensorDBRepository)
 
-    init {
-        when {
-            isUpload -> uploadProcess()
-            else -> cancelProcess()
+    fun execute() {
+        coroutineScope.launch(Dispatchers.IO) {
+            fireBaseRealRepository.oneDataIdReadData(sensorName, bluetoothNetworkRepository.sbSensorInfo.value.dataId.toString()).collectLatest { data ->
+                data?.let {
+                    uploadProcess()
+                } ?: cancelProcess()
+                logHelper.insertLog("리얼 데이터 베이스 조회 완료")
+                cancel("리얼 데이터 베이스 조회 완료")
+            }
         }
     }
 
@@ -50,7 +60,7 @@ class DataFlowHelper(
         logHelper.insertLog("cancelProcess()")
         dataIdProcessor.setNext(itemCheckProcessor)
         itemCheckProcessor.setNext(noDataItemCheckProcessor)
-        dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData(),  callback = callback)
+        dataIdProcessor.process(logHelper = logHelper, scope = coroutineScope, ChainData(), callback = callback)
     }
 }
 
@@ -61,7 +71,7 @@ interface Chain {
 }
 
 data class ChainData(
-    var dataId: Int? = null, var bluetoothInfo: BluetoothInfo? = null , var isSuccess: Boolean = true , var reasonMessage :String = ""
+    var dataId: Int? = null, var bluetoothInfo: BluetoothInfo? = null, var isSuccess: Boolean = true, var reasonMessage: String = ""
 )
 
 class DataIdProcessor(private val settingDataRepository: SettingDataRepository) : Chain {
@@ -91,9 +101,9 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
         chainData.dataId?.let {
             scope.launch {
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(it).first()
-                Log.e(TAG, "totalCount = ${networkRepository.sbSensorInfo.value.isDataFlow.value.totalCount}"+ " list = ${size}" )
-                networkRepository.setDataFlow(true , 0 ,networkRepository.getDataFlowMaxCount().plus(size))
-                if (isItemPass(it , networkRepository)) {
+                Log.e(TAG, "totalCount = ${networkRepository.sbSensorInfo.value.isDataFlow.value.totalCount}" + " list = ${size}")
+                networkRepository.setDataFlow(true, 0, networkRepository.getDataFlowMaxCount().plus(size))
+                if (isItemPass(it, networkRepository)) {
                     if (::nextInChain.isInitialized) {
                         nextInChain.process(logHelper, scope, chainData, callback)
                     }
@@ -102,12 +112,12 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
         } ?: run {
             logHelper.insertLog("DataId 가없음")
             chainData.isSuccess = false
-            chainData.reasonMessage ="DataId 가없음"
+            chainData.reasonMessage = "DataId 가없음"
             callback.invoke(chainData)
         }
     }
 
-    private suspend fun isItemPass(dataId: Int,  networkRepository: IBluetoothNetworkRepository): Boolean {
+    private suspend fun isItemPass(dataId: Int, networkRepository: IBluetoothNetworkRepository): Boolean {
         var size = 0
         val reCount = 3
         var tempCont = 0
@@ -119,7 +129,7 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
                 size = itemSize
                 Log.e(TAG, "size: ${size}")
                 tempCont = 0
-                networkRepository.setDataFlow(true, size , networkRepository.getDataFlowMaxCount())
+                networkRepository.setDataFlow(true, size, networkRepository.getDataFlowMaxCount())
             } else {
                 tempCont += 1
             }

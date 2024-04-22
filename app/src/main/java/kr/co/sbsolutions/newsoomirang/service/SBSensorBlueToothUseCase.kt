@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
@@ -44,7 +43,6 @@ import kotlin.concurrent.timerTask
 class SBSensorBlueToothUseCase(
     private val lifecycleScope: LifecycleCoroutineScope,
     private val bluetoothNetworkRepository: IBluetoothNetworkRepository,
-    private val dataFlowLogHelper: DataFlowLogHelper,
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val settingDataRepository: SettingDataRepository,
     private val dataManager: DataManager,
@@ -244,13 +242,13 @@ class SBSensorBlueToothUseCase(
     }
 
     fun listenDataFlowForceFinish() {
-        bluetoothNetworkRepository.setDataFlowForceFinish { isUpdate ->
-            dataFlowLogHelper.onCaseLog()
+        bluetoothNetworkRepository.setDataFlowForceFinish {
             logHelper.registerJob("setDataFlowFinish", lifecycleScope.launch(IO) {
                 DataFlowHelper(
-                    isUpload = isUpdate, logHelper = logHelper, coroutineScope = this,
+                    sensorName = getSensorName(), logHelper = logHelper, coroutineScope = this,
                     settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
-                    bluetoothNetworkRepository = bluetoothNetworkRepository
+                    bluetoothNetworkRepository = bluetoothNetworkRepository,
+                    fireBaseRealRepository = fireBaseRealRepository
                 ) { chainData ->
                     launch {
                         when (chainData.isSuccess) {
@@ -271,7 +269,7 @@ class SBSensorBlueToothUseCase(
                             }
                         }
                     }
-                }
+                }.execute()
             })
         }
     }
@@ -386,6 +384,7 @@ class SBSensorBlueToothUseCase(
 
     fun stopScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
+        timerOfTimeout?.cancel()
     }
 
     suspend fun checkDataSize() = callbackFlow {
@@ -476,9 +475,11 @@ class SBSensorBlueToothUseCase(
         logHelper.registerJob("forceDataFlowDataUpload", lifecycleScope.launch(IO) {
             sbDataUploadingUseCase.dataFlowPopUpDismiss()
             DataFlowHelper(
-                isUpload = true, logHelper = logHelper, coroutineScope = this,
+                sensorName = getSensorName(),
+                 logHelper = logHelper, coroutineScope = this,
                 settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
-                bluetoothNetworkRepository = bluetoothNetworkRepository
+                bluetoothNetworkRepository = bluetoothNetworkRepository,
+                fireBaseRealRepository = fireBaseRealRepository
             ) { chainData ->
                 launch {
                     when (chainData.isSuccess) {
@@ -496,7 +497,7 @@ class SBSensorBlueToothUseCase(
                         }
                     }
                 }
-            }
+            }.execute()
         })
     }
 

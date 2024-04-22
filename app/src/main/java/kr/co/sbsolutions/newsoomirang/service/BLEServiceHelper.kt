@@ -4,16 +4,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.IntentFilter
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,11 +18,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.DataFlowLogHelper
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
-import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
@@ -37,7 +31,6 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetw
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
-import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 
 class BLEServiceHelper(
     private val dataManager: DataManager,
@@ -52,7 +45,6 @@ class BLEServiceHelper(
     private val fireBaseRealRepository: FireBaseRealRepository,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
-    private val dataFlowLogHelper: DataFlowLogHelper = DataFlowLogHelper(logHelper),
     private var lifecycleScope: LifecycleCoroutineScope? = null,
     private var sbSensorUseCase: SBSensorUseCase? = null,
     private var timeCountUseCase: TimeCountUseCase? = null,
@@ -90,7 +82,6 @@ class BLEServiceHelper(
         this.blueToothUseCase = SBSensorBlueToothUseCase(
             lifecycleScope,
             bluetoothNetworkRepository,
-            dataFlowLogHelper,
             sbSensorDBRepository,
             settingDataRepository,
             dataManager,
@@ -100,7 +91,7 @@ class BLEServiceHelper(
             packageName
         )
         this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
-        this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope, dataFlowLogHelper)
+        this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope)
         this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper)
         listenChannelMessage()
         listenTimer()

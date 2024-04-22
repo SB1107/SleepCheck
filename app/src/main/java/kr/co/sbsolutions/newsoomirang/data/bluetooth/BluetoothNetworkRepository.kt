@@ -460,10 +460,9 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun setOnLastDownloadCompleteCallback(callback: ((state: BLEService.FinishState) -> Unit)?) {
         lastDownloadCompleteCallback = callback
     }
+    private var dataFlowCallback: (() -> Unit)? = null
 
-    private var dataFlowCallback: ((lastIndexCk: Boolean) -> Unit)? = null
-
-    override fun setDataFlowForceFinish(callBack: ((Boolean) -> Unit)?) {
+    override fun setDataFlowForceFinish(callBack: (() -> Unit)?) {
         dataFlowCallback = callBack
     }
 
@@ -860,7 +859,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 }
 
                                 BluetoothState.Connected.DataFlowUploadFinish -> {
-                                    dataFlowCallback?.invoke(lastIndex)
+                                    dataFlowCallback?.invoke()
                                     setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
                                     coroutine.launch {
                                         launch {
