@@ -973,7 +973,7 @@ class HistoryDetailActivity : BaseActivity() {
                                 .weight(3f)
                                 .background(
                                     color = value.third,
-                                    shape = RoundedCornerShape(topEnd = 11.dp, bottomEnd = 11.dp)
+                                    shape = RoundedCornerShape(topEnd = 11.dp)
                                 ), contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -1016,7 +1016,7 @@ class HistoryDetailActivity : BaseActivity() {
                                 .weight(3f)
                                 .background(
                                     color = value.third,
-                                    shape = RoundedCornerShape(topEnd = 11.dp, bottomEnd = 11.dp)
+                                    shape = RoundedCornerShape(bottomEnd = 11.dp)
                                 ), contentAlignment = Alignment.Center
                         ) {
                             Text(
