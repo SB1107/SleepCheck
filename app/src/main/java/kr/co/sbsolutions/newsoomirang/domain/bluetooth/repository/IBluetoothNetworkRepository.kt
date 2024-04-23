@@ -50,6 +50,7 @@ interface IBluetoothNetworkRepository {
     fun setIsDataChange(isRealDataChange : RealData)
     fun setSBSensorCancel(isCancel: Boolean)
     fun setDataFlow(isDataFlow: Boolean, currentCount : Int = 0 ,totalCount : Int = 0)
+    fun setDataId(dataId: Int)
     fun isSBSensorConnect() : Pair<Boolean , String>
     fun getDataFlowMaxCount() : Int
     fun sendDownloadContinueCancel()

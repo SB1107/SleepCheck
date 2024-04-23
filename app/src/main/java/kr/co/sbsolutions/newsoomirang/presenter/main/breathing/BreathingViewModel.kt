@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
@@ -142,7 +144,8 @@ class BreathingViewModel @Inject constructor(
     //파이어 베이스 데이터 지워짐
     private fun realDataChange(realData: RealData, info: BluetoothInfo) {
         //리무브 데이터 내가  액션을 취하지 않았을때 초기화
-        if (realData.sleepType == SleepType.Breathing.name && info.isRemoveData.not()) {
+        Log.d(TAG, "realDataChange: ${info.dataId}")
+        if (realData.sleepType == SleepType.Breathing.name && info.isRemoveData.not() && realData.dataId != info.dataId.toString()) {
             sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
             cancelClick()
         }

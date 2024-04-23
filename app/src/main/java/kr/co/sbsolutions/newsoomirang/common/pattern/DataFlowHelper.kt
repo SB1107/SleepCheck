@@ -26,7 +26,7 @@ class DataFlowHelper(
     private val logHelper: LogHelper,
     private val sensorName: String,
     private val coroutineScope: CoroutineScope,
-    settingDataRepository: SettingDataRepository,
+    private val settingDataRepository: SettingDataRepository,
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val bluetoothNetworkRepository: IBluetoothNetworkRepository,
     private val fireBaseRealRepository: FireBaseRealRepository,
@@ -39,12 +39,14 @@ class DataFlowHelper(
 
     fun execute() {
         coroutineScope.launch(Dispatchers.IO) {
-            fireBaseRealRepository.oneDataIdReadData(sensorName, bluetoothNetworkRepository.sbSensorInfo.value.dataId.toString()).collectLatest { data ->
-                data?.let {
-                    uploadProcess()
-                } ?: cancelProcess()
-                logHelper.insertLog("리얼 데이터 베이스 조회 완료")
-                cancel("리얼 데이터 베이스 조회 완료")
+            settingDataRepository.getDataId()?.let {
+                fireBaseRealRepository.oneDataIdReadData(sensorName, it.toString()).collectLatest { data ->
+                    data?.let {
+                        uploadProcess()
+                    } ?: cancelProcess()
+                    logHelper.insertLog("리얼 데이터 베이스 조회 완료 $data")
+                    cancel("리얼 데이터 베이스 조회 완료")
+                }
             }
         }
     }

@@ -96,7 +96,8 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
     fun writeValue(sensorName: String, dataId: Int, sleepType: SleepType, userName: String) {
         lifecycleScope?.launch(Dispatchers.IO) {
             if (isCheckSensorUse(sensorName)) {
-                getDataIdList(sensorName).first()?.map {
+                getDataIdList(sensorName).first()?.filter { it != dataId.toString() }?.map {
+                    Log.d(TAG, "writeValue: $it")
                     remove(sensorName, it)
                 }
             }

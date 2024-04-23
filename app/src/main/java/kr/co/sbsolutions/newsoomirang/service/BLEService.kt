@@ -169,7 +169,7 @@ class BLEService : LifecycleService() {
 //        addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
 
-    fun connectDevice(isForceBleDeviceConnect: Boolean = true) {
+    fun connectDevice(isForceBleDeviceConnect: Boolean = false) {
         bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
 

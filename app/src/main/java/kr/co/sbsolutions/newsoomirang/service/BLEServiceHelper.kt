@@ -104,6 +104,7 @@ class BLEServiceHelper(
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setDataUploadingUseCase(blueToothUseCase!!)
+        this.blueToothUseCase?.setDataId()
 
     }
 
@@ -213,13 +214,13 @@ class BLEServiceHelper(
                 blueToothUseCase?.setRealDataChange(onDataChange)
             }
             // TODO: 데이터 아이디 확인 메소드 샘플
-//            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
-//                Log.e(TAG, "oneReadData:11 $it")
-//            }
+            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
+                Log.e(TAG, "oneReadData:11 $it")
+            }
             // TODO: 한번 데이터 아이디로 조회 용
-//            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
-//                Log.e(TAG, "oneReadData:11 ${it}")
-//            }
+            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
+                Log.e(TAG, "oneReadData:11 ${it}")
+            }
         }
     }
 

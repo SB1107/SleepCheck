@@ -560,7 +560,11 @@ class BluetoothNetworkRepository @Inject constructor(
             logHelper.insertLog("sendDownloadContinue 등록 취소")
         }
     }
-
+    
+    override fun setDataId(dataId: Int) {
+        _sbSensorInfo.update { it.copy(dataId =  dataId) }
+    }
+    
     private fun writeResponse(gatt: BluetoothGatt, command: AppToModuleResponse) {
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
         logCoroutine.launch {
@@ -854,11 +858,14 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.Init,
                                 BluetoothState.Connected.Ready -> {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
-                                    setDataFlow(false)
-//                                it.bluetoothState = BluetoothState.Connected.DataFlow
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                    Log.d(TAG, "DATAID1111111: ${innerData.value.isRealDataRemoved.value.dataId}")
+                                    if (innerData.value.isRealDataRemoved.value.dataId.isNotEmpty()) {
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+                                        setDataFlow(false)
+    //                                it.bluetoothState = BluetoothState.Connected.DataFlow
+    //                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                    }
                                 }
 
                                 BluetoothState.Connected.DataFlow -> {
@@ -934,55 +941,65 @@ class BluetoothNetworkRepository @Inject constructor(
                                     // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
                                 }
                             }
-                            if (value.verifyCheckSum()) {
-                                coroutine.launch {
-                                    val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
-                                    val capacitance1 = String.format("%02X%02X%02X", value[9], value[10], value[11]).toUInt(16).toInt()
-
-                                    val accelerationX1 = String.format("%02X", value[12]).toUInt(16).toInt()
-                                    val accelerationY1 = String.format("%02X", value[13]).toUInt(16).toInt()
-                                    val accelerationZ1 = String.format("%02X", value[14]).toUInt(16).toInt()
-
-                                    val calcAccX1 = accFormatter.format((accelerationX1.toByte() * 0.0156F))
-                                    val calcAccY1 = accFormatter.format((accelerationY1.toByte() * 0.0156F))
-                                    val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
-
-                                    val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
-                                    info.currentData.emit(capacitance1)
-//                                info.currentData?.postValue(capacitance1)
-
-                                    val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
-                                    val capacitance2 = String.format("%02X%02X%02X", value[18], value[19], value[20]).toUInt(16).toInt()
-
-                                    val accelerationX2 = String.format("%02X", value[21]).toUInt(16).toInt()
-                                    val accelerationY2 = String.format("%02X", value[22]).toUInt(16).toInt()
-                                    val accelerationZ2 = String.format("%02X", value[23]).toUInt(16).toInt()
-
-                                    val calcAccX2 = accFormatter.format((accelerationX2.toByte() * 0.0156F))
-                                    val calcAccY2 = accFormatter.format((accelerationY2.toByte() * 0.0156F))
-                                    val calcAccZ2 = accFormatter.format((accelerationZ2.toByte() * 0.0156F))
-
-                                    val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
-
-//                                info.currentData?.postValue(capacitance2)
-                                    info.currentData.emit(capacitance2)
-                                    val quotient = index1 / UPLOAD_COUNT_INTERVAL
-                                    if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
-                                        uploadCallback?.let { cb ->
-                                            safetyMode = 0
-                                            uploadCallbackQuotient = quotient
-                                            cb.invoke()
+                            
+                            /*if (innerData.value.bluetoothState == BluetoothState.Connected.Init
+                                || innerData.value.bluetoothState == BluetoothState.Connected.Ready) {
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+                                    setDataFlow(false)
+                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                
+                            }*/
+                            if (innerData.value.isRealDataRemoved.value.dataId.isNotEmpty()){
+                                if (value.verifyCheckSum()) {
+                                    coroutine.launch {
+                                        val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
+                                        val capacitance1 = String.format("%02X%02X%02X", value[9], value[10], value[11]).toUInt(16).toInt()
+                                        
+                                        val accelerationX1 = String.format("%02X", value[12]).toUInt(16).toInt()
+                                        val accelerationY1 = String.format("%02X", value[13]).toUInt(16).toInt()
+                                        val accelerationZ1 = String.format("%02X", value[14]).toUInt(16).toInt()
+                                        
+                                        val calcAccX1 = accFormatter.format((accelerationX1.toByte() * 0.0156F))
+                                        val calcAccY1 = accFormatter.format((accelerationY1.toByte() * 0.0156F))
+                                        val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
+                                        
+                                        val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
+                                        info.currentData.emit(capacitance1)
+                                        //                                info.currentData?.postValue(capacitance1)
+                                        
+                                        val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
+                                        val capacitance2 = String.format("%02X%02X%02X", value[18], value[19], value[20]).toUInt(16).toInt()
+                                        
+                                        val accelerationX2 = String.format("%02X", value[21]).toUInt(16).toInt()
+                                        val accelerationY2 = String.format("%02X", value[22]).toUInt(16).toInt()
+                                        val accelerationZ2 = String.format("%02X", value[23]).toUInt(16).toInt()
+                                        
+                                        val calcAccX2 = accFormatter.format((accelerationX2.toByte() * 0.0156F))
+                                        val calcAccY2 = accFormatter.format((accelerationY2.toByte() * 0.0156F))
+                                        val calcAccZ2 = accFormatter.format((accelerationZ2.toByte() * 0.0156F))
+                                        
+                                        val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
+                                        
+                                        //                                info.currentData?.postValue(capacitance2)
+                                        info.currentData.emit(capacitance2)
+                                        val quotient = index1 / UPLOAD_COUNT_INTERVAL
+                                        if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
+                                            uploadCallback?.let { cb ->
+                                                safetyMode = 0
+                                                uploadCallbackQuotient = quotient
+                                                cb.invoke()
+                                            }
+                                        }
+                                        
+                                        info.channel.apply {
+                                            send(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
+                                            send(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))
                                         }
                                     }
-
-                                    info.channel.apply {
-                                        send(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
-                                        send(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))
-                                    }
+                                    writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
+                                } else {
+                                    writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseNAK)
                                 }
-                                writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
-                            } else {
-                                writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseNAK)
                             }
                         }
                     }

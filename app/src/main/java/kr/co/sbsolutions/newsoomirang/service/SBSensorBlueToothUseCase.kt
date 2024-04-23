@@ -63,7 +63,7 @@ class SBSensorBlueToothUseCase(
     private var retryCount = 0
     private var noseRingUseCase: NoseRingUseCase? = null
     var isStartAndStopCancel = false
-
+    
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
     }
@@ -556,9 +556,10 @@ class SBSensorBlueToothUseCase(
 
     fun setDataId() {
         lifecycleScope.launch(IO) {
-            bluetoothNetworkRepository.sbSensorInfo.value.dataId = settingDataRepository.getDataId()
+            settingDataRepository.getDataId()?.let {
+                bluetoothNetworkRepository.setDataId(it)
+            }
         }
-
     }
 
     fun isBlueToothStateRegistered(): Boolean {
