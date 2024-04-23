@@ -17,11 +17,13 @@ import javax.inject.Inject
 class UploadWorkerHelper @Inject constructor(
     private val workManager: WorkManager
 ) {
+    private val uuid = UUID.nameUUIDFromBytes("UploadWorkerHelper".toByteArray())
+    private val tag = "UploadWorkerHelper"
     fun uploadData(uploadData: UploadData): LiveData<WorkInfo> {
-        val uuid = UUID.randomUUID()
+
         val worker = OneTimeWorkRequestBuilder<UploadWorker>().apply {
-            addTag("upload")
             setId(uuid)
+            addTag(tag)
             setInputData(
                 workDataOf(
                     "packageName" to uploadData.packageName,
@@ -42,6 +44,10 @@ class UploadWorkerHelper @Inject constructor(
         workManager.enqueue(worker)
         Log.d(TAG, "uploadData: 된다된다.")
         return workManager.getWorkInfoByIdLiveData(uuid)
+    }
+    fun cancelWork() {
+        workManager.cancelWorkById(uuid)
+        workManager.cancelAllWorkByTag(tag)
     }
 }
 

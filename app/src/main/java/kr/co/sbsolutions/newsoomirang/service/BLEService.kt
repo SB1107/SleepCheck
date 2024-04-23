@@ -168,9 +168,8 @@ class BLEService : LifecycleService() {
 //        addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
 
-    fun connectDevice(bluetoothInfo: BluetoothInfo) {
-        bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter)
-
+    fun connectDevice(isForceBleDeviceConnect  : Boolean = true) {
+        bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter,isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
 
     fun disconnectDevice() {
@@ -439,7 +438,6 @@ class BLEService : LifecycleService() {
     fun forceDataFlowDataUpload() {
         bleServiceHelper.forceDataFlowDataUpload()
     }
-
 
     fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
         return bleServiceHelper.getSbSensorInfo()

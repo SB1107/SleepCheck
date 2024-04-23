@@ -339,8 +339,8 @@ class BluetoothNetworkRepository @Inject constructor(
         Log.d(TAG, "releaseResource: ")
     }
 
-    override fun setRemoveDataId(isRemoveDataId: Boolean) {
-        _sbSensorInfo.update { it.copy(isRemoveDataId = isRemoveDataId) }
+    override fun setRealDataRemove(isRemoveData: Boolean) {
+        _sbSensorInfo.update { it.copy(isRemoveDataId = isRemoveData) }
     }
 
     override fun setIsDataChange(isRealDataChange: Boolean) {

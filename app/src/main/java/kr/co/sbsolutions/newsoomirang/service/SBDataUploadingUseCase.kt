@@ -94,6 +94,7 @@ class SBDataUploadingUseCase(
                                     val reason = workInfo.outputData.getString("reason")
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
+                                        uploadWorkerHelper.cancelWork()
                                         uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
                                     }
                                 }

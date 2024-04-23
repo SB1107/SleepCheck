@@ -79,21 +79,22 @@ class SBSensorBlueToothUseCase(
         return bluetoothNetworkRepository.sbSensorInfo.value.channel
     }
 
-    fun setLastIndexCkDone() {
-        bluetoothNetworkRepository.setLastIndexCk(true)
-    }
-
     fun setRealDataChange(isChange: Boolean) {
         bluetoothNetworkRepository.setIsDataChange(isChange)
     }
 
+    suspend fun fireBaseRemove() {
+        settingDataRepository.getDataId()?.let {
+            fireBaseRealRepository.remove(getSensorName(), it.toString())
+            bluetoothNetworkRepository.setRealDataRemove(true)
+        }
+    }
+
     fun removeDataId() {
         lifecycleScope.launch(IO) {
-            settingDataRepository.getDataId()?.let {
-                fireBaseRealRepository.remove(getSensorName(), it.toString())
-            }
+            fireBaseRemove()
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
-            bluetoothNetworkRepository.setRemoveDataId(true)
+            bluetoothNetworkRepository.setRealDataRemove(true)
             bluetoothNetworkRepository.setIsDataChange(true)
         }
     }
@@ -125,17 +126,15 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             return
         }
-        if (isForceBleDeviceConnect.not()) {
-            timerOfDisconnection?.cancel()
-            timerOfDisconnection = Timer().apply {
-                schedule(timerTask {
-                    Log.e(TAG, "connectDevice: ")
-                    logHelper.insertLog("!!재연결중 disconnectDevice")
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        disconnectDevice(context, bluetoothAdapter)
-                    }
-                }, 10000L)
-            }
+        timerOfDisconnection?.cancel()
+        timerOfDisconnection = Timer().apply {
+            schedule(timerTask {
+                Log.e(TAG, "connectDevice: ")
+                logHelper.insertLog("!!재연결중 disconnectDevice")
+                lifecycleScope.launch(Dispatchers.Main) {
+                    disconnectDevice(context, bluetoothAdapter)
+                }
+            }, 10000L)
         }
     }
 
@@ -143,6 +142,10 @@ class SBSensorBlueToothUseCase(
         context?.let {
             disconnectDevice(it, bluetoothAdapter)
         }
+    }
+
+    suspend fun hasSensor(): Boolean {
+        return dataManager.getHasSensor().first()
     }
 
     private fun disconnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?) {

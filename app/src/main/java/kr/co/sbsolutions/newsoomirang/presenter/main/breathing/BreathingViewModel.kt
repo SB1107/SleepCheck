@@ -153,7 +153,7 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun setMeasuringState(state: MeasuringState) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             _measuringState.emit(state)
         }
     }

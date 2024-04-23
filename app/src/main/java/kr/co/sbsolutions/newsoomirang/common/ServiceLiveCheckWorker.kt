@@ -34,9 +34,10 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
             val deviceName = device?.second ?: ""
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
             logHelper.insertLog("service live check = $isServiceRunning isConnect = $isConnect deviceName = $deviceName")
-//            if(isConnect.not()){
-//                BLEService.getInstance()?.forceBleDeviceConnect()
-//            }
+            if(isConnect.not()){
+                BLEService.getInstance()?.connectDevice(true)
+                logHelper.insertLog("ServiceWorker connect call")
+            }
             if (isServiceRunning.not()) {
 //                Intent(context, BLEService::class.java).apply {
 //                    action = ActionMessage.ReStartSBService.msg

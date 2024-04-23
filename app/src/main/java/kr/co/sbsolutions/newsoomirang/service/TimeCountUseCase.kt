@@ -62,7 +62,7 @@ class TimeCountUseCase(
     }
 
     fun setContentTitle(message: String) {
-        notificationBuilder.setContentText(message)
+        notificationBuilder.setContentTitle(message)
     }
 
     fun setContentIntent(pendingIntent: PendingIntent) {

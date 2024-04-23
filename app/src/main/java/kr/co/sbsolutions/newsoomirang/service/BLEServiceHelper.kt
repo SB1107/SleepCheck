@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -102,22 +103,7 @@ class BLEServiceHelper(
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setDataUploadingUseCase(blueToothUseCase!!)
-
-        // TODO: 리얼 데이터 베이스 실시간 감시 처리
-        lifecycleScope.launch(Dispatchers.IO) {
-            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()){ onDataChange ->
-                Log.e(TAG, "listenerData: $onDataChange" )
-                blueToothUseCase?.setRealDataChange(onDataChange)
-            }
-            // TODO: 데이터 아이디 확인 메소드 샘플
-            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
-                Log.e(TAG, "oneReadData:11 $it")
-            }
-            // TODO: 한번 데이터 아이디로 조회 용
-//            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
-//                Log.e(TAG, "oneReadData:11 ${it}")
-//            }
-        }
+        firebaseListener()
     }
 
     fun blueToothState(isEnabled: Boolean) {
@@ -134,7 +120,11 @@ class BLEServiceHelper(
     }
 
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
-        blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+        lifecycleScope?.launch(IO) {
+            if (blueToothUseCase?.hasSensor() != false) {
+                blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+            }
+        }
     }
 
     fun sbDisconnectDevice() {
@@ -206,6 +196,25 @@ class BLEServiceHelper(
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
         }
+
+    }
+    private  fun firebaseListener() {
+        // TODO: 리얼  베이스 실시간 감시 처리
+        lifecycleScope?.launch(IO) {
+            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
+            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()) { onDataChange ->
+                Log.e(TAG, "listenerData: $onDataChange")
+                blueToothUseCase?.setRealDataChange(onDataChange)
+            }
+            // TODO: 데이터 아이디 확인 메소드 샘플
+            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
+                Log.e(TAG, "oneReadData:11 $it")
+            }
+            // TODO: 한번 데이터 아이디로 조회 용
+//            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
+//                Log.e(TAG, "oneReadData:11 ${it}")
+//            }
+        }
     }
 
     fun stopSBService() {
@@ -275,9 +284,10 @@ class BLEServiceHelper(
         finishSenor()
         noseRingUseCase?.clearData()
         logHelper.insertLog("finishService")
-        lifecycleScope?.launch(Dispatchers.IO) {
+        lifecycleScope?.launch(IO) {
             dataManager.setNoseRingTimer(0L)
             dataManager.setTimer(0)
+            blueToothUseCase?.fireBaseRemove()
         }
     }
 
@@ -307,6 +317,5 @@ class BLEServiceHelper(
 
     fun isBleDeviceConnect(): Pair<Boolean, String> {
         return blueToothUseCase?.isBleDeviceConnect() ?: Pair(false, "")
-
     }
 }

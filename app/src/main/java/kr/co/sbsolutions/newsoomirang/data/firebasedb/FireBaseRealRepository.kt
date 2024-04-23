@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.data.firebasedb
 
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.Exclude
@@ -26,7 +27,36 @@ import java.util.Locale
 
 class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private val logHelper: LogHelper) {
     private var lifecycleScope: LifecycleCoroutineScope? = null
-    private var callback: ((Boolean) -> Unit)? = null
+    private  var callback:  ((Boolean) -> Unit)? = null
+    private  var dataId : String? = null
+
+    private  val listener = object : ChildEventListener {
+        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.e(TAG, "onChildAdded: ${snapshot.value}",)
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.e(TAG, "onChildChanged: ${snapshot.value}",)
+        }
+
+        override fun onChildRemoved(snapshot: DataSnapshot) {
+            snapshot.value?.let {
+                val data = parserData(it)
+                if (data.dataId == dataId) {
+                    callback?.invoke(true)
+                }
+            }
+            logHelper.insertLog("onChildRemoved: ${snapshot.value}")
+        }
+
+        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.e(TAG, "onChildMoved: ${snapshot.value}",)
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.e(TAG, "onCancelled: ${error.message}",)
+        }
+    }
 
     fun setLifecycleScope(lifecycleScope: LifecycleCoroutineScope) {
         this.lifecycleScope = lifecycleScope
@@ -34,25 +64,14 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
         scoresRef.keepSynced(true)
     }
 
-    private val postListener = object : ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            dataSnapshot.value?.let {
-                logHelper.insertLog("onDataChange: $it")
-                callback?.invoke(true)
-            }
-
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-            callback?.invoke(false)
-            // Getting Post failed, log a message
-            logHelper.insertLog("loadPost:onCancelled: ${databaseError.toException()}")
-        }
+    fun removeListener(sensorName: String){
+        realDatabase.reference.child("sensorNames").child(sensorName).removeEventListener(listener)
     }
 
     fun listenerData(sensorName: String, dataId: String, callback: (Boolean) -> Unit) {
         this.callback = callback
-        realDatabase.reference.child("sensorNames").child(sensorName).child(dataId).addValueEventListener(postListener)
+        this.dataId = dataId
+        realDatabase.reference.child("sensorNames").child(sensorName).addChildEventListener(listener)
     }
 
     suspend fun isCheckSensorUse(sensorName: String): Boolean {

@@ -45,7 +45,7 @@ interface IBluetoothNetworkRepository {
     fun startNetworkEEGSensor()
     fun stopNetworkEEGSensor()
     fun callVibrationNotifications(Intensity : Int)
-    fun setRemoveDataId(isRemoveDataId: Boolean)
+    fun setRealDataRemove(isRemoveData: Boolean)
     fun setIsDataChange(isRealDataChange : Boolean)
     fun setSBSensorCancel(isCancel: Boolean)
     fun setDataFlow(isDataFlow: Boolean, currentCount : Int = 0 ,totalCount : Int = 0)

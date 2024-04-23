@@ -231,8 +231,8 @@ class SensorViewModel @Inject constructor(
         stopTimer()
     }
 
-    private fun deviceConnect(info: BluetoothInfo) {
-        getService()?.connectDevice(info)
+    private fun deviceConnect() {
+        getService()?.connectDevice()
     }
 
     @SuppressLint("MissingPermission")
@@ -244,7 +244,7 @@ class SensorViewModel @Inject constructor(
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
             getService()?.getSbSensorInfo()?.collectLatest {
                 if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
-                    deviceConnect(it)
+                    deviceConnect()
                 }
             }
 //            canMeasurement.collectLatest {
