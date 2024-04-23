@@ -39,6 +39,10 @@ class HistoryDetailViewModel @Inject constructor(
 ) : BaseViewModel(dataManager, tokenManager) {
     private val _sleepDataDetailData: MutableSharedFlow<SleepDetailResult> = MutableSharedFlow()
     val sleepDataDetailData: SharedFlow<SleepDetailResult> = _sleepDataDetailData.asSharedFlow()
+    
+    private val _infoMessage: MutableSharedFlow<Pair<String,String>> = MutableSharedFlow()
+    val infoMessage: SharedFlow<Pair<String,String>> = _infoMessage
+    
     private var isSharing = false
 
     fun getSleepData(id: String) {
@@ -49,6 +53,12 @@ class HistoryDetailViewModel @Inject constructor(
                         _sleepDataDetailData.emit(result)
                     }
                 }
+        }
+    }
+    
+    fun sendInfoMessage(title:String, message: String) {
+        viewModelScope.launch {
+            _infoMessage.emit(Pair(title, message))
         }
     }
 

@@ -3,9 +3,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -13,10 +11,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,18 +28,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,16 +46,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -69,16 +60,17 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.InpuMintoHourMinute
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDate
 import kr.co.sbsolutions.newsoomirang.common.toDayString
@@ -86,9 +78,9 @@ import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.common.toHourOrMinute
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityHistoryDetailBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogInfoMassageBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.components.Components
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
@@ -101,6 +93,18 @@ class HistoryDetailActivity : BaseActivity() {
     private val viewModel: HistoryDetailViewModel by viewModels()
     private val binding: ActivityHistoryDetailBinding by lazy {
         ActivityHistoryDetailBinding.inflate(layoutInflater)
+    }
+    
+    private val infoDialogBinding: DialogInfoMassageBinding by lazy {
+        DialogInfoMassageBinding.inflate(layoutInflater)
+    }
+    
+    private val infoDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(infoDialogBinding.root, null)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isFitToContents = true
+        }
     }
 
     override fun newBackPressed() {
@@ -190,6 +194,7 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TopDateView(
         data: SleepDetailResult = SleepDetailResult(),
@@ -277,7 +282,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 
-                HeaderTitleView("정상 호흡")
+                HeaderTitleView("정상 호흡", getString(R.string.detail_normal_breathing_text))
                 RowTexts("정상호흡 시간", it.InpuMintoHourMinute())
             }
             data.avgNormalBreath?.let {
@@ -289,9 +294,9 @@ class HistoryDetailActivity : BaseActivity() {
             data.apneaCount?.let {
                 //todo 비정상 호흡 시간으로 변경 필요
                 HeaderTitleView("비정상 호흡")
-                data.unstableBreath?.let {
+                /*data.unstableBreath?.let {
                     RowTexts("비정상 호흡 시간", it.InpuMintoHourMinute())
-                }
+                }*/
                 Spacer(modifier = Modifier.height(16.dp))
                 BreathingGraphView(
                     "호흡신호없음", "총${it}회", listOf(
@@ -336,7 +341,7 @@ class HistoryDetailActivity : BaseActivity() {
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 자세")
+                HeaderTitleView("수면 자세", getString(R.string.detail_no_signal_breathing_text))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 VerticalGraphView(
@@ -396,7 +401,7 @@ class HistoryDetailActivity : BaseActivity() {
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 단계")
+                HeaderTitleView("수면 단계", getString(R.string.detail_sleep_stages_text))
             }
 
             Row(
@@ -481,12 +486,25 @@ class HistoryDetailActivity : BaseActivity() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = if (type == 0)"당신의 수면 중 호흡 점수" else "당신의 수면 중 코골이 점수",
-                        color = Color.White,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row {
+                        Text(
+                            text = if (type == 0)"당신의 수면 중 호흡 점수" else "당신의 수면 중 코골이 점수",
+                            color = Color.White,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Image(
+                            modifier = Modifier.clickable {
+                                if (type == 0){
+                                    viewModel.sendInfoMessage("호흡 점수", getString(R.string.detail_breathing_score_text) )
+                                } else {
+                                    viewModel.sendInfoMessage("코골이 점수", getString(R.string.detail_breathing_score_text) )
+                                }
+                            },
+                                painter = painterResource(id = R.drawable.question),
+                                contentDescription = ""
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
@@ -525,9 +543,9 @@ class HistoryDetailActivity : BaseActivity() {
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(
-                                colorResource(id = R.color.color_FF2500),
-                                colorResource(id = R.color.color_FFFE00),
-                                colorResource(id = R.color.color_0EB44C)
+                                colorResource(id = R.color.white),
+                                colorResource(id = R.color.color_gradient_center),
+                                colorResource(id = R.color.color_gradient_end)
                             ),
                             startX = 0f,
                             endX = Float.POSITIVE_INFINITY
@@ -585,8 +603,7 @@ class HistoryDetailActivity : BaseActivity() {
     }
     
     @Composable
-    private fun HeaderTitleView(title: String) {
-
+    private fun HeaderTitleView(title: String, detailText: String? = null) {
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 50.dp, end = 50.dp)
@@ -596,12 +613,34 @@ class HistoryDetailActivity : BaseActivity() {
                 .padding(16.dp, 3.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = title,
-                color = Color.Black,
-                fontSize = 19.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    text = title,
+                    color = Color.Black,
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                
+                detailText?.let {
+                    Image(
+                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, it) },
+                        painter = painterResource(id = R.drawable.question),
+                        contentDescription = ""
+                    )
+                }
+            }
+            
+            
+            /*IconButton(onClick = {
+                state.capture(options = ScreenCaptureOptions(height = contentHeightPx))
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = "공유하기",
+                    tint = Color.White
+                )
+            }*/
         }
     }
 
@@ -610,6 +649,7 @@ class HistoryDetailActivity : BaseActivity() {
         title: String,
         totalValue: String = "총-회",
         rightBoxValue: List<Triple<String, String, Color>> = emptyList()
+        
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
@@ -620,11 +660,18 @@ class HistoryDetailActivity : BaseActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = title, color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                Row {
+                    Text(
+                        text = title, color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Image(
+                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text))},
+                        painter = painterResource(id = R.drawable.question),
+                        contentDescription = ""
+                    )
+                }
                 Box(modifier = Modifier.padding(top = 16.dp), contentAlignment = Alignment.Center) {
                     StrokeCircle(
                         modifier = Modifier
@@ -843,11 +890,18 @@ class HistoryDetailActivity : BaseActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = title, color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                Row {
+                    Text(
+                        text = title, color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Image(
+                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text))},
+                        painter = painterResource(id = R.drawable.question),
+                        contentDescription = ""
+                    )
+                }
                 Box(modifier = Modifier.padding(top = 16.dp), contentAlignment = Alignment.Center) {
                     StrokeCircle(
                         modifier = Modifier
@@ -1097,9 +1151,27 @@ class HistoryDetailActivity : BaseActivity() {
                         }
                     }
                 }
+                launch {
+                    viewModel.infoMessage.collectLatest {
+                        infoDialogBinding.tvTitleInfoText.text = it.first
+                        infoDialogBinding.tvInfoText.text = it.second
+                        showConnectDialog()
+                    }
+                }
+                infoDialogBinding.btConnect.setOnSingleClickListener {
+                    infoDialog.dismiss()
+                }
             }
         }
     }
+    
+    fun showConnectDialog() {
+        if (infoDialog.isShowing) {
+            infoDialog.dismiss()
+        }
+        infoDialog.show()
+    }
+    
     /*private fun breathingScore(apneaCount: Int = 0, noSeringTime: Int = 0, apneaTime: Int = 0, sleepTime: Int = 0): Int{
         var resultScore =
             (60 - ((apneaCount.toFloat() / apneaTime.toFloat()) * 2)) +
