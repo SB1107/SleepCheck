@@ -18,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.DataFlowInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
@@ -78,6 +79,9 @@ abstract class BaseServiceViewModel(
                             _dataFlowInfoMessage.emit(isDataFlow.copy())
                             return@collectLatest
                         }
+                    }
+                    launch {
+                        realDataChange(it)
                     }
                         when (it.bluetoothState) {
                             BluetoothState.Unregistered -> {
@@ -155,6 +159,7 @@ abstract class BaseServiceViewModel(
             }
         }
     }
+    open fun realDataChange(info : BluetoothInfo){}
 
     open fun serviceSettingCall() {
         viewModelScope.launch {

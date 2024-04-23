@@ -392,7 +392,6 @@ class BLEService : LifecycleService() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
-
     }
 
     override fun onBind(intent: Intent): IBinder {

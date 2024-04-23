@@ -201,7 +201,7 @@ class BLEServiceHelper(
     private  fun firebaseListener() {
         // TODO: 리얼  베이스 실시간 감시 처리
         lifecycleScope?.launch(IO) {
-            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
+//            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
             fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()) { onDataChange ->
                 Log.e(TAG, "listenerData: $onDataChange")
                 blueToothUseCase?.setRealDataChange(onDataChange)

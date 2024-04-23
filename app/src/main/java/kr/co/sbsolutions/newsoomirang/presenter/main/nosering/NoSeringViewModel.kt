@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
@@ -112,6 +113,17 @@ class NoSeringViewModel @Inject constructor(
 
     fun bluetoothConnect() {
         showConnectAlert()
+    }
+
+    override fun realDataChange(info: BluetoothInfo) {
+        //파이어 베이스 데이터 지워짐
+        if (info.isRealDataChange ) {
+            //리무브 데이터 내가  액션을 취하지 않았을때 초기화
+            if (info.isRemoveData.not()) {
+                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                setMeasuringState(MeasuringState.InIt)
+            }
+        }
     }
 
     fun cancelClick() {

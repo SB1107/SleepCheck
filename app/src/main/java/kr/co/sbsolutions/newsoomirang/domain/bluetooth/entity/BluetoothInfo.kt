@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothGatt
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 
@@ -19,7 +18,7 @@ data class BluetoothInfo(
     var canMeasurement: Boolean = true,
     var cancelCheck: Boolean = false,
     var isRealDataChange : Boolean = false,
-    var isRemoveDataId : Boolean = false,
+    var isRemoveData : Boolean = false,
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,
     val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),
