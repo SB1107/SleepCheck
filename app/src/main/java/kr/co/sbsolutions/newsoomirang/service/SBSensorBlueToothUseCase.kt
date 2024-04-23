@@ -92,8 +92,8 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun getRealDataRemoved() : StateFlow<RealData>{
-        return  bluetoothNetworkRepository.sbSensorInfo.value.isRealDataRemoved
+    fun getRealDataRemoved(): StateFlow<RealData> {
+        return bluetoothNetworkRepository.sbSensorInfo.value.isRealDataRemoved
     }
 
     fun removeDataId() {
@@ -127,6 +127,9 @@ class SBSensorBlueToothUseCase(
         this.bluetoothAdapter = bluetoothAdapter
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+
+        getOneDataIdReadData()
+
         if (isForceBleDeviceConnect) {
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             return
@@ -140,6 +143,16 @@ class SBSensorBlueToothUseCase(
                     disconnectDevice(context, bluetoothAdapter)
                 }
             }, 10000L)
+        }
+    }
+
+    private fun getOneDataIdReadData() {
+        lifecycleScope.launch(IO) {
+            fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
+                it?.let {
+                    bluetoothNetworkRepository.setIsDataChange(it)
+                }
+            }
         }
     }
 
