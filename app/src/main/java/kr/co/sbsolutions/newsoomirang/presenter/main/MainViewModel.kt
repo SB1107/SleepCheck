@@ -31,12 +31,13 @@ class MainViewModel @Inject constructor(
     private val logHelper: LogHelper
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1 , false))
+    private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1, false))
     val isResultProgressBar: StateFlow<Pair<Int, Boolean>> = _isResultProgressBar
 
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
     private lateinit var resultJob: Job
+
     init {
         userInfoLog()
     }
@@ -65,7 +66,7 @@ class MainViewModel @Inject constructor(
     fun stopResultProgressBar() {
         registerJob("stopResultProgressBar()",
             viewModelScope.launch {
-            _isResultProgressBar.emit(Pair(-1, false))
+                _isResultProgressBar.emit(Pair(-1, false))
             }
         )
     }
@@ -87,16 +88,18 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-    fun forceDataFlowUpdate(){
+
+    fun forceDataFlowUpdate() {
         getService()?.forceDataFlowDataUpload()
     }
-    fun forceDataFlowCancel(){
+
+    fun forceDataFlowCancel() {
         getService()?.forceDataFlowDataUploadCancel()
     }
 
 
     private fun sleepDataResult() {
-        if(::resultJob.isInitialized){
+        if (::resultJob.isInitialized) {
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
@@ -115,7 +118,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun noSeringResult() {
-        if(::resultJob.isInitialized){
+        if (::resultJob.isInitialized) {
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
@@ -130,15 +133,19 @@ class MainViewModel @Inject constructor(
             } ?: snoSeringResultRequest()
         }
     }
-    
+
     private suspend fun sleepDataResultRequest() {
-        
+
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), false))
+                    } else if (result.state == 3) {
+                        _dataIDSet.add(result.id.toInt())
+                        _isResultProgressBar.emit(Pair(-1, false))
+                        sendErrorMessage("측정한 정보기 부족합니다.\n오늘 밤 다시 측정해 주세요")
                     } else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
@@ -163,7 +170,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
     }
-    
+
     private suspend fun snoSeringResultRequest() {
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
@@ -171,8 +178,13 @@ class MainViewModel @Inject constructor(
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    } else {
-                        _isResultProgressBar.emit(Pair(-1, result.state == 1))
+                    }else if(result.state == 3){
+                        _dataIDSet.add(result.id.toInt())
+                        _isResultProgressBar.emit(Pair(-1, false))
+                        sendErrorMessage("측정한 정보기 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                    }
+                    else {
+                        _isResultProgressBar.emit(Pair(-1, result.state == 1 ))
                     }
                     if ((result.state != 1).not()) {
                         jobCancel()
