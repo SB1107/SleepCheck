@@ -321,12 +321,12 @@ class HistoryDetailActivity : BaseActivity() {
             val lists: ArrayList<Triple<Pair<String,String>, Pair<String,String>, Color>> = ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
-                    lists.add(Triple(Pair("빠른호흡","평균 호흡수 분당"), Pair("${fastBreath}분","${avgFastBreath}회"),colorResource(id = R.color.color_gray1)))
+                    lists.add(Triple(Pair("빠른호흡","평균 호흡수분당"), Pair("${fastBreath}분","${avgFastBreath}회"),colorResource(id = R.color.color_gray1)))
                 }
             }
             data.slowBreath?.let { slowBreath ->
                 data.avgSlowBreath?.let { avgSlowBreath ->
-                    lists.add(Triple(Pair("느린호흡","평균 호흡수 분당"), Pair("${slowBreath}분","${avgSlowBreath}회"),colorResource(id = R.color.color_gray2)))
+                    lists.add(Triple(Pair("느린호흡","평균 호흡수분당"), Pair("${slowBreath}분","${avgSlowBreath}회"),colorResource(id = R.color.color_gray2)))
                 }
             }
             if (lists.isNotEmpty()) {
@@ -486,7 +486,7 @@ class HistoryDetailActivity : BaseActivity() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = if (type == 0)"당신의 수면 중 호흡 점수" else "당신의 수면 중 코골이 점수",
                             color = Color.White,
@@ -494,7 +494,9 @@ class HistoryDetailActivity : BaseActivity() {
                             fontWeight = FontWeight.Bold
                         )
                         Image(
-                            modifier = Modifier.clickable {
+                            modifier = Modifier
+                                .padding(start = 5.dp)
+                                .clickable {
                                 if (type == 0){
                                     viewModel.sendInfoMessage("호흡 점수", getString(R.string.detail_breathing_score_text) )
                                 } else {
@@ -613,18 +615,24 @@ class HistoryDetailActivity : BaseActivity() {
                 .padding(16.dp, 3.dp),
             contentAlignment = Alignment.Center
         ) {
-            Row {
+            Row(
+                modifier = Modifier
+                    .align(alignment = Alignment.Center)
+            ) {
                 Text(
-                    modifier = Modifier.align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .padding(start = 5.dp)
+                        .align(Alignment.CenterVertically),
                     text = title,
                     color = Color.Black,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                
                 detailText?.let {
                     Image(
-                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, it) },
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .clickable { viewModel.sendInfoMessage(title, it) },
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -660,14 +668,16 @@ class HistoryDetailActivity : BaseActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Image(
-                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text))},
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text))},
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -876,7 +886,7 @@ class HistoryDetailActivity : BaseActivity() {
     
     
     @Composable
-    private fun RespiratoryInstabilityGraphView(
+    private fun RespiratoryInstabilityGraphView (
         title: String,
         totalValue: String = "총-회",
         rightBoxValue: List<Triple<Pair<String,String>, Pair<String,String>, Color>> = emptyList()
@@ -884,20 +894,22 @@ class HistoryDetailActivity : BaseActivity() {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = if (rightBoxValue.size >= 3) Alignment.CenterVertically else Alignment.Bottom
+            verticalAlignment = if (rightBoxValue.size >= 2) Alignment.Bottom else Alignment.Bottom
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Image(
-                        modifier = Modifier.clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text))},
+                        modifier = Modifier
+                            .padding(start = 5.dp)
+                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text))},
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -931,7 +943,7 @@ class HistoryDetailActivity : BaseActivity() {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(39.dp)
+                            .height(59.dp)
                             .background(
                                 color = Color.Transparent
                             )
@@ -974,7 +986,7 @@ class HistoryDetailActivity : BaseActivity() {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(39.dp)
+                            .height(59.dp)
                             .background(
                                 color = Color.Transparent
                             )
@@ -1008,6 +1020,7 @@ class HistoryDetailActivity : BaseActivity() {
                             Text(
                                 text = value.second.second,
                                 color = Color.White,
+                                maxLines = 2,
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Normal,
                                 textAlign = TextAlign.Center
