@@ -1002,7 +1002,7 @@ class HistoryDetailActivity : BaseActivity() {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if(value.first.second == "0") "-" else value.first.second,
+                            text = value.first.second,
                             color = Color.White,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Normal,
@@ -1020,7 +1020,7 @@ class HistoryDetailActivity : BaseActivity() {
                                 ), contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = value.second.second,
+                                text = if(value.second.second == "0회") "-" else value.second.second,
                                 color = Color.White,
                                 maxLines = 2,
                                 fontSize = 17.sp,
