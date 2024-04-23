@@ -186,6 +186,12 @@
     <string name="scan_bluetooth_search_init">새로고침을 눌러주세요</string>
 
     <string name="service_title">숨이랑 기기 측정중입니다.</string>
+    <string name="detail_breathing_score_text">수면 중 호흡 점수는 정상호흡, 호흡신호없음, 호흡불안정, 등의 비율을 숨이랑의 호흡 분석 알고리즘을 통해 종합적으로 분석해 판단합니다.\n수면 중 호흡과 코골이가 정상적으로 측정되지 않은 경우는 표시할 수 없으니 참고하세요!</string>
+    <string name="detail_normal_breathing_text">분당 12~20회 정도 나타나는 정상적으로 조용한 호흡을 말합니다.</string>
+    <string name="detail_no_signal_breathing_text">수면 중 호흡이 비정상적으로 줄어들거나 차단되어 호흡 신호가 미약하거나 호흡신호가 없는 상태를 말합니다.\n\n수면 중 호흡신호없음은 체중 증가, 코골이, 노화, 음주, 등 여러가지 요인이 있으므로 정확한 판단을 위해 의사의 검진이 필요합니다.</string>
+    <string name="detail_instability_breathing_text">수면 중 일반적인 분당 호흡수는 12회~20회이며, 이것보다 빠르거나 느린 호흡을 말합니다.\n\n빠른 호흡: 분당 호흡수가 20회 초과.\n\n느린 호흡: 분당 호흡수가 12회 미만.</string>
+    <string name="detail_sleep_position_text">수면 중 각 자세별 시간과 비율을 나타냅니다.\n수면 중 호흡신호없음과 코골이가 심할 경우 바른자세보다 측면 자세가 호흡신호없음 완화에 도움이 될 수 있습니다.</string>
+    <string name="detail_sleep_stages_text">렘수면(REM: Rapid Eye Movement) :\n빠른안구운동과 활발한 뇌 활동으로 꿈을 꾸는 단계로 수면의 약 20%~25% 차지하며, 심박동수, 호흡이 증가합니다.렘수면 동안 정신적인 피로를 회복하고 스트레스가 해소되며 낮동안 습득된 단기기억이 장기기억으로 저장되는 과정도 렘수면 동안 이루어집니다. 하지만 근육이 이완되어 이상호흡이 가장 많이 나타나는 단계이기도 합니다.\n\n얕은수면 : 가벼운 수면 상태로 수면의 초기 단계이며 수면 시간 중 대부분을 차지하고 쉽게 깨어날 수 있는 단계입니다.\n\n깊은수면 : 신체와 뇌의 회복이 이루어지는 수면단계로 수면의 질과 관련이 깊음. 체온은 낮아지고 근육은 이완되며 신체의 면역 기능과 세포 회복이 강화되고 기억력과 학습능력 향상에 기여하는 단계입니다.</string>
 
     <string name="notification_channel_id">withsoom chanel id</string>
     <string name="channel_name">withsoom channel name fcm</string>

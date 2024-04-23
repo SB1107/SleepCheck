@@ -1,30 +1,37 @@
 package kr.co.sbsolutions.newsoomirang.presenter.components
 
-import android.content.Context
-import android.view.View
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -35,32 +42,29 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.BlendModeColorFilterCompat
-import androidx.core.graphics.BlendModeCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.airbnb.lottie.LottieAnimationView
-import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.rememberLottieDynamicProperties
-import com.airbnb.lottie.compose.rememberLottieDynamicProperty
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCaptureOptions
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetailViewModel
 
 
 object Components {
@@ -176,6 +180,113 @@ object Components {
             }
         }
     }
+    @Composable
+    fun SoomDetailText(text: String, textSize: Int, color: Color = Color.White, fontWeight: FontWeight) {
+        Text(
+            text = text,
+            style = TextStyle(color = color),
+            fontSize = textSize.sp,
+            fontWeight = fontWeight,
+        )
+    }
+    
+    @Composable
+    fun SoomQuestionImage(sheet: Boolean = false){
+        var showBottomSheet by remember { mutableStateOf(sheet) }
+        Log.d(TAG, "SoomQuestionImage: $sheet")
+        var ssheet: Boolean = sheet
+        Image(
+            modifier = Modifier.clickable { ssheet = true },
+            painter = painterResource(id = R.drawable.question),
+            contentDescription = ""
+        )
+    }
+    
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun SoomShowBottomSheet(showBottomSheet: Boolean = false, title: String, explanation: String? = null){
+        val sheetState = rememberModalBottomSheetState()
+        val scope = rememberCoroutineScope()
+        
+        var soomShowBottomSheet by remember { mutableStateOf(showBottomSheet) }
+        
+        Log.d(TAG, "SoomShowBottomSheet: $soomShowBottomSheet")
+        explanation?.let { explanation ->
+            
+            if (soomShowBottomSheet) {
+                ModalBottomSheet(
+                    containerColor = colorResource(id = R.color.color_1A447D),
+                    scrimColor = colorResource(id = R.color.color_78899F),
+                    contentColor = colorResource(id = R.color.color_78899F),
+                    onDismissRequest = {
+                        soomShowBottomSheet = false
+                    },
+                    sheetState = sheetState
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 25.dp, end = 25.dp, bottom = 50.dp)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .padding(16.dp, 3.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(bottom = 10.dp)
+                                    .align(Alignment.Start),
+                                text = title,
+                                fontSize = 40.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                            )
+                            
+                            Text(
+                                modifier = Modifier
+                                    .padding(top = 10.dp, bottom = 25.dp),
+                                text = explanation,
+                                color = Color.White,
+                                fontWeight = FontWeight.Normal,
+                                textAlign = TextAlign.Start
+                            )
+                            // Sheet content
+                            Button(
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colorResource(id = R.color.color_yellow),
+                                    contentColor = Color.Black,
+                                    disabledContainerColor = Color.Gray,
+                                    disabledContentColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                
+                                onClick = {
+                                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                        if (!sheetState.isVisible) {
+                                            soomShowBottomSheet = false
+                                        }
+                                    }
+                                },
+                            ) {
+                                SoomDetailText(
+                                    text = "확인",
+                                    textSize = 16,
+                                    color = Color.Black,
+                                    FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -223,7 +334,45 @@ object Components {
             }
         }
     }
+    
+    @Composable
+    fun SoomImage(viewModel: HistoryDetailViewModel){
+        Image(
+            modifier = Modifier.clickable { viewModel },
+            painter = painterResource(id = R.drawable.question),
+            contentDescription = ""
+        )
+    }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun SoomBottomSheet(
+        modifier: Modifier = Modifier,
+        closeSheet: ( () -> Unit),
+        message: String? = null
+    ){
+        val sheetState = rememberModalBottomSheetState()
+        
+        ModalBottomSheet(
+            onDismissRequest = closeSheet,
+            sheetState = sheetState,
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+            containerColor = colorResource(id = R.color.colorPrimaryDark),
+            dragHandle = null
+        ) {
+            Column(
+                modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
+            ) {
+                message?.let {
+                    Text(
+                        text = it,
+                    )
+                }
+            }
+            
+        }
+    }
+    
     @Composable
     fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
         val eventHandler = rememberUpdatedState(onEvent)

@@ -2,11 +2,13 @@ package kr.co.sbsolutions.newsoomirang.data.entity
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
+
 @Keep
-data class SleepDetailEntity (
+data class SleepDetailEntity(
     @SerializedName("result")
     val result: SleepDetailResult?
-): BaseEntity()
+) : BaseEntity()
+
 @Keep
 data class SleepDetailResult(
     @SerializedName("id")
@@ -28,7 +30,7 @@ data class SleepDetailResult(
     @SerializedName("apnea_state")
     var apneaState: Int? = null,
     @SerializedName("apnea_count")
-    var apneaCount: Int?  = null,
+    var apneaCount: Int? = null,
     @SerializedName("apnea_10")
     var apnea10: Int? = 0,
     @SerializedName("apnea_30")
@@ -84,6 +86,18 @@ data class SleepDetailResult(
     @SerializedName("normal_breath_time")
     var normalBreathTime: Int? = null,
     @SerializedName("description")
-    val description : String? = ""
-
-)
+    val description : String? = "",
+    @SerializedName("avg_fast_breath")
+    val avgFastBreath: Int? = null,
+    @SerializedName("avg_slow_breath")
+    val avgSlowBreath: Int? = null,
+    @SerializedName("snore_count")
+    val snoreCount: Int? = null,
+    @SerializedName("cough_count")
+    val coughCount: Int? = null,
+    @SerializedName("breath_score")
+    val breathScore: Int? = null,
+    @SerializedName("snore_score")
+    val snoreScore: Int? = null,
+    
+    )

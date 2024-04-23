@@ -130,21 +130,21 @@ class MainViewModel @Inject constructor(
             } ?: snoSeringResultRequest()
         }
     }
-
+    
     private suspend fun sleepDataResultRequest() {
-
+        
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    }else{
-                        _isResultProgressBar.emit(Pair(-1,  result.state == 1))
+                    } else {
+                        _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
-                        if((result.state != 1)){
-                            jobCancel()
-                        }
+                    if ((result.state != 1)) {
+                        jobCancel()
+                    }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
@@ -163,7 +163,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
     }
-
+    
     private suspend fun snoSeringResultRequest() {
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
@@ -171,12 +171,12 @@ class MainViewModel @Inject constructor(
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    }else {
+                    } else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
-                        if((result.state != 1).not()){
-                            jobCancel()
-                        }
+                    if ((result.state != 1).not()) {
+                        jobCancel()
+                    }
                     viewModelScope.launch(Dispatchers.IO) {
                         delay(4000)
                         if (result.state == 1) {
