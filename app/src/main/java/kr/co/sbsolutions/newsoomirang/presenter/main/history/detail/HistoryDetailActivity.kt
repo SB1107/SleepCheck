@@ -497,12 +497,12 @@ class HistoryDetailActivity : BaseActivity() {
                             modifier = Modifier
                                 .padding(start = 5.dp)
                                 .clickable {
-                                if (type == 0){
-                                    viewModel.sendInfoMessage("호흡 점수", getString(R.string.detail_breathing_score_text) )
-                                } else {
-                                    viewModel.sendInfoMessage("코골이 점수", getString(R.string.detail_breathing_score_text) )
-                                }
-                            },
+                                    if (type == 0) {
+                                        viewModel.sendInfoMessage("호흡 점수", getString(R.string.detail_breathing_score_text))
+                                    } else {
+                                        viewModel.sendInfoMessage("코골이 점수", getString(R.string.detail_breathing_score_text))
+                                    }
+                                },
                                 painter = painterResource(id = R.drawable.question),
                                 contentDescription = ""
                         )
@@ -665,6 +665,7 @@ class HistoryDetailActivity : BaseActivity() {
             verticalAlignment = if (rightBoxValue.size >= 3) Alignment.CenterVertically else Alignment.Bottom
         ) {
             Column(
+                modifier = Modifier.weight(4f),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -677,7 +678,7 @@ class HistoryDetailActivity : BaseActivity() {
                     Image(
                         modifier = Modifier
                             .padding(start = 5.dp)
-                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text))},
+                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text)) },
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -701,7 +702,7 @@ class HistoryDetailActivity : BaseActivity() {
             }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(6f)
                     .padding(16.dp, 0.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -894,9 +895,10 @@ class HistoryDetailActivity : BaseActivity() {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = if (rightBoxValue.size >= 2) Alignment.Bottom else Alignment.Bottom
+            verticalAlignment = if (rightBoxValue.size >= 2) Alignment.CenterVertically else Alignment.Bottom
         ) {
             Column(
+                modifier = Modifier.weight(4f),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -909,7 +911,7 @@ class HistoryDetailActivity : BaseActivity() {
                     Image(
                         modifier = Modifier
                             .padding(start = 5.dp)
-                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text))},
+                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text)) },
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -933,7 +935,7 @@ class HistoryDetailActivity : BaseActivity() {
             }
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(6f)
                     .padding(16.dp, 0.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
