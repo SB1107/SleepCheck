@@ -3,14 +3,14 @@
     <item
         android:id="@+id/navigation_breathing"
         android:icon="@drawable/selector_menu_1"
-        android:title="호흡"
+        android:title="호흡+코골이"
         android:enabled="true"
         />
 
     <item
         android:id="@+id/navigation_no_sering"
         android:icon="@drawable/selector_menu_2"
-        android:title="코골이"
+        android:title="코골이+알림"
         android:enabled="true" />
 
     <item

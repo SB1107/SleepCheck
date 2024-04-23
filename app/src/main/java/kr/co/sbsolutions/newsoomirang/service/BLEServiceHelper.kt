@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -103,7 +104,7 @@ class BLEServiceHelper(
         this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
         this.sbDataUploadingUseCase?.setDataUploadingUseCase(blueToothUseCase!!)
-        firebaseListener()
+
     }
 
     fun blueToothState(isEnabled: Boolean) {
@@ -174,6 +175,10 @@ class BLEServiceHelper(
         }
     }
 
+    fun forceStopSbSensor() {
+        finishSenor()
+    }
+
     fun removeDataId() {
         blueToothUseCase?.removeDataId()
     }
@@ -196,9 +201,10 @@ class BLEServiceHelper(
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
         }
-
+        firebaseListener()
     }
-    private  fun firebaseListener() {
+
+    private fun firebaseListener() {
         // TODO: 리얼  베이스 실시간 감시 처리
         lifecycleScope?.launch(IO) {
 //            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
@@ -207,14 +213,18 @@ class BLEServiceHelper(
                 blueToothUseCase?.setRealDataChange(onDataChange)
             }
             // TODO: 데이터 아이디 확인 메소드 샘플
-            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
-                Log.e(TAG, "oneReadData:11 $it")
-            }
+//            fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {
+//                Log.e(TAG, "oneReadData:11 $it")
+//            }
             // TODO: 한번 데이터 아이디로 조회 용
 //            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
 //                Log.e(TAG, "oneReadData:11 ${it}")
 //            }
         }
+    }
+
+    fun getRealDataRemoved(): StateFlow<RealData> {
+        return blueToothUseCase?.getRealDataRemoved() ?: MutableStateFlow(RealData())
     }
 
     fun stopSBService() {

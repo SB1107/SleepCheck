@@ -40,6 +40,7 @@ import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -168,8 +169,8 @@ class BLEService : LifecycleService() {
 //        addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
 
-    fun connectDevice(isForceBleDeviceConnect  : Boolean = true) {
-        bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter,isForceBleDeviceConnect = isForceBleDeviceConnect)
+    fun connectDevice(isForceBleDeviceConnect: Boolean = true) {
+        bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
 
     fun disconnectDevice() {
@@ -378,7 +379,6 @@ class BLEService : LifecycleService() {
         bleServiceHelper.removeDataId()
     }
 
-
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
     }
@@ -392,6 +392,10 @@ class BLEService : LifecycleService() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
+    }
+
+    fun getRealDataRemoved(): StateFlow<RealData> {
+        return bleServiceHelper.getRealDataRemoved()
     }
 
     override fun onBind(intent: Intent): IBinder {

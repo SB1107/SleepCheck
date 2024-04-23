@@ -382,6 +382,7 @@ class BreathingFragment : BluetoothFragment() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     viewModel.sleepDataCreate().collect {
                         if (it) {
+                            viewModel.ralDataRemovedObservers()
                             activityViewModel.setCommend(ServiceCommend.START)
                         }
                     }

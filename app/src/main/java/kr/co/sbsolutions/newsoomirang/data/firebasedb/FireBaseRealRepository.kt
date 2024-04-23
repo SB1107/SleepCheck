@@ -27,34 +27,35 @@ import java.util.Locale
 
 class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private val logHelper: LogHelper) {
     private var lifecycleScope: LifecycleCoroutineScope? = null
-    private  var callback:  ((Boolean) -> Unit)? = null
-    private  var dataId : String? = null
+    private var callback: ((RealData) -> Unit)? = null
+    private var dataId: String? = null
 
-    private  val listener = object : ChildEventListener {
+    private val listener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-            Log.e(TAG, "onChildAdded: ${snapshot.value}",)
+            Log.e(TAG, "onChildAdded: ${snapshot.value}")
         }
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-            Log.e(TAG, "onChildChanged: ${snapshot.value}",)
+            Log.e(TAG, "onChildChanged: ${snapshot.value}")
         }
 
         override fun onChildRemoved(snapshot: DataSnapshot) {
             snapshot.value?.let {
                 val data = parserData(it)
                 if (data.dataId == dataId) {
-                    callback?.invoke(true)
+                    callback?.invoke(data)
+                    Log.e(TAG, "onChildRemoved: idataid 매칭")
                 }
+                logHelper.insertLog("onChildRemoved: ${snapshot.value}")
             }
-            logHelper.insertLog("onChildRemoved: ${snapshot.value}")
         }
 
         override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-            Log.e(TAG, "onChildMoved: ${snapshot.value}",)
+            Log.e(TAG, "onChildMoved: ${snapshot.value}")
         }
 
         override fun onCancelled(error: DatabaseError) {
-            Log.e(TAG, "onCancelled: ${error.message}",)
+            Log.e(TAG, "onCancelled: ${error.message}")
         }
     }
 
@@ -64,13 +65,15 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
         scoresRef.keepSynced(true)
     }
 
-    fun removeListener(sensorName: String){
+    fun removeListener(sensorName: String) {
         realDatabase.reference.child("sensorNames").child(sensorName).removeEventListener(listener)
     }
 
-    fun listenerData(sensorName: String, dataId: String, callback: (Boolean) -> Unit) {
+    fun listenerData(sensorName: String, dataId: String, callback: (RealData) -> Unit) {
+        removeListener(sensorName)
         this.callback = callback
         this.dataId = dataId
+        Log.e(TAG, "listenerData:dataId = ${dataId} ")
         realDatabase.reference.child("sensorNames").child(sensorName).addChildEventListener(listener)
     }
 
@@ -153,13 +156,4 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
 }
 
 @IgnoreExtraProperties
-data class RealData(val sensorName: String, val dataId: String, val userName: String, val sleepType: String, val timeStamp: String) {
-    @Exclude
-    fun toMap(): Map<String, Any?> {
-        return mapOf(
-            "userName" to userName,
-            "sleepType" to sleepType,
-            "timeStamp" to timeStamp,
-        )
-    }
-}
+data class RealData(val sensorName: String = "", val dataId: String = "", val userName: String = "", val sleepType: String = "", val timeStamp: String = "")

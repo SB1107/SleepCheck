@@ -33,6 +33,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.hexToString
 import kr.co.sbsolutions.newsoomirang.common.prefixToHex
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -343,8 +344,17 @@ class BluetoothNetworkRepository @Inject constructor(
         _sbSensorInfo.update { it.copy(isRemoveData = isRemoveData) }
     }
 
-    override fun setIsDataChange(isRealDataChange: Boolean) {
-        _sbSensorInfo.update { it.copy(isRealDataChange = isRealDataChange) }
+    override fun setIsDataChange(isRealDataChange: RealData) {
+        val data = _sbSensorInfo.value.isRealDataRemoved.updateAndGet {
+            it.copy(
+                sensorName = isRealDataChange.sensorName,
+                dataId = isRealDataChange.dataId,
+                userName = isRealDataChange.userName,
+                sleepType = isRealDataChange.sleepType,
+                timeStamp = isRealDataChange.timeStamp,
+            )
+        }
+        logHelper.insertLog("setIsDataChange = ${data}")
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
@@ -460,6 +470,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun setOnLastDownloadCompleteCallback(callback: ((state: BLEService.FinishState) -> Unit)?) {
         lastDownloadCompleteCallback = callback
     }
+
     private var dataFlowCallback: (() -> Unit)? = null
 
     override fun setDataFlowForceFinish(callBack: (() -> Unit)?) {

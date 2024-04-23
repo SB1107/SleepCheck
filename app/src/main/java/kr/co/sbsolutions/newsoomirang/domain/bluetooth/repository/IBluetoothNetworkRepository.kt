@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
 import kotlinx.coroutines.flow.StateFlow
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -46,7 +47,7 @@ interface IBluetoothNetworkRepository {
     fun stopNetworkEEGSensor()
     fun callVibrationNotifications(Intensity : Int)
     fun setRealDataRemove(isRemoveData: Boolean)
-    fun setIsDataChange(isRealDataChange : Boolean)
+    fun setIsDataChange(isRealDataChange : RealData)
     fun setSBSensorCancel(isCancel: Boolean)
     fun setDataFlow(isDataFlow: Boolean, currentCount : Int = 0 ,totalCount : Int = 0)
     fun isSBSensorConnect() : Pair<Boolean , String>

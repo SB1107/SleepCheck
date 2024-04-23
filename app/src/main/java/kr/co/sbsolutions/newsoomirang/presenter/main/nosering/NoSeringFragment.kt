@@ -305,6 +305,7 @@ class NoSeringFragment : BluetoothFragment() {
                 lifecycleScope.launch {
                     viewModel.sleepDataCreate().collectLatest {
                         if (it) {
+                            viewModel.ralDataRemovedObservers()
                             activityViewModel.setCommend(ServiceCommend.START)
                         }
                     }

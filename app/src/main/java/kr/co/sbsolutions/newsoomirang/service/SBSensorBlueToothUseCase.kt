@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
+import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
@@ -79,8 +80,9 @@ class SBSensorBlueToothUseCase(
         return bluetoothNetworkRepository.sbSensorInfo.value.channel
     }
 
-    fun setRealDataChange(isChange: Boolean) {
+    fun setRealDataChange(isChange: RealData) {
         bluetoothNetworkRepository.setIsDataChange(isChange)
+        bluetoothNetworkRepository.sbSensorInfo.value
     }
 
     suspend fun fireBaseRemove() {
@@ -90,12 +92,15 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+    fun getRealDataRemoved() : StateFlow<RealData>{
+        return  bluetoothNetworkRepository.sbSensorInfo.value.isRealDataRemoved
+    }
+
     fun removeDataId() {
         lifecycleScope.launch(IO) {
             fireBaseRemove()
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
             bluetoothNetworkRepository.setRealDataRemove(true)
-            bluetoothNetworkRepository.setIsDataChange(true)
         }
     }
 
