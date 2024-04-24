@@ -123,9 +123,7 @@ class BLEServiceHelper(
 
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         lifecycleScope?.launch(IO) {
-            if (blueToothUseCase?.hasSensor() != false) {
-                blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
-            }
+            blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
         }
     }
 
@@ -196,7 +194,7 @@ class BLEServiceHelper(
     suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?) {
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
-        blueToothUseCase?.startSBService(context, bluetoothAdapter){
+        blueToothUseCase?.startSBService(context, bluetoothAdapter) {
             blueToothUseCase?.setDataId()
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()

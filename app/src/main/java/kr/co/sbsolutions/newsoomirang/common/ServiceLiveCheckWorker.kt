@@ -10,6 +10,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -18,7 +19,8 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 class ServiceLiveCheckWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val logHelper: LogHelper
+    private val logHelper: LogHelper,
+    private  val dataManager: DataManager
 
 ) : CoroutineWorker(context, workerParams) {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -34,7 +36,8 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
             val deviceName = device?.second ?: ""
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
             logHelper.insertLog("service live check = $isServiceRunning isConnect = $isConnect deviceName = $deviceName")
-            if(isConnect.not()){
+            val hasSensor = dataManager.getHasSensor().first()
+            if(isConnect.not() && hasSensor){
                 BLEService.getInstance()?.connectDevice(true)
                 logHelper.insertLog("ServiceWorker connect call")
             }

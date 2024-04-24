@@ -945,7 +945,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                     logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
                                 
                             }*/
-                            if (innerData.value.isRealDataRemoved.value.dataId.isNotEmpty()){
+                            Log.e(TAG, "readData: ${_sbSensorInfo.value.isRealDataRemoved.value}", )
+                            if (_sbSensorInfo.value.isRealDataRemoved.value.dataId == ""){
                                 if (value.verifyCheckSum()) {
                                     coroutine.launch {
                                         val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
