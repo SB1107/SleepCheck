@@ -59,7 +59,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private  val _isCancel : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isCancel: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -193,6 +193,16 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch {
             _measuringState.emit(state)
         }
+    }
+
+    fun getIntensity() = callbackFlow {
+        viewModelScope.launch(Dispatchers.IO) {
+            val intensity = settingDataRepository.getSnoringVibrationIntensity()
+            val on = settingDataRepository.getSnoringOnOff()
+            send(Pair(on, intensity))
+            close()
+        }
+        awaitClose()
     }
 
 

@@ -23,6 +23,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
@@ -65,6 +66,17 @@ class NoSeringFragment : BluetoothFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
+        viewLifecycleOwner.lifecycleScope.launch{
+            val intensity = viewModel.getIntensity().first()
+            binding.motorCheckBox.isEnabled  = intensity.first
+            when (intensity.second) {
+                0 -> {binding.type0Chip.performClick()}
+                1 -> {binding.type1Chip.performClick()}
+                2 -> {binding.type2Chip.performClick()}
+                else -> {binding.type0Chip.performClick()}
+            }
+        }
+
         setObservers()
         binding.motorCheckBox.setOnCheckedChangeListener { _, isChecked ->
             run {
