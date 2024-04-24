@@ -545,9 +545,9 @@ class HistoryDetailActivity : BaseActivity() {
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(
-                                colorResource(id = R.color.white),
-                                colorResource(id = R.color.color_gradient_center),
-                                colorResource(id = R.color.color_gradient_end)
+                                colorResource(id = R.color.color_EB361B),
+                                colorResource(id = R.color.color_FFF33A),
+                                colorResource(id = R.color.color_44A64B)
                             ),
                             startX = 0f,
                             endX = Float.POSITIVE_INFINITY

@@ -1178,6 +1178,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 dataFlowMaxCount = memoryTotalIndex * 20
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
                                 
+                                delay(2000)
                                 when(innerData.value.bluetoothState){
                                     BluetoothState.Connected.DataFlowUploadFinish -> {
                                         dataFlowCallback?.invoke()
