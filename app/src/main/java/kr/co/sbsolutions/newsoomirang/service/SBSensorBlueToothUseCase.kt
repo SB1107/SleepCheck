@@ -203,14 +203,16 @@ class SBSensorBlueToothUseCase(
         lifecycleScope.launch(IO) {
             val sensorName = getSensorName()
             val userName = dataManager.getUserName().first() ?: ""
-            // FIXME: 리얼데이터 베이스 처리 
+            // FIXME: 리얼데이터 베이스 처리
             fireBaseRealRepository.writeValue(sensorName, dataId, sleepType, userName)
         }
     }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
         isStartAndStopCancel = false
-        sleepDataCreate(dataId, sleepType)
+        if (hasSensor) {
+            sleepDataCreate(dataId, sleepType)
+        }
         lifecycleScope.launch(IO) {
             settingDataRepository.setSleepTypeAndDataId(sleepType, dataId)
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
@@ -534,15 +536,15 @@ class SBSensorBlueToothUseCase(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?) {
+    suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?, callback :() -> Unit) {
         val sleepType = settingDataRepository.getSleepType()
         settingDataRepository.getDataId()?.let {
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = it
         }
         bluetoothNetworkRepository.sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("${if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
-        delay(1000)
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Registered) {
+            callback.invoke()
             val hasSensor = dataManager.getHasSensor().first()
             if (hasSensor) {
                 connectDevice(context, bluetoothAdapter, true)
@@ -562,9 +564,6 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun isBlueToothStateRegistered(): Boolean {
-        return bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Registered
-    }
 
     fun deletePastList() {
         lifecycleScope.launch(IO) {

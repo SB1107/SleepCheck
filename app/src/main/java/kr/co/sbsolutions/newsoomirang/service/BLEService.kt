@@ -120,7 +120,6 @@ class BLEService : LifecycleService() {
                 .apply {
                     setLogWorkerHelper(logHelper)
                 }
-        serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.uploadingFinishForceCloseCallback { forceClose ->
             finishService(-1, forceClose)
         }
@@ -329,6 +328,8 @@ class BLEService : LifecycleService() {
     }
 
     private fun serviceLiveWorkCheck() {
+        serviceLiveCheckWorkerHelper.cancelWork()
+
         lifecycleScope.launch(Dispatchers.Main) {
             serviceLiveCheckWorkerHelper.serviceLiveCheck()
                 .observe(this@BLEService) { workInfo: WorkInfo? ->

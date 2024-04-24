@@ -194,10 +194,9 @@ class BLEServiceHelper(
     }
 
     suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?) {
-        blueToothUseCase?.startSBService(context, bluetoothAdapter)
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
-        if (blueToothUseCase?.isBlueToothStateRegistered() == true) {
+        blueToothUseCase?.startSBService(context, bluetoothAdapter){
             blueToothUseCase?.setDataId()
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
