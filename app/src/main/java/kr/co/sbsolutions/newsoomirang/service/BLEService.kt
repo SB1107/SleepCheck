@@ -245,9 +245,11 @@ class BLEService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        Log.d(TAG, "onStartCommand: 0")
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
 
             ActionMessage.StartSBService -> {
+                Log.d(TAG, "onStartCommand: 1")
                 lifecycleScope.launch(IO) {
                     serviceLiveWorkCheck()
                     bleServiceHelper.startSBService(baseContext, bluetoothAdapter)
@@ -256,11 +258,13 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.StopSBService -> {
+                Log.d(TAG, "onStartCommand: 2")
                 bleServiceHelper.stopSBService()
                 serviceLiveCheckWorkerHelper.cancelWork()
             }
 
             ActionMessage.CancelSbService -> {
+                Log.d(TAG, "onStartCommand: 3")
                 bleServiceHelper.cancelSbService()
                 serviceLiveCheckWorkerHelper.cancelWork()
                 finishService(false)
@@ -397,8 +401,9 @@ class BLEService : LifecycleService() {
 
     fun forceStopBreathing() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+        bleServiceHelper.cancelSbService(true)
         serviceLiveCheckWorkerHelper.cancelWork()
-        bleServiceHelper.forceStopSbSensor()
+        finishService(false)
     }
 
     fun getRealDataRemoved(): StateFlow<RealData?> {
@@ -411,6 +416,7 @@ class BLEService : LifecycleService() {
     }
 
     private fun finishService(isForcedClose: Boolean) {
+        Log.d(TAG, "finishService: 11")
         bleServiceHelper.finishService(isForcedClose)
         serviceLiveCheckWorkerHelper.cancelWork()
         stopForeground(STOP_FOREGROUND_REMOVE)

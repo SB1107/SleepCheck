@@ -386,7 +386,11 @@ class SBSensorBlueToothUseCase(
     }
 
     private fun noSering(isForce: Boolean, isCancel: Boolean, hasSensor: Boolean = true) {
-        if (isCancel.not() && isForce.not()) {
+        if (isForce){
+            sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(isForce)
+            return
+        }
+        if (isCancel.not()) {
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {

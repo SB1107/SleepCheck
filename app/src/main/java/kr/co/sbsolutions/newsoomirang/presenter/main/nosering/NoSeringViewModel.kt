@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import javax.inject.Inject
 
@@ -60,7 +62,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private val _myAction: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private  lateinit var dataRemovedJob : Job
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -89,7 +91,6 @@ class NoSeringViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
                 viewModelScope.launch {
-                    _myAction.emit(false)
                     dataManager.setHasSensor(true)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
@@ -121,41 +122,58 @@ class NoSeringViewModel @Inject constructor(
     }
 
     fun ralDataRemovedObservers() {
-        viewModelScope.launch(Dispatchers.IO) {
+        if (::dataRemovedJob.isInitialized) {
+            dataRemovedJob.cancel()
+        }
+        dataRemovedJob = viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
                 it?.let {
-                    realDataChange(it, bluetoothInfo)
+                    realDataChange(it)
                 }
             }
         }
     }
 
     //파이어 베이스 데이터 지워짐
-    private fun realDataChange(realData: RealData, info: BluetoothInfo) {
+    private fun realDataChange(realData: RealData) {
         //리무브 데이터 내가  액션을 취하지 않았을때 초기화
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (!_myAction.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && info.dataId != null && realData.dataId != info.dataId.toString()) {
-                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-                cancelClick()
-            }
+            val dataId = settingDataRepository.getDataId() ?: -1
+
+            Log.d(TAG, "realDataChange: ${hasSensor} ")
+            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
+            Log.d(TAG, "realDataChange: ${realData.sensorName } ")
+            Log.d(TAG, "realDataChange: ${dataId } ")
+            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
+
+                if (hasSensor &&
+                    realData.sensorName == sensorName &&
+                    realData.dataId == dataId.toString()
+                ) {
+                    sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                    cancelClick()
+                }
         }
 
     }
 
     fun cancelClick(isForce: Boolean = false) {
-        setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
-        viewModelScope.launch {
-            if (isForce.not()) {
-                if (dataManager.getHasSensor().first()) {
-                    getService()?.stopSBSensor(true)
-                    cancel()
+        registerJob("cancelClick",
+            viewModelScope.launch {
+                if (isForce.not()) {
+                    if (dataManager.getHasSensor().first()) {
+                        getService()?.stopSBSensor(true)
+                        setCommend(ServiceCommend.CANCEL)
+                        cancel()
+                    }
                 }
+                getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
-            getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
-        }
+        )
+        setMeasuringState(MeasuringState.InIt)
     }
 
     private fun sleepDataDelete() {
@@ -211,7 +229,10 @@ class NoSeringViewModel @Inject constructor(
 
 
     fun stopClick() {
-        insertLog { stopClick() }
+        if (::dataRemovedJob.isInitialized) {
+            dataRemovedJob.cancel()
+        }
+        insertLog("stopClick()")
         viewModelScope.launch {
             val hasSensor = dataManager.getHasSensor().first()
             Log.d(TAG, "stopClick 코골이: $hasSensor")
@@ -227,7 +248,6 @@ class NoSeringViewModel @Inject constructor(
                     }
                     getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
-                    _myAction.emit(true)
                 }
             } else {
                 if ((getService()?.getTime() ?: 0) < 300) {

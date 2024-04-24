@@ -102,19 +102,23 @@ class BreathingViewModel @Inject constructor(
         sleepDataDelete()
         registerJob("cancelClick",
             viewModelScope.launch {
-                if (isForce) {
-                    getService()?.forceStopBreathing()
-                }else{
+                if (isForce.not()) {
                     getService()?.stopSBSensor(true)
+                    setCommend(ServiceCommend.CANCEL)
+                }else{
+                    getService()?.forceStopBreathing()
                 }
-                setCommend(ServiceCommend.CANCEL)
             })
         setMeasuringState(MeasuringState.InIt)
 
     }
 
     fun stopClick() {
+        if (::dataRemovedJob.isInitialized) {
+            dataRemovedJob.cancel()
+        }
         registerJob("stopClick()",
+
             viewModelScope.launch(Dispatchers.Main) {
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
                     sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
@@ -150,7 +154,7 @@ class BreathingViewModel @Inject constructor(
         dataRemovedJob = viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
                 it?.let {
-                    realDataChange(it, bluetoothInfo)
+                    realDataChange(it)
                 }
             }
         }
@@ -158,21 +162,20 @@ class BreathingViewModel @Inject constructor(
 
 
     //파이어 베이스 데이터 지워짐
-    private fun realDataChange(realData: RealData, info: BluetoothInfo) {
+    private fun realDataChange(realData: RealData) {
         //리무브 데이터 내가  액션을 취하지 않았을때 초기화
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
             val dataId = settingDataRepository.getDataId() ?: -1
-            /*Log.d(TAG, "realDataChange: ${_isCancel.value} ")
+
             Log.d(TAG, "realDataChange: ${hasSensor} ")
-            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
-            Log.d(TAG, "realDataChange: ${realData.sensorName } ")
-            Log.d(TAG, "realDataChange: ${dataId } ")
-            Log.d(TAG, "realDataChange: ${realData.dataId}} ")*/
+//            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
+            Log.d(TAG, "realDataChange: ${realData.sensorName} ${sensorName}")
+            Log.d(TAG, "realDataChange: ${dataId} ")
+            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
             
             if (hasSensor &&
-                realData.sleepType == SleepType.Breathing.name &&
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
