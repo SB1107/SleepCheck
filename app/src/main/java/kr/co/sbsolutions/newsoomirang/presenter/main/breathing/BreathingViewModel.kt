@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
@@ -47,6 +48,7 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
+    private  val _isCancel : MutableStateFlow<Boolean> = MutableStateFlow(false)
 
 
     init {
@@ -69,8 +71,7 @@ class BreathingViewModel @Inject constructor(
             })
     }
 
-    fun startClick() {
-
+    fun startClick() { _isCancel
         if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
@@ -78,6 +79,7 @@ class BreathingViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             ) {
                 registerJob(viewModelScope.launch {
+                    _isCancel.emit(false)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
@@ -115,6 +117,7 @@ class BreathingViewModel @Inject constructor(
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
+                            _isCancel.emit(true)
                         return@collectLatest
                     }
 
@@ -151,7 +154,7 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (hasSensor && realData.sleepType == SleepType.Breathing.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString() ) {
+            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.Breathing.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }

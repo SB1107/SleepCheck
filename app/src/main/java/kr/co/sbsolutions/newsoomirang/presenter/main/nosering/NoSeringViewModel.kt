@@ -59,7 +59,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-
+    private  val _isCancel : MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -88,6 +88,7 @@ class NoSeringViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
                 viewModelScope.launch {
+                    _isCancel.emit(false)
                     dataManager.setHasSensor(true)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
@@ -134,7 +135,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && realData.dataId != info.dataId.toString()) {
+            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }
@@ -207,6 +208,7 @@ class NoSeringViewModel @Inject constructor(
                 }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
+                        _isCancel.emit(true)
                         _showMeasurementCancelAlert.emit(true)
                         return@collectLatest
                     }
