@@ -88,7 +88,6 @@ class SBSensorBlueToothUseCase(
     suspend fun fireBaseRemove() {
         settingDataRepository.getDataId()?.let {
             fireBaseRealRepository.remove(getSensorName(), it.toString())
-            bluetoothNetworkRepository.setRealDataRemove(true)
         }
     }
 
@@ -100,7 +99,6 @@ class SBSensorBlueToothUseCase(
         lifecycleScope.launch(IO) {
             fireBaseRemove()
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
-            bluetoothNetworkRepository.setRealDataRemove(true)
         }
     }
 

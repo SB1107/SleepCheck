@@ -21,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
@@ -127,10 +128,15 @@ class NoSeringViewModel @Inject constructor(
     //파이어 베이스 데이터 지워짐
     private fun realDataChange(realData: RealData, info: BluetoothInfo) {
         //리무브 데이터 내가  액션을 취하지 않았을때 초기화
-        if (realData.sleepType == SleepType.NoSering.name && info.isRemoveData.not()) {
-            sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-            cancelClick()
+        viewModelScope.launch(Dispatchers.IO) {
+            val hasSensor = dataManager.getHasSensor().first()
+            val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
+            if (hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString() ) {
+                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                cancelClick()
+            }
         }
+
     }
 
     fun cancelClick() {

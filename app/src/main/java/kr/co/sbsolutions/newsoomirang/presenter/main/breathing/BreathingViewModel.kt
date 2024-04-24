@@ -22,6 +22,7 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -34,7 +35,7 @@ import javax.inject.Inject
 class BreathingViewModel @Inject constructor(
     private val dataManager: DataManager,
     tokenManager: TokenManager,
-    private val authAPIRepository: RemoteAuthDataSource
+    private val authAPIRepository: RemoteAuthDataSource,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     private val _showMeasurementAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementAlert: SharedFlow<Boolean> = _showMeasurementAlert
@@ -145,9 +146,13 @@ class BreathingViewModel @Inject constructor(
     private fun realDataChange(realData: RealData, info: BluetoothInfo) {
         //리무브 데이터 내가  액션을 취하지 않았을때 초기화
         Log.d(TAG, "realDataChange: ${info.dataId}")
-        if (realData.sleepType == SleepType.Breathing.name && info.isRemoveData.not() && realData.dataId != info.dataId.toString()) {
-            sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-            cancelClick()
+        viewModelScope.launch(Dispatchers.IO) {
+            val hasSensor = dataManager.getHasSensor().first()
+            val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
+            if (hasSensor && realData.sleepType == SleepType.Breathing.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString() ) {
+                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                cancelClick()
+            }
         }
     }
 
