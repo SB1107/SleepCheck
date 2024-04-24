@@ -176,7 +176,7 @@ class BreathingViewModel @Inject constructor(
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-                cancelClick()
+                cancelClick(true)
             }
         }
     }
