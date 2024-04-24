@@ -122,9 +122,7 @@ class BLEServiceHelper(
     }
 
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
-        lifecycleScope?.launch(IO) {
-            blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
-        }
+        blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 
     fun sbDisconnectDevice() {
@@ -221,8 +219,8 @@ class BLEServiceHelper(
         }
     }
 
-    fun getRealDataRemoved(): StateFlow<RealData> {
-        return blueToothUseCase?.getRealDataRemoved() ?: MutableStateFlow(RealData())
+    fun getRealDataRemoved(): StateFlow<RealData?> {
+        return blueToothUseCase?.getRealDataRemoved() ?: MutableStateFlow(null)
     }
 
     fun stopSBService() {

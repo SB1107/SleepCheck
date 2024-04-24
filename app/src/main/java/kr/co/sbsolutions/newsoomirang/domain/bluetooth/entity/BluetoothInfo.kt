@@ -18,7 +18,7 @@ data class BluetoothInfo(
     var batteryInfo: String? = null,
     var canMeasurement: Boolean = true,
     var cancelCheck: Boolean = false,
-    var isRealDataRemoved : MutableStateFlow<RealData> = MutableStateFlow(RealData()),
+    var isRealDataRemoved : MutableStateFlow<RealData?> = MutableStateFlow(null),
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,
     val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),

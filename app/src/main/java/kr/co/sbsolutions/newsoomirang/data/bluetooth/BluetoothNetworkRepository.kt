@@ -342,15 +342,19 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun setIsDataChange(isRealDataChange: RealData) {
         val data = _sbSensorInfo.value.isRealDataRemoved.updateAndGet {
-            it.copy(
+            it?.copy(
                 sensorName = isRealDataChange.sensorName,
                 dataId = isRealDataChange.dataId,
                 userName = isRealDataChange.userName,
                 sleepType = isRealDataChange.sleepType,
                 timeStamp = isRealDataChange.timeStamp,
             )
+        }?: run {
+            logCoroutine.launch {
+                _sbSensorInfo.value.isRealDataRemoved.emit(isRealDataChange)
+            }
         }
-        logHelper.insertLog("setIsDataChange = ${data}")
+        logHelper.insertLog("setIsDataChange = $data")
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
@@ -854,13 +858,14 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.Init,
                                 BluetoothState.Connected.Ready -> {
-                                    Log.d(TAG, "DATAID1111111: ${innerData.value.isRealDataRemoved.value.dataId}")
-                                    if (innerData.value.isRealDataRemoved.value.dataId.isNotEmpty()) {
+                                    Log.d(TAG, "DATAID1111111: ${innerData.value.isRealDataRemoved.value?.dataId }")
+                                    innerData.value.isRealDataRemoved.value?.let {
                                         innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
                                         setDataFlow(false)
-    //                                it.bluetoothState = BluetoothState.Connected.DataFlow
-    //                                innerData.tryEmit(it)
+                                        //                                it.bluetoothState = BluetoothState.Connected.DataFlow
+                                        //                                innerData.tryEmit(it)
                                         logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+
                                     }
                                 }
 
@@ -937,16 +942,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                     // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
                                 }
                             }
-                            
-                            /*if (innerData.value.bluetoothState == BluetoothState.Connected.Init
-                                || innerData.value.bluetoothState == BluetoothState.Connected.Ready) {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
-                                    setDataFlow(false)
-                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
-                                
-                            }*/
-                            Log.e(TAG, "readData: ${_sbSensorInfo.value.isRealDataRemoved.value}", )
-                            if (_sbSensorInfo.value.isRealDataRemoved.value.dataId == ""){
+                            if (innerData.value.isRealDataRemoved.value == null || (innerData.value.isRealDataRemoved.value?.dataId ?: -1) == innerData.value.dataId){
                                 if (value.verifyCheckSum()) {
                                     coroutine.launch {
                                         val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()

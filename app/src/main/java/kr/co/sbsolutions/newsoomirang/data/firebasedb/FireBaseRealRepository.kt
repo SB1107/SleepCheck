@@ -157,4 +157,4 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
 }
 
 @IgnoreExtraProperties
-data class RealData(val sensorName: String = "", val dataId: String = "", val userName: String = "", val sleepType: String = "", val timeStamp: String = "")
+data class RealData(val sensorName: String , val dataId: String , val userName: String , val sleepType: String, val timeStamp: String)

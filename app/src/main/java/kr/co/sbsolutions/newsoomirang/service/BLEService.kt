@@ -395,7 +395,7 @@ class BLEService : LifecycleService() {
         bleServiceHelper.stopSBSensor(isCancel)
     }
 
-    fun getRealDataRemoved(): StateFlow<RealData> {
+    fun getRealDataRemoved(): StateFlow<RealData?> {
         return bleServiceHelper.getRealDataRemoved()
     }
 

@@ -136,7 +136,9 @@ class BreathingViewModel @Inject constructor(
     fun ralDataRemovedObservers(){
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
-                realDataChange(it, bluetoothInfo)
+                it?.let {
+                    realDataChange(it, bluetoothInfo)
+                }
             }
         }
     }

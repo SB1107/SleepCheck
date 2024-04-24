@@ -91,7 +91,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun getRealDataRemoved(): StateFlow<RealData> {
+    fun getRealDataRemoved(): StateFlow<RealData?> {
         return bluetoothNetworkRepository.sbSensorInfo.value.isRealDataRemoved
     }
 

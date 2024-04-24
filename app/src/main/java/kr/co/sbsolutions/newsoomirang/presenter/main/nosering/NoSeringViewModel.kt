@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -117,10 +118,12 @@ class NoSeringViewModel @Inject constructor(
         showConnectAlert()
     }
 
-    fun ralDataRemovedObservers(){
+    fun ralDataRemovedObservers() {
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
-                realDataChange(it, bluetoothInfo)
+                it?.let {
+                    realDataChange(it, bluetoothInfo)
+                }
             }
         }
     }
@@ -131,7 +134,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString() ) {
+            if (hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }
