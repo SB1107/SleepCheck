@@ -103,9 +103,9 @@ class BreathingViewModel @Inject constructor(
         registerJob("cancelClick",
             viewModelScope.launch {
                 if (isForce) {
-                    getService()?.stopSBSensor(true)
-                }else{
                     getService()?.forceStopBreathing()
+                }else{
+                    getService()?.stopSBSensor(true)
                 }
                 setCommend(ServiceCommend.CANCEL)
             })
