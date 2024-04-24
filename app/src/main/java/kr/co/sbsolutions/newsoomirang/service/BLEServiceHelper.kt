@@ -9,7 +9,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -206,7 +205,7 @@ class BLEServiceHelper(
 //            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
             fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()) { onDataChange ->
                 Log.e(TAG, "listenerData: $onDataChange")
-                blueToothUseCase?.setRealDataChange(onDataChange)
+                blueToothUseCase?.setRemovedRealDataChange(onDataChange)
             }
             // TODO: 데이터 아이디 확인 메소드 샘플
             fireBaseRealRepository.getDataIdList(blueToothUseCase!!.getSensorName()).collectLatest {

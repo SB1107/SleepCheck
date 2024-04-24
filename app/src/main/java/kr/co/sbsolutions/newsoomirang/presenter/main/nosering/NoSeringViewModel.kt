@@ -135,7 +135,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && realData.dataId != info.dataId.toString()) {
+            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && info.dataId != null && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }

@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -43,12 +43,12 @@ class BreathingViewModel @Inject constructor(
     private val _showMeasurementCancelAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val showMeasurementCancelAlert: SharedFlow<Boolean> = _showMeasurementCancelAlert
     private val _measuringState: MutableStateFlow<MeasuringState> = MutableStateFlow(MeasuringState.InIt)
-    val measuringState: SharedFlow<MeasuringState> = _measuringState.asSharedFlow()
+    val measuringState: StateFlow<MeasuringState> = _measuringState
     private val _capacitanceFlow: MutableSharedFlow<Int> = MutableSharedFlow()
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    private  val _isCancel : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _isCancel: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
 
     init {
@@ -71,7 +71,8 @@ class BreathingViewModel @Inject constructor(
             })
     }
 
-    fun startClick() { _isCancel
+    fun startClick() {
+        _isCancel
         if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
@@ -97,13 +98,13 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun cancelClick() {
-        setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         registerJob("cancelClick",
             viewModelScope.launch {
                 getService()?.stopSBSensor(true)
                 setCommend(ServiceCommend.CANCEL)
             })
+        setMeasuringState(MeasuringState.InIt)
 
     }
 
@@ -117,7 +118,7 @@ class BreathingViewModel @Inject constructor(
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
-                            _isCancel.emit(true)
+                        _isCancel.emit(true)
                         return@collectLatest
                     }
 
@@ -136,7 +137,8 @@ class BreathingViewModel @Inject constructor(
                 }
         }
     }
-    fun ralDataRemovedObservers(){
+
+    fun dataRemovedObservers() {
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
                 it?.let {
@@ -154,7 +156,7 @@ class BreathingViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.Breathing.name && realData.sensorName ==   sensorName && realData.dataId != info.dataId.toString()) {
+            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.Breathing.name && realData.sensorName == sensorName && info.dataId != null && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }
@@ -187,6 +189,7 @@ class BreathingViewModel @Inject constructor(
 
     fun setMeasuringState(state: MeasuringState) {
         viewModelScope.launch {
+            delay(300)
             _measuringState.emit(state)
         }
     }

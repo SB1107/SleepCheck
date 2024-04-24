@@ -283,7 +283,6 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun releaseResource() {
-        Log.d(TAG, "releaseResource: 11")
         _sbSensorInfo.value.apply {
             try {
                 if (bluetoothState != BluetoothState.Unregistered) {
@@ -340,21 +339,27 @@ class BluetoothNetworkRepository @Inject constructor(
         Log.d(TAG, "releaseResource: ")
     }
 
-    override fun setIsDataChange(isRealDataChange: RealData) {
-        val data = _sbSensorInfo.value.isRealDataRemoved.updateAndGet {
+    override fun setRealData(realData: RealData?) {
+        if (realData == null) {
+            logCoroutine.launch {
+                _sbSensorInfo.value.realData.emit(null)
+            }
+            return
+        }
+        val data = _sbSensorInfo.value.realData.updateAndGet {
             it?.copy(
-                sensorName = isRealDataChange.sensorName,
-                dataId = isRealDataChange.dataId,
-                userName = isRealDataChange.userName,
-                sleepType = isRealDataChange.sleepType,
-                timeStamp = isRealDataChange.timeStamp,
+                sensorName = realData.sensorName,
+                dataId = realData.dataId,
+                userName = realData.userName,
+                sleepType = realData.sleepType,
+                timeStamp = realData.timeStamp,
             )
         }?: run {
             logCoroutine.launch {
-                _sbSensorInfo.value.isRealDataRemoved.emit(isRealDataChange)
+                _sbSensorInfo.value.realData.emit(realData)
             }
         }
-        logHelper.insertLog("setIsDataChange = $data")
+        logHelper.insertLog("setRealData = $data")
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
@@ -560,11 +565,11 @@ class BluetoothNetworkRepository @Inject constructor(
             logHelper.insertLog("sendDownloadContinue 등록 취소")
         }
     }
-    
+
     override fun setDataId(dataId: Int) {
-        _sbSensorInfo.update { it.copy(dataId =  dataId) }
+        _sbSensorInfo.update { it.copy(dataId = dataId) }
     }
-    
+
     private fun writeResponse(gatt: BluetoothGatt, command: AppToModuleResponse) {
         val cmd = BluetoothUtils.findCommandCharacteristic(gatt) ?: return
         logCoroutine.launch {
@@ -858,8 +863,8 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                 BluetoothState.Connected.Init,
                                 BluetoothState.Connected.Ready -> {
-                                    Log.d(TAG, "DATAID1111111: ${innerData.value.isRealDataRemoved.value?.dataId }")
-                                    innerData.value.isRealDataRemoved.value?.let {
+                                    Log.d(TAG, "DATAID1111111: ${innerData.value.realData.value?.dataId}")
+                                    innerData.value.realData.value?.let {
                                         innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
                                         setDataFlow(false)
                                         //                                it.bluetoothState = BluetoothState.Connected.DataFlow
@@ -942,37 +947,40 @@ class BluetoothNetworkRepository @Inject constructor(
                                     // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
                                 }
                             }
-                            if (innerData.value.isRealDataRemoved.value == null || (innerData.value.isRealDataRemoved.value?.dataId ?: -1) == innerData.value.dataId){
+                            Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
+                            Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
+                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
+                            if (innerData.value.realData.value == null || (innerData.value.realData.value?.dataId ?: -1) == innerData.value.dataId) {
                                 if (value.verifyCheckSum()) {
                                     coroutine.launch {
                                         val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
                                         val capacitance1 = String.format("%02X%02X%02X", value[9], value[10], value[11]).toUInt(16).toInt()
-                                        
+
                                         val accelerationX1 = String.format("%02X", value[12]).toUInt(16).toInt()
                                         val accelerationY1 = String.format("%02X", value[13]).toUInt(16).toInt()
                                         val accelerationZ1 = String.format("%02X", value[14]).toUInt(16).toInt()
-                                        
+
                                         val calcAccX1 = accFormatter.format((accelerationX1.toByte() * 0.0156F))
                                         val calcAccY1 = accFormatter.format((accelerationY1.toByte() * 0.0156F))
                                         val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
-                                        
+
                                         val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
                                         info.currentData.emit(capacitance1)
                                         //                                info.currentData?.postValue(capacitance1)
-                                        
+
                                         val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
                                         val capacitance2 = String.format("%02X%02X%02X", value[18], value[19], value[20]).toUInt(16).toInt()
-                                        
+
                                         val accelerationX2 = String.format("%02X", value[21]).toUInt(16).toInt()
                                         val accelerationY2 = String.format("%02X", value[22]).toUInt(16).toInt()
                                         val accelerationZ2 = String.format("%02X", value[23]).toUInt(16).toInt()
-                                        
+
                                         val calcAccX2 = accFormatter.format((accelerationX2.toByte() * 0.0156F))
                                         val calcAccY2 = accFormatter.format((accelerationY2.toByte() * 0.0156F))
                                         val calcAccZ2 = accFormatter.format((accelerationZ2.toByte() * 0.0156F))
-                                        
+
                                         val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
-                                        
+
                                         //                                info.currentData?.postValue(capacitance2)
                                         info.currentData.emit(capacitance2)
                                         val quotient = index1 / UPLOAD_COUNT_INTERVAL
@@ -983,7 +991,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                                 cb.invoke()
                                             }
                                         }
-                                        
+
                                         info.channel.apply {
                                             send(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
                                             send(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))

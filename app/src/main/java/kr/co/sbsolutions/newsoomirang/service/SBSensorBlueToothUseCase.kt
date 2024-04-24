@@ -15,6 +15,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -62,8 +63,9 @@ class SBSensorBlueToothUseCase(
     private var timerOfStopMeasure: Timer? = null
     private var retryCount = 0
     private var noseRingUseCase: NoseRingUseCase? = null
-    var isStartAndStopCancel = false
-    
+    private var isStartAndStopCancel = false
+    private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
+
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
     }
@@ -80,9 +82,10 @@ class SBSensorBlueToothUseCase(
         return bluetoothNetworkRepository.sbSensorInfo.value.channel
     }
 
-    fun setRealDataChange(isChange: RealData) {
-        bluetoothNetworkRepository.setIsDataChange(isChange)
-        bluetoothNetworkRepository.sbSensorInfo.value
+    fun setRemovedRealDataChange(isChange: RealData) {
+        lifecycleScope.launch {
+            removedRealData.emit(isChange)
+        }
     }
 
     suspend fun fireBaseRemove() {
@@ -92,7 +95,7 @@ class SBSensorBlueToothUseCase(
     }
 
     fun getRealDataRemoved(): StateFlow<RealData?> {
-        return bluetoothNetworkRepository.sbSensorInfo.value.isRealDataRemoved
+        return removedRealData
     }
 
     fun removeDataId() {
@@ -147,9 +150,7 @@ class SBSensorBlueToothUseCase(
     private fun getOneDataIdReadData() {
         lifecycleScope.launch(IO) {
             fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
-                it?.let {
-                    bluetoothNetworkRepository.setIsDataChange(it)
-                }
+                bluetoothNetworkRepository.setRealData(it)
             }
         }
     }
@@ -534,7 +535,7 @@ class SBSensorBlueToothUseCase(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?, callback :() -> Unit) {
+    suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: () -> Unit) {
         val sleepType = settingDataRepository.getSleepType()
         settingDataRepository.getDataId()?.let {
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = it
