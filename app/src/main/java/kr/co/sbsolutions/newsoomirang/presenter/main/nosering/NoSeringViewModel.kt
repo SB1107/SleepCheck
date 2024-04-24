@@ -61,7 +61,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private val _isCancel: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _myAction: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -90,7 +90,7 @@ class NoSeringViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
                 viewModelScope.launch {
-                    _isCancel.emit(false)
+                    _myAction.emit(false)
                     dataManager.setHasSensor(true)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
@@ -124,7 +124,6 @@ class NoSeringViewModel @Inject constructor(
     fun ralDataRemovedObservers() {
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
-                Log.d(TAG, "ralDataRemovedObservers: 나 여러번 불린다.")
                 it?.let {
                     realDataChange(it)
                 }
@@ -140,22 +139,29 @@ class NoSeringViewModel @Inject constructor(
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
             val dataId = settingDataRepository.getDataId() ?: -1
             
-            Log.d(TAG, "realDataChange: ${_isCancel.value} ")
+            Log.d(TAG, "realDataChange: ${_myAction.value} ")
             Log.d(TAG, "realDataChange: ${hasSensor} ")
             Log.d(TAG, "realDataChange: ${realData.sleepType } ")
             Log.d(TAG, "realDataChange: ${realData.sensorName } ")
             Log.d(TAG, "realDataChange: ${dataId } ")
             Log.d(TAG, "realDataChange: ${realData.dataId}} ")
             
-            if (!_isCancel.value &&
-                hasSensor &&
+            if (!_myAction.value && hasSensor &&
+                realData.sleepType == SleepType.NoSering.name &&
                 realData.sensorName == sensorName &&
-                realData.dataId == dataId.toString()) {
-                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-                cancelClick()
+                realData.dataId != dataId.toString()) {
+                
+                
+                if (!_myAction.value &&
+                    hasSensor &&
+                    realData.sensorName == sensorName &&
+                    realData.dataId == dataId.toString()
+                ) {
+                    sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                    cancelClick()
+                }
             }
         }
-
     }
 
     fun cancelClick(isForce: Boolean = false) {
@@ -239,12 +245,12 @@ class NoSeringViewModel @Inject constructor(
                 }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
-                        _isCancel.emit(true)
                         _showMeasurementCancelAlert.emit(true)
                         return@collectLatest
                     }
                     getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
+                    _myAction.emit(true)
                 }
             } else {
                 if ((getService()?.getTime() ?: 0) < 300) {

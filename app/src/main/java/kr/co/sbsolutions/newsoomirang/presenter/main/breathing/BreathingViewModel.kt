@@ -50,7 +50,7 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    private val _isCancel: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _myAction: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
 
     init {
@@ -74,7 +74,6 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun startClick() {
-        _isCancel
         if (isRegistered(isConnectAlertShow = true)) {
             if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready ||
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.End ||
@@ -82,7 +81,7 @@ class BreathingViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             ) {
                 registerJob(viewModelScope.launch {
-                    _isCancel.emit(false)
+                    _myAction.emit(false)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
@@ -124,12 +123,12 @@ class BreathingViewModel @Inject constructor(
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
-                        _isCancel.emit(true)
                         return@collectLatest
                     }
 
                     getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
+                    _myAction.emit(true)
                 }
             }
         )
@@ -163,14 +162,15 @@ class BreathingViewModel @Inject constructor(
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
             val dataId = settingDataRepository.getDataId() ?: -1
-            /*Log.d(TAG, "realDataChange: ${_isCancel.value} ")
-            Log.d(TAG, "realDataChange: ${hasSensor} ")
-            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
-            Log.d(TAG, "realDataChange: ${realData.sensorName } ")
-            Log.d(TAG, "realDataChange: ${dataId } ")
-            Log.d(TAG, "realDataChange: ${realData.dataId}} ")*/
             
-            if (!_isCancel.value &&
+            Log.d(TAG, "realDataChange: ${_myAction.value} ")
+            Log.d(TAG, "realDataChange: ${hasSensor} ")
+//            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
+            Log.d(TAG, "realDataChange: ${realData.sensorName} ${sensorName}")
+            Log.d(TAG, "realDataChange: ${dataId} ")
+            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
+            
+            if (!_myAction.value &&
                 hasSensor &&
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
