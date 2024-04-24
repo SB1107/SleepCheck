@@ -25,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -382,8 +383,9 @@ class BreathingFragment : BluetoothFragment() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     viewModel.sleepDataCreate().collect {
                         if (it) {
-                            viewModel.dataRemovedObservers()
                             activityViewModel.setCommend(ServiceCommend.START)
+                            delay(2000)
+                            viewModel.dataRemovedObservers()
                         }
                     }
                 }
