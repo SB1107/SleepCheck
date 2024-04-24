@@ -325,9 +325,7 @@ class BreathingFragment : BluetoothFragment() {
                         }
                     }
                 }
-
             }
-
         }
     }
 

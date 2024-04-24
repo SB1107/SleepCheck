@@ -183,8 +183,8 @@ class BLEServiceHelper(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    fun noSensorSeringMeasurement(isCancel: Boolean = false) {
-        blueToothUseCase?.noSensorSeringMeasurement(isCancel)
+    fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false) {
+        blueToothUseCase?.noSensorSeringMeasurement(isForce, isCancel)
         timeCountUseCase?.stopTimer()
     }
 

@@ -121,7 +121,7 @@ class BLEService : LifecycleService() {
                     setLogWorkerHelper(logHelper)
                 }
         bleServiceHelper.uploadingFinishForceCloseCallback { forceClose ->
-            finishService(-1, forceClose)
+            finishService(forceClose)
         }
     }
 
@@ -263,7 +263,7 @@ class BLEService : LifecycleService() {
             ActionMessage.CancelSbService -> {
                 bleServiceHelper.cancelSbService()
                 serviceLiveCheckWorkerHelper.cancelWork()
-                finishService(-1, false)
+                finishService(false)
             }
 
             ActionMessage.StopSBServiceForced -> {
@@ -384,8 +384,8 @@ class BLEService : LifecycleService() {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
     }
 
-    fun noSensorSeringMeasurement(isCancel: Boolean = false) {
-        bleServiceHelper.noSensorSeringMeasurement(isCancel)
+    fun noSensorSeringMeasurement(isForce: Boolean = false, isCancel: Boolean = false) {
+        bleServiceHelper.noSensorSeringMeasurement(isForce, isCancel)
         serviceLiveCheckWorkerHelper.cancelWork()
     }
 
@@ -393,6 +393,12 @@ class BLEService : LifecycleService() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
+    }
+
+    fun forceStopBreathing() {
+        bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+        serviceLiveCheckWorkerHelper.cancelWork()
+        bleServiceHelper.forceStopSbSensor()
     }
 
     fun getRealDataRemoved(): StateFlow<RealData?> {
@@ -404,7 +410,7 @@ class BLEService : LifecycleService() {
         return mBinder
     }
 
-    private fun finishService(dataId: Int, isForcedClose: Boolean) {
+    private fun finishService(isForcedClose: Boolean) {
         bleServiceHelper.finishService(isForcedClose)
         serviceLiveCheckWorkerHelper.cancelWork()
         stopForeground(STOP_FOREGROUND_REMOVE)

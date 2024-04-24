@@ -99,11 +99,15 @@ class BreathingViewModel @Inject constructor(
         }
     }
 
-    fun cancelClick() {
+    fun cancelClick(isForce: Boolean = false) {
         sleepDataDelete()
         registerJob("cancelClick",
             viewModelScope.launch {
-                getService()?.stopSBSensor(true)
+                if (isForce) {
+                    getService()?.stopSBSensor(true)
+                }else{
+                    getService()?.forceStopBreathing()
+                }
                 setCommend(ServiceCommend.CANCEL)
             })
         setMeasuringState(MeasuringState.InIt)

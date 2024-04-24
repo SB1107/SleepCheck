@@ -256,7 +256,7 @@ class SBSensorBlueToothUseCase(
         }
         isStartAndStopCancel = true
         retryCount = 0
-        logHelper.insertLog { finishSenor() }
+        logHelper.insertLog("finishSenor ")
     }
 
 
@@ -384,8 +384,8 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    private fun noSering(isCancel: Boolean, hasSensor: Boolean = true) {
-        if (isCancel.not()) {
+    private fun noSering(isForce: Boolean, isCancel: Boolean, hasSensor: Boolean = true) {
+        if (isCancel.not() && isForce.not()) {
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
@@ -530,8 +530,8 @@ class SBSensorBlueToothUseCase(
         })
     }
 
-    fun noSensorSeringMeasurement(isCancel: Boolean = false) {
-        noSering(isCancel, false)
+    fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false) {
+        noSering(isForce, isCancel, false)
         noseRingUseCase?.stopAudioClassification()
     }
 

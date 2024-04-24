@@ -20,6 +20,7 @@ import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -198,11 +199,9 @@ class NoSeringFragment : BluetoothFragment() {
                             0 -> {
                                 binding.type0Chip.performClick()
                             }
-
                             1 -> {
                                 binding.type1Chip.performClick()
                             }
-
                             2 -> {
                                 binding.type2Chip.performClick()
                             }
@@ -317,8 +316,9 @@ class NoSeringFragment : BluetoothFragment() {
                 lifecycleScope.launch {
                     viewModel.sleepDataCreate().collectLatest {
                         if (it) {
-                            viewModel.ralDataRemovedObservers()
                             activityViewModel.setCommend(ServiceCommend.START)
+                            delay(2000)
+                            viewModel.ralDataRemovedObservers()
                         }
                     }
                 }

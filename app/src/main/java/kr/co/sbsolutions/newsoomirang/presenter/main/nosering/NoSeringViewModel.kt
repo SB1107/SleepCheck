@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -143,13 +144,15 @@ class NoSeringViewModel @Inject constructor(
 
     }
 
-    fun cancelClick() {
+    fun cancelClick(isForce: Boolean = false) {
         setMeasuringState(MeasuringState.InIt)
         sleepDataDelete()
         viewModelScope.launch {
-            if (dataManager.getHasSensor().first()) {
-                getService()?.stopSBSensor(true)
-                return@launch
+            if (isForce.not()) {
+                if (dataManager.getHasSensor().first()) {
+                    getService()?.stopSBSensor(true)
+                    cancel()
+                }
             }
             getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
         }
@@ -157,7 +160,8 @@ class NoSeringViewModel @Inject constructor(
 
     private fun sleepDataDelete() {
         viewModelScope.launch(Dispatchers.IO) {
-            request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(bluetoothInfo.dataId ?: -1)) }
+            val dataId = settingDataRepository.getDataId() ?: -1
+            request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(dataId)) }
                 .collectLatest {
                     getService()?.removeDataId()
                 }
