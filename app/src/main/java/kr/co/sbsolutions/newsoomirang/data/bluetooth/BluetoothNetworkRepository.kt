@@ -953,9 +953,8 @@ class BluetoothNetworkRepository @Inject constructor(
                             Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
                             val check = (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
                                     (innerData.value.realData.value == null ||
-                                            (innerData.value.realData.value?.dataId ?: -1) == innerData.value.dataId)
-                            Log.d(TAG, "readDataCheck: $check")
-                            if ((check)) {
+                                            (innerData.value.realData.value?.dataId?.toInt() ?: -1) == innerData.value.dataId)
+                            if (check) {
                                 if (value.verifyCheckSum()) {
                                     coroutine.launch {
                                         val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()

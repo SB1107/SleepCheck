@@ -204,6 +204,7 @@ class SBSensorBlueToothUseCase(
             val userName = dataManager.getUserName().first() ?: ""
             // FIXME: 리얼데이터 베이스 처리
             fireBaseRealRepository.writeValue(sensorName, dataId, sleepType, userName)
+            delay(2000)
             getOneDataIdReadData()
         }
     }
