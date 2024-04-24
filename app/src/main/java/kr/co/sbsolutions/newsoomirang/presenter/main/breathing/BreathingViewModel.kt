@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
@@ -50,8 +52,7 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    private val _myAction: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
+    private  lateinit var dataRemovedJob : Job
 
     init {
         registerJob("Breathing init",
@@ -81,7 +82,6 @@ class BreathingViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             ) {
                 registerJob(viewModelScope.launch {
-                    _myAction.emit(false)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
                     } ?: run {
@@ -128,7 +128,6 @@ class BreathingViewModel @Inject constructor(
 
                     getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
-                    _myAction.emit(true)
                 }
             }
         )
@@ -145,7 +144,10 @@ class BreathingViewModel @Inject constructor(
     }
 
     fun dataRemovedObservers() {
-        viewModelScope.launch(Dispatchers.IO) {
+        if (::dataRemovedJob.isInitialized) {
+            dataRemovedJob.cancel()
+        }
+        dataRemovedJob = viewModelScope.launch(Dispatchers.IO) {
             getService()?.getRealDataRemoved()?.collectLatest {
                 it?.let {
                     realDataChange(it, bluetoothInfo)
@@ -169,8 +171,7 @@ class BreathingViewModel @Inject constructor(
             Log.d(TAG, "realDataChange: ${dataId } ")
             Log.d(TAG, "realDataChange: ${realData.dataId}} ")*/
             
-            if (!_myAction.value &&
-                hasSensor &&
+            if (hasSensor &&
                 realData.sleepType == SleepType.Breathing.name &&
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
