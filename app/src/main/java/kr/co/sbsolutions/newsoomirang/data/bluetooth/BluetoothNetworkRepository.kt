@@ -624,7 +624,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkEEGSensor() {}
     override fun callVibrationNotifications(intensity: Int) {
         val module = when (intensity) {
-            3 -> {
+            2 -> {
                 AppToModule.VibrationNotificationsStrong
             }
 
