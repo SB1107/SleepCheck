@@ -147,7 +147,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    private fun getOneDataIdReadData() {
+     private fun getOneDataIdReadData() {
         lifecycleScope.launch(IO) {
             fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
                 bluetoothNetworkRepository.setRealData(it)
@@ -204,6 +204,7 @@ class SBSensorBlueToothUseCase(
             val userName = dataManager.getUserName().first() ?: ""
             // FIXME: 리얼데이터 베이스 처리
             fireBaseRealRepository.writeValue(sensorName, dataId, sleepType, userName)
+            getOneDataIdReadData()
         }
     }
 

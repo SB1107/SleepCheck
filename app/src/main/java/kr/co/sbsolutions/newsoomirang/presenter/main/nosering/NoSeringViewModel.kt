@@ -60,7 +60,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private val _isCancel: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _myAction: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -89,7 +89,7 @@ class NoSeringViewModel @Inject constructor(
                 bluetoothInfo.bluetoothState == BluetoothState.Connected.Reconnected
             )
                 viewModelScope.launch {
-                    _isCancel.emit(false)
+                    _myAction.emit(false)
                     dataManager.setHasSensor(true)
                     getService()?.let {
                         _showMeasurementAlert.emit(true)
@@ -136,7 +136,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
-            if (!_isCancel.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && info.dataId != null && realData.dataId != info.dataId.toString()) {
+            if (!_myAction.value && hasSensor && realData.sleepType == SleepType.NoSering.name && realData.sensorName == sensorName && info.dataId != null && realData.dataId != info.dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
                 cancelClick()
             }
@@ -222,12 +222,12 @@ class NoSeringViewModel @Inject constructor(
                 }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
-                        _isCancel.emit(true)
                         _showMeasurementCancelAlert.emit(true)
                         return@collectLatest
                     }
                     getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
+                    _myAction.emit(true)
                 }
             } else {
                 if ((getService()?.getTime() ?: 0) < 300) {
