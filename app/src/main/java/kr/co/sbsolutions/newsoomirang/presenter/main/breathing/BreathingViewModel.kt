@@ -103,12 +103,12 @@ class BreathingViewModel @Inject constructor(
         sleepDataDelete()
         registerJob("cancelClick",
             viewModelScope.launch {
-                if (isForce) {
-                    getService()?.forceStopBreathing()
-                }else{
+                if (isForce.not()) {
                     getService()?.stopSBSensor(true)
+                    setCommend(ServiceCommend.CANCEL)
+                }else{
+                    getService()?.forceStopBreathing()
                 }
-                setCommend(ServiceCommend.CANCEL)
             })
         setMeasuringState(MeasuringState.InIt)
 
@@ -172,7 +172,6 @@ class BreathingViewModel @Inject constructor(
             
             if (!_isCancel.value &&
                 hasSensor &&
-                realData.sleepType == SleepType.Breathing.name &&
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
                 sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")

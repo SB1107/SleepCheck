@@ -171,10 +171,6 @@ class BLEServiceHelper(
         }
     }
 
-    fun forceStopSbSensor() {
-        finishSenor()
-    }
-
     fun removeDataId() {
         blueToothUseCase?.removeDataId()
     }
@@ -230,12 +226,14 @@ class BLEServiceHelper(
         blueToothUseCase?.stopOperateDownloadSbSensor()
     }
 
-    fun cancelSbService() {
+    fun cancelSbService(forceCancel: Boolean = false) {
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
         logHelper.insertLog(message)
         blueToothUseCase?.stopScheduler()
-        blueToothUseCase?.stopOperateDownloadSbSensor()
         blueToothUseCase?.deletePastList()
+        if (!forceCancel){
+            blueToothUseCase?.stopOperateDownloadSbSensor()
+        }
     }
 
     suspend fun checkDataSize(): Flow<Boolean> {

@@ -882,7 +882,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                     }
                                 }
 
-                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                /*BluetoothState.Connected.DataFlowUploadFinish -> {
                                     dataFlowCallback?.invoke()
                                     setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
                                     coroutine.launch {
@@ -900,12 +900,12 @@ class BluetoothNetworkRepository @Inject constructor(
                                                     }
                                                 }
                                             }
-                                            /*?: launch {
+                                            *//*?: launch {
                                             // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
                                             writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                             delay(1000)
                                             writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                        }*/
+                                        }*//*
 
                                         }
                                     }
@@ -913,7 +913,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
-                                }
+                                }*/
 
                                 BluetoothState.Connected.SendDownloadContinue -> {
                                     downloadContinueCount++
@@ -950,7 +950,11 @@ class BluetoothNetworkRepository @Inject constructor(
                             Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
                             Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
                             Log.e(TAG, "id2 = ${innerData.value.dataId}")
-                            val check = innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime &&(innerData.value.realData.value == null || (innerData.value.realData.value?.dataId ?: -1) == innerData.value.dataId)
+                            Log.e(TAG, "state = ${innerData.value.bluetoothState}")
+                            val check = (innerData.value.bluetoothState == BluetoothState.Connected.DataFlow ||
+                                    innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
+                                    (innerData.value.realData.value == null ||
+                                            (innerData.value.realData.value?.dataId ?: -1) == innerData.value.dataId)
                             Log.d(TAG, "readDataCheck: $check")
                             if ((check)) {
                                 if (value.verifyCheckSum()) {
@@ -1159,10 +1163,11 @@ class BluetoothNetworkRepository @Inject constructor(
                                     logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
                                 }
 
-                                BluetoothState.Connected.DataFlow,
-                                BluetoothState.Connected.DataFlowUploadFinish -> {
+                                BluetoothState.Connected.DataFlow -> {
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
                                 }
+                                
+                                
 
                                 else -> {
                                     // 상태 이상
@@ -1174,6 +1179,42 @@ class BluetoothNetworkRepository @Inject constructor(
                                 logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
                                 dataFlowMaxCount = memoryTotalIndex * 20
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
+                                
+                                when(innerData.value.bluetoothState){
+                                    BluetoothState.Connected.DataFlowUploadFinish -> {
+                                        dataFlowCallback?.invoke()
+                                        setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
+                                        coroutine.launch {
+                                            launch {
+                                                settingDataRepository.getSleepType().let {
+                                                    when (it) {
+                                                        SleepType.NoSering.name -> {
+                                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                                            Log.d(TAG, "DataFlow: 코골이 종료 ")
+                                                        }
+                                                        
+                                                        else -> {
+                                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                                            Log.d(TAG, "DataFlow: 호흡 종료 ")
+                                                        }
+                                                    }
+                                                }
+                                                /*?: launch {
+                                                // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
+                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                                delay(1000)
+                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                            }*/
+                                            
+                                            }
+                                        }
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+//                                it.bluetoothState = BluetoothState.Connected.DataFlow
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                    }
+                                    else -> {}
+                                }
                             } else {
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)
                             }
