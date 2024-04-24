@@ -145,7 +145,7 @@ class MainViewModel @Inject constructor(
                     } else if (result.state == 3) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(-1, false))
-                        sendErrorMessage("측정한 정보기 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
                     } else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
@@ -181,7 +181,7 @@ class MainViewModel @Inject constructor(
                     }else if(result.state == 3){
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(-1, false))
-                        sendErrorMessage("측정한 정보기 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
                     }
                     else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1 ))
