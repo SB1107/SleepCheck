@@ -99,7 +99,7 @@ class BreathingViewModel @Inject constructor(
             }
         }
     }
-
+    
     fun cancelClick(isForce: Boolean = false) {
         sleepDataDelete()
         registerJob("cancelClick",
@@ -107,7 +107,7 @@ class BreathingViewModel @Inject constructor(
                 if (isForce.not()) {
                     getService()?.stopSBSensor(true)
                     setCommend(ServiceCommend.CANCEL)
-                }else{
+                } else {
                     getService()?.forceStopBreathing()
                 }
             })
@@ -126,11 +126,13 @@ class BreathingViewModel @Inject constructor(
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
                     sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
                     cancel()
+                    return@launch
                 }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
                         cancel()
+                        return@collectLatest
                     }
 
                     getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -161,6 +162,9 @@ class NoSeringViewModel @Inject constructor(
 
     fun cancelClick(isForce: Boolean = false) {
         sleepDataDelete()
+        viewModelScope.launch {
+            Log.d(TAG, "cancelClick1212: ${dataManager.getHasSensor().first()}")
+        }
         registerJob("cancelClick",
             viewModelScope.launch {
                 if (isForce.not()) {
@@ -168,12 +172,16 @@ class NoSeringViewModel @Inject constructor(
                         getService()?.stopSBSensor(true)
                         setCommend(ServiceCommend.CANCEL)
                         cancel()
+                        return@launch
                     }
                 }
                 getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
         )
-        setMeasuringState(MeasuringState.InIt)
+        viewModelScope.launch {
+            delay(800)
+            setMeasuringState(MeasuringState.InIt)
+        }
     }
 
     private fun sleepDataDelete() {
@@ -240,11 +248,13 @@ class NoSeringViewModel @Inject constructor(
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
                     sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
                     cancel()
+                    return@launch
                 }
                 getService()?.checkDataSize()?.collectLatest {
                     if (it) {
                         _showMeasurementCancelAlert.emit(true)
                         cancel()
+                        return@collectLatest
                     }
                     getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
                     setMeasuringState(MeasuringState.InIt)
@@ -253,6 +263,7 @@ class NoSeringViewModel @Inject constructor(
                 if ((getService()?.getTime() ?: 0) < 300) {
                     _showMeasurementCancelAlert.emit(true)
                     cancel()
+                    return@launch
                 }
                 getService()?.noSensorSeringMeasurement() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
                 setMeasuringState(MeasuringState.InIt)
