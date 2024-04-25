@@ -126,6 +126,18 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
+        if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
+            lifecycleScope.launch {
+                val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
+                address?.let{
+                    bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
+                    connectDevice(context, bluetoothAdapter , isForceBleDeviceConnect)
+                }?: run {
+                    disconnectDevice(context, bluetoothAdapter)
+                }
+            }
+            return
+        }
         val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
 
