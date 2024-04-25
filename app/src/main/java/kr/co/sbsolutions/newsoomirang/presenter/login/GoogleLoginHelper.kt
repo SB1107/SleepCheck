@@ -33,11 +33,16 @@ class GoogleLoginHelper : SocialLogin {
 //                            Log.d(TAG, "onActivityResult: 성공")
                         // 로그인에 성공했습니다.
                         val user = task.result?.user
+                        
+                        var userName : String? = user?.displayName.toString()
+                        if (userName == "null") {
+                            userName = "숨이랑_${user?.uid.toString().subSequence(0, 5)}"
+                        }
 
                         //로그인 API
 //                            viewModel.snsAuthenticationLogin(user?.uid.toString(), fcmToken, user?.displayName.toString())
                         Log.d(Cons.TAG, "user: ${user?.uid}")
-                        trySend(SocialTypeModel(socialToken = user?.uid.toString(), socialType = SocialType.GOOGLE.typeName, name = user?.displayName.toString()))
+                        trySend(SocialTypeModel(socialToken = user?.uid.toString(), socialType = SocialType.GOOGLE.typeName, name = userName.toString()))
                         close()
                     } else {
                         // 로그인에 실패했습니다.
