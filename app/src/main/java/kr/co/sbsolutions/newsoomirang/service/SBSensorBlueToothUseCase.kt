@@ -66,9 +66,6 @@ class SBSensorBlueToothUseCase(
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
 
-    private val sbSensorInfo by lazy {
-        bluetoothNetworkRepository.sbSensorInfo
-    }
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
     }
@@ -82,7 +79,7 @@ class SBSensorBlueToothUseCase(
     }
 
     fun getSbSensorChannel(): Channel<SBSensorData> {
-        return sbSensorInfo.value.channel
+        return bluetoothNetworkRepository.sbSensorInfo.value.channel
     }
 
     fun setRemovedRealDataChange(isChange: RealData) {
@@ -104,20 +101,20 @@ class SBSensorBlueToothUseCase(
     fun removeDataId() {
         lifecycleScope.launch(IO) {
             fireBaseRemove()
-            sbSensorInfo.value.dataId = null
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId = null
         }
     }
 
     fun uploadingFinish() {
         lifecycleScope.launch(IO) {
-            fireBaseRealRepository.remove(getSensorName(), sbSensorInfo.value.dataId.toString())
+            fireBaseRealRepository.remove(getSensorName(), bluetoothNetworkRepository.sbSensorInfo.value.dataId.toString())
         }
     }
 
     @Deprecated("삭제됨?")
     fun isDataFlowState(): Boolean {
-        return sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
-                sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
+        return bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
+                bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
     }
 
     fun connectedDevice(device: BluetoothDevice?) {
@@ -129,13 +126,13 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
-        val device = bluetoothAdapter?.getRemoteDevice(sbSensorInfo.value.bluetoothAddress)
+        val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
         device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
 
         getOneDataIdReadData()
 
         if (isForceBleDeviceConnect) {
-            sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+            bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             return
         }
         timerOfDisconnection?.cancel()
@@ -191,7 +188,7 @@ class SBSensorBlueToothUseCase(
 
     fun checkWaitStart(callback: () -> Unit) {
         lifecycleScope.launch(IO) {
-            sbSensorInfo.collectLatest {
+            bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 Log.e(TAG, "checkWaitStart: ${it.bluetoothState}")
                 if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
                     callback.invoke()
@@ -319,7 +316,7 @@ class SBSensorBlueToothUseCase(
 
     fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
-            sbSensorInfo.value.let {
+            bluetoothNetworkRepository.sbSensorInfo.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                     bluetoothNetworkRepository.operateDownloadSbSensor(true)
                 }
@@ -330,7 +327,7 @@ class SBSensorBlueToothUseCase(
             schedule(timerTask {
                 stopSBSensor()
                 val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
-                sbSensorInfo.value.let {
+                bluetoothNetworkRepository.sbSensorInfo.value.let {
                     it.dataId?.let { dataId ->
                         lifecycleScope.launch(IO) {
                             sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId)
@@ -348,7 +345,7 @@ class SBSensorBlueToothUseCase(
 
     fun finishStop(callback: () -> Unit) {
         lifecycleScope.launch(IO) {
-            sbSensorInfo.collectLatest {
+            bluetoothNetworkRepository.sbSensorInfo.collectLatest {
                 if (it.bluetoothState == BluetoothState.Connected.Finish) {
                     callback.invoke()
                     cancel()
@@ -395,7 +392,7 @@ class SBSensorBlueToothUseCase(
             return
         }
         if (isCancel.not()) {
-            sbSensorInfo.value.let {
+            bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId} hasSensor: ${hasSensor} isCancel: ${isCancel}")
@@ -435,7 +432,7 @@ class SBSensorBlueToothUseCase(
                     return@launch
                 }
             }
-            sbSensorInfo.value.dataId?.let { dataId ->
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId?.let { dataId ->
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
@@ -451,7 +448,7 @@ class SBSensorBlueToothUseCase(
     }
 
     private fun forcedFlow() {
-        sbSensorInfo.value.let {
+        bluetoothNetworkRepository.sbSensorInfo.value.let {
             logHelper.insertLog("sbSensorInfo: ${it.bluetoothName}  ${it.dataId}")
             it.bluetoothName?.let { name ->
                 it.dataId?.let { dataId ->
@@ -483,7 +480,7 @@ class SBSensorBlueToothUseCase(
             val forceClose = BLEService.getInstance()?.notifyPowerOff(state) ?: false
             logHelper.insertLog("LastCallback -> $forceClose")
             logHelper.insertLog("LastCallback -> dataID: ${bluetoothNetworkRepository.sbSensorInfo.value.dataId}")
-            sbSensorInfo.value.let {
+            bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, forceClose)
@@ -547,9 +544,9 @@ class SBSensorBlueToothUseCase(
     suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: () -> Unit) {
         val sleepType = settingDataRepository.getSleepType()
         settingDataRepository.getDataId()?.let {
-            sbSensorInfo.value.dataId = it
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId = it
         }
-        sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+        bluetoothNetworkRepository.sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("${if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Registered) {
             callback.invoke()
@@ -575,7 +572,7 @@ class SBSensorBlueToothUseCase(
 
     fun deletePastList() {
         lifecycleScope.launch(IO) {
-            sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
         }
     }
 
