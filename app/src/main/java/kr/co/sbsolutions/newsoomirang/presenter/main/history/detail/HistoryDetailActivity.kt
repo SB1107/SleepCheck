@@ -270,7 +270,7 @@ class HistoryDetailActivity : BaseActivity() {
             
             
             
-            (if (data.type == 0) data.breathScore else data.snoreCount)?.let {
+            (if (data.type == 0) data.breathScore else data.snoreScore)?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 
@@ -341,7 +341,7 @@ class HistoryDetailActivity : BaseActivity() {
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 자세", getString(R.string.detail_no_signal_breathing_text))
+                HeaderTitleView("수면 자세", getString(R.string.detail_sleep_position_text))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 VerticalGraphView(
