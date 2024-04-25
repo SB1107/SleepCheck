@@ -268,6 +268,14 @@ class HistoryDetailActivity : BaseActivity() {
                 RowTexts("뒤척임 횟수", "$it 회")
             }
             
+            if (data.type == 1){
+                data.snoreCount?.let {
+                    RowTexts("진동 발생 횟수", "$it 회")
+                }
+                data.coughCount?.let {
+                    RowTexts("기침 감지 횟수", "$it 회")
+                }
+            }
             
             
             (if (data.type == 0) data.breathScore else data.snoreScore)?.let {
@@ -286,7 +294,7 @@ class HistoryDetailActivity : BaseActivity() {
                 RowTexts("정상호흡 시간", it.InpuMintoHourMinute())
             }
             data.avgNormalBreath?.let {
-                RowTexts("평균 호흡수", if (it == 0) "-" else it.InpuMintoHourMinute())
+                RowTexts("평균 호흡수", if (it == 0) "-" else "(분) ${it} 회")
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
@@ -321,12 +329,12 @@ class HistoryDetailActivity : BaseActivity() {
             val lists: ArrayList<Triple<Pair<String,String>, Pair<String,String>, Color>> = ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
-                    lists.add(Triple(Pair("빠른호흡","평균 호흡수분당"), Pair("${fastBreath}분","${avgFastBreath}회"),colorResource(id = R.color.color_gray1)))
+                    lists.add(Triple(Pair("빠른호흡","평균 호흡수 (분)"), Pair("${fastBreath}분","${avgFastBreath}회"),colorResource(id = R.color.color_gray1)))
                 }
             }
             data.slowBreath?.let { slowBreath ->
                 data.avgSlowBreath?.let { avgSlowBreath ->
-                    lists.add(Triple(Pair("느린호흡","평균 호흡수분당"), Pair("${slowBreath}분","${avgSlowBreath}회"),colorResource(id = R.color.color_gray2)))
+                    lists.add(Triple(Pair("느린호흡","평균 호흡수 (분)"), Pair("${slowBreath}분","${avgSlowBreath}회"),colorResource(id = R.color.color_gray2)))
                 }
             }
             if (lists.isNotEmpty()) {
