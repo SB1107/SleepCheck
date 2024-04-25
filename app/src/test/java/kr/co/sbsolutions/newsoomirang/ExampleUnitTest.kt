@@ -10,6 +10,8 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
+import kr.co.sbsolutions.newsoomirang.data.model.SocialTypeModel
+import kr.co.sbsolutions.newsoomirang.presenter.login.SocialType
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import org.junit.Test
 
@@ -25,6 +27,26 @@ import java.util.Locale
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+    
+    @Test
+    fun nullName(){
+        
+        var userName : String?= ""
+        val token : String = "adsadasdsadasdasdasdsadasdas"
+        val testName = null
+        
+        println(testName)
+        if (testName.toString().isEmpty()){
+            println(testName.toString())
+            println(11111111111)
+        }
+        
+        if (userName?.isEmpty() == true) {
+            userName = "숨이랑_${token.toString().subSequence(0, 5)}"
+        }
+        assertEquals("숨이랑_adsad", userName)
+        
+    }
     
     @Test
     fun breathingScore() {
