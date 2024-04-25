@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.work.WorkInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -95,6 +96,7 @@ class SBDataUploadingUseCase(
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
                                         uploadWorkerHelper.cancelWork()
+                                        delay(2000)
                                         uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
                                     }
                                 }
@@ -103,7 +105,7 @@ class SBDataUploadingUseCase(
                             WorkInfo.State.BLOCKED -> {}
                             WorkInfo.State.CANCELLED -> {
                                 lifecycleScope.launch(IO) {
-                                    logHelper.insertLog("서버 업로드 취소}")
+                                    logHelper.insertLog("서버 업로드 취소")
                                 }
                             }
 

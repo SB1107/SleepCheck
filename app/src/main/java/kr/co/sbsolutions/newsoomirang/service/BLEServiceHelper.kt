@@ -231,7 +231,7 @@ class BLEServiceHelper(
         logHelper.insertLog(message)
         blueToothUseCase?.stopScheduler()
         blueToothUseCase?.deletePastList()
-        if (!forceCancel){
+        if (!forceCancel) {
             blueToothUseCase?.stopOperateDownloadSbSensor()
         }
     }
