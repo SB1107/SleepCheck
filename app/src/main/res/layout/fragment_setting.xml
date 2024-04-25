@@ -173,7 +173,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:fontFamily="@font/nanumsquareregular"
-            android:text="문의하기"
+            android:text="질의응답"
             android:textColor="@color/color_FFFFFF"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -110,7 +110,7 @@ class QuestionActivity : BaseActivity() {
     fun DefaultPreview(contactData: ContactEntity = ContactEntity()) {
         val scrollState = rememberLazyListState()
         SoomScaffold(
-            topText = "문의하기",
+            topText = "질의응답",
             topAction = { finish() },
             childView =
             {
