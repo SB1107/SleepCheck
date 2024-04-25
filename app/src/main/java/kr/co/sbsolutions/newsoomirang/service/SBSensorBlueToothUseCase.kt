@@ -416,6 +416,11 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+    fun firebaseRemoveListener() {
+        lifecycleScope.launch {
+            fireBaseRealRepository.removeListener(getSensorName())
+        }
+    }
 
     fun stopScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
