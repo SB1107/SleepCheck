@@ -169,6 +169,7 @@ class BLEServiceHelper(
         blueToothUseCase?.finishStop {
             finishSenor()
         }
+        blueToothUseCase?.firebaseRemoveListener()
     }
 
     fun removeDataId() {
