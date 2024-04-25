@@ -523,7 +523,7 @@ class HistoryDetailActivity : BaseActivity() {
                 val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
                 Image(
                     modifier = Modifier.padding(start = percent),
-                    painter = painterResource(id = getPercentImage(percentValue.toFloat())),
+                    painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
                     contentDescription = ""
                 )
                 
@@ -1137,6 +1137,25 @@ class HistoryDetailActivity : BaseActivity() {
 
             else -> {
                 R.drawable.ic_red_value
+            }
+        }
+    }
+    private fun getReversPercentImage(percent: Float): Int {
+        return when {
+            percent < 31 -> {
+                R.drawable.ic_red_value
+            }
+            
+            percent < 51 -> {
+                R.drawable.ic_orange_value
+            }
+            
+            percent < 71 -> {
+                R.drawable.ic_yallow_value
+            }
+            
+            else -> {
+                R.drawable.ic_green_value
             }
         }
     }
