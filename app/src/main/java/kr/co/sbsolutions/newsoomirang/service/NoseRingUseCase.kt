@@ -1,11 +1,13 @@
 package kr.co.sbsolutions.newsoomirang.service
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
@@ -42,9 +44,7 @@ class NoseRingUseCase(
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
-                    if (timeHelper.getTime() > (60 * 30)) {
-                        callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
-                    }
+                    callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
                 }
             }
         }
@@ -82,7 +82,7 @@ class NoseRingUseCase(
                 audioClassificationHelper.startAudioClassification()
             }, 600000L * 3)
         }
-
+//        audioClassificationHelper.startAudioClassification()
     }
 
     fun clearData() {

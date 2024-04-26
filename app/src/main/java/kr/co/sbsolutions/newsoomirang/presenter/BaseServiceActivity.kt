@@ -42,6 +42,9 @@ abstract class BaseServiceActivity : BluetoothActivity() {
     }
 
     protected fun startSBService(am: ActionMessage, dataId: Int? = null) {
+        if (am != ActionMessage.StartSBService && BLEService.getInstance()?.isForegroundServiceRunning() != true) {
+            return
+        }
         Intent(this, BLEService::class.java).apply {
             action = am.msg
             dataId?.let { putExtra(DATA_ID, it) }
