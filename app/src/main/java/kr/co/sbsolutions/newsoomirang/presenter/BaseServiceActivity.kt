@@ -28,27 +28,22 @@ abstract class BaseServiceActivity : BluetoothActivity() {
         bindService(Intent(this, BLEService::class.java), serviceConnection, BIND_AUTO_CREATE)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onDestroy() {
         super.onDestroy()
         unbindService(serviceConnection)
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 
     protected fun startSBService(am: ActionMessage, dataId: Int? = null) {
-        if (am != ActionMessage.StartSBService && BLEService.getInstance()?.isForegroundServiceRunning() != true) {
-            return
-        }
         Intent(this, BLEService::class.java).apply {
             action = am.msg
             dataId?.let { putExtra(DATA_ID, it) }
-            baseContext.startForegroundService(this)
+            if (am == ActionMessage.StartSBService) {
+                baseContext.startForegroundService(this)
+                return
+            }
+            baseContext.startService(this)
         }
     }
 

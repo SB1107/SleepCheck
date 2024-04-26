@@ -1097,6 +1097,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
 
                     ModuleToApp.MOTCtrlSetACK -> {
+                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
                         logHelper.insertLog("코골이 동작 피드백")
                     }
 
