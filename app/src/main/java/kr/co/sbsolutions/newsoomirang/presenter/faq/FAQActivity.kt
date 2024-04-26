@@ -139,7 +139,7 @@ class FAQActivity : BaseActivity() {
                     modifier = Modifier.weight(9f),
                     style = TextStyle(fontWeight = FontWeight.Normal, fontSize = 21.sp, color = Color.White))
 
-                Crossfade(targetState = isExpanded, label = "icon") {
+                Crossfade(targetState = isExpanded, label = "icon", modifier = Modifier.padding(start = 8.dp)) {
                     when(it){
                         true -> {
                             Image(

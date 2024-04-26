@@ -140,7 +140,6 @@ class MainViewModel @Inject constructor(
             .collectLatest {
                 it.result?.let { result ->
                     if (result.state == 3) {
-                        Log.e(TAG, "sleepDataResultRequest: id =${result.id.toInt()} state = ${result.state}")
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
@@ -183,7 +182,6 @@ class MainViewModel @Inject constructor(
             .collectLatest {
                 it.result?.let { result ->
                     if (result.state == 3) {
-                        Log.e(TAG, "sleepDataResultRequest: id =${result.id.toInt()} state = ${result.state}")
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")

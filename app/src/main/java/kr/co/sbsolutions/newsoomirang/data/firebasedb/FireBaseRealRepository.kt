@@ -138,7 +138,7 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
             override fun onDataChange(snapshot: DataSnapshot) {
                 snapshot.value?.let {
                     val tempData = parserData(it)
-                    Log.e(TAG, "oneReadData: tempData")
+                    Log.e(TAG, "oneReadData: $tempData")
                     trySend(tempData)
                     close()
                 } ?: run {
