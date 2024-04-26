@@ -22,7 +22,6 @@ class NoseRingHelper {
                     if (mContSnoringTime > 20000) {
                         if (::callback.isInitialized) {
                             callback.invoke()
-                            mSnoreCount++
                         }
 //                        callVibrationNotifications()
                     }
@@ -42,6 +41,10 @@ class NoseRingHelper {
                 Log.d(TAG, "mCoughCount: $mCoughCount ")
             }
         }
+    }
+
+    fun snoreCountIncrease(){
+        mSnoreCount +=1
     }
 
     fun getSnoreTime(): Long {

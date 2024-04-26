@@ -129,10 +129,10 @@ class SBSensorBlueToothUseCase(
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
             lifecycleScope.launch {
                 val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
-                address?.let{
+                address?.let {
                     bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
-                    connectDevice(context, bluetoothAdapter , isForceBleDeviceConnect)
-                }?: run {
+                    connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+                } ?: run {
                     disconnectDevice(context, bluetoothAdapter)
                 }
             }
@@ -159,7 +159,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-     private fun getOneDataIdReadData() {
+    private fun getOneDataIdReadData() {
         lifecycleScope.launch(IO) {
             fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
                 bluetoothNetworkRepository.setRealData(it)
@@ -205,6 +205,8 @@ class SBSensorBlueToothUseCase(
                 if (it.bluetoothState == BluetoothState.Connected.WaitStart) {
                     callback.invoke()
                     cancel()
+                    delay(100)
+                    return@collectLatest
                 }
             }
         }
@@ -237,7 +239,7 @@ class SBSensorBlueToothUseCase(
                 }
                 startJob = lifecycleScope.launch {
                     timerOfStartMeasure?.cancel()
-                    while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                    while (retryCount <= MAX_RETRY || isStartAndStopCancel.not()) {
                         delay(1500)
                         timerOfStartMeasure = Timer().apply {
                             schedule(timerTask {
@@ -334,6 +336,7 @@ class SBSensorBlueToothUseCase(
                 }
             }
         }
+        setSnoreCountIncreaseCallback()
         timerOfTimeout?.cancel()
         timerOfTimeout = Timer().apply {
             schedule(timerTask {
@@ -361,6 +364,8 @@ class SBSensorBlueToothUseCase(
                 if (it.bluetoothState == BluetoothState.Connected.Finish) {
                     callback.invoke()
                     cancel()
+                    delay(100)
+                    return@collectLatest
                 }
             }
         }
@@ -380,7 +385,7 @@ class SBSensorBlueToothUseCase(
                 bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
                 stopJob = lifecycleScope.launch {
                     timerOfStopMeasure?.cancel()
-                    while (retryCount >= MAX_RETRY || isStartAndStopCancel.not()) {
+                    while (retryCount <= MAX_RETRY || isStartAndStopCancel.not()) {
                         delay(1500)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
@@ -399,7 +404,7 @@ class SBSensorBlueToothUseCase(
     }
 
     private fun noSering(isForce: Boolean, isCancel: Boolean, hasSensor: Boolean = true) {
-        if (isForce){
+        if (isForce) {
             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(isForce)
             return
         }
@@ -437,6 +442,7 @@ class SBSensorBlueToothUseCase(
     fun stopScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback(null)
         timerOfTimeout?.cancel()
+        bluetoothNetworkRepository.snoreCountIncrease(null)
     }
 
     suspend fun checkDataSize() = callbackFlow {
@@ -586,6 +592,11 @@ class SBSensorBlueToothUseCase(
         }
     }
 
+    private fun setSnoreCountIncreaseCallback() {
+        bluetoothNetworkRepository.snoreCountIncrease {
+            noseRingUseCase?.snoreCountIncrease()
+        }
+    }
 
     fun deletePastList() {
         lifecycleScope.launch(IO) {

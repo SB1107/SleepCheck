@@ -12,6 +12,8 @@ import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.domain.audio.AudioClassificationHelper
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import org.tensorflow.lite.support.label.Category
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class NoseRingUseCase(
     private val context: Context,
@@ -19,7 +21,7 @@ class NoseRingUseCase(
     private val noseRingHelper: NoseRingHelper,
     private val timeHelper: TimeHelper,
     private val settingDataRepository: SettingDataRepository,
-    private  val dataManager: DataManager,
+    private val dataManager: DataManager,
     private val sbSensorBlueToothUseCase: SBSensorBlueToothUseCase?,
 ) {
     private val audioClassificationHelper: AudioClassificationHelper by lazy {
@@ -33,6 +35,7 @@ class NoseRingUseCase(
         })
     }
 
+    private var timerOfStartAudio: Timer? = null
 
     fun setCallVibrationNotifications() {
         noseRingHelper.setCallVibrationNotifications {
@@ -63,17 +66,30 @@ class NoseRingUseCase(
         return noseRingHelper.getCoughCount()
     }
 
-    fun stopAudioClassification(){
+    fun stopAudioClassification() {
+        timerOfStartAudio?.cancel()
         audioClassificationHelper.stopAudioClassification()
     }
 
-    fun startAudioClassification(){
-        audioClassificationHelper.startAudioClassification()
+    fun snoreCountIncrease() {
+        noseRingHelper.snoreCountIncrease()
     }
-    fun clearData(){
+
+    fun startAudioClassification() {
+        timerOfStartAudio?.cancel()
+        timerOfStartAudio = Timer().apply {
+            schedule(timerTask {
+                audioClassificationHelper.startAudioClassification()
+            }, 600000L * 3)
+        }
+
+    }
+
+    fun clearData() {
         noseRingHelper.clearData()
     }
-    private  fun setSnoreTime(){
+
+    private fun setSnoreTime() {
         lifecycleScope.launch(Dispatchers.IO) {
             val time = dataManager.getNoseRingTimer().first()
             val noseRingCount = dataManager.getNoseRingCount().first()
@@ -83,7 +99,8 @@ class NoseRingUseCase(
             noseRingHelper.setCoughCount(coughCount)
         }
     }
-    fun setNoseRingDataAndStart(){
+
+    fun setNoseRingDataAndStart() {
         setSnoreTime()
         startAudioClassification()
     }

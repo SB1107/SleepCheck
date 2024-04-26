@@ -354,7 +354,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 sleepType = realData.sleepType,
                 timeStamp = realData.timeStamp,
             )
-        }?: run {
+        } ?: run {
             logCoroutine.launch {
                 _sbSensorInfo.value.realData.emit(realData)
             }
@@ -480,6 +480,12 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun setDataFlowForceFinish(callBack: (() -> Unit)?) {
         dataFlowCallback = callBack
+    }
+
+    private var snoreCountIncreaseCallBack: (() -> Unit)? = null
+
+    override fun snoreCountIncrease(callBack: (() -> Unit)?) {
+        this.snoreCountIncreaseCallBack = callBack
     }
 
     private var lastIndex: Boolean = false
@@ -1164,8 +1170,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.DataFlow -> {
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
                                 }
-                                
-                                
+
 
                                 else -> {
                                     // 상태 이상
@@ -1177,9 +1182,9 @@ class BluetoothNetworkRepository @Inject constructor(
                                 logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
                                 dataFlowMaxCount = memoryTotalIndex * 20
                                 writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
-                                
+
                                 delay(2000)
-                                when(innerData.value.bluetoothState){
+                                when (innerData.value.bluetoothState) {
                                     BluetoothState.Connected.DataFlowUploadFinish -> {
                                         dataFlowCallback?.invoke()
                                         setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
@@ -1191,7 +1196,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                                             writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
                                                             Log.d(TAG, "DataFlow: 코골이 종료 ")
                                                         }
-                                                        
+
                                                         else -> {
                                                             writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
                                                             Log.d(TAG, "DataFlow: 호흡 종료 ")
@@ -1204,7 +1209,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                                 delay(1000)
                                                 writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
                                             }*/
-                                            
+
                                             }
                                         }
                                         innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
@@ -1212,6 +1217,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                innerData.tryEmit(it)
                                         logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
                                     }
+
                                     else -> {}
                                 }
                             } else {
@@ -1276,6 +1282,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
 
                     ModuleToApp.MOTCData -> {
+                        snoreCountIncreaseCallBack?.invoke()
                         writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
                     }
 

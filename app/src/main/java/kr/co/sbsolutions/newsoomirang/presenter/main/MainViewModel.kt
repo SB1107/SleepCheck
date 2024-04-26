@@ -139,13 +139,16 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
-                        _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    } else if (result.state == 3) {
+                    if(result.state == 3){
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(-1, false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        return@collectLatest
+                    }
+
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
+                        _dataIDSet.add(result.id.toInt())
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
                     } else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1))
                     }
@@ -175,15 +178,16 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
-                        _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
-                    }else if(result.state == 3){
+                    if(result.state == 3){
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(Pair(-1, false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        return@collectLatest
                     }
-                    else {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
+                        _dataIDSet.add(result.id.toInt())
+                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
+                    } else {
                         _isResultProgressBar.emit(Pair(-1, result.state == 1 ))
                     }
                     if ((result.state != 1).not()) {

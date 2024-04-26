@@ -200,12 +200,13 @@ class MainActivity : BaseServiceActivity() {
                     viewModel.dataFlowPopUp.collectLatest {
                         when (it) {
                             true -> showAlertDialogWithCancel(message = "최근 측정한 데이터를 복원 하시 겠습니까?",
-                                cancelable =  false,
+                                cancelable = false,
                                 confirmAction = {
-                                viewModel.forceDataFlowUpdate()
-                            }, cancelAction = {
+                                    viewModel.forceDataFlowUpdate()
+                                }, cancelAction = {
                                     viewModel.forceDataFlowCancel()
-                            })
+                                })
+
                             false -> {}
                         }
 
