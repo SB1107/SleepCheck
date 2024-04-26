@@ -21,7 +21,6 @@ class FAQViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
-    private val logHelper: LogHelper
 ) : BaseViewModel(dataManager, tokenManager) {
     private  val _faqData : MutableStateFlow<FAQResultData?> = MutableStateFlow(null)
       val faqData : StateFlow<FAQResultData?> = _faqData

@@ -12,7 +12,7 @@ data class FAQEntity(
 @Keep
 data class FAQResultData(
     @SerializedName("data")
-    val data: List<FAQContentsData> = arrayListOf(FAQContentsData(question = "테스트", answer = "테스트"),FAQContentsData(question = "테스트1", answer = "테스트1"),FAQContentsData(question = "테스트2", answer = "테스트2")),
+    val data: List<FAQContentsData> = emptyList(),
     @SerializedName("count")
     val count: Int? = null
 )
