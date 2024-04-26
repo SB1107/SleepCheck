@@ -31,8 +31,8 @@ class MainViewModel @Inject constructor(
     private val logHelper: LogHelper
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _isResultProgressBar: MutableStateFlow<Pair<Int, Boolean>> = MutableStateFlow(Pair(-1, false))
-    val isResultProgressBar: StateFlow<Pair<Int, Boolean>> = _isResultProgressBar
+    private val _isResultProgressBar: MutableStateFlow<ResultData> = MutableStateFlow(ResultData(dataId = -1, state = 1, isShow = false))
+    val isResultProgressBar: StateFlow<ResultData> = _isResultProgressBar
 
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
@@ -66,7 +66,7 @@ class MainViewModel @Inject constructor(
     fun stopResultProgressBar() {
         registerJob("stopResultProgressBar()",
             viewModelScope.launch {
-                _isResultProgressBar.emit(Pair(-1, false))
+                _isResultProgressBar.emit(ResultData(dataId = -1, state = 1, isShow = false))
             }
         )
     }
@@ -103,7 +103,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(Pair(-1, true))
+            _isResultProgressBar.emit(ResultData(dataId = -1, state = 1, isShow = true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -122,7 +122,7 @@ class MainViewModel @Inject constructor(
             resultJob.cancel()
         }
         resultJob = viewModelScope.launch(Dispatchers.IO) {
-            _isResultProgressBar.emit(Pair(-1, true))
+            _isResultProgressBar.emit(ResultData(dataId = -1, state = 1, isShow = true))
             getResultMessage()?.let {
                 if (it != BLEService.FINISH) {
                     delay(2000)
@@ -139,20 +139,24 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if(result.state == 3){
+                    if (result.state == 3) {
+                        Log.e(TAG, "sleepDataResultRequest: id =${result.id.toInt()} state = ${result.state}")
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(-1, false))
+                        _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        jobCancel()
+                        delay(100)
                         return@collectLatest
                     }
 
-                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 2) {
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
+                        _isResultProgressBar.emit(ResultData(dataId = result.id.toInt(), state = result.state, isShow = false))
                     } else {
-                        _isResultProgressBar.emit(Pair(-1, result.state == 1))
+                        ResultData(dataId = -1, state = result.state, isShow = result.state == 1)
+                        _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = result.state == 1))
                     }
-                    if ((result.state != 1)) {
+                    if (result.state == 2) {
                         jobCancel()
                     }
                     viewModelScope.launch(Dispatchers.IO) {
@@ -161,7 +165,7 @@ class MainViewModel @Inject constructor(
                             sleepDataResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(Pair(-1, true))
+                } ?: _isResultProgressBar.emit(ResultData(dataId = -1, state = 1, isShow = true))
             }
     }
 
@@ -178,19 +182,22 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if(result.state == 3){
+                    if (result.state == 3) {
+                        Log.e(TAG, "sleepDataResultRequest: id =${result.id.toInt()} state = ${result.state}")
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(-1, false))
+                        _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        jobCancel()
+                        delay(100)
                         return@collectLatest
                     }
-                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state != 1) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 2) {
                         _dataIDSet.add(result.id.toInt())
-                        _isResultProgressBar.emit(Pair(result.id.toInt(), false))
+                        _isResultProgressBar.emit(ResultData(dataId = result.id.toInt(), state = result.state, isShow = false))
                     } else {
-                        _isResultProgressBar.emit(Pair(-1, result.state == 1 ))
+                        _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = result.state == 1))
                     }
-                    if ((result.state != 1).not()) {
+                    if (result.state == 2) {
                         jobCancel()
                     }
                     viewModelScope.launch(Dispatchers.IO) {
@@ -199,7 +206,7 @@ class MainViewModel @Inject constructor(
                             noSeringResult()
                         }
                     }
-                } ?: _isResultProgressBar.emit(Pair(-1, true))
+                } ?: _isResultProgressBar.emit(ResultData(dataId = -1, state = 1, isShow = true))
             }
     }
 
@@ -212,3 +219,5 @@ class MainViewModel @Inject constructor(
 enum class ServiceCommend {
     START, STOP, CANCEL
 }
+
+data class ResultData(val dataId: Int = -1, val state: Int, val isShow: Boolean = false)

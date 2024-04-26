@@ -158,15 +158,15 @@ class MainActivity : BaseServiceActivity() {
                 }
                 launch {
                     viewModel.isResultProgressBar.collectLatest {
-                        Log.e(TAG, "onCreate: isResultProgressBar = ${it.first.toString() + " :" + it.second}")
+                        Log.e(TAG, "onCreate: isResultProgressBar = $it")
                         /*binding.actionProgressResult.clProgress.visibility = if (it) View.VISIBLE else View.GONE*/
                         delay(500)
                         resultDialog.run {
-                            if (it.second) show() else dismiss()
+                            if (it.isShow) show() else dismiss()
                         }
-                        if (it.first != -1) {
+                        if (it.dataId != -1 && it.state == 2) {
                             startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
-                                putExtra("id", it.first.toString())
+                                putExtra("id", it.dataId.toString())
                             })
                             viewModel.stopResultProgressBar()
                         }

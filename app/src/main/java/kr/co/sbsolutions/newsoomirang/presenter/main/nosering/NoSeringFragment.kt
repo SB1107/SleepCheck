@@ -245,7 +245,7 @@ class NoSeringFragment : BluetoothFragment() {
                 }
                 launch{
                     activityViewModel.isResultProgressBar.collectLatest {
-                        if (it.second.not()) {
+                        if (it.isShow.not()) {
                             viewModel.setMeasuringState(MeasuringState.InIt)
                         }
                     }

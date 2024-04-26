@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.data.api
 
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.FAQEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -85,4 +86,6 @@ interface AuthServiceAPI {
     @POST("sleepdata/disconnect")
     suspend fun postDisconnect(@Body checkSensor: CheckSensor) : Response<BaseEntity>
 
+    @GET("sleepdata/viewappfaq")
+    suspend fun  getFAQ() : Response<FAQEntity>
 }

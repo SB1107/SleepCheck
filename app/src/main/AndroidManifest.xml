@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -36,8 +36,11 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
+            android:name=".presenter.faq.FAQActivity"
+            android:exported="false" />
+        <activity
             android:name=".presenter.main.history.detail.HistoryDetailActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".presenter.leave.LeaveActivity"
             android:exported="false" />
@@ -113,8 +116,8 @@
         <service
             android:name=".service.BLEService"
             android:exported="true"
-            android:stopWithTask="false"
             android:foregroundServiceType="connectedDevice|microphone"
+            android:stopWithTask="false"
             tools:ignore="ForegroundServicePermission" />
 
         <meta-data

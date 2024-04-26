@@ -25,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
+import kr.co.sbsolutions.newsoomirang.presenter.faq.FAQActivity
 import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
@@ -68,6 +69,10 @@ class SettingFragment : Fragment() {
         //문의하기
         binding.clQuestion.setOnSingleClickListener {
             startActivity(Intent(requireContext(), QuestionActivity::class.java))
+        }
+        //faq
+        binding.clFaq.setOnSingleClickListener {
+            startActivity(Intent(requireContext(), FAQActivity::class.java))
         }
         //로그아웃
         binding.clLogout.setOnSingleClickListener {

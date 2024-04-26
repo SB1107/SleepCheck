@@ -953,10 +953,10 @@ class BluetoothNetworkRepository @Inject constructor(
                                     // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
                                 }
                             }
-                            Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
-                            Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
-                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
-                            Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
+//                            Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
+//                            Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
+//                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
+//                            Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
                             val check = (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
                                     (innerData.value.realData.value == null ||
                                             (innerData.value.realData.value?.dataId?.toInt() ?: -1) == innerData.value.dataId)
