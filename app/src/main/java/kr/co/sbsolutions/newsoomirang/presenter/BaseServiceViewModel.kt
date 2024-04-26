@@ -113,6 +113,7 @@ abstract class BaseServiceViewModel(
                         BluetoothState.Connected.SendDownloadContinue,
                         BluetoothState.Connected.End -> {
                             _bluetoothButtonState.emit("시작")
+                            _isHomeBleProgressBar.emit(Pair(false, ""))
                         }
 
                         BluetoothState.Connected.WaitStart -> {

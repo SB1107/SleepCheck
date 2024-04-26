@@ -8,9 +8,9 @@ sealed interface AppToModule {
     object NoSeringOperateStart : AppToModule
     object BreathingOperateStop : AppToModule
     object NoSeringOperateStop : AppToModule
-    object VibrationNotificationsWeak :AppToModule
-    object VibrationNotificationsNormal :AppToModule
-    object VibrationNotificationsStrong :AppToModule
+    object VibrationNotificationsWeak : AppToModule
+    object VibrationNotificationsNormal : AppToModule
+    object VibrationNotificationsStrong : AppToModule
     object OperateChangeProcessRealtime : AppToModule
     object OperateChangeProcessDelayed : AppToModule
     object OperateDownloadContinue : AppToModule
@@ -18,8 +18,12 @@ sealed interface AppToModule {
     object OperateDataFlowDownload : AppToModule
     object OperateDeleteAll : AppToModule
     object OperateDeleteSector : AppToModule
+    object OperateMotorTestWeak : AppToModule
+    object OperateMotorTestNormal : AppToModule
+    object OperateMotorTestStrong : AppToModule
 
 }
+
 sealed interface AppToModuleResponse {
     object RealtimeDataResponseACK : AppToModuleResponse
     object RealtimeDataResponseNAK : AppToModuleResponse
@@ -33,22 +37,23 @@ sealed interface AppToModuleResponse {
     object OperateDownloadJob : AppToModuleResponse
 }
 
-fun AppToModule.getState() : BluetoothState.Connected {
-    return when(this){
-        AppToModule.BreathingOperateStart,  AppToModule.NoSeringOperateStart-> BluetoothState.Connected.SendStart
-        AppToModule.BreathingOperateStop,AppToModule.NoSeringOperateStop -> BluetoothState.Connected.SendStop
-        AppToModule.VibrationNotificationsWeak , AppToModule.VibrationNotificationsNormal , AppToModule.VibrationNotificationsStrong->BluetoothState.Connected.MotCtrlSet
+fun AppToModule.getState(): BluetoothState.Connected {
+    return when (this) {
+        AppToModule.BreathingOperateStart, AppToModule.NoSeringOperateStart -> BluetoothState.Connected.SendStart
+        AppToModule.BreathingOperateStop, AppToModule.NoSeringOperateStop -> BluetoothState.Connected.SendStop
+        AppToModule.VibrationNotificationsWeak, AppToModule.VibrationNotificationsNormal, AppToModule.VibrationNotificationsStrong -> BluetoothState.Connected.MotCtrlSet
         AppToModule.OperateChangeProcessRealtime -> BluetoothState.Connected.SendRealtime
         AppToModule.OperateChangeProcessDelayed -> BluetoothState.Connected.SendDelayed
         AppToModule.OperateDownloadContinue -> BluetoothState.Connected.SendDownloadContinue
         AppToModule.OperateDownload -> BluetoothState.Connected.SendDownload
         AppToModule.OperateDataFlowDownload -> BluetoothState.Connected.DataFlow
         AppToModule.OperateDeleteAll, AppToModule.OperateDeleteSector -> BluetoothState.Connected.SendDelete
+        AppToModule.OperateMotorTestWeak, AppToModule.OperateMotorTestNormal, AppToModule.OperateMotorTestStrong -> BluetoothState.Connected.MotTestACK
     }
 }
 
-fun AppToModule.getCommandByteArr() : ByteArray {
-    return when(this) {
+fun AppToModule.getCommandByteArr(): ByteArray {
+    return when (this) {
         AppToModule.BreathingOperateStart -> {
             byteArrayOf(
                 // PREFIX
@@ -61,6 +66,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModule.NoSeringOperateStart -> {
             byteArrayOf(
                 // PREFIX
@@ -73,6 +79,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModule.BreathingOperateStop -> {
             byteArrayOf(
                 // PREFIX
@@ -85,6 +92,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModule.NoSeringOperateStop -> {
             byteArrayOf(
                 // PREFIX
@@ -97,6 +105,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModule.VibrationNotificationsWeak -> {
             byteArrayOf(
                 // PREFIX
@@ -109,18 +118,20 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
-            AppToModule.VibrationNotificationsNormal -> {
-                byteArrayOf(
-                    // PREFIX
-                    0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
-                    // CMD
-                    0xF9.toByte(),
-                    // LEN
-                    0x01.toByte(),
-                    // Payload
-                    0x02.toByte()
-                ).addCheckSum()
+
+        AppToModule.VibrationNotificationsNormal -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xF9.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x02.toByte()
+            ).addCheckSum()
         }
+
         AppToModule.VibrationNotificationsStrong -> {
             byteArrayOf(
                 // PREFIX
@@ -133,6 +144,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x03.toByte()
             ).addCheckSum()
         }
+
         AppToModule.OperateChangeProcessRealtime -> {
             byteArrayOf(
                 // PREFIX
@@ -145,6 +157,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModule.OperateChangeProcessDelayed -> {
             byteArrayOf(
                 // PREFIX
@@ -157,6 +170,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModule.OperateDownload, AppToModule.OperateDownloadContinue, AppToModule.OperateDataFlowDownload -> {
             byteArrayOf(
                 // PREFIX
@@ -167,6 +181,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModule.OperateDeleteAll -> {
             byteArrayOf(
                 // PREFIX
@@ -179,6 +194,7 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModule.OperateDeleteSector -> {
             byteArrayOf(
                 // PREFIX
@@ -191,11 +207,50 @@ fun AppToModule.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
+        AppToModule.OperateMotorTestWeak -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xE0.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x01.toByte()
+            ).addCheckSum()
+        }
+
+        AppToModule.OperateMotorTestNormal -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xE0.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x02.toByte()
+            ).addCheckSum()
+        }
+
+        AppToModule.OperateMotorTestStrong -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xE0.toByte(),
+                // LEN
+                0x01.toByte(),
+                // Payload
+                0x03.toByte()
+            ).addCheckSum()
+        }
     }
 }
 
-fun AppToModuleResponse.getCommandByteArr() : ByteArray {
-    return when(this) {
+fun AppToModuleResponse.getCommandByteArr(): ByteArray {
+    return when (this) {
         AppToModuleResponse.RealtimeDataResponseACK -> {
             byteArrayOf(
                 // PREFIX
@@ -208,6 +263,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.RealtimeDataResponseNAK -> {
             byteArrayOf(
                 // PREFIX
@@ -220,6 +276,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.DelayedDataResponseACK -> {
             byteArrayOf(
                 // PREFIX
@@ -232,6 +289,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.DelayedDataResponseNAK -> {
             byteArrayOf(
                 // PREFIX
@@ -244,6 +302,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x01.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.MemoryDataResponseACK -> {
             byteArrayOf(
                 // PREFIX
@@ -256,6 +315,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.MemoryDataResponseNAK -> {
             byteArrayOf(
                 // PREFIX
@@ -279,6 +339,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.MOTCtrlSetACK -> {
             byteArrayOf(
                 // PREFIX
@@ -289,6 +350,7 @@ fun AppToModuleResponse.getCommandByteArr() : ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+
         AppToModuleResponse.MOTCDataSetACK -> {
             byteArrayOf(
                 // PREFIX
@@ -317,22 +379,25 @@ sealed interface ModuleToApp {
     object StartStopACK : ModuleToApp
     object NoSeringStopACK : ModuleToApp
     object RealtimeData : ModuleToApp
+
     @Deprecated("사라짐")
     object DelayedData : ModuleToApp
     object OperateACK : ModuleToApp
     object MOTCtrlSetACK : ModuleToApp
     object MemoryData : ModuleToApp
     object MemoryDataACK : ModuleToApp
+
     @Deprecated("사라짐")
     object MemoryDataDeleteACK : ModuleToApp
     object PowerOff : ModuleToApp
     object MOTCData : ModuleToApp
     object Error : ModuleToApp
     object BatteryState : ModuleToApp
+    object MotorTestACK : ModuleToApp
 }
 
-fun String.getCommand() : ModuleToApp {
-    return when(this) {
+fun String.getCommand(): ModuleToApp {
+    return when (this) {
         "C3" -> ModuleToApp.StartStopACK
         "CE" -> ModuleToApp.NoSeringStopACK
         "F2" -> ModuleToApp.RealtimeData
@@ -345,11 +410,12 @@ fun String.getCommand() : ModuleToApp {
         "FD" -> ModuleToApp.PowerOff
         "FF" -> ModuleToApp.MOTCData
         "FA" -> ModuleToApp.BatteryState
+        "D0" -> ModuleToApp.MotorTestACK
         else -> ModuleToApp.Error
     }
 }
 
-fun ByteArray.addCheckSum() : ByteArray {
+fun ByteArray.addCheckSum(): ByteArray {
     val sum1 = sumOf {
         it.toInt() and 0x00ff
     }
@@ -360,7 +426,7 @@ fun ByteArray.addCheckSum() : ByteArray {
     return plus(checksum)
 }
 
-fun ByteArray.verifyCheckSum() : Boolean {
+fun ByteArray.verifyCheckSum(): Boolean {
     val receivedList = toMutableList()
     val receivedCheckSum = receivedList.removeLast()
 

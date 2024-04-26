@@ -142,12 +142,12 @@ class NoSeringViewModel @Inject constructor(
             val hasSensor = dataManager.getHasSensor().first()
             val sensorName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first() ?: ""
             val dataId = settingDataRepository.getDataId() ?: -1
-
-            Log.d(TAG, "realDataChange: ${hasSensor} ")
-            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
-            Log.d(TAG, "realDataChange: ${realData.sensorName } ")
-            Log.d(TAG, "realDataChange: ${dataId } ")
-            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
+//
+//            Log.d(TAG, "realDataChange: ${hasSensor} ")
+//            Log.d(TAG, "realDataChange: ${realData.sleepType } ")
+//            Log.d(TAG, "realDataChange: ${realData.sensorName } ")
+//            Log.d(TAG, "realDataChange: ${dataId } ")
+//            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
 
                 if (hasSensor &&
                     realData.sensorName == sensorName &&
@@ -276,6 +276,7 @@ class NoSeringViewModel @Inject constructor(
         this.type = type
         viewModelScope.launch(Dispatchers.IO) {
             settingDataRepository.setSnoringVibrationIntensity(type)
+                getService()?.motorTest(type)
         }
     }
 

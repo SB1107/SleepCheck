@@ -139,7 +139,7 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getSleepDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (result.state == 3) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 3) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
@@ -181,7 +181,7 @@ class MainViewModel @Inject constructor(
         request(showProgressBar = false) { authAPIRepository.getNoSeringDataResult() }
             .collectLatest {
                 it.result?.let { result ->
-                    if (result.state == 3) {
+                    if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 3) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
                         sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")

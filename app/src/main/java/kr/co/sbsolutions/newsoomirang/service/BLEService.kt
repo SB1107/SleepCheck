@@ -398,6 +398,9 @@ class BLEService : LifecycleService() {
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
     }
+    fun motorTest(intensity : Int){
+        bleServiceHelper.motorTest(intensity)
+    }
 
     fun forceStopBreathing() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)

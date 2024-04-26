@@ -71,10 +71,23 @@ class NoSeringFragment : BluetoothFragment() {
             val intensity = viewModel.getIntensity().first()
             binding.motorCheckBox.isEnabled  = intensity.first
             when (intensity.second) {
-                0 -> {binding.type0Chip.performClick()}
-                1 -> {binding.type1Chip.performClick()}
-                2 -> {binding.type2Chip.performClick()}
-                else -> {binding.type0Chip.performClick()}
+                0 -> {
+                    binding.type0Chip.isChecked = true
+                    binding.type1Chip.isChecked = false
+                    binding.type2Chip.isChecked = false
+                }
+                1 -> {
+                    binding.type0Chip.isChecked = false
+                    binding.type1Chip.isChecked = true
+                    binding.type2Chip.isChecked = false
+                }
+                2 -> {
+                    binding.type0Chip.isChecked = false
+                    binding.type1Chip.isChecked = false
+                    binding.type2Chip.isChecked = true
+                }
+                else -> {
+                }
             }
         }
 

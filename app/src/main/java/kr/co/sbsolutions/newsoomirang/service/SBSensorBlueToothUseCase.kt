@@ -617,4 +617,8 @@ class SBSensorBlueToothUseCase(
         return settingDataRepository.getDataId() ?: -1
     }
 
+    fun motorTest(intensity: Int) {
+    bluetoothNetworkRepository.startMotorTest(intensity)
+    }
+
 }

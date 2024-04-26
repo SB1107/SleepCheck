@@ -322,4 +322,8 @@ class BLEServiceHelper(
     fun isBleDeviceConnect(): Pair<Boolean, String> {
         return blueToothUseCase?.isBleDeviceConnect() ?: Pair(false, "")
     }
+
+    fun motorTest(intensity: Int) {
+        blueToothUseCase?.motorTest(intensity)
+    }
 }

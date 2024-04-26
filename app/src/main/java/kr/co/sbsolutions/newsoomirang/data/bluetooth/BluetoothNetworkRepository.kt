@@ -628,6 +628,30 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkSpO2Sensor() {}
 
     override fun stopNetworkEEGSensor() {}
+    override fun startMotorTest(intensity: Int) {
+        val module = when (intensity) {
+            2 -> {
+                AppToModule.OperateMotorTestStrong
+            }
+
+            1 -> {
+                AppToModule.OperateMotorTestNormal
+            }
+
+            else -> {
+                AppToModule.OperateMotorTestWeak
+            }
+        }
+        if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered
+            && _sbSensorInfo.value.bluetoothState != BluetoothState.Connected.ReceivingRealtime
+            || _sbSensorInfo.value.bluetoothState != BluetoothState.Connected.DataFlow
+        ) {
+            writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
+                logHelper.insertLog(state)
+            }
+        }
+    }
+
     override fun callVibrationNotifications(intensity: Int) {
         val module = when (intensity) {
             2 -> {
@@ -1073,9 +1097,11 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
 
                     ModuleToApp.MOTCtrlSetACK -> {
-                        innerData.value.let { info ->
-                            logHelper.insertLog("코골이 동작 피드백")
-                        }
+                        logHelper.insertLog("코골이 동작 피드백")
+                    }
+
+                    ModuleToApp.MotorTestACK -> {
+                        logHelper.insertLog("테스트 코골이 동작 피드백")
                     }
 
                     ModuleToApp.OperateACK -> {
