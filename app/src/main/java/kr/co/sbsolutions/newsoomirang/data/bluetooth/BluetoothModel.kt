@@ -115,7 +115,7 @@ fun AppToModule.getCommandByteArr(): ByteArray {
                 // LEN
                 0x01.toByte(),
                 // Payload
-                0x01.toByte()
+                0x00.toByte()
             ).addCheckSum()
         }
 
@@ -128,7 +128,7 @@ fun AppToModule.getCommandByteArr(): ByteArray {
                 // LEN
                 0x01.toByte(),
                 // Payload
-                0x02.toByte()
+                0x01.toByte()
             ).addCheckSum()
         }
 
@@ -141,7 +141,7 @@ fun AppToModule.getCommandByteArr(): ByteArray {
                 // LEN
                 0x01.toByte(),
                 // Payload
-                0x03.toByte()
+                0x02.toByte()
             ).addCheckSum()
         }
 

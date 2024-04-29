@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.SNORING_VIBRATION_DELAYED_START_TIME
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
@@ -80,7 +81,7 @@ class NoseRingUseCase(
         timerOfStartAudio = Timer().apply {
             schedule(timerTask {
                 audioClassificationHelper.startAudioClassification()
-            }, 600000L * 3)
+            }, SNORING_VIBRATION_DELAYED_START_TIME)
         }
 //        audioClassificationHelper.startAudioClassification()
     }

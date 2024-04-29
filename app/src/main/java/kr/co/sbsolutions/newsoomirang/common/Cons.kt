@@ -50,4 +50,7 @@ object Cons {
     
     /** OnClickInterval**/
     const val ON_CLICK_INTERVAL = 1000L
+    
+    /** Snoring Vibration Start Time**/
+    const val SNORING_VIBRATION_DELAYED_START_TIME = 1000L * 60 * 30
 }

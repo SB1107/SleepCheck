@@ -49,7 +49,7 @@ class SettingDataRepository @Inject constructor(private val dao: SettingDao) {
     }
 
     suspend fun getSnoringVibrationIntensity(): Int {
-        return dao.getSnoringVibrationIntensity() ?: 2
+        return dao.getSnoringVibrationIntensity() ?: 0
     }
 
 }
