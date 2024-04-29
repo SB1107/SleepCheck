@@ -762,6 +762,30 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
+                /*Log.d(TAG, "onConnectionStateChange: ${_sbSensorInfo.value.bluetoothAddress}")
+                Log.d(TAG, "onConnectionStateChange: ${_sbSensorInfo.value.bluetoothName}")
+                Log.d(TAG, "onConnectionStateChange: ${_sbSensorInfo.value.bluetoothGatt}")*/
+                if (_sbSensorInfo.value.bluetoothAddress.isNullOrEmpty() &&
+                    _sbSensorInfo.value.bluetoothName.isNullOrEmpty() &&
+                    _sbSensorInfo.value.bluetoothGatt == null) {
+                    Log.d(TAG, "onConnectionStateChange: 탄다탄다 33333333")
+                    coroutine.launch {
+                        //연결 끊기
+                        gatt.close()
+                        delay(1500)
+                        _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
+                        
+                        // 복구
+                        /*_sbSensorInfo.value.bluetoothGatt = gatt
+                        _sbSensorInfo.value.bluetoothName = gatt.device.name
+                        _sbSensorInfo.value.bluetoothAddress = gatt.device.address
+                        coroutine.launch {
+                            dataManager.saveBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name,gatt.device.name, gatt.device.address)
+                        }*/
+                    }
+                    
+                }
+                
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
                 logCoroutine.launch {

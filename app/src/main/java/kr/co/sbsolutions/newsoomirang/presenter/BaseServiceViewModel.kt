@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -54,8 +56,7 @@ abstract class BaseServiceViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(true, "시작"))
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
-    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> =
-        MutableSharedFlow()
+    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
     val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
     private val _guideAlert: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val guideAlert: StateFlow<Boolean> = _guideAlert
@@ -85,8 +86,10 @@ abstract class BaseServiceViewModel(
                     }
                     when (it.bluetoothState) {
                         BluetoothState.Unregistered -> {
-                            _bluetoothButtonState.emit("연결")
-                            _isHomeBleProgressBar.emit(Pair(false, ""))
+                            launch {
+                                _bluetoothButtonState.emit("연결")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                            }
                         }
 
                         BluetoothState.DisconnectedByUser -> {
