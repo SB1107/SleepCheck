@@ -46,7 +46,7 @@ object Cons {
     const val CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb"
 
     /** UPLOAD CHECK **/
-    const val MINIMUM_UPLOAD_NUMBER = 1000
+    const val MINIMUM_UPLOAD_NUMBER = 300 * 30
     
     /** OnClickInterval**/
     const val ON_CLICK_INTERVAL = 1000L

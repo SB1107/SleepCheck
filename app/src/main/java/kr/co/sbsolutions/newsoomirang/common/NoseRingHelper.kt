@@ -19,7 +19,7 @@ class NoseRingHelper {
                     val timeDelta: Long = currentTime - mLastEventTime
                     mSnoreTime += timeDelta
                     mContSnoringTime += timeDelta
-                    if (mContSnoringTime > 10000) {
+                    if (mContSnoringTime > 20000) {
                         if (::callback.isInitialized) {
                             callback.invoke()
                         }
