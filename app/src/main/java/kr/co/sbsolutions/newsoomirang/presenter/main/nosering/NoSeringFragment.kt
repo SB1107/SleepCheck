@@ -67,7 +67,7 @@ class NoSeringFragment : BluetoothFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.batteryTextView.visibility = View.GONE
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch {
             val intensity = viewModel.getIntensity().first()
             binding.motorCheckBox.isEnabled  = intensity.first
             when (intensity.second) {

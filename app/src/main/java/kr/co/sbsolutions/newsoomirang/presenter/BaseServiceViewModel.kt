@@ -90,11 +90,13 @@ abstract class BaseServiceViewModel(
                         }
 
                         BluetoothState.DisconnectedByUser -> {
-                            Log.e(TAG, "BluetoothState.DisconnectedByUser ")
-                            bluetoothInfo.batteryInfo = null
-                            _isHomeBleProgressBar.emit(Pair(false, ""))
-                            _batteryState.emit("")
-                            _bluetoothButtonState.emit("연결")
+                            launch {
+                                Log.e(TAG, "BluetoothState.DisconnectedByUser ")
+                                bluetoothInfo.batteryInfo = null
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결")
+                            }
                         }
 
                         BluetoothState.Connected.Reconnected -> {
@@ -103,17 +105,21 @@ abstract class BaseServiceViewModel(
                         }
 
                         BluetoothState.DisconnectedNotIntent -> {
-                            bluetoothInfo.batteryInfo = null
-                            _batteryState.emit("")
-                            _bluetoothButtonState.emit("연결 끊김")
+                            launch {
+                                bluetoothInfo.batteryInfo = null
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결 끊김")
+                            }
                         }
 
                         BluetoothState.Connected.Ready,
                         BluetoothState.Connected.ReceivingRealtime,
                         BluetoothState.Connected.SendDownloadContinue,
                         BluetoothState.Connected.End -> {
-                            _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(false, ""))
+                            launch {
+                                _bluetoothButtonState.emit("시작")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                            }
                         }
 
                         BluetoothState.Connected.WaitStart -> {
