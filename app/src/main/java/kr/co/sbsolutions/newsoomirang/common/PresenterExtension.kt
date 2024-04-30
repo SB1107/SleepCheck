@@ -157,7 +157,7 @@ fun Context.showAlertDialogWithCancel(
 }
 
 @SuppressLint("CutPasteId", "MissingInflatedId")
-fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null) : AlertDialog {
+fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null, ) : AlertDialog {
     val imageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
     val dialogView = LayoutInflater.from(this).inflate(R.layout.row_app_guide, null)
     val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)

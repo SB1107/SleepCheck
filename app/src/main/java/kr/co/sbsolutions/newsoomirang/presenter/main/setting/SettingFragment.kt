@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.newsoomirang.databinding.FragmentSettingBinding
 import kr.co.sbsolutions.newsoomirang.presenter.faq.FAQActivity
+import kr.co.sbsolutions.newsoomirang.presenter.firmware.FirmwareUpdateActivity
 import kr.co.sbsolutions.newsoomirang.presenter.leave.LeaveActivity
 import kr.co.sbsolutions.newsoomirang.presenter.login.LoginActivity
 import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
@@ -79,6 +80,10 @@ class SettingFragment : Fragment() {
             requireActivity().showAlertDialogWithCancel(message = "로그아웃 하시겠습니까?", confirmAction = {
                 viewModel.logout()
             })
+        }
+        // 펌웨어 업데이트
+        binding.clFirmware.setOnSingleClickListener {
+            startActivity(Intent(requireContext(), FirmwareUpdateActivity::class.java))
         }
 
 

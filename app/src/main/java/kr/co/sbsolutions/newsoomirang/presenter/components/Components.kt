@@ -70,12 +70,10 @@ import kr.co.sbsolutions.newsoomirang.presenter.main.history.detail.HistoryDetai
 object Components {
 
     @Composable
-    fun LottieLoading() {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.sleep_animation))
+    fun LottieLoading(modifier: Modifier) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.firmwave_update))
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = colorResource(id = R.color.color_80000000)),
+            modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
             LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever)
@@ -371,6 +369,15 @@ object Components {
             }
             
         }
+    }
+    
+    @Composable
+    fun SoomDetailText(text: String, textSize: Int, color: Color = Color.White) {
+        Text(
+            text = text,
+            style = TextStyle(color = color),
+            fontSize = textSize.sp
+        )
     }
     
     @Composable
