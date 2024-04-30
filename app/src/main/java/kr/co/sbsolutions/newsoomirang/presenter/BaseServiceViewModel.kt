@@ -25,6 +25,7 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.DataFlowInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
+import okhttp3.internal.notify
 import java.lang.ref.WeakReference
 
 abstract class BaseServiceViewModel(
@@ -66,7 +67,11 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+    
+    private val _versionCheckFirm: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val versionCheckFirm: MutableStateFlow<Boolean> = _versionCheckFirm
 
+    private var resultCheckFirm: Boolean = false
     abstract fun whereTag(): String
 
     init {
@@ -76,12 +81,17 @@ abstract class BaseServiceViewModel(
                 ApplicationManager.getBluetoothInfoFlow().collect {
                     Log.d(TAG, "${whereTag()} 상태: ${it.bluetoothState}")
                     bluetoothInfo = it
-
                     setBatteryInfo()
                     launch {
                         bluetoothInfo.isDataFlow.collectLatest { isDataFlow ->
                             _dataFlowInfoMessage.emit(isDataFlow.copy())
                             return@collectLatest
+                        }
+                    }
+                    launch {
+                        Log.d(TAG, "버전 확인: ${bluetoothInfo.firmwareVersion.isNullOrEmpty().not()}")
+                        if (resultCheckFirm.not()){
+                            _versionCheckFirm.emit(bluetoothInfo.firmwareVersion.isNullOrEmpty())
                         }
                     }
                     when (it.bluetoothState) {
@@ -112,6 +122,14 @@ abstract class BaseServiceViewModel(
                                 bluetoothInfo.batteryInfo = null
                                 _batteryState.emit("")
                                 _bluetoothButtonState.emit("연결 끊김")
+                            }
+                        }
+                        BluetoothState.Connected.Ready -> {
+                            Log.d(TAG, "주소주소 ${bluetoothInfo.bluetoothAddress}")
+                            Log.d(TAG, "이름 ${bluetoothInfo.bluetoothName}")
+                            
+                            if (resultCheckFirm.not()) {
+                                getService()?.getFirmwareVersion()
                             }
                         }
 
@@ -173,6 +191,9 @@ abstract class BaseServiceViewModel(
     }
 
 
+    fun setResultCheckFirm(){
+        resultCheckFirm = true
+    }
     open fun serviceSettingCall() {
         viewModelScope.launch {
             getService()?.getDataFlowPopUp()?.collectLatest {
