@@ -494,6 +494,10 @@ class BluetoothNetworkRepository @Inject constructor(
         this.lastIndex = data
     }
 
+    override fun getFirmwareVersion() {
+        _sbSensorInfo.value.bluetoothGatt?.let { writeResponse(it, AppToModuleResponse.FirmwareOperate) }
+    }
+
     override fun getDataFlowMaxCount(): Int {
         return dataFlowMaxCount
     }
@@ -1335,6 +1339,17 @@ class BluetoothNetworkRepository @Inject constructor(
                     ModuleToApp.MOTCData -> {
                         snoreCountIncreaseCallBack?.invoke()
                         writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
+                    }
+                    ModuleToApp.FirmwareVersion ->{
+                        if (value.verifyCheckSum()) {
+                            coroutine.launch {
+                                val major = String.format("%02X", value[6]).toUInt(16).toInt()
+                                val minor = String.format("%02X", value[7]).toUInt(16).toInt()
+                                val patch = String.format("%02X", value[8]).toUInt(16).toInt()
+                                innerData.update { it.copy(firmwareVersion = major.toString().plus(".").plus(minor.toString().plus(".").plus(patch.toString()))) }
+                                Log.e(TAG, "version: major =$major minor = $minor patch = $patch" )
+                            }
+                        }
                     }
 
                     else -> {}

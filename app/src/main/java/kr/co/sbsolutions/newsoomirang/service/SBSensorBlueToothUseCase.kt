@@ -618,7 +618,11 @@ class SBSensorBlueToothUseCase(
     }
 
     fun motorTest(intensity: Int) {
-    bluetoothNetworkRepository.startMotorTest(intensity)
+        bluetoothNetworkRepository.startMotorTest(intensity)
+    }
+
+    fun getFirmwareVersion() {
+        bluetoothNetworkRepository.getFirmwareVersion()
     }
 
 }

@@ -326,4 +326,8 @@ class BLEServiceHelper(
     fun motorTest(intensity: Int) {
         blueToothUseCase?.motorTest(intensity)
     }
+
+    fun getFirmwareVersion() {
+        blueToothUseCase?.getFirmwareVersion()
+    }
 }
