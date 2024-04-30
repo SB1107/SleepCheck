@@ -35,6 +35,7 @@ sealed interface AppToModuleResponse {
     object MOTCtrlSetACK : AppToModuleResponse
     object MOTCDataSetACK : AppToModuleResponse
     object OperateDownloadJob : AppToModuleResponse
+    object FirmwareOperate : AppToModuleResponse
 }
 
 fun AppToModule.getState(): BluetoothState.Connected {
@@ -246,6 +247,7 @@ fun AppToModule.getCommandByteArr(): ByteArray {
                 0x03.toByte()
             ).addCheckSum()
         }
+
     }
 }
 
@@ -372,6 +374,18 @@ fun AppToModuleResponse.getCommandByteArr(): ByteArray {
                 0x00.toByte()
             ).addCheckSum()
         }
+        AppToModuleResponse.FirmwareOperate -> {
+            byteArrayOf(
+                // PREFIX
+                0xFE.toByte(), 0x9B.toByte(), 0x80.toByte(), 0x03.toByte(),
+                // CMD
+                0xE1.toByte(),
+                // LEN
+                0x00.toByte(),
+                // Payload
+                0x00.toByte()
+            ).addCheckSum()
+        }
     }
 }
 
@@ -394,6 +408,7 @@ sealed interface ModuleToApp {
     object Error : ModuleToApp
     object BatteryState : ModuleToApp
     object MotorTestACK : ModuleToApp
+    object FirmwareVersion : ModuleToApp
 }
 
 fun String.getCommand(): ModuleToApp {
@@ -411,6 +426,7 @@ fun String.getCommand(): ModuleToApp {
         "FF" -> ModuleToApp.MOTCData
         "FA" -> ModuleToApp.BatteryState
         "D0" -> ModuleToApp.MotorTestACK
+        "D1" -> ModuleToApp.FirmwareVersion
         else -> ModuleToApp.Error
     }
 }

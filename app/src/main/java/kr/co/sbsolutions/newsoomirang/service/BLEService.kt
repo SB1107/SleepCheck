@@ -398,7 +398,8 @@ class BLEService : LifecycleService() {
         serviceLiveCheckWorkerHelper.cancelWork()
         bleServiceHelper.stopSBSensor(isCancel)
     }
-    fun motorTest(intensity : Int){
+
+    fun motorTest(intensity: Int) {
         bleServiceHelper.motorTest(intensity)
     }
 
@@ -472,5 +473,9 @@ class BLEService : LifecycleService() {
 
     fun getTime(): Int {
         return bleServiceHelper.getTime()
+    }
+
+    fun getFirmwareVersion() {
+        return bleServiceHelper.getFirmwareVersion()
     }
 }

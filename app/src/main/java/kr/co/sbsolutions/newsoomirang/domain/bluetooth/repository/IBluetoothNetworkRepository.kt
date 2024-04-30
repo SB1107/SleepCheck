@@ -38,6 +38,7 @@ interface IBluetoothNetworkRepository {
     fun stopNetworkSBSensor(snoreTime : Long = 0 )
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun startMotorTest(intensity : Int)
+    fun getFirmwareVersion()
     fun operateRealtimeSBSensor()
     fun operateDelayedSBSensor()
     fun operateDownloadSbSensor(isContinue: Boolean)
