@@ -22,10 +22,6 @@ data class UserResultData(
     val user: UserData? = null,
     @SerializedName("member")
     val member: String = "N",
-    @SerializedName("ver")
-    val newFirmVer: String = "",
-    @SerializedName("url")
-    val url: String = ""
 )
 @Keep
 data class UserData(

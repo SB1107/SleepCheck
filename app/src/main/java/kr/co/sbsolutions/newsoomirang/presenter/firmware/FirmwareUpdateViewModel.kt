@@ -2,6 +2,8 @@ package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -40,14 +42,25 @@ class FirmwareUpdateViewModel
                     cancel()
                     return@collectLatest
                 }
-                // FIXME: 서버 통신후 버전 비교 및 zip파일 다운로드 후 진행
-                if (hasUpdate(it.firmwareVersion, "1.0.0")) {
-                    deviceDisconnectConnect(it)
-                    cancel()
-                    return@collectLatest
+
+                request { authAPIRepository.getNewFirmVersion() }.collectLatest { firmware ->
+                    firmware.newFirmVer?.let { ver ->
+                        if (hasUpdate(it.firmwareVersion, ver)) {
+                            deviceDisconnectConnect(it)
+                            cancel()
+                            delay(100)
+                        } else {
+                            _checkFirmWaveVersion.tryEmit(Pair(false, it))
+                            cancel()
+                            delay(100)
+                        }
+                    } ?: run {
+                        _checkFirmWaveVersion.tryEmit(Pair(false, it))
+                        cancel()
+                        delay(100)
+                    }
                 }
-                _checkFirmWaveVersion.tryEmit(Pair(false, it))
-                cancel()
+
                 return@collectLatest
             }
         }
@@ -109,7 +122,7 @@ class FirmwareUpdateViewModel
     }
 
     override fun whereTag(): String {
-        return  "Firmware"
+        return "Firmware"
     }
 
 
