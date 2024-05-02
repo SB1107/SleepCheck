@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -19,7 +18,6 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
-import kr.co.sbsolutions.newsoomirang.data.api.DownloadServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
@@ -27,10 +25,6 @@ import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import no.nordicsemi.android.dfu.DfuServiceInitiator
-import okhttp3.OkHttpClient
-import okio.use
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
@@ -42,8 +36,7 @@ class FirmwareUpdateViewModel
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
-    @Named("Default")
-    private val provideDefaultOkHttpClient: OkHttpClient,
+    private val downloadAPIRepository: DownloadAPIRepository,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
     private val _checkFirmWaveVersion: MutableStateFlow<Pair<Boolean, DfuServiceInitiator?>> = MutableStateFlow(Pair(false, null))
@@ -53,48 +46,27 @@ class FirmwareUpdateViewModel
 
     private fun downloadFirmware(url: String, path: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            DownloadAPIRepository(
-                Retrofit.Builder().baseUrl(url.plus("/")).addConverterFactory(GsonConverterFactory.create())
-                    .client(provideDefaultOkHttpClient).build().create(DownloadServiceAPI::class.java)
-            )
-                .getDownloadZipFile()
+            val urls = url.replace("http://sb-solutions1.net/","").split("/")
+            val urlPath = urls.dropLast(1).joinToString("/")
+            val fileName = urls.last()
+            showProgressBar()
+            downloadAPIRepository.getDownloadZipFile(urlPath,fileName)
                 .collect {
-                    when (it) {
-                        is ApiResponse.Failure -> {
-                            dismissProgressBar()
-                            sendErrorMessage(it.errorCode.msg)
-                        }
-
-                        ApiResponse.Loading -> {
-                            showProgressBar()
-                        }
-
-                        ApiResponse.ReAuthorize -> {}
-
-                        is ApiResponse.Success -> {
-                            dismissProgressBar()
-                            val urls = url.split("/")
-                            val fileName = urls.last()
-                            val tempFile = File(path, fileName)
-                            it.data.let { data ->
-                                data.byteStream().use { inputStream ->
-                                    tempFile.outputStream().use { outStream ->
-                                        inputStream.copyTo(outStream)
-                                    }
-                                }
-                                firmwareDataValue?.let { data ->
-                                    val starter = DfuServiceInitiator(data.deviceAddress)
-                                        .setDeviceName(data.deviceName)
-                                        .setKeepBond(true)
-                                    starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
-                                    starter.setPrepareDataObjectDelay(300L)
-                                    starter.setZip(Uri.fromFile(tempFile))
-                                    _checkFirmWaveVersion.tryEmit(Pair(true, starter))
-                                }
-                                cancel()
+                    val tempFile = File(path, fileName)
+                        it.byteStream().use { inputStream ->
+                            tempFile.outputStream().use { outStream ->
+                                inputStream.copyTo(outStream)
                             }
                         }
-                    }
+                        firmwareDataValue?.let { data ->
+                            val starter = DfuServiceInitiator(data.deviceAddress)
+                                .setDeviceName(data.deviceName)
+                                .setKeepBond(true)
+                            starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
+                            starter.setPrepareDataObjectDelay(300L)
+                            starter.setZip(Uri.fromFile(tempFile))
+                            _checkFirmWaveVersion.tryEmit(Pair(true, starter))
+                        }
                 }
         }
     }

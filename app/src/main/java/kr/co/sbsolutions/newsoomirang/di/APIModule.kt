@@ -14,6 +14,7 @@ import kr.co.sbsolutions.newsoomirang.common.KaKaoLinkHelper
 import kr.co.sbsolutions.newsoomirang.presenter.login.KaKaoLoginHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.api.AuthServiceAPI
+import kr.co.sbsolutions.newsoomirang.data.api.DownloadServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.api.ServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothManageRepository
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.BluetoothNetworkRepository
@@ -72,15 +73,25 @@ class APIModule {
 
     @Singleton
     @Provides
+    @Named("Default")
     fun provideRetrofitBuilder() = Retrofit.Builder().baseUrl("https://svc1.soomirang.kr/api/").addConverterFactory(GsonConverterFactory.create())
 
     @Singleton
     @Provides
-    fun provideInfoApiService(@Named("Auth") okHttpClient: OkHttpClient, retrofit: Retrofit.Builder) = retrofit.client(okHttpClient).build().create(AuthServiceAPI::class.java)
+    @Named("Download")
+    fun provideDownloadRetrofitBuilder() = Retrofit.Builder().baseUrl("http://sb-solutions1.net/").addConverterFactory(GsonConverterFactory.create())
 
     @Singleton
     @Provides
-    fun provideDefaultApiService(@Named("Default") okHttpClient: OkHttpClient, retrofit: Retrofit.Builder) = retrofit.client(okHttpClient).build().create(ServiceAPI::class.java)
+    fun provideInfoApiService(@Named("Auth") okHttpClient: OkHttpClient, @Named("Default") retrofit: Retrofit.Builder) = retrofit.client(okHttpClient).build().create(AuthServiceAPI::class.java)
+
+    @Singleton
+    @Provides
+    fun provideDefaultApiService(@Named("Default") okHttpClient: OkHttpClient,  @Named("Default") retrofit: Retrofit.Builder) = retrofit.client(okHttpClient).build().create(ServiceAPI::class.java)
+
+    @Singleton
+    @Provides
+    fun provideDownloadApiService(@Named("Default") okHttpClient: OkHttpClient,  @Named("Download") retrofit: Retrofit.Builder) = retrofit.client(okHttpClient).build().create(DownloadServiceAPI::class.java)
 
     @Provides
     fun provideKaKaoLoginHelper(@ApplicationContext context: Context) = KaKaoLoginHelper(context)

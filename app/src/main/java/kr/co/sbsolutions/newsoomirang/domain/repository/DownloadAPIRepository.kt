@@ -32,8 +32,10 @@ import javax.inject.Inject
 
 class DownloadAPIRepository @Inject constructor(private val api: DownloadServiceAPI) : RemoteDownload {
 
-    override fun getDownloadZipFile(): Flow<ApiResponse<ResponseBody>> = apiDownloadRequestFlow{
-        api.getDownloadFile()
+    override fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody> = flow{
+        val response = api.getDownloadFile(path,fileName)
+        if (response.isSuccessful) {
+            response.body()?.let { emit(it) }
+        }
     }
-
 }
