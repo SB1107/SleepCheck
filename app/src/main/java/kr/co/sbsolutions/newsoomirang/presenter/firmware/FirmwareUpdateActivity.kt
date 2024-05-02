@@ -89,11 +89,12 @@ class FirmwareUpdateActivity : BluetoothActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.checkFirmWaveVersion.collectLatest { firmware ->
-                        val (isUpdate, dfuService) = firmware
-                        binding.updateProgress.clProgress.visibility = if (isUpdate) View.VISIBLE else View.GONE
-                        if (isUpdate) {
-                            dfuService?.let {
-                                updateFirmware(dfuService)
+                        binding.updateProgress.clProgress.visibility = if (firmware.isShow) View.VISIBLE else View.GONE
+                        binding.updateProgress.tvCurrentVersion1.text = "현재 버전 : ${firmware.firmwareVersion}"
+                        binding.updateProgress.tvCurrentVersion2.text = "업데이트 버전 : ${firmware.serverFirmwareVersion}"
+                        if (firmware.isShow) {
+                            firmware.dfuServiceInitiator?.let {
+                                updateFirmware(it)
                             }
                         }
                     }

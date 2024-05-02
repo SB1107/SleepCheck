@@ -19,6 +19,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
@@ -39,53 +40,64 @@ class FirmwareUpdateViewModel
     private val downloadAPIRepository: DownloadAPIRepository,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _checkFirmWaveVersion: MutableStateFlow<Pair<Boolean, DfuServiceInitiator?>> = MutableStateFlow(Pair(false, null))
-    val checkFirmWaveVersion: StateFlow<Pair<Boolean, DfuServiceInitiator?>> = _checkFirmWaveVersion
+    private val _checkFirmWaveVersion: MutableStateFlow<FirmwareDataModel> = MutableStateFlow(FirmwareDataModel())
+    val checkFirmWaveVersion: StateFlow<FirmwareDataModel> = _checkFirmWaveVersion
     private var firmwareDataValue: FirmwareData? = null
-    private val _nextAPICall: MutableSharedFlow<Pair<String ,FirmwareData>> = MutableSharedFlow()
+    private var serverFirmwareVersion: String? = null
+    private val _nextAPICall: MutableSharedFlow<Pair<String, FirmwareData>> = MutableSharedFlow()
 
     private fun downloadFirmware(url: String, path: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val urls = url.replace("http://sb-solutions1.net/","").split("/")
+            val urls = url.replace("http://sb-solutions1.net/", "").split("/")
             val urlPath = urls.dropLast(1).joinToString("/")
             val fileName = urls.last()
             showProgressBar()
-            downloadAPIRepository.getDownloadZipFile(urlPath,fileName)
+            downloadAPIRepository.getDownloadZipFile(urlPath, fileName)
                 .collect {
                     val tempFile = File(path, fileName)
-                        it.byteStream().use { inputStream ->
-                            tempFile.outputStream().use { outStream ->
-                                inputStream.copyTo(outStream)
-                            }
+                    it.byteStream().use { inputStream ->
+                        tempFile.outputStream().use { outStream ->
+                            inputStream.copyTo(outStream)
                         }
-                        firmwareDataValue?.let { data ->
-                            val starter = DfuServiceInitiator(data.deviceAddress)
-                                .setDeviceName(data.deviceName)
-                                .setKeepBond(true)
-                            starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
-                            starter.setPrepareDataObjectDelay(300L)
-                            starter.setZip(Uri.fromFile(tempFile))
-                            _checkFirmWaveVersion.tryEmit(Pair(true, starter))
-                        }
+                    }
+                    firmwareDataValue?.let { data ->
+                        val starter = DfuServiceInitiator(data.deviceAddress)
+                            .setDeviceName(data.deviceName)
+                            .setKeepBond(true)
+                        starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
+                        starter.setPrepareDataObjectDelay(300L)
+                        starter.setZip(Uri.fromFile(tempFile))
+                        _checkFirmWaveVersion.tryEmit(
+                            FirmwareDataModel(
+                                isShow = true,
+                                dfuServiceInitiator = starter,
+                                firmwareVersion = data.firmwareVersion,
+                                deviceName = data.deviceName,
+                                deviceAddress = data.deviceAddress,
+                                serverFirmwareVersion = serverFirmwareVersion ?: "1.0.0"
+                            )
+                        )
+                    }
                 }
         }
     }
 
-    private  fun getAPICall(path : String  ,firmwareData: FirmwareData) {
+    private fun getAPICall(path: String, firmwareData: FirmwareData) {
         viewModelScope.launch(Dispatchers.IO) {
             request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }
                 .collectLatest { firmware ->
                     firmware.result?.let { result ->
-                        if (hasUpdate(firmwareData.firmwareVersion, result.newFirmVer ?: "1.0.0")) {
+                        serverFirmwareVersion = result.newFirmVer ?: "1.0.0"
+                        if (hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)) {
                             result.url?.let { url ->
                                 firmwareDataValue = firmwareData
                                 deviceDisconnectConnect(url, path)
                             }
                         } else {
-                            _checkFirmWaveVersion.tryEmit(Pair(false, null))
+                            _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
                         }
                     } ?: run {
-                        _checkFirmWaveVersion.tryEmit(Pair(false, null))
+                        _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
                         cancel()
                         delay(100)
                     }
@@ -99,16 +111,16 @@ class FirmwareUpdateViewModel
         viewModelScope.launch(Dispatchers.IO) {
             getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
                 if (firmwareData == null) {
-                    _checkFirmWaveVersion.tryEmit(Pair(false, null))
+                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
                     return@collectLatest
                 }
-                _nextAPICall.emit(Pair(path ,firmwareData))
+                _nextAPICall.emit(Pair(path, firmwareData))
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
             _nextAPICall.collectLatest {
                 val (path, data) = it
-                getAPICall(path , data)
+                getAPICall(path, data)
                 cancel()
                 delay(100)
                 return@collectLatest
