@@ -94,10 +94,11 @@ class FirmwareUpdateActivity : BluetoothActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.checkFirmWaveVersion.collectLatest { firmware ->
-                        binding.updateProgress.clProgress.visibility = if (firmware?.isShow == true) View.VISIBLE else View.GONE
-                        launch(Dispatchers.IO) {
-                            if (firmware?.isShow == true) {
-                                updateFirmware(firmware)
+                        val (isUpdate, dfuService) = firmware
+                        binding.updateProgress.clProgress.visibility = if (isUpdate) View.VISIBLE else View.GONE
+                        if (isUpdate) {
+                            dfuService?.let {
+                                updateFirmware(dfuService)
                             }
                         }
                     }
@@ -117,16 +118,8 @@ class FirmwareUpdateActivity : BluetoothActivity() {
         }
     }
 
-    private suspend fun updateFirmware(firmwareData: FirmwareDataModel) {
-        val file = File(cacheDir, firmwareData.firmwareFileName)
-
-        val starter = DfuServiceInitiator(firmwareData.deviceAddress)
-            .setDeviceName(firmwareData.deviceName)
-            .setKeepBond(true)
-        starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
-        starter.setPrepareDataObjectDelay(300L)
-        starter.setZip(Uri.fromFile(file))
-        starter.start(this, DfuService::class.java)
+    private fun updateFirmware(dfuServiceInitiator: DfuServiceInitiator) {
+        dfuServiceInitiator.start(this, DfuService::class.java)
         DfuServiceListenerHelper.registerProgressListener(this, dfuProgressListener)
         DfuServiceInitiator.createDfuNotificationChannel(this)
     }

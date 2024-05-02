@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
+import no.nordicsemi.android.dfu.DfuServiceInitiator
 import okhttp3.OkHttpClient
 import okio.use
 import retrofit2.Retrofit
@@ -41,8 +43,8 @@ class FirmwareUpdateViewModel
     private val provideDefaultOkHttpClient: OkHttpClient,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _checkFirmWaveVersion: MutableStateFlow<FirmwareDataModel?> = MutableStateFlow(null)
-    val checkFirmWaveVersion: StateFlow<FirmwareDataModel?> = _checkFirmWaveVersion
+    private val _checkFirmWaveVersion: MutableStateFlow<Pair<Boolean, DfuServiceInitiator?>> = MutableStateFlow(Pair(false, null))
+    val checkFirmWaveVersion: StateFlow<Pair<Boolean, DfuServiceInitiator?>> = _checkFirmWaveVersion
     private var firmwareDataValue: FirmwareData? = null
 
     private fun downloadFirmware(url: String, path: String) {
@@ -76,15 +78,15 @@ class FirmwareUpdateViewModel
                                         inputStream.copyTo(outStream)
                                     }
                                 }
-                                _checkFirmWaveVersion.tryEmit(
-                                    FirmwareDataModel(
-                                        isShow = false,
-                                        firmwareFileName = fileName,
-                                        firmwareVersion = firmwareDataValue?.firmwareVersion ?: "",
-                                        deviceName = firmwareDataValue?.deviceName ?: "",
-                                        deviceAddress = firmwareDataValue?.deviceAddress ?: ""
-                                    )
-                                )
+                                firmwareDataValue?.let { data ->
+                                    val starter = DfuServiceInitiator(data.deviceAddress)
+                                        .setDeviceName(data.deviceName)
+                                        .setKeepBond(true)
+                                    starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
+                                    starter.setPrepareDataObjectDelay(300L)
+                                    starter.setZip(Uri.fromFile(tempFile))
+                                    _checkFirmWaveVersion.tryEmit(Pair(true, starter))
+                                }
                                 cancel()
                             }
                         }
@@ -98,7 +100,7 @@ class FirmwareUpdateViewModel
         viewModelScope.launch {
             getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
                 if (firmwareData == null) {
-                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
+                    _checkFirmWaveVersion.tryEmit(Pair(false, null))
                     cancel()
                     return@collectLatest
                 }
@@ -113,12 +115,12 @@ class FirmwareUpdateViewModel
                             cancel()
                             delay(100)
                         } else {
-                            _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
+                            _checkFirmWaveVersion.tryEmit(Pair(false, null))
                             cancel()
                             delay(100)
                         }
                     } ?: run {
-                        _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
+                        _checkFirmWaveVersion.tryEmit(Pair(false, null))
                         cancel()
                         delay(100)
                     }
