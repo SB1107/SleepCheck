@@ -67,11 +67,7 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
-    
-    private val _versionCheckFirm: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val versionCheckFirm: MutableStateFlow<Boolean> = _versionCheckFirm
 
-    private var resultCheckFirm: Boolean = false
     abstract fun whereTag(): String
 
     init {
@@ -88,89 +84,63 @@ abstract class BaseServiceViewModel(
                             return@collectLatest
                         }
                     }
-                    launch {
-                        Log.d(TAG, "버전 확인: ${bluetoothInfo.firmwareVersion.isNullOrEmpty().not()}")
-                        if (resultCheckFirm.not()){
-                            _versionCheckFirm.emit(bluetoothInfo.firmwareVersion.isNullOrEmpty())
-                        }
-                    }
                     when (it.bluetoothState) {
                         BluetoothState.Unregistered -> {
-                            launch {
-                                _bluetoothButtonState.emit("연결")
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
-                            }
+                                _bluetoothButtonState.tryEmit("연결")
+                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
                         }
 
                         BluetoothState.DisconnectedByUser -> {
-                            launch {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
-                                _batteryState.emit("")
-                                _bluetoothButtonState.emit("연결")
-                            }
+                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
+                                _batteryState.tryEmit("")
+                                _bluetoothButtonState.tryEmit("연결")
                         }
 
                         BluetoothState.Connected.Reconnected -> {
-                            _bluetoothButtonState.emit("재 연결중")
+                            _bluetoothButtonState.tryEmit("재 연결중")
                             setBatteryInfo()
                         }
 
                         BluetoothState.DisconnectedNotIntent -> {
-                            launch {
                                 bluetoothInfo.batteryInfo = null
-                                _batteryState.emit("")
-                                _bluetoothButtonState.emit("연결 끊김")
-                            }
-                        }
-                        BluetoothState.Connected.Ready -> {
-                            Log.d(TAG, "주소주소 ${bluetoothInfo.bluetoothAddress}")
-                            Log.d(TAG, "이름 ${bluetoothInfo.bluetoothName}")
-                            
-                            if (resultCheckFirm.not()) {
-                                getService()?.getFirmwareVersion()
-                            }
+                                _batteryState.tryEmit("")
+                                _bluetoothButtonState.tryEmit("연결 끊김")
                         }
 
                         BluetoothState.Connected.Ready,
                         BluetoothState.Connected.ReceivingRealtime,
                         BluetoothState.Connected.SendDownloadContinue,
                         BluetoothState.Connected.End -> {
-                            launch {
-                                _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
-                            }
+                                _bluetoothButtonState.tryEmit("시작")
+                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
                         }
 
                         BluetoothState.Connected.WaitStart -> {
-                            launch {
-                                _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
-                            }
+                                _bluetoothButtonState.tryEmit("시작")
+                                _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
 
                         BluetoothState.Connected.Finish -> {
-                            launch {
-                                _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
-                            }
+                                _bluetoothButtonState.tryEmit("시작")
+                                _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
 
                         BluetoothState.Connecting -> {
-                            _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
-                            _bluetoothButtonState.emit("재 연결중")
+                            _isHomeBleProgressBar.tryEmit(Pair(true, "기기와 연결중 입니다."))
+                            _bluetoothButtonState.tryEmit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                         }
 
                         BluetoothState.Connected.DataFlow,
                         BluetoothState.Connected.DataFlowUploadFinish -> {
-                            _guideAlert.emit(false)
+                            _guideAlert.tryEmit(false)
                         }
 
                         else -> {
-                            _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            _bluetoothButtonState.tryEmit("시작")
+                            _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
                     }
                 }
@@ -191,9 +161,6 @@ abstract class BaseServiceViewModel(
     }
 
 
-    fun setResultCheckFirm(){
-        resultCheckFirm = true
-    }
     open fun serviceSettingCall() {
         viewModelScope.launch {
             getService()?.getDataFlowPopUp()?.collectLatest {

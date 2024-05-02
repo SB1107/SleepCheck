@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
@@ -53,6 +54,14 @@ class SettingViewModel @Inject constructor(
             }
         )
 
+    }
+    fun getFirmwareVersion(){
+        viewModelScope.launch {
+            ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest {
+                Log.e(TAG, "getFirmwareVersion: ${it}", )
+            }
+
+        }
     }
     //로그아웃
     fun logout() {
@@ -100,6 +109,7 @@ class SettingViewModel @Inject constructor(
     override fun whereTag(): String {
         return "Setting"
     }
+    
 
 
 }

@@ -25,7 +25,6 @@ data class BluetoothInfo(
     val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),
     var snoreTime : Long = 0,
     var isDataFlow : MutableStateFlow<DataFlowInfo> = MutableStateFlow(DataFlowInfo()),
-    var firmwareVersion : String? = null
 ) {
     companion object {
         var isOn = true

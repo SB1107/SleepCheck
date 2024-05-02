@@ -40,6 +40,7 @@ import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.RequestHelper
 import kr.co.sbsolutions.newsoomirang.common.ServiceLiveCheckWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
@@ -475,7 +476,7 @@ class BLEService : LifecycleService() {
         return bleServiceHelper.getTime()
     }
 
-    fun getFirmwareVersion() {
+    fun getFirmwareVersion() :Flow<FirmwareData?>{
         return bleServiceHelper.getFirmwareVersion()
     }
 }

@@ -53,6 +53,7 @@ class SettingFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.getFirmwareVersion()
         setObservers()
 
         //내센서 클릭

@@ -14,11 +14,15 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
@@ -64,6 +68,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override val spo2SensorInfo: StateFlow<BluetoothInfo> = _spo2SensorInfo.asStateFlow()
     private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
     override val eegSensorInfo: StateFlow<BluetoothInfo> = _eegSensorInfo.asStateFlow()
+    private val _sbSensorFirmwareInfo: MutableStateFlow<FirmwareData?> = MutableStateFlow(null)
 
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
@@ -494,8 +499,21 @@ class BluetoothNetworkRepository @Inject constructor(
         this.lastIndex = data
     }
 
-    override fun getFirmwareVersion() {
+    override fun getFirmwareVersion() = callbackFlow {
         _sbSensorInfo.value.bluetoothGatt?.let { writeResponse(it, AppToModuleResponse.FirmwareOperate) }
+        withTimeoutOrNull(3000L) {
+            _sbSensorFirmwareInfo.collectLatest {
+                trySend(it)
+                cancel()
+                delay(100)
+                close()
+            }
+        } ?: run {
+            trySend(_sbSensorFirmwareInfo.value)
+            close()
+            cancel()
+        }
+        awaitClose()
     }
 
     override fun getDataFlowMaxCount(): Int {
@@ -771,14 +789,15 @@ class BluetoothNetworkRepository @Inject constructor(
                 Log.d(TAG, "onConnectionStateChange: ${_sbSensorInfo.value.bluetoothGatt}")*/
                 if (_sbSensorInfo.value.bluetoothAddress.isNullOrEmpty() &&
                     _sbSensorInfo.value.bluetoothName.isNullOrEmpty() &&
-                    _sbSensorInfo.value.bluetoothGatt == null) {
+                    _sbSensorInfo.value.bluetoothGatt == null
+                ) {
                     Log.d(TAG, "onConnectionStateChange: 탄다탄다 33333333")
                     coroutine.launch {
                         //연결 끊기
                         gatt.close()
                         delay(1500)
                         _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
-                        
+
                         // 복구
                         /*_sbSensorInfo.value.bluetoothGatt = gatt
                         _sbSensorInfo.value.bluetoothName = gatt.device.name
@@ -787,9 +806,9 @@ class BluetoothNetworkRepository @Inject constructor(
                             dataManager.saveBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name,gatt.device.name, gatt.device.address)
                         }*/
                     }
-                    
+
                 }
-                
+
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
                 logCoroutine.launch {
@@ -1340,14 +1359,16 @@ class BluetoothNetworkRepository @Inject constructor(
                         snoreCountIncreaseCallBack?.invoke()
                         writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
                     }
-                    ModuleToApp.FirmwareVersion ->{
+
+                    ModuleToApp.FirmwareVersion -> {
                         if (value.verifyCheckSum()) {
                             coroutine.launch {
                                 val major = String.format("%02X", value[6]).toUInt(16).toInt()
                                 val minor = String.format("%02X", value[7]).toUInt(16).toInt()
                                 val patch = String.format("%02X", value[8]).toUInt(16).toInt()
-                                innerData.update { it.copy(firmwareVersion = major.toString().plus(".").plus(minor.toString().plus(".").plus(patch.toString()))) }
-                                Log.e(TAG, "version: major =$major minor = $minor patch = $patch" )
+                                val firmware = major.toString().plus(".").plus(minor.toString().plus(".").plus(patch.toString()))
+                                _sbSensorFirmwareInfo.emit(FirmwareData(firmware , innerData.value.bluetoothName ?: "", innerData.value.bluetoothAddress ?:"" ))
+                                Log.e(TAG, "version: major =$major minor = $minor patch = $patch")
                             }
                         }
                     }

@@ -24,6 +24,7 @@ import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
@@ -327,7 +328,7 @@ class BLEServiceHelper(
         blueToothUseCase?.motorTest(intensity)
     }
 
-    fun getFirmwareVersion() {
-        blueToothUseCase?.getFirmwareVersion()
+    fun getFirmwareVersion(): Flow<FirmwareData?> {
+        return blueToothUseCase?.getFirmwareVersion() ?: flow { emit(null) }
     }
 }

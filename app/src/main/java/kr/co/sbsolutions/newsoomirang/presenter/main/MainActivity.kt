@@ -176,17 +176,6 @@ class MainActivity : BaseServiceActivity() {
                     }
                 }
                 launch {
-                    viewModel.versionCheckFirm.collectLatest {
-                        Log.d(TAG, "testtestste:$it ")
-                        if (it) {
-                            viewModel.setResultCheckFirm()
-                            showAlertDialogWithCancel(message = "센서의 새로운 버전이 출시되었어요!\n업데이트를 진행해 주세요", confirmAction = {
-                                startActivity(Intent(this@MainActivity,FirmwareUpdateActivity::class.java))
-                            })
-                        }
-                    }
-                }
-                launch {
                     viewModel.errorMessage.collectLatest {
                         viewModel.stopResultProgressBar()
                         showAlertDialog(message = it)

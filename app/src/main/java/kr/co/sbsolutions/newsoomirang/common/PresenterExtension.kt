@@ -49,6 +49,12 @@ fun ContextWrapper.getPermissionResult(): ArrayList<String> {
         }
     }
 
+    Cons.PERMISSIONS_30.forEach { permission ->
+        if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
+            deniedPermissions.add(permission)
+        }
+    }
+
     Cons.PERMISSIONS_31.forEach { permission ->
         if (checkSelfPermission(permission) == PackageManager.PERMISSION_DENIED) {
             deniedPermissions.add(permission)

@@ -2,7 +2,9 @@ package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
@@ -38,7 +40,7 @@ interface IBluetoothNetworkRepository {
     fun stopNetworkSBSensor(snoreTime : Long = 0 )
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun startMotorTest(intensity : Int)
-    fun getFirmwareVersion()
+    fun getFirmwareVersion(): Flow<FirmwareData?>
     fun operateRealtimeSBSensor()
     fun operateDelayedSBSensor()
     fun operateDownloadSbSensor(isContinue: Boolean)
