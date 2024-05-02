@@ -91,5 +91,5 @@ interface AuthServiceAPI {
     suspend fun getFAQ(): Response<FAQEntity>
     
     @GET("sleepdata/chkversion")
-    suspend fun getNewFirmVersion(@Query("device_name") id: String): Response<FirmwareEntity>
+    suspend fun getNewFirmVersion(@Query("number") id: String): Response<FirmwareEntity>
 }

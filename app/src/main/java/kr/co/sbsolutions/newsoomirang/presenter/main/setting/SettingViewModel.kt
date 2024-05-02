@@ -64,22 +64,23 @@ class SettingViewModel @Inject constructor(
     fun getFirmwareVersion() {
         viewModelScope.launch {
             ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
-                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}", )
+//                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}")
                 if (deviceInfo?.firmwareVersion.isNullOrEmpty()){
                     _updateCheckResult.emit(true)
-                    delay(100)
                     cancel()
+                    delay(100)
                     return@collectLatest
                 }
-                
-                request { remoteAuthDataSource.getNewFirmVersion(deviceName.toString()) }.collectLatest { result ->
-                    Log.d(TAG, "getFirmwareVersion: $result")
-                    if (result.success) {
-                        result.newFirmVer?.let { newFirmVer ->
-                            _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo!!.firmwareVersion, compareVer = newFirmVer))
-                            delay(100)
-                            cancel()
-                            return@let
+//                Log.e(TAG, "getFirmwareVersion22: ${deviceInfo}")
+                deviceInfo?.let { info ->
+                    request { remoteAuthDataSource.getNewFirmVersion(info.deviceName) }.collectLatest { result ->
+//                        Log.d(TAG, "getFirmwareVersion: $result")
+                        if (result.success) {
+                            result.newFirmVer?.let { newFirmVer ->
+                                _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))
+                                cancel()
+                                delay(100)
+                            }
                         }
                     }
                 }
