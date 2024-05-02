@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,7 +69,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override val spo2SensorInfo: StateFlow<BluetoothInfo> = _spo2SensorInfo.asStateFlow()
     private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
     override val eegSensorInfo: StateFlow<BluetoothInfo> = _eegSensorInfo.asStateFlow()
-    private val _sbSensorFirmwareInfo: MutableStateFlow<FirmwareData?> = MutableStateFlow(null)
+    private val _sbSensorFirmwareInfo: MutableSharedFlow<FirmwareData?> = MutableSharedFlow()
 
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
@@ -509,7 +510,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 close()
             }
         } ?: run {
-            trySend(_sbSensorFirmwareInfo.value)
+            trySend(null)
             close()
             cancel()
         }
