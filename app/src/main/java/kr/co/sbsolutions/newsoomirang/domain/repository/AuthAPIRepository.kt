@@ -100,5 +100,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun getFAQ(): Flow<ApiResponse<FAQEntity>> = apiRequestFlow {
         api.getFAQ()
     }
-
+    
+    override fun getNewFirmVersion(): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
+        api.getNewFirmVersion()
+    }
 }

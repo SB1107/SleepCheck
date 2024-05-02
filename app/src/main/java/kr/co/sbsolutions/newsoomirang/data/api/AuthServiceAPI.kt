@@ -87,5 +87,8 @@ interface AuthServiceAPI {
     suspend fun postDisconnect(@Body checkSensor: CheckSensor) : Response<BaseEntity>
 
     @GET("sleepdata/viewappfaq")
-    suspend fun  getFAQ() : Response<FAQEntity>
+    suspend fun getFAQ(): Response<FAQEntity>
+    
+    @GET("sleepdata/chkversion")
+    suspend fun getNewFirmVersion(): Response<UserEntity>
 }
