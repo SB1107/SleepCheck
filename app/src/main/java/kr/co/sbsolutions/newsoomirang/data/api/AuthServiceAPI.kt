@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.data.api
 import kr.co.sbsolutions.newsoomirang.data.entity.BaseEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.FAQEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.FirmwareEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
@@ -90,5 +91,5 @@ interface AuthServiceAPI {
     suspend fun getFAQ(): Response<FAQEntity>
     
     @GET("sleepdata/chkversion")
-    suspend fun getNewFirmVersion(): Response<UserEntity>
+    suspend fun getNewFirmVersion(@Query("device_name") id: String): Response<FirmwareEntity>
 }

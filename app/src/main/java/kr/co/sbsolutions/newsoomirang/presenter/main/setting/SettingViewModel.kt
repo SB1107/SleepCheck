@@ -7,6 +7,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,27 +62,28 @@ class SettingViewModel @Inject constructor(
 
     }
     fun getFirmwareVersion() {
-        var deviceFirmVer: String? = null
         viewModelScope.launch {
-            ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest {
-                Log.e(TAG, "getFirmwareVersion: ${it}", )
-                deviceFirmVer = it.toString()
-                if (it == null){
+            ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
+                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}", )
+                if (deviceInfo?.firmwareVersion.isNullOrEmpty()){
                     _updateCheckResult.emit(true)
+                    delay(100)
+                    cancel()
                     return@collectLatest
                 }
-            }
-            
-            request { remoteAuthDataSource.getNewFirmVersion() }.collectLatest {
-                Log.d(TAG, "getFirmwareVersion: $it")
-                if (it.success) {
-                    it.result?.newFirmVer?.let { newFirmVer ->
-                        deviceFirmVer?.let { deviceFirmVer ->
-                            _updateCheckResult.emit(hasUpdate(currentVer = deviceFirmVer, compareVer = newFirmVer))
-                            return@collectLatest
+                
+                request { remoteAuthDataSource.getNewFirmVersion(deviceName.toString()) }.collectLatest { result ->
+                    Log.d(TAG, "getFirmwareVersion: $result")
+                    if (result.success) {
+                        result.newFirmVer?.let { newFirmVer ->
+                            _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo!!.firmwareVersion, compareVer = newFirmVer))
+                            delay(100)
+                            cancel()
+                            return@let
                         }
                     }
                 }
+                return@collectLatest
             }
         }
     }

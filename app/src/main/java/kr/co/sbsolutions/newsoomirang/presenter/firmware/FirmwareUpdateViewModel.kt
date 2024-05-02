@@ -44,7 +44,7 @@ class FirmwareUpdateViewModel
                     return@collectLatest
                 }
 
-                request { authAPIRepository.getNewFirmVersion() }.collectLatest { firmware ->
+                request { authAPIRepository.getNewFirmVersion(it.deviceName) }.collectLatest { firmware ->
                     firmware.newFirmVer?.let { ver ->
                         if (hasUpdate(it.firmwareVersion, ver)) {
                             deviceDisconnectConnect(it)

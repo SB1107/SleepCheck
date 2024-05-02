@@ -46,7 +46,7 @@ interface RemoteAuthDataSource {
 
      fun getFAQ() : Flow<ApiResponse<FAQEntity>>
      
-     fun getNewFirmVersion() : Flow<ApiResponse<FirmwareEntity>>
+     fun getNewFirmVersion(deviceName: String) : Flow<ApiResponse<FirmwareEntity>>
 }
 interface  RemoteDownload {
      fun getDownloadZipFile(): Flow<UserEntity>

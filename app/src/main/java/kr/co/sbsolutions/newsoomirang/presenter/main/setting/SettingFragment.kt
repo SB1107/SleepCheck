@@ -106,6 +106,13 @@ class SettingFragment : Fragment() {
     private fun setObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                
+                launch {
+                    viewModel.updateCheckResult.collectLatest {
+                        Log.d(TAG, "setObseasdasdrvers: $it")
+                        binding.ivNewFirmware.visibility = if(it)View.VISIBLE else View.GONE
+                    }
+                }
 
                 launch {
                     viewModel.logoutResult.collect {
