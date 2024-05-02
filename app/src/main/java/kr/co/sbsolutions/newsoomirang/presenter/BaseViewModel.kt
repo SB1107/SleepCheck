@@ -51,6 +51,11 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
             _isProgressBar.emit(true)
         }
     }
+    fun  dismissProgressBar() {
+        viewModelScope.launch {
+            _isProgressBar.emit(false)
+        }
+    }
 
     fun setReAuthorizeCallBack(reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack) {
         this.reAuthorizeCallBack = reAuthorizeCallBack

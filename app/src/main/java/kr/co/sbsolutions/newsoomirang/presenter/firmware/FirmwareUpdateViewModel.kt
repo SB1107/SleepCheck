@@ -3,7 +3,6 @@ package kr.co.sbsolutions.newsoomirang.presenter.firmware
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -12,16 +11,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
+import kr.co.sbsolutions.newsoomirang.data.api.DownloadServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
+import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
-import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import okhttp3.OkHttpClient
+import okio.use
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import javax.inject.Inject
+import javax.inject.Named
+
 
 @HiltViewModel
 class FirmwareUpdateViewModel
@@ -29,34 +37,88 @@ class FirmwareUpdateViewModel
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
+    @Named("Default")
+    private val provideDefaultOkHttpClient: OkHttpClient,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _checkFirmWaveVersion: MutableStateFlow<Pair<Boolean, FirmwareData?>> = MutableStateFlow(Pair(false, null))
-    val checkFirmWaveVersion: StateFlow<Pair<Boolean, FirmwareData?>> = _checkFirmWaveVersion
+    private val _checkFirmWaveVersion: MutableStateFlow<FirmwareDataModel?> = MutableStateFlow(null)
+    val checkFirmWaveVersion: StateFlow<FirmwareDataModel?> = _checkFirmWaveVersion
+    private var firmwareDataValue: FirmwareData? = null
 
+    private fun downloadFirmware(url: String, path: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            DownloadAPIRepository(
+                Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create())
+                    .client(provideDefaultOkHttpClient).build().create(DownloadServiceAPI::class.java)
+            )
+                .getDownloadZipFile()
+                .collect {
+                    when (it) {
+                        is ApiResponse.Failure -> {
+                            dismissProgressBar()
+                            sendErrorMessage(it.errorCode.msg)
+                        }
 
-    fun getFirmwareVersion() {
+                        ApiResponse.Loading -> {
+                            showProgressBar()
+                        }
+
+                        ApiResponse.ReAuthorize -> {}
+
+                        is ApiResponse.Success -> {
+                            dismissProgressBar()
+                            val urls = url.split("/")
+                            val fileName = urls.last()
+                            val tempFile = File(path, fileName)
+                            it.data.let { data ->
+                                data.byteStream().use { inputStream ->
+                                    tempFile.outputStream().use { outStream ->
+                                        inputStream.copyTo(outStream)
+                                    }
+                                }
+                                _checkFirmWaveVersion.tryEmit(
+                                    FirmwareDataModel(
+                                        isShow = false,
+                                        firmwareFileName = fileName,
+                                        firmwareVersion = firmwareDataValue?.firmwareVersion ?: "",
+                                        deviceName = firmwareDataValue?.deviceName ?: "",
+                                        deviceAddress = firmwareDataValue?.deviceAddress ?: ""
+                                    )
+                                )
+                                cancel()
+                            }
+                        }
+                    }
+                }
+        }
+
+    }
+
+    fun getFirmwareVersion(path: String) {
         viewModelScope.launch {
-            getService()?.getFirmwareVersion()?.collectLatest {
-                if (it == null) {
-                    _checkFirmWaveVersion.tryEmit(Pair(true, null))
+            getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
+                if (firmwareData == null) {
+                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
                     cancel()
                     return@collectLatest
                 }
 
-                request { authAPIRepository.getNewFirmVersion(it.deviceName) }.collectLatest { firmware ->
+                request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }.collectLatest { firmware ->
                     firmware.newFirmVer?.let { ver ->
-                        if (hasUpdate(it.firmwareVersion, ver)) {
-                            deviceDisconnectConnect(it)
+                        if (hasUpdate(firmwareData.firmwareVersion, ver)) {
+                            firmware.url?.let { url ->
+                                firmwareDataValue = firmwareData
+                                deviceDisconnectConnect(url, path)
+                            }
                             cancel()
                             delay(100)
                         } else {
-                            _checkFirmWaveVersion.tryEmit(Pair(false, it))
+                            _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
                             cancel()
                             delay(100)
                         }
                     } ?: run {
-                        _checkFirmWaveVersion.tryEmit(Pair(false, it))
+                        _checkFirmWaveVersion.tryEmit(FirmwareDataModel(false, "", "", " ", ""))
                         cancel()
                         delay(100)
                     }
@@ -67,12 +129,13 @@ class FirmwareUpdateViewModel
         }
     }
 
-    private fun deviceDisconnectConnect(firmwareData: FirmwareData) {
+    private fun deviceDisconnectConnect(url: String, path: String) {
         viewModelScope.launch {
             getService()?.disconnectDevice()
             getService()?.getSbSensorInfo()?.collectLatest {
                 if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
-                    _checkFirmWaveVersion.tryEmit(Pair(true, firmwareData))
+                    downloadFirmware(url, path)
+
                     cancel()
                     delay(100)
                     return@collectLatest

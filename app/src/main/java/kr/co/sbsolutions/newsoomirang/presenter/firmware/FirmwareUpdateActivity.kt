@@ -19,12 +19,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityFirmwaveUpdateBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
@@ -33,6 +35,7 @@ import kr.co.sbsolutions.newsoomirang.service.DfuService
 import no.nordicsemi.android.dfu.DfuProgressListenerAdapter
 import no.nordicsemi.android.dfu.DfuServiceInitiator
 import no.nordicsemi.android.dfu.DfuServiceListenerHelper
+import java.io.File
 
 
 @AndroidEntryPoint
@@ -57,7 +60,8 @@ class FirmwareUpdateActivity : BluetoothActivity() {
         binding.composeView.apply {
             setContent { RootView() }
         }
-        viewModel.sendFirmwareUpdate()
+
+        viewModel.getFirmwareVersion(cacheDir.path)
         setObservers()
     }
 
@@ -89,12 +93,11 @@ class FirmwareUpdateActivity : BluetoothActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.checkFirmWaveVersion.collectLatest {
-                        val (isUpdate, firmwareVersion) = it
-                        binding.updateProgress.clProgress.visibility = if (isUpdate) View.VISIBLE else View.GONE
-                        if (isUpdate) {
-                            firmwareVersion?.let { firmwareData ->
-                                updateFirmware(firmwareData)
+                    viewModel.checkFirmWaveVersion.collectLatest { firmware ->
+                        binding.updateProgress.clProgress.visibility = if (firmware?.isShow == true) View.VISIBLE else View.GONE
+                        launch(Dispatchers.IO) {
+                            if (firmware?.isShow == true) {
+                                updateFirmware(firmware)
                             }
                         }
                     }
@@ -109,20 +112,20 @@ class FirmwareUpdateActivity : BluetoothActivity() {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
+
             }
         }
     }
 
-    private fun updateFirmware(firmwareData: FirmwareData) {
-        val assetsUri = Uri.parse("file:///android_asset/soomwith_update.zip")
-        Log.d(TAG, "onCreate: ${assetsUri.path}")
+    private suspend fun updateFirmware(firmwareData: FirmwareDataModel) {
+        val file = File(cacheDir, firmwareData.firmwareFileName)
 
         val starter = DfuServiceInitiator(firmwareData.deviceAddress)
             .setDeviceName(firmwareData.deviceName)
             .setKeepBond(true)
         starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
         starter.setPrepareDataObjectDelay(300L)
-        starter.setZip(assetsUri)
+        starter.setZip(Uri.fromFile(file))
         starter.start(this, DfuService::class.java)
         DfuServiceListenerHelper.registerProgressListener(this, dfuProgressListener)
         DfuServiceInitiator.createDfuNotificationChannel(this)

@@ -20,6 +20,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
+import okhttp3.ResponseBody
 import java.io.File
 
 interface RemoteLoginDataSource {
@@ -48,6 +49,6 @@ interface RemoteAuthDataSource {
      
      fun getNewFirmVersion(deviceName: String) : Flow<ApiResponse<FirmwareEntity>>
 }
-interface  RemoteDownload {
-     fun getDownloadZipFile(): Flow<UserEntity>
+interface RemoteDownload {
+     fun getDownloadZipFile(): Flow<ApiResponse<ResponseBody>>
 }
