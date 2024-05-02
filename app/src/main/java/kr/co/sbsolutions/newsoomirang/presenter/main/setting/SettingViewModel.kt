@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -22,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
@@ -71,23 +71,27 @@ class SettingViewModel @Inject constructor(
                     delay(100)
                     return@collectLatest
                 }
-//                Log.e(TAG, "getFirmwareVersion22: ${deviceInfo}")
-                deviceInfo?.let { info ->
-                    request { remoteAuthDataSource.getNewFirmVersion(info.deviceName) }.collectLatest { result ->
-//                        Log.d(TAG, "getFirmwareVersion: $result")
-                        if (result.success) {
-                            result.result?.newFirmVer?.let { newFirmVer ->
-                                _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))
-                                cancel()
-                                delay(100)
-                            }
-                        }
-                    }
-                }
-                return@collectLatest
+                deviceInfo?.let { getNewFirmVersion(it) }
             }
         }
     }
+    
+    private fun getNewFirmVersion(deviceInfo: FirmwareData?) {
+        viewModelScope.launch {
+            deviceInfo?.let { info ->
+                request { remoteAuthDataSource.getNewFirmVersion(info.deviceName) }.collectLatest { result ->
+                    Log.d(TAG, "getFirmwareVersion: $result")
+                    result.result?.newFirmVer?.let { newFirmVer ->
+                        _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))
+                        Log.d(TAG, "getFirmwareVersion000: ${hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer)}")
+                        cancel()
+                        delay(100)
+                    }
+                }
+            }
+        }
+    }
+    
     //로그아웃
     fun logout() {
         if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime ||
