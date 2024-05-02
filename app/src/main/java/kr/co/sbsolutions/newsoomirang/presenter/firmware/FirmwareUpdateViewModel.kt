@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -22,6 +23,7 @@ import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
@@ -88,6 +90,9 @@ class FirmwareUpdateViewModel
                 .collectLatest { firmware ->
                     firmware.result?.let { result ->
                         serverFirmwareVersion = result.newFirmVer ?: "1.0.0"
+                        /*Log.d(TAG, "getAPICall: ${hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)}")
+                        Log.d(TAG, "getAPICall1: ${firmwareData.firmwareVersion}")
+                        Log.d(TAG, "getAPICall2: ${serverFirmwareVersion!!}")*/
                         if (hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)) {
                             result.url?.let { url ->
                                 firmwareDataValue = firmwareData
@@ -109,9 +114,21 @@ class FirmwareUpdateViewModel
 
     fun getFirmwareVersion(path: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+            val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+            if ( address == null || deviceName == null) {
+                _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+                cancel()
+                delay(100)
+                return@launch
+            }
             getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
                 if (firmwareData == null) {
-                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+//                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+                    _nextAPICall.emit(Pair(path,FirmwareData(firmwareVersion = "0.0.0",
+                        deviceName = deviceName,
+                        deviceAddress = address))
+                    )
                     return@collectLatest
                 }
                 _nextAPICall.emit(Pair(path, firmwareData))

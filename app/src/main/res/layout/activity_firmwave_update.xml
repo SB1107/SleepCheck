@@ -13,6 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_latest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="숨이랑이 최신버전입니다."
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <include
         android:id="@+id/action_progress"

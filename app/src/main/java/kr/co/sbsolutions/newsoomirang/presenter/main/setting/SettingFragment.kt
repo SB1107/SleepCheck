@@ -95,7 +95,12 @@ class SettingFragment : Fragment() {
 
         binding.tvVersionName.text = "앱 버전 : ${BuildConfig.VERSION_NAME}"
     }
-
+    
+    override fun onResume() {
+        super.onResume()
+        viewModel.getFirmwareVersion()
+    }
+    
     private fun webViewActivity(webType: WebType) {
         startActivity(Intent(requireContext(), WebViewActivity::class.java).apply {
             putExtra("webTypeUrl", webType.url)
