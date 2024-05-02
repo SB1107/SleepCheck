@@ -349,4 +349,24 @@ fun Any.timeStamp(dateFormat: String = "yyyy년 MM월 dd일 HH시 mm분 SS.sss�
     return timeStamp
 }
 
+fun hasUpdate(currentVer: String, compareVer: String): Boolean {
+    val curVer = currentVer.split(".").map { it.toInt() }
+    val comVer = compareVer.split(".").map { it.toInt() }
+    
+    // 메이저 버전 비교
+    if (comVer[0] > curVer[0]) {
+        return true
+    }
+    // 마이너 버전 비교
+    else if (comVer[1] > curVer[1]) {
+        return true
+    }
+    // 패치 버전 비교
+    else if (comVer[2] > curVer[2]) {
+        return true
+    }
+    // 버전이 같음
+    return false
+}
+
 

@@ -1,23 +1,9 @@
 package kr.co.sbsolutions.newsoomirang
 
-import android.annotation.SuppressLint
-import android.util.Log
-import android.widget.RelativeLayout
-import androidx.appcompat.widget.AppCompatTextView
-import com.google.android.material.card.MaterialCardView
-import kotlinx.coroutines.flow.first
-import kr.co.sbsolutions.newsoomirang.common.Cons
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.toDp2Px
-import kr.co.sbsolutions.newsoomirang.common.toHourMinute
-import kr.co.sbsolutions.newsoomirang.data.model.SocialTypeModel
-import kr.co.sbsolutions.newsoomirang.presenter.login.SocialType
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import org.junit.Test
 
 import org.junit.Assert.*
-import java.math.BigInteger
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -27,6 +13,64 @@ import java.util.Locale
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+    
+    /*@Test
+    fun compareVersions(currentVersion: String = "1.1.1", newVersion: String = "1.1.2"): Boolean {
+        val v1Components = currentVersion.split(".")
+        val v2Components = newVersion.split(".")
+        
+        for (i in 0 until maxOf(v1Components.size, v2Components.size)) {
+            val v1Component = v1Components.getOrElse(i) { "0" }.toInt()
+            val v2Component = v2Components.getOrElse(i) { "0" }.toInt()
+            println("1 $v1Component")
+            println("2 $v2Component")
+            
+            if (v1Component > v2Component) {
+                return false
+            } else if (v1Component < v2Component) {
+                return true
+            }
+        }
+        return false
+    }*/
+    
+    @Test
+    fun isNewerVersion(version1: String = "1.1.1", version2: String = "1.1.10"): Boolean {
+        val version1Parts = version1.split(".")
+        val version2Parts = version2.split(".")
+        
+        
+        println("11 ${version1Parts[0]}")
+        println("21 ${version2Parts[0]}")
+        println("12 ${version1Parts[2]}")
+        println("22 ${version2Parts[2]}")
+        // Compare major versions
+        if (version1Parts[0].toInt() < version2Parts[0].toInt()) {
+            return true
+        } else if (version1Parts[0].toInt() > version2Parts[0].toInt()) {
+            return false
+        }
+        
+        // Compare minor versions
+        if (version1Parts[1].toInt() < version2Parts[1].toInt()) {
+            return true
+        } else if (version1Parts[1].toInt() > version2Parts[1].toInt()) {
+            return false
+        }
+        
+        // Compare patch versions
+        if (version1Parts.size > 2 && version2Parts.size > 2) {
+            if (version1Parts[2].toInt() < version2Parts[2].toInt()) {
+                return true
+            } else if (version1Parts[2].toInt() > version2Parts[2].toInt()) {
+                return false
+            }
+        }
+        
+        // Versions are equal
+        return false
+    }
+    
     
     @Test
     fun nullName(){
