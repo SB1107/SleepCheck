@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -12,12 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
 import kr.co.sbsolutions.newsoomirang.data.api.DownloadServiceAPI
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
 import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
@@ -106,10 +107,11 @@ class FirmwareUpdateViewModel
                 }
 
                 request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }.collectLatest { firmware ->
-                    firmware.newFirmVer?.let { ver ->
-                        if (hasUpdate(firmwareData.firmwareVersion, ver)) {
-                            firmware.url?.let { url ->
+                    firmware.result?.let { result ->
+                        if (hasUpdate(firmwareData.firmwareVersion, result.newFirmVer ?: "1.0.0")) {
+                            result.url?.let { url ->
                                 firmwareDataValue = firmwareData
+                                Log.e(TAG, "getFirmwareVersion: ${url}", )
                                 deviceDisconnectConnect(url, path)
                             }
                             cancel()

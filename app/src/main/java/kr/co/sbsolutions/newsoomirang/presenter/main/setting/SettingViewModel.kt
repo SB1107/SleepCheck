@@ -76,7 +76,7 @@ class SettingViewModel @Inject constructor(
                     request { remoteAuthDataSource.getNewFirmVersion(info.deviceName) }.collectLatest { result ->
 //                        Log.d(TAG, "getFirmwareVersion: $result")
                         if (result.success) {
-                            result.newFirmVer?.let { newFirmVer ->
+                            result.result?.newFirmVer?.let { newFirmVer ->
                                 _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))
                                 cancel()
                                 delay(100)
