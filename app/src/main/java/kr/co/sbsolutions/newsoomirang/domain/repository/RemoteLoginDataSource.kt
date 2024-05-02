@@ -44,4 +44,6 @@ interface RemoteAuthDataSource {
      fun postDisconnect(sensorInfo: CheckSensor) : Flow<ApiResponse<BaseEntity>>
 
      fun getFAQ() : Flow<ApiResponse<FAQEntity>>
+     
+     fun getNewFirmVersion() : Flow<ApiResponse<UserEntity>>
 }
