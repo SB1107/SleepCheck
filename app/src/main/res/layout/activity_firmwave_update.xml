@@ -16,6 +16,11 @@
 
     <include
         android:id="@+id/action_progress"
+        layout="@layout/row_progress"
+        android:visibility="visible" />
+
+    <include
+        android:id="@+id/update_progress"
         layout="@layout/row_firm_progress"
         android:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>
