@@ -5,9 +5,11 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -47,11 +49,12 @@ class FirmwareUpdateViewModel
     private val _checkFirmWaveVersion: MutableStateFlow<Pair<Boolean, DfuServiceInitiator?>> = MutableStateFlow(Pair(false, null))
     val checkFirmWaveVersion: StateFlow<Pair<Boolean, DfuServiceInitiator?>> = _checkFirmWaveVersion
     private var firmwareDataValue: FirmwareData? = null
+    private val _nextAPICall: MutableSharedFlow<Pair<String ,FirmwareData>> = MutableSharedFlow()
 
     private fun downloadFirmware(url: String, path: String) {
         viewModelScope.launch(Dispatchers.IO) {
             DownloadAPIRepository(
-                Retrofit.Builder().baseUrl(url).addConverterFactory(GsonConverterFactory.create())
+                Retrofit.Builder().baseUrl(url.plus("/")).addConverterFactory(GsonConverterFactory.create())
                     .client(provideDefaultOkHttpClient).build().create(DownloadServiceAPI::class.java)
             )
                 .getDownloadZipFile()
@@ -94,32 +97,20 @@ class FirmwareUpdateViewModel
                     }
                 }
         }
-
     }
 
-    fun getFirmwareVersion(path: String) {
-        viewModelScope.launch {
-            getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
-                if (firmwareData == null) {
-                    _checkFirmWaveVersion.tryEmit(Pair(false, null))
-                    cancel()
-                    return@collectLatest
-                }
-
-                request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }.collectLatest { firmware ->
+    private  fun getAPICall(path : String  ,firmwareData: FirmwareData) {
+        viewModelScope.launch(Dispatchers.IO) {
+            request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }
+                .collectLatest { firmware ->
                     firmware.result?.let { result ->
                         if (hasUpdate(firmwareData.firmwareVersion, result.newFirmVer ?: "1.0.0")) {
                             result.url?.let { url ->
                                 firmwareDataValue = firmwareData
-                                Log.e(TAG, "getFirmwareVersion: ${url}", )
                                 deviceDisconnectConnect(url, path)
                             }
-                            cancel()
-                            delay(100)
                         } else {
                             _checkFirmWaveVersion.tryEmit(Pair(false, null))
-                            cancel()
-                            delay(100)
                         }
                     } ?: run {
                         _checkFirmWaveVersion.tryEmit(Pair(false, null))
@@ -127,7 +118,27 @@ class FirmwareUpdateViewModel
                         delay(100)
                     }
                 }
+        }
 
+
+    }
+
+    fun getFirmwareVersion(path: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
+                if (firmwareData == null) {
+                    _checkFirmWaveVersion.tryEmit(Pair(false, null))
+                    return@collectLatest
+                }
+                _nextAPICall.emit(Pair(path ,firmwareData))
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            _nextAPICall.collectLatest {
+                val (path, data) = it
+                getAPICall(path , data)
+                cancel()
+                delay(100)
                 return@collectLatest
             }
         }
