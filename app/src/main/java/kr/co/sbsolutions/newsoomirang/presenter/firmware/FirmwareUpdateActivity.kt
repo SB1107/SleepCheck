@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -19,14 +18,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
-import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityFirmwaveUpdateBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
@@ -35,7 +31,6 @@ import kr.co.sbsolutions.newsoomirang.service.DfuService
 import no.nordicsemi.android.dfu.DfuProgressListenerAdapter
 import no.nordicsemi.android.dfu.DfuServiceInitiator
 import no.nordicsemi.android.dfu.DfuServiceListenerHelper
-import java.io.File
 
 
 @AndroidEntryPoint
