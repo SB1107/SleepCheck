@@ -208,7 +208,10 @@ abstract class BaseServiceViewModel(
     }
 
     fun isRegistered(isConnectAlertShow: Boolean): Boolean {
-        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser || bluetoothInfo.bluetoothGatt == null) {
+        if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered
+            || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser
+            || bluetoothInfo.bluetoothGatt == null
+            || (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedNotIntent && getService()?.getTime() == 0)) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             /*if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
                 viewModelScope.launch {
