@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +33,9 @@ class TimeCountUseCase(
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
                 notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O){
+                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                }
                 dataManager.setTimer(timeHelper.getTime())
                 dataManager.setNoseRingTimer(noseRingHelper.getSnoreTime())
                 dataManager.setCoughCount(noseRingHelper.getCoughCount())
