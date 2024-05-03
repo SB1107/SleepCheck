@@ -427,6 +427,12 @@ class HistoryDetailActivity : BaseActivity() {
                     BarChartView("깊은수면", data.sleepTime ?: 0, it, scrollState)
                 }
             }
+            Text(
+                text = data.ment ?:"",
+                color = Color.White,
+                fontSize = 21.sp,
+                fontWeight = FontWeight.Normal
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = data.description ?: "",

@@ -99,5 +99,6 @@ data class SleepDetailResult(
     val breathScore: Int? = null,
     @SerializedName("snore_score")
     val snoreScore: Int? = null,
-    
+    @SerializedName("ment")
+    val ment : String? =null
     )
