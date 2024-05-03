@@ -1,7 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateIntAsState
@@ -33,12 +32,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,7 +65,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.InpuMintoHourMinute
 import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
@@ -431,6 +427,12 @@ class HistoryDetailActivity : BaseActivity() {
                     BarChartView("깊은수면", data.sleepTime ?: 0, it, scrollState)
                 }
             }
+            Text(
+                text = data.ment ?:"",
+                color = Color.White,
+                fontSize = 21.sp,
+                fontWeight = FontWeight.Normal
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = data.description ?: "",
