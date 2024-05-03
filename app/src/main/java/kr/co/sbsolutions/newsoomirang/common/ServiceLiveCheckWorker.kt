@@ -37,7 +37,7 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
             Log.e(TAG, "doWork: isServiceRunning = $isServiceRunning" )
             logHelper.insertLog("service live check = $isServiceRunning isConnect = $isConnect deviceName = $deviceName")
             val hasSensor = dataManager.getHasSensor().first()
-            if(isConnect.not() && hasSensor){
+            if(isConnect.not() && hasSensor && isServiceRunning){
                 BLEService.getInstance()?.connectDevice(true)
                 logHelper.insertLog("ServiceWorker connect call")
             }
