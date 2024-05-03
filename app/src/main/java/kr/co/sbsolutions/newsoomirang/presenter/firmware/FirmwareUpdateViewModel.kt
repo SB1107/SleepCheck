@@ -122,6 +122,8 @@ class FirmwareUpdateViewModel
             val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
             if (address == null || deviceName == null) {
                 _checkFirmwareVersion.tryEmit(FirmwareDataModel())
+                dismissProgressBar()
+                sendErrorMessage("기기와 연결을 진행해 주세요")
                 cancel()
                 delay(100)
                 return@launch
