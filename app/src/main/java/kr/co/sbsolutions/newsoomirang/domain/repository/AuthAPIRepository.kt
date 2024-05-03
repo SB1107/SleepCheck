@@ -18,6 +18,7 @@ import kr.co.sbsolutions.newsoomirang.domain.apiRequestFlow
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SensorFirmVersion
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -104,5 +105,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     
     override fun getNewFirmVersion(device: String): Flow<ApiResponse<FirmwareEntity>> = apiRequestFlow {
         api.getNewFirmVersion(device)
+    }
+    
+    override fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
+        api.postRegisterFirmVersion(sensorFirmVersion)
     }
 }

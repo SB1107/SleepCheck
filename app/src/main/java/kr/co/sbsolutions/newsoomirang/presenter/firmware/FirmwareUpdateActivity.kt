@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
@@ -64,7 +65,6 @@ class FirmwareUpdateActivity : BluetoothActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
         binding.composeView.apply {
             setContent { RootView() }
         }
@@ -169,11 +169,11 @@ class FirmwareUpdateActivity : BluetoothActivity() {
             super.onDeviceDisconnected(deviceAddress)
             lifecycleScope.launch {
                 viewModel.deviceConnect().collectLatest {
+                    delay(1000)
                     finish()
                     return@collectLatest
                 }
             }
-
         }
 
         override fun onError(deviceAddress: String, error: Int, errorType: Int, message: String?) {
@@ -184,6 +184,7 @@ class FirmwareUpdateActivity : BluetoothActivity() {
 
         override fun onDfuCompleted(deviceAddress: String) {
             super.onDfuCompleted(deviceAddress)
+            viewModel.sendFirmwareUpdate()
         }
 
     }

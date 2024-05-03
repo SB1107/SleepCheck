@@ -84,63 +84,76 @@ abstract class BaseServiceViewModel(
                             return@collectLatest
                         }
                     }
+                    
                     when (it.bluetoothState) {
                         BluetoothState.Unregistered -> {
-                                _bluetoothButtonState.tryEmit("연결")
-                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
+                            launch {
+                                _bluetoothButtonState.emit("연결")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                            }
                         }
-
+                        
                         BluetoothState.DisconnectedByUser -> {
+                            launch {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
-                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
-                                _batteryState.tryEmit("")
-                                _bluetoothButtonState.tryEmit("연결")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결")
+                            }
                         }
-
+                        
                         BluetoothState.Connected.Reconnected -> {
-                            _bluetoothButtonState.tryEmit("재 연결중")
+                            _bluetoothButtonState.emit("재 연결중")
                             setBatteryInfo()
                         }
-
+                        
                         BluetoothState.DisconnectedNotIntent -> {
+                            launch {
                                 bluetoothInfo.batteryInfo = null
-                                _batteryState.tryEmit("")
-                                _bluetoothButtonState.tryEmit("연결 끊김")
+                                _batteryState.emit("")
+                                _bluetoothButtonState.emit("연결 끊김")
+                            }
                         }
-
+                        
                         BluetoothState.Connected.Ready,
                         BluetoothState.Connected.ReceivingRealtime,
                         BluetoothState.Connected.SendDownloadContinue,
                         BluetoothState.Connected.End -> {
-                                _bluetoothButtonState.tryEmit("시작")
-                                _isHomeBleProgressBar.tryEmit(Pair(false, ""))
+                            launch {
+                                _bluetoothButtonState.emit("시작")
+                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                            }
                         }
-
+                        
                         BluetoothState.Connected.WaitStart -> {
-                                _bluetoothButtonState.tryEmit("시작")
-                                _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            launch {
+                                _bluetoothButtonState.emit("시작")
+                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            }
                         }
-
+                        
                         BluetoothState.Connected.Finish -> {
-                                _bluetoothButtonState.tryEmit("시작")
-                                _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            launch {
+                                _bluetoothButtonState.emit("시작")
+                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            }
                         }
-
+                        
                         BluetoothState.Connecting -> {
-                            _isHomeBleProgressBar.tryEmit(Pair(true, "기기와 연결중 입니다."))
-                            _bluetoothButtonState.tryEmit("재 연결중")
+                            _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                            _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                         }
-
+                        
                         BluetoothState.Connected.DataFlow,
                         BluetoothState.Connected.DataFlowUploadFinish -> {
-                            _guideAlert.tryEmit(false)
+                            _guideAlert.emit(false)
                         }
-
+                        
                         else -> {
-                            _bluetoothButtonState.tryEmit("시작")
-                            _isHomeBleProgressBar.tryEmit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            _bluetoothButtonState.emit("시작")
+                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
                         }
                     }
                 }

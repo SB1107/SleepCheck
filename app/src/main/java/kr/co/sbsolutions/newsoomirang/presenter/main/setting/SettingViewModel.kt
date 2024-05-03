@@ -63,15 +63,20 @@ class SettingViewModel @Inject constructor(
     }
     fun getFirmwareVersion() {
         viewModelScope.launch {
-            ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
-//                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}")
-                if (deviceInfo?.firmwareVersion.isNullOrEmpty()){
-                    _updateCheckResult.emit(true)
-                    cancel()
-                    delay(100)
-                    return@collectLatest
+            getService()?.getSbSensorInfo()?.value?.bluetoothState?.let { infoState ->
+                if ( infoState == BluetoothState.Connected.Ready ||
+                    infoState == BluetoothState.Connected.Init ||
+                    infoState == BluetoothState.Connected.End )
+                ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
+                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}")
+                    if (deviceInfo?.firmwareVersion.isNullOrEmpty()) {
+                        _updateCheckResult.emit(true)
+                        cancel()
+                        delay(100)
+                        return@collectLatest
+                    }
+                    deviceInfo?.let { getNewFirmVersion(it) }
                 }
-                deviceInfo?.let { getNewFirmVersion(it) }
             }
         }
     }

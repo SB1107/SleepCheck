@@ -16,6 +16,7 @@ import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SensorFirmVersion
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
@@ -48,6 +49,8 @@ interface RemoteAuthDataSource {
      fun getFAQ() : Flow<ApiResponse<FAQEntity>>
      
      fun getNewFirmVersion(deviceName: String) : Flow<ApiResponse<FirmwareEntity>>
+     
+     fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion) : Flow<ApiResponse<BaseEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>

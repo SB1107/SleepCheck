@@ -14,6 +14,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.UserEntity
 import kr.co.sbsolutions.newsoomirang.domain.model.CheckSensor
 import kr.co.sbsolutions.newsoomirang.domain.model.ContactDetail
 import kr.co.sbsolutions.newsoomirang.domain.model.PolicyModel
+import kr.co.sbsolutions.newsoomirang.domain.model.SensorFirmVersion
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepCreateModel
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepDataRemoveModel
 import okhttp3.MultipartBody
@@ -92,4 +93,7 @@ interface AuthServiceAPI {
     
     @GET("sleepdata/chkversion")
     suspend fun getNewFirmVersion(@Query("number") id: String): Response<FirmwareEntity>
+    
+    @POST("sleepdata/regversion")
+    suspend fun postRegisterFirmVersion(@Body sensorFirmVersion: SensorFirmVersion) : Response<BaseEntity>
 }

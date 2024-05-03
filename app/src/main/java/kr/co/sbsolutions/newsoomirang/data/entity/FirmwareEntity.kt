@@ -9,7 +9,7 @@ data class FirmwareEntity(
 ) : BaseEntity()
 
 @Keep
-data class FirmwareEntityData(
+data class FirmwareEntityData (
     @SerializedName("ver")
     val newFirmVer: String? = null,
     @SerializedName("url")
