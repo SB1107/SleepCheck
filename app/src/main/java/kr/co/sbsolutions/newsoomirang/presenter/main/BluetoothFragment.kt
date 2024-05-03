@@ -27,7 +27,6 @@ abstract class BluetoothFragment : Fragment() {
                 baseViewModel.setLogHelper(mainActivity.logHelper)
             }
         }
-
     }
 
     private val connectInfoDialog by lazy {

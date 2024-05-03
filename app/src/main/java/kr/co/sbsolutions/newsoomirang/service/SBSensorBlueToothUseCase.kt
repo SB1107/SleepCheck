@@ -113,12 +113,6 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    @Deprecated("삭제됨?")
-    fun isDataFlowState(): Boolean {
-        return bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlow ||
-                bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Connected.DataFlowUploadFinish
-    }
-
     fun connectedDevice(device: BluetoothDevice?) {
         timerOfDisconnection?.cancel()
         timerOfDisconnection = null

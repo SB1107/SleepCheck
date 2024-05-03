@@ -1,7 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,13 +14,12 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
-import kr.co.sbsolutions.newsoomirang.data.server.ApiResponse
+import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareUpdateModel
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.repository.DownloadAPIRepository
@@ -30,7 +28,6 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseServiceViewModel
 import no.nordicsemi.android.dfu.DfuServiceInitiator
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Named
 
 
 @HiltViewModel
@@ -42,44 +39,43 @@ class FirmwareUpdateViewModel
     private val downloadAPIRepository: DownloadAPIRepository,
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
-    private val _checkFirmWaveVersion: MutableStateFlow<FirmwareDataModel> = MutableStateFlow(FirmwareDataModel())
-    val checkFirmWaveVersion: StateFlow<FirmwareDataModel> = _checkFirmWaveVersion
-    private var firmwareDataValue: FirmwareData? = null
+    private val _checkFirmwareVersion: MutableStateFlow<FirmwareDataModel> = MutableStateFlow(FirmwareDataModel())
+    val checkFirmWaveVersion: StateFlow<FirmwareDataModel> = _checkFirmwareVersion
+    private val _firmwareUpdate: MutableStateFlow<FirmwareUpdateModel?> = MutableStateFlow(null)
+    val firmwareUpdate: StateFlow<FirmwareUpdateModel?> = _firmwareUpdate
     private var serverFirmwareVersion: String? = null
     private val _nextAPICall: MutableSharedFlow<Pair<String, FirmwareData>> = MutableSharedFlow()
 
-    private fun downloadFirmware(url: String, path: String) {
+    private fun downloadFirmware(model: FirmwareUpdateModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            val urls = url.replace("http://sb-solutions1.net/", "").split("/")
+            val urls = model.url.replace("http://sb-solutions1.net/", "").split("/")
             val urlPath = urls.dropLast(1).joinToString("/")
             val fileName = urls.last()
             showProgressBar()
             downloadAPIRepository.getDownloadZipFile(urlPath, fileName)
                 .collect {
-                    val tempFile = File(path, fileName)
+                    val tempFile = File(model.filePath, fileName)
                     it.byteStream().use { inputStream ->
                         tempFile.outputStream().use { outStream ->
                             inputStream.copyTo(outStream)
                         }
                     }
-                    firmwareDataValue?.let { data ->
-                        val starter = DfuServiceInitiator(data.deviceAddress)
-                            .setDeviceName(data.deviceName)
-                            .setKeepBond(true)
-                        starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
-                        starter.setPrepareDataObjectDelay(300L)
-                        starter.setZip(Uri.fromFile(tempFile))
-                        _checkFirmWaveVersion.tryEmit(
-                            FirmwareDataModel(
-                                isShow = true,
-                                dfuServiceInitiator = starter,
-                                firmwareVersion = data.firmwareVersion,
-                                deviceName = data.deviceName,
-                                deviceAddress = data.deviceAddress,
-                                serverFirmwareVersion = serverFirmwareVersion ?: "1.0.0"
-                            )
+                    val starter = DfuServiceInitiator(model.deviceAddress)
+                        .setDeviceName(model.deviceName)
+                        .setKeepBond(true)
+                    starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true)
+                    starter.setPrepareDataObjectDelay(300L)
+                    starter.setZip(Uri.fromFile(tempFile))
+                    _checkFirmwareVersion.tryEmit(
+                        FirmwareDataModel(
+                            isShow = true,
+                            dfuServiceInitiator = starter,
+                            firmwareVersion = model.firmwareVersion,
+                            deviceName = model.deviceName,
+                            deviceAddress = model.deviceAddress,
+                            serverFirmwareVersion = serverFirmwareVersion ?: "1.0.0"
                         )
-                    }
+                    )
                 }
         }
     }
@@ -95,14 +91,22 @@ class FirmwareUpdateViewModel
                         Log.d(TAG, "getAPICall2: ${serverFirmwareVersion!!}")*/
                         if (hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)) {
                             result.url?.let { url ->
-                                firmwareDataValue = firmwareData
-                                deviceDisconnectConnect(url, path)
+                                _firmwareUpdate.tryEmit(
+                                    FirmwareUpdateModel(
+                                        filePath = path,
+                                        url = url,
+                                        firmwareVersion = firmwareData.firmwareVersion,
+                                        updateVersion = serverFirmwareVersion!!,
+                                        deviceName = firmwareData.deviceName,
+                                        deviceAddress = firmwareData.deviceAddress
+                                    )
+                                )
                             }
                         } else {
-                            _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+                            _checkFirmwareVersion.tryEmit(FirmwareDataModel())
                         }
                     } ?: run {
-                        _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+                        _checkFirmwareVersion.tryEmit(FirmwareDataModel())
                         cancel()
                         delay(100)
                     }
@@ -116,18 +120,22 @@ class FirmwareUpdateViewModel
         viewModelScope.launch(Dispatchers.IO) {
             val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
             val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-            if ( address == null || deviceName == null) {
-                _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
+            if (address == null || deviceName == null) {
+                _checkFirmwareVersion.tryEmit(FirmwareDataModel())
                 cancel()
                 delay(100)
                 return@launch
             }
             getService()?.getFirmwareVersion()?.collectLatest { firmwareData ->
                 if (firmwareData == null) {
-//                    _checkFirmWaveVersion.tryEmit(FirmwareDataModel())
-                    _nextAPICall.emit(Pair(path,FirmwareData(firmwareVersion = "0.0.0",
-                        deviceName = deviceName,
-                        deviceAddress = address))
+                    _nextAPICall.emit(
+                        Pair(
+                            path, FirmwareData(
+                                firmwareVersion = "0.0.1",
+                                deviceName = deviceName,
+                                deviceAddress = address
+                            )
+                        )
                     )
                     return@collectLatest
                 }
@@ -136,8 +144,8 @@ class FirmwareUpdateViewModel
         }
         viewModelScope.launch(Dispatchers.IO) {
             _nextAPICall.collectLatest {
-                val (path, data) = it
-                getAPICall(path, data)
+                val (filePath, data) = it
+                getAPICall(filePath, data)
                 cancel()
                 delay(100)
                 return@collectLatest
@@ -145,12 +153,12 @@ class FirmwareUpdateViewModel
         }
     }
 
-    private fun deviceDisconnectConnect(url: String, path: String) {
+    private fun deviceDisconnectConnect(model: FirmwareUpdateModel) {
         viewModelScope.launch {
             getService()?.disconnectDevice()
             getService()?.getSbSensorInfo()?.collectLatest {
                 if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
-                    downloadFirmware(url, path)
+                    downloadFirmware(model)
 
                     cancel()
                     delay(100)
@@ -175,6 +183,10 @@ class FirmwareUpdateViewModel
             }
         }
         awaitClose()
+    }
+
+    fun firmwareUpdateCall(model: FirmwareUpdateModel) {
+        deviceDisconnectConnect(model)
     }
 
     fun sendFirmwareUpdate() {

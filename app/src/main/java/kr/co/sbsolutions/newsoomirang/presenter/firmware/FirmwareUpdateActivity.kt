@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.firmware
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,13 +18,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityFirmwaveUpdateBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogConnectInfoBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogFirmwareUpdateBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.BluetoothActivity
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
@@ -38,6 +43,14 @@ class FirmwareUpdateActivity : BluetoothActivity() {
     private val viewModel: FirmwareUpdateViewModel by viewModels()
     private val binding: ActivityFirmwaveUpdateBinding by lazy {
         ActivityFirmwaveUpdateBinding.inflate(layoutInflater)
+    }
+    private val firmwareUpdateBinding: DialogFirmwareUpdateBinding by lazy {
+        DialogFirmwareUpdateBinding.inflate(layoutInflater)
+    }
+    private val firmwareUpdateDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(firmwareUpdateBinding.root, null)
+        }
     }
 
     override fun newBackPressed() {
@@ -84,6 +97,7 @@ class FirmwareUpdateActivity : BluetoothActivity() {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private fun setObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -109,7 +123,22 @@ class FirmwareUpdateActivity : BluetoothActivity() {
                         binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
-
+                launch {
+                    viewModel.firmwareUpdate.collectLatest {
+                        it?.let { data ->
+                            if (firmwareUpdateDialog.isShowing) {
+                                firmwareUpdateDialog.dismiss()
+                            }
+                            firmwareUpdateBinding.tvCurrentVersion.text ="현재 버전 v${data.firmwareVersion}"
+                            firmwareUpdateBinding.tvUpdateVersion.text ="업데이트 버전 v${data.updateVersion}"
+                            firmwareUpdateBinding.btDone.setOnSingleClickListener {
+                                viewModel.firmwareUpdateCall(data)
+                                firmwareUpdateDialog.dismiss()
+                            }
+                            firmwareUpdateDialog.show()
+                        }
+                    }
+                }
             }
         }
     }

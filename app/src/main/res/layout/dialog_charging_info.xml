@@ -1,75 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-
-
     <io.github.florent37.shapeofview.shapes.RoundRectView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:shape_roundRect_topLeftRadius="30dp"
-      app:shape_roundRect_topRightRadius="30dp">
-
-      <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_1A447D"
-        android:orientation="vertical">
+        app:shape_roundRect_topLeftRadius="30dp"
+        app:shape_roundRect_topRightRadius="30dp">
 
-        <RelativeLayout
-          android:layout_width="match_parent"
-          android:layout_height="30dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_1A447D"
+            android:orientation="vertical">
 
-          <com.google.android.material.card.MaterialCardView
-            android:layout_width="45dp"
-            android:layout_height="6dp"
-            android:layout_centerInParent="true"
-            android:backgroundTint="@color/color_78899F"
-            app:cardCornerRadius="5dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp">
 
-        </RelativeLayout>
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="45dp"
+                    android:layout_height="6dp"
+                    android:layout_centerInParent="true"
+                    android:backgroundTint="@color/color_78899F"
+                    app:cardCornerRadius="5dp" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-          android:layout_width="126dp"
-          android:layout_height="126dp"
-          android:layout_gravity="center_horizontal"
-          android:layout_marginTop="30dp"
-          android:src="@mipmap/img1_foreground" />
+            </RelativeLayout>
 
-        <androidx.appcompat.widget.AppCompatTextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginTop="40dp"
-          android:text="그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요."
-          android:textColor="@color/color_FFFFFF"
-          android:textSize="21sp" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="126dp"
+                android:layout_height="126dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:src="@mipmap/img1_foreground" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_done"
-          android:layout_width="match_parent"
-          android:layout_height="58dp"
-          android:layout_marginLeft="30dp"
-          android:layout_marginTop="40dp"
-          android:layout_marginRight="30dp"
-          android:layout_marginBottom="40dp"
-          android:backgroundTint="@color/color_yellow"
-          android:fontFamily="@font/nanumsquarebold"
-          android:insetTop="0dp"
-          android:insetBottom="0dp"
-          android:text="확인"
-          android:textColor="@color/color_000000"
-          android:textSize="20sp"
-          app:cornerRadius="10dp" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:text="그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요."
+                android:textColor="@color/color_FFFFFF"
+                android:textSize="21sp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_done"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="40dp"
+                android:backgroundTint="@color/color_yellow"
+                android:fontFamily="@font/nanumsquarebold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="확인"
+                android:textColor="@color/color_000000"
+                android:textSize="20sp"
+                app:cornerRadius="10dp" />
 
-      </LinearLayout>
-
-
+        </LinearLayout>
     </io.github.florent37.shapeofview.shapes.RoundRectView>
 
 
-  </LinearLayout>
+</LinearLayout>
