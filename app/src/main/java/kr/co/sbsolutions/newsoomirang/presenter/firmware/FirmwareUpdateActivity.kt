@@ -51,6 +51,10 @@ class FirmwareUpdateActivity : BluetoothActivity() {
     private val firmwareUpdateDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(firmwareUpdateBinding.root, null)
+            setOnDismissListener {
+                finish()
+            }
+            
         }
     }
 
