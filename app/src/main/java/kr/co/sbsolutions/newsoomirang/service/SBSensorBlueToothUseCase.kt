@@ -235,7 +235,7 @@ class SBSensorBlueToothUseCase(
                 }
                 startJob = lifecycleScope.launch {
                     timerOfStartMeasure?.cancel()
-                    while (retryCount <= MAX_RETRY || isStartAndStopCancel.not()) {
+                    while (retryCount <= MAX_RETRY && isStartAndStopCancel.not()) {
                         delay(1500)
                         timerOfStartMeasure = Timer().apply {
                             schedule(timerTask {
@@ -381,7 +381,7 @@ class SBSensorBlueToothUseCase(
                 bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
                 stopJob = lifecycleScope.launch {
                     timerOfStopMeasure?.cancel()
-                    while (retryCount <= MAX_RETRY || isStartAndStopCancel.not()) {
+                    while (retryCount <= MAX_RETRY && isStartAndStopCancel.not()) {
                         delay(1500)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
