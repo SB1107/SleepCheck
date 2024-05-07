@@ -417,7 +417,7 @@ fun String.getCommand(): ModuleToApp {
         "CE" -> ModuleToApp.NoSeringStopACK
         "F2" -> ModuleToApp.RealtimeData
         "C1" -> ModuleToApp.OperateACK
-        "F9" -> ModuleToApp.MOTCtrlSetACK
+        "C9" -> ModuleToApp.MOTCtrlSetACK
         "F4" -> ModuleToApp.DelayedData
         "F7" -> ModuleToApp.MemoryData
         "C5" -> ModuleToApp.MemoryDataACK
