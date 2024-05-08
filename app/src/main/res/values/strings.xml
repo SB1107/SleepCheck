@@ -201,4 +201,10 @@
     <string name="device_power_off_force_off">숨이랑 기기 스위치가 꺼졌습니다. 전원을 다시 켜고 측정해주세요.</string>
     <string name="device_measure_timeout">숨이랑 기기 측정 시간이 12시간을 초과하여, 자동으로 측정을 종료합니다.</string>
     <string name="guide_image">guide_Image</string>
+
+
+    <string name="login_info_message">숨이랑 앱 사용을 위해\n로그인이 필요합니다.</string>
+    <string name="login_google">구글 로그인</string>
+    <string name="login_kakao">카카오 로그인</string>
+
 </resources>
