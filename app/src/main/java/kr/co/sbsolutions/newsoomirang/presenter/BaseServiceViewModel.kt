@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -129,19 +130,19 @@ abstract class BaseServiceViewModel(
                         BluetoothState.Connected.WaitStart -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                                _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
                             }
                         }
                         
                         BluetoothState.Connected.Finish -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                                _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
                             }
                         }
                         
                         BluetoothState.Connecting -> {
-                            _isHomeBleProgressBar.emit(Pair(true, "기기와 연결중 입니다."))
+                            _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_conneting)))
                             _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                         }
@@ -153,7 +154,7 @@ abstract class BaseServiceViewModel(
                         
                         else -> {
                             _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(true, "센서정보를\n 받아오는 중입니다."))
+                            _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
                         }
                     }
                 }

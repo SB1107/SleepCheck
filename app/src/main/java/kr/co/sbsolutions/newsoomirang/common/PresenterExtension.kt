@@ -254,11 +254,11 @@ fun String.toDate(format: String): Date? {
     return simpleDateFormat.parse(this)
 }
 
-fun Date.toDayString(format: String): String? {
+fun Date.toDayString(format: String , locale: Locale = Locale.KOREA): String? {
     if (format.isEmpty()) {
         return null
     }
-    val simpleDateFormat = SimpleDateFormat(format, Locale.KOREA)
+    val simpleDateFormat = SimpleDateFormat(format,locale)
     return simpleDateFormat.format(this)
 }
 

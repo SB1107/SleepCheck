@@ -78,7 +78,7 @@ class SettingFragment : Fragment() {
         }
         //로그아웃
         binding.clLogout.setOnSingleClickListener {
-            requireActivity().showAlertDialogWithCancel(message = "로그아웃 하시겠습니까?", confirmAction = {
+            requireActivity().showAlertDialogWithCancel(message = getString(R.string.logout_message), confirmAction = {
                 viewModel.logout()
             })
         }
@@ -93,7 +93,7 @@ class SettingFragment : Fragment() {
             startActivity(Intent(requireContext(), LeaveActivity::class.java))
         }
 
-        binding.tvVersionName.text = "앱 버전 : ${BuildConfig.VERSION_NAME}"
+        binding.tvVersionName.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
     }
     
     override fun onResume() {

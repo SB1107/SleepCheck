@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">숨이랑</string>
-    <string name="app_version">V</string>
     <string name="version_unknown">V</string>
 
     <string name="fileprovider">com.rocat.fileprovider</string>
@@ -294,4 +293,15 @@
     <string name="other_user_sensor">다른 사용자가 센서 사용을 하여 종료 합니다.</string>
     <string name="snoring_start">시작버튼을 눌러\n코골이을 측정해 보세요</string>
     <string name="app_update">숨이랑 새로운 버전이 출시 되었어요!\n업데이트를 진행해 주세요.</string>
+    <string name="data_restore">최근 측정한 데이터를 복원 하시 겠습니까?</string>
+    <string name="logout_message">로그아웃 하시겠습니까?</string>
+    <string name="app_version">앱 버전 : %1$s</string>
+    <string name="breathing_measurable_finish">호흡 측정중 입니다.\n종료후 로그아웃을 시도해주세요</string>
+    <string name="no_history">저장된 이력이 없습니다.</string>
+    <string name="breating">호흡</string>
+    <string name="nosering">코골이</string>
+    <string name="detail">보기</string>
+    <string name="sensor_info_wait">센서정보를\n 받아오는 중입니다.</string>
+    <string name="sensor_conneting">기기와 연결중 입니다.</string>
+    <string name="Illustration_Charging">그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요.</string>
 </resources>

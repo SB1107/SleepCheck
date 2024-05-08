@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
@@ -102,7 +103,7 @@ class SettingViewModel @Inject constructor(
         if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime ||
             bluetoothInfo.bluetoothState == BluetoothState.Connected.SendDownloadContinue
         ) {
-            sendErrorMessage("호흡 측정중 입니다.\n종료후 로그아웃을 시도해주세요")
+            sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.breathing_measurable_finish))
         } else {
             registerJob("logout()",
                 viewModelScope.launch(Dispatchers.IO) {

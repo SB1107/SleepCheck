@@ -9,8 +9,9 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_guide_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="30dp"
         android:gravity="center"
         android:text="@string/guide_info_message1"
@@ -78,7 +79,7 @@
         android:fontFamily="@font/nanumsquarebold"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="@string/privacy_agree"
+        android:text="@string/common_ok"
         android:textColor="@color/color_000000"
         android:textSize="20sp"
         app:cornerRadius="10dp"
