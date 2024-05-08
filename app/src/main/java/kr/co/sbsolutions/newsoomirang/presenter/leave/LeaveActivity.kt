@@ -20,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -100,29 +100,29 @@ class LeaveActivity : AppCompatActivity() {
             mutableStateListOf(
                 CheckBoxData(
                     isChecked = false,
-                    text = "예상했던 서비스가 아니에요.",
+                    text = getString(R.string.leave_reasons_unsubscribing1),
                 ),
                 CheckBoxData(
                     isChecked = false,
-                    text = "효과를 보지 못했어요.",
+                    text = getString(R.string.leave_reasons_unsubscribing2),
                 ),
                 CheckBoxData(
                     isChecked = false,
-                    text = "앱의 기능이 부족해요.",
+                    text = getString(R.string.leave_reasons_unsubscribing3),
                 ),
                 CheckBoxData(
                     isChecked = false,
-                    text = "자주 사용하지 않아요.",
+                    text = getString(R.string.leave_reasons_unsubscribing4),
                 ),
                 CheckBoxData(
                     isChecked = false,
-                    text = "기타",
+                    text = getString(R.string.leave_reasons_unsubscribing5),
                 ),
             )
         }
 
         SoomScaffold(bgImage = R.drawable.back1,
-            topText = "회원탈퇴", topAction = { finish() },
+            topText = stringResource(R.string.leave_title_unsubscribing), topAction = { finish() },
             childView =
             {
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -133,15 +133,15 @@ class LeaveActivity : AppCompatActivity() {
                             .verticalScroll(rememberScrollState())
                     ) {
                         Spacer(modifier = Modifier.height(20.dp))
-                        TextHeader("회원탈퇴 전 아래 내용을 확인해주세요.")
+                        TextHeader(stringResource(R.string.leave_unsubscribing_info))
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        LeaveDesText(text = "고객님의 계정에 저장된 정보가 삭제될 예정입니다. 삭제된 정보는 추후에 복원할 수 없습니다.")
+                        LeaveDesText(text = stringResource(R.string.leave_unsubscribing_info_delete_data))
                         Spacer(modifier = Modifier.height(10.dp))
 //                        LeaveDesText(text = "같은 아이디로 재가입이 불가합니다.")
 
                         Spacer(modifier = Modifier.height(20.dp))
-                        TextHeader("탈퇴 사유를 선택해주세요.")
+                        TextHeader(stringResource(R.string.leave_unsubscribing_choice_reason))
                         LeaveRadioButtons(radioButtons, click = { data ->
                             checkBoxText = data.text
                             isButtonEnable = checkBoxText.isNotEmpty()
@@ -149,14 +149,14 @@ class LeaveActivity : AppCompatActivity() {
                         })
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        if (checkBoxText == "기타") {
+                        if (checkBoxText == stringResource(R.string.leave_etc)) {
                             Text(
                                 textAlign = TextAlign.End,
                                 modifier = Modifier
                                     .padding(horizontal = 30.dp)
                                     .fillMaxWidth(),
                                 style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                                text = "${etcText.length} / $maxChars 글자 이내로 입력해주세요.",
+                                text = stringResource(R.string.leave_character_limits, etcText.length, maxChars),
                             )
                             TextField(
                                 modifier = Modifier
@@ -173,7 +173,7 @@ class LeaveActivity : AppCompatActivity() {
                                 },
                                 placeholder = {
                                     Text(
-                                        text = "기타 탈퇴 사유를 입력해 주세요. 고객님의 소중한 의견을 반영하여, 더 좋은 서비스로 찾아뵙겠습니다.",
+                                        text = stringResource(R.string.leave_farewell_messages),
                                         style = TextStyle(
                                             fontSize = 16.sp,
                                             color = colorResource(id = R.color.color_282828)
@@ -215,7 +215,7 @@ class LeaveActivity : AppCompatActivity() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 5.dp),
-                            text = "안내사항을 모두 확인하였으며, 이에 동의합니다.", style = TextStyle(color = Color.White, fontSize = 19.sp),
+                            text = stringResource(R.string.leave_unsubscribing_select_agree), style = TextStyle(color = Color.White, fontSize = 19.sp),
                             textAlign = TextAlign.Start
                         )
                     }
@@ -236,9 +236,9 @@ class LeaveActivity : AppCompatActivity() {
                         enabled = isButtonEnable and isAgreeEnable,
                         onClick = {
                             if (checkBoxText.isEmpty()) {
-                                showAlertDialog(message = "동의사항을 체크해주세요.")
+                                showAlertDialog(message = getString(R.string.leave_unsubscribing_check_confrim))
                             } else {
-                                if (checkBoxText == "기타") {
+                                if (checkBoxText == getString(R.string.leave_etc)) {
                                     checkBoxText = etcText
                                 }
                                 vm.leaveButtonClick(checkBoxText)

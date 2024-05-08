@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -112,7 +113,7 @@ class ContactUsActivity : BaseServiceActivity() {
             etcText = ""
             etcTitleText = ""
         }
-        SoomScaffold(topText = "문의하기",
+        SoomScaffold(topText = stringResource(R.string.contact_title),
             topAction = { finish() },
             childView = {
                 Column(
@@ -149,7 +150,7 @@ class ContactUsActivity : BaseServiceActivity() {
         ) {
 
             SpacerHeight(size = 10)
-            TitleText(text = "문의 제목", textSize = 21)
+            TitleText(text = stringResource(R.string.contact_subject), textSize = 21)
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -159,7 +160,7 @@ class ContactUsActivity : BaseServiceActivity() {
                 onValueChange = titleValueChange,
                 placeholder = {
                     Text(
-                        text = "제목을 입력해주세요.", style = TextStyle(
+                        text = stringResource(R.string.contact_subject_enter), style = TextStyle(
                             color = colorResource(
                                 id = R.color.color_dedede
                             )
@@ -179,14 +180,14 @@ class ContactUsActivity : BaseServiceActivity() {
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                TitleText(text = "문의 내용", textSize = 21)
+                TitleText(text = stringResource(R.string.contact_contents), textSize = 21)
                 Text(
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(),
                     style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
-                    text = "${etcText.length} / 200 글자 이내로 입력해주세요.",
+                    text = stringResource(R.string.contact_character_limits, etcText.length),
                 )
             }
             OutlinedTextField(
@@ -198,7 +199,7 @@ class ContactUsActivity : BaseServiceActivity() {
                 onValueChange = textValueChange,
                 placeholder = {
                     Text(
-                        text = "문의할 내용을 입력해주세요.", style = TextStyle(
+                        text = stringResource(R.string.contact_contents_enter), style = TextStyle(
                             color = colorResource(
                                 id = R.color.color_dedede
                             )
@@ -227,18 +228,18 @@ class ContactUsActivity : BaseServiceActivity() {
 
             onClick = {
                 if (etcTitleText.isEmpty()) {
-                    showAlertDialog(message = "제목을 입력해주세요.")
+                    showAlertDialog(message = getString(R.string.contact_subject_enter))
                 } else if (etcText.isEmpty()) {
-                    showAlertDialog(message = "내용을 입력해주세요.")
+                    showAlertDialog(message = getString(R.string.contact_contents_enter))
                 } else if (etcText.length > 200) {
-                    showAlertDialog(message = "200자 이내로 입력해주세요.")
+                    showAlertDialog(message = getString(R.string.contact_character_limits_message))
                 }
                 if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
                     viewModel.sendDetail(etcTitleText, etcText)
                 }
             },
         ) {
-            DetailText(text = "등록하기", textSize = 16, color = Color.Black)
+            DetailText(text = stringResource(R.string.contact_register), textSize = 16, color = Color.Black)
         }
         SpacerHeight(size = 15)
 

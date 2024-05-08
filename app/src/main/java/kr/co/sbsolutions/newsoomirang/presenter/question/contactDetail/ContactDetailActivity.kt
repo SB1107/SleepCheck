@@ -19,10 +19,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,7 +61,7 @@ class ContactDetailActivity : BaseServiceActivity() {
     @Composable
     fun DefaultPreview(intent: Intent?) {
         SoomScaffold(
-            topText = "문의하기",
+            topText = stringResource(R.string.contact_detail_title),
             topAction = { finish() },
             childView =
             {
@@ -97,9 +97,9 @@ class ContactDetailActivity : BaseServiceActivity() {
             it?.getStringExtra("answer")
         } ?: ""
 
-        val createdAt = createDate.toDate("yy-MM-dd HH:mm")?.toDayString("yy년 MM월 dd일")
-        val endAt = if (ansCreatedAt == "") "" else ansCreatedAt.toDate("yy-MM-dd HH:mm")
-            ?.toDayString("yy년 MM월 dd일")
+        val createdAt = createDate.toDate(stringResource(R.string.date_time_format))?.toDayString(stringResource(R.string.date_time_format))
+        val endAt = if (ansCreatedAt == "") "" else ansCreatedAt.toDate(stringResource(R.string.date_time_format))
+            ?.toDayString(stringResource(R.string.date_time_format))
 
 //        val titleDate = endedAt?.toDayString("yy년 MM월 dd일")
 
@@ -122,7 +122,7 @@ class ContactDetailActivity : BaseServiceActivity() {
                         shape = RoundedCornerShape(20.dp)
                     )
                     .padding(vertical = 5.dp),
-                text = if (answer == "Y") "답변완료" else "답변전",
+                text = if (answer == "Y") stringResource(R.string.qna_answer_complete) else stringResource(R.string.qna_before_answering),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -194,7 +194,7 @@ class ContactDetailActivity : BaseServiceActivity() {
                 textAlign = TextAlign.Center,
                 fontSize = 21.sp
             ),
-            text = "답변을 등록하고 있습니다.\n조금만 기다려주세요.!"
+            text = stringResource(R.string.contact_detail_waiting_message)
         )
         SpacerHeight(size = 30)
 
@@ -215,7 +215,7 @@ class ContactDetailActivity : BaseServiceActivity() {
                     fontWeight = FontWeight.Bold,
                     fontSize = 21.sp
                 ),
-                text = "답변 내용",
+                text = stringResource(R.string.contact_detail_answer_content),
             )
             Text(
                 textAlign = TextAlign.End,

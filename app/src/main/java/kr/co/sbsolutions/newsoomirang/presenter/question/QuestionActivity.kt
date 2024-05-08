@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -110,7 +110,7 @@ class QuestionActivity : BaseActivity() {
     fun DefaultPreview(contactData: ContactEntity = ContactEntity()) {
         val scrollState = rememberLazyListState()
         SoomScaffold(
-            topText = "질의응답",
+            topText = stringResource(R.string.qna_title),
             topAction = { finish() },
             childView =
             {
@@ -131,7 +131,7 @@ class QuestionActivity : BaseActivity() {
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "문의 내역이 없습니다.",
+                                        text = stringResource(R.string.qna_no_history),
                                         fontSize = 21.sp,
                                         fontWeight = FontWeight.Normal,
                                         color = Color.White,
@@ -167,6 +167,7 @@ class QuestionActivity : BaseActivity() {
 
                                 ) {
                                     Image(
+                                        // TODO: 버튼 영문으로 변경 필요
                                         painter = painterResource(id = R.drawable.contect_icon),
                                         contentDescription = ""
                                     )
@@ -180,8 +181,8 @@ class QuestionActivity : BaseActivity() {
 
     @Composable
     fun ContactList(index: Int, data: ContactData) {
-        val endedAt = data.createdAt?.toDate("yy-MM-dd HH:mm")
-        val titleDate = endedAt?.toDayString("yy년 MM월 dd일")
+        val endedAt = data.createdAt?.toDate(stringResource(R.string.date_time_format))
+        val titleDate = endedAt?.toDayString(stringResource(R.string.date_format))
 
         if (index != 0) {
             HorizontalDivider(thickness = 1.dp, color = Color.White)
@@ -215,7 +216,7 @@ class QuestionActivity : BaseActivity() {
                                 shape = RoundedCornerShape(20.dp)
                             )
                             .padding(vertical = 5.dp),
-                        text = if (data.answer == "Y") "답변완료" else "답변전",
+                        text = if (data.answer == "Y") stringResource(R.string.qna_answer_complete) else stringResource(R.string.qna_before_answering),
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
