@@ -262,37 +262,61 @@ fun Date.toDayString(format: String , locale: Locale = Locale.KOREA): String? {
     return simpleDateFormat.format(this)
 }
 
-fun Int.InpuMintoHourMinute() : String{
+fun Int.InpuMintoHourMinute(locale: Locale = Locale.KOREA) : String{
     val time = Duration.ofMinutes(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
 
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
     return if (hours > 0) {
-        String.format("%d시간 %d분", hours, minutes)
+        if (locale == Locale.KOREA) {
+            String.format("%d시간 %d분", hours, minutes)
+        }else{
+            String.format("%d hours % minutes", hours, minutes)
+        }
     } else {
-        String.format("%d 분",minutes)
+        if (locale == Locale.KOREA) {
+            String.format("%d 분", minutes)
+        }else{
+            String.format("%d minutes", minutes)
+        }
     }
 }
-fun Int.toHourMinute(): String {
+fun Int.toHourMinute(locale: Locale = Locale.KOREA): String {
     val time = Duration.ofSeconds(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
 
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
     return if (hours > 0) {
-        String.format("%d시간 %d분", hours, minutes)
+        if (locale == Locale.KOREA) {
+            String.format("%d시간 %d분", hours, minutes)
+        }else{
+            String.format("%d hours %d minutes", hours, minutes)
+        }
     } else {
-        String.format("%d 분",minutes)
+        if (locale == Locale.KOREA) {
+            String.format("%d 분", minutes)
+        }else{
+            String.format("%d minutes", minutes)
+        }
     }
 }
-fun Int.toHourOrMinute(): String {
+fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
     val time = Duration.ofMinutes(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
 
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
     return if (hours > 0) {
-        String.format("약\n%d시간", hours)
+        if (locale == Locale.KOREA) {
+            String.format("약\n%d시간", hours)
+        }else{
+            String.format("Approx.\n%dhours", hours)
+        }
     } else {
-        String.format("약\n%d 분",minutes)
+        if (locale == Locale.KOREA) {
+            String.format("약\n%d 분", minutes)
+        }else{
+            String.format("Approx.\n%d minutes", minutes)
+        }
     }
 }
 

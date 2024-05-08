@@ -209,7 +209,7 @@ class HistoryDetailActivity : BaseActivity() {
             (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ")
                 .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
-        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
+        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(LocalConfiguration.current.locales[0])
 
         Column(
             Modifier
@@ -255,16 +255,16 @@ class HistoryDetailActivity : BaseActivity() {
             
             RowTexts(startText = stringResource(R.string.detil_time), endText = min)
             data.sleepTime?.let {
-                RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.asleepTime?.let {
-                RowTexts(stringResource(R.string.detail_asleep), it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_asleep), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.snoreTime?.let {
-                RowTexts(stringResource(R.string.detail_snoring), it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_snoring), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.deepSleepTime?.let {
-                RowTexts(stringResource(R.string.detail_deep_sleep), it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_deep_sleep), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.moveCount?.let {
                 RowTexts(stringResource(R.string.detail_turns), stringResource(R.string.detail_times, it))
@@ -293,7 +293,7 @@ class HistoryDetailActivity : BaseActivity() {
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 
                 HeaderTitleView(stringResource(R.string.detial_normal_b), stringResource(R.string.detail_normal_breathing_text))
-                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]))
             }
             data.avgNormalBreath?.let {
                 RowTexts(stringResource(R.string.detail_average_b), if (it == 0) "-" else stringResource(R.string.detail_min, it))
@@ -359,7 +359,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = "바른자세",
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(),
+                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -370,7 +370,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = "왼쪽으로 누운 자세",
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(),
+                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -381,7 +381,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = "오른쪽으로 누운 자세",
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(),
+                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -392,7 +392,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = "엎드린 자세",
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(),
+                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -403,7 +403,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = "수면중 일어남",
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(),
+                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
