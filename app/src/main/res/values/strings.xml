@@ -342,4 +342,19 @@
     <string name="contact_contents_enter">문의할 내용을 입력해주세요.</string>
     <string name="contact_character_limits_message">200자 이내로 입력해주세요.</string>
     <string name="contact_register">등록하기</string>
+
+    <string name="faq_title">FAQ</string>
+    <string name="faq_icon">icon</string>
+    <string name="faq_kr_icon">아이콘</string>
+    <string name="firmupdate_title">숨이랑 소프트웨어 업데이트</string>
+    <string name="firmupdate_current_version">현재 버전 : %1$s</string>
+    <string name="firmupdate_update_version">업데이트 버전 : %1$s</string>
+    <string name="firmupdate_current_version_v">현재 버전 v%1$s</string>
+    <string name="firmupdate_update_version_v">업데이트 버전 v%1$s</string>
+    <string name="sensor_connect_dialog_message">숨이랑 센서 aabv-12를 찾았습니다 연결하시겠습니까?</string>
+    <string name="sensor_ask_connect_message">%1$s를 찾았습니다\n연결하시겠습니까?</string>
+    <string name="sensor_registered_device">센서 등록</string>
+    <string name="sensor_scanning">스캔중</string>
+    <string name="sensor_error_message_measurement">측정중 입니다.\n측정을 종료후 시도해주세요</string>
+    <string name="sensor_ask_to_connect_message">숨이랑 %1$s\n 기기와 연결중입니다.</string>
 </resources>

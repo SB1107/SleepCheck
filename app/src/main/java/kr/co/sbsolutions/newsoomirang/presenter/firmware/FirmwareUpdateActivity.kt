@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -82,7 +83,7 @@ class FirmwareUpdateActivity : BluetoothActivity() {
     fun RootView() {
         SoomScaffold(
             topAction = { finish() },
-            topText = "숨이랑 소프트웨어 업데이트",
+            topText = stringResource(R.string.firmupdate_title),
             bgImage = R.drawable.back1,
             childView = {
                 Box {
@@ -108,8 +109,8 @@ class FirmwareUpdateActivity : BluetoothActivity() {
                 launch {
                     viewModel.checkFirmWaveVersion.collectLatest { firmware ->
                         binding.updateProgress.clProgress.visibility = if (firmware.isShow) View.VISIBLE else View.GONE
-                        binding.updateProgress.tvCurrentVersion1.text = "현재 버전 : ${firmware.firmwareVersion}"
-                        binding.updateProgress.tvCurrentVersion2.text = "업데이트 버전 : ${firmware.serverFirmwareVersion}"
+                        binding.updateProgress.tvCurrentVersion1.text = getString(R.string.firmupdate_current_version, firmware.firmwareVersion)
+                        binding.updateProgress.tvCurrentVersion2.text = getString(R.string.firmupdate_update_version, firmware.serverFirmwareVersion)
                         if (firmware.isShow) {
                             firmware.dfuServiceInitiator?.let {
                                 updateFirmware(it)
@@ -133,8 +134,8 @@ class FirmwareUpdateActivity : BluetoothActivity() {
                             if (firmwareUpdateDialog.isShowing) {
                                 firmwareUpdateDialog.dismiss()
                             }
-                            firmwareUpdateBinding.tvCurrentVersion.text ="현재 버전 v${data.firmwareVersion}"
-                            firmwareUpdateBinding.tvUpdateVersion.text ="업데이트 버전 v${data.updateVersion}"
+                            firmwareUpdateBinding.tvCurrentVersion.text = getString(R.string.firmupdate_current_version_v, data.firmwareVersion)
+                            firmwareUpdateBinding.tvUpdateVersion.text = getString(R.string.firmupdate_update_version_v, data.updateVersion)
                             firmwareUpdateBinding.btDone.setOnSingleClickListener {
                                 viewModel.firmwareUpdateCall(data)
                                 firmwareUpdateDialog.dismiss()
