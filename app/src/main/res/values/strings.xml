@@ -253,5 +253,27 @@
 
     <string name="guide_device_info_message1">이미지와 같이 크래들에서\n 분리후 센서를 연결하세요.</string>
     <string name="guide_device_info_message2">이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요.</string>
+    <string name="dialog_info_sensor_connected_message">숨이랑 앱 사용을 위해\n센서연결이 필요해요</string>
+    <string name="dialog_btn_confirm">확인</string>
+    <string name="dialog_info_now_connect">지금 연결할래요.</string>
+    <string name="dialog_info_later_connect">나중에 측정할래요</string>
+    <string name="firmwave_sensor_latest_version_message">숨이랑이 최신버전입니다.</string>
+
+    <string name="firm_update_info_message1">스마트폰과 숨이랑 \n센서를 가까이 놓아 주세요.</string>
+    <string name="firm_update_info_message2">업데이트가 진행중입니다.\n끝나기 전까지 기다려주세요.</string>
+    <string name="firm_update_current_version">현재 버전 v1.3.1</string>
+    <string name="firm_update_update_version">업데이트 버전 v1.4.1</string>
+    <string name="sensor_unregister_info_message">등록된 기기가 없습니다.</string>
+    <string name="sensor_scan_list_click_message">검색된 기기를 선택해주세요</string>
+    <string name="sensor_device">device</string>
+    <string name="sensor_disconnected_device">연결끊기</string>
+    <string name="sensor_find_sensor">숨이랑 센서 찾기</string>
+    <string name="adapter_blutooth_icon">blutooth_icon</string>
+    <string name="adapter_example_deivce_name">soomirangDevice</string>
+    <string name="guide_info_message1">이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요.</string>
+    <string name="guide_info_message2">다시 보지 않기</string>
+    <string name="btn_cancel">취소</string>
+
+    <string name="dialog_disconected_state_message">현재 기기와의 연결이 의도치않게  종료되어 재연결 시도중에 있습니다. 재연결 시도를 취소하고\n연결을 끊으시겠습니까?\n(측정중인 데이터가 \n모두 사라질 수 있습니다)</string>
 
 </resources>

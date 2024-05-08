@@ -27,8 +27,6 @@ import kr.co.sbsolutions.newsoomirang.common.toDayString
 import kr.co.sbsolutions.newsoomirang.common.toDp2Px
 import kr.co.sbsolutions.newsoomirang.common.toHourMinute
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateResult
-import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
-import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemSleepBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryItemYearBinding
 import kr.co.sbsolutions.newsoomirang.databinding.RowHistoryNoDataItemBinding
 import java.util.concurrent.TimeUnit

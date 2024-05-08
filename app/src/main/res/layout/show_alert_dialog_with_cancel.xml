@@ -31,7 +31,7 @@
         android:textAlignment="center"
         android:textColor="@color/color_FFFFFF"
         android:textSize="21sp"
-        tools:text="현재 기기와의 연결이 의도치않게  종료되어 재연결 시도중에 있습니다. 재연결 시도를 취소하고\n연결을 끊으시겠습니까?\n(측정중인 데이터가 \n모두 사라질 수 있습니다)" />
+        tools:text="@string/dialog_disconected_state_message" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
             android:layout_weight="1"
             android:background="@drawable/custom_dialog_cancel"
             android:padding="20dp"
-            android:text="취소"
+            android:text="@string/btn_cancel"
             android:textColor="@color/color_FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -64,7 +64,7 @@
             android:layout_weight="1"
             android:background="@drawable/custom_dialog_check"
             android:padding="20dp"
-            android:text="확인"
+            android:text="@string/dialog_btn_confirm"
             android:textColor="@color/color_000000"
             android:textSize="20sp"
             android:textStyle="bold" />

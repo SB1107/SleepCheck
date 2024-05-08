@@ -26,7 +26,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:contentDescription="blutooth_icon"
+                android:contentDescription="@string/adapter_blutooth_icon"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/icon_blt_device"
                 android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="sdfsdf"
+                android:text="@string/adapter_example_deivce_name"
                 android:textColor="@color/color_000000"
                 android:textSize="18sp"
                 android:textStyle="bold" />
