@@ -62,7 +62,7 @@
             android:layout_marginTop="500dp"
             android:fontFamily="@font/nanumsquarebold"
             android:gravity="center"
-            android:text="호흡 측정중"
+            android:text="@string/breathing_measuring"
             android:textColor="@color/color_FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -79,7 +79,7 @@
         android:layout_height="50dp"
         android:gravity="center"
         android:fontFamily="@font/nanumsquarebold"
-        android:text="호흡 측정중"
+        android:text="@string/breathing_measuring"
         android:textColor="@color/color_FFFFFF"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/title_text_view" />
@@ -94,7 +94,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/nanumsquarebold"
         android:gravity="center"
-        android:text="00:00:00"
+        android:text="@string/default_time"
         android:textColor="@color/color_FFFFFF"
         android:textSize="39sp"
         android:visibility="visible"
@@ -125,9 +125,9 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:gravity="center"
-            android:text="데이터 분석중입니다."
+            android:text="@string/analyzing_data"
             android:textColor="@color/color_FFFFFF"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
@@ -136,7 +136,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginRight="30dp"
             android:gravity="center"
-            android:text="이 작업은 몇분 정도\n걸릴 수 있습니다."
+            android:text="@string/analyzing_info_message"
             android:textColor="@color/color_FFFFFF"
             android:textSize="18sp" />
 

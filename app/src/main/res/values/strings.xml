@@ -202,10 +202,58 @@
     <string name="device_measure_timeout">숨이랑 기기 측정 시간이 12시간을 초과하여, 자동으로 측정을 종료합니다.</string>
     <string name="guide_image">guide_Image</string>
 
-
     <string name="login_info_message">숨이랑 앱 사용을 위해\n로그인이 필요합니다.</string>
     <string name="login_google">구글 로그인</string>
     <string name="login_kakao">카카오 로그인</string>
+
+    <string name="ble_connecting_massage">숨이랑 기기와 연결중입니다</string>
+    <string name="menu_breathing_nosering">호흡+코골이</string>
+    <string name="menu_nosering_noti">코골이+알림</string>
+    <string name="menu_history">이력</string>
+    <string name="menu_setting">설정</string>
+    <string name="client">고객</string>
+    <string name="sir">님</string>
+    <string name="breathing_start_info_message">시작버튼을 눌러\n호흡을 측정해 보세요</string>
+    <string name="breathing_measuring">호흡 측정중</string>
+    <string name="default_time">00:00:00</string>
+    <string name="analyzing_data">데이터 분석중입니다.</string>
+    <string name="analyzing_info_message">이 작업은 몇분 정도\n걸릴 수 있습니다.</string>
+    <string name="btn_start">시작</string>
+    <string name="btn_end">종료</string>
+    <string name="ble_disconnected">연결안됨</string>
+    <string name="sensor_remove">센서 제거</string>
+    <string name="remeasurement_info_message">오늘밤 사용을 위해\n스티커 제거후 충전 해주세요</string>
+    <string name="measuring_info_message">최대 10분 이상 소요될 수 있습니다.</string>
+    <string name="ble_connecting_info_message">숨이랑 기기와 연결중입니다.</string>
+
+    <string name="nosering_no_info_message">아직 코골이정보가 없습니다.\n시작을 눌러주세요.</string>
+    <string name="nosering_measuring">코골이 측정중</string>
+    <string name="nosering_info_result_message">코골이결과를 확인하세요.</string>
+    <string name="nosering_vibration_noti">코골이 진동 알림</string>
+    <string name="nosering_vibration_intensity">진동 세기</string>
+    <string name="vibration_weak">약</string>
+    <string name="vibration_medium">중</string>
+    <string name="vibration_strong">강</string>
+    <string name="nosering_time">코골이 시간</string>
+    <string name="example_time">8시간 30분</string>
+    <string name="zero_minutes_time">0분</string>
+    <string name="example_day">3월 23일 목요일</string>
+    <string name="example_measurement_time">23:55~6:23 수면</string>
+    <string name="total_sleep_time">총 수면 시간</string>
+
+    <string name="setting_my_sensor">내 센서</string>
+    <string name="setting_sensor_update">숨이랑 센서 업데이트</string>
+    <string name="setting_user_guide">사용 설명서</string>
+    <string name="setting_faq">FAQ</string>
+    <string name="setting_qna">질의응답</string>
+    <string name="setting_privacy_policy">개인정보 보호 정책</string>
+    <string name="setting_logout">로그아웃</string>
+    <string name="setting_unsubscribing">회원탈퇴</string>
+    <string name="setting_version">버전</string>
+
+    <string name="guide_device_info_message1">이미지와 같이 크래들에서\n 분리후 센서를 연결하세요.</string>
+    <string name="guide_device_info_message2">이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요.</string>
+
 
     <string name="connected">연결</string>
     <string name="reconnected">재연결 중</string>
