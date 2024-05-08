@@ -292,7 +292,7 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 
-                HeaderTitleView(stringResource(R.string.detial_normal_b), getString(R.string.detail_normal_breathing_text))
+                HeaderTitleView(stringResource(R.string.detial_normal_b), stringResource(R.string.detail_normal_breathing_text))
                 RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute())
             }
             data.avgNormalBreath?.let {
@@ -351,7 +351,7 @@ class HistoryDetailActivity : BaseActivity() {
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 자세", getString(R.string.detail_sleep_position_text))
+                HeaderTitleView("수면 자세", stringResource(R.string.detail_sleep_position_text))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 VerticalGraphView(

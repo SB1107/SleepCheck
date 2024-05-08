@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -93,7 +94,7 @@ class FAQActivity : BaseActivity() {
     fun RootView(data: FAQResultData? = FAQResultData()) {
         val scrollState = rememberLazyListState()
         val showButton = remember { derivedStateOf { scrollState.firstVisibleItemIndex > 0 } }
-        SoomScaffold(R.drawable.back1, "FAQ", topAction = {
+        SoomScaffold(R.drawable.back1, stringResource(R.string.faq_title), topAction = {
             finish()
         }, childView = {
             Box {
@@ -139,17 +140,18 @@ class FAQActivity : BaseActivity() {
                     modifier = Modifier.weight(9f),
                     style = TextStyle(fontWeight = FontWeight.Normal, fontSize = 21.sp, color = Color.White))
 
-                Crossfade(targetState = isExpanded, label = "icon", modifier = Modifier.padding(start = 8.dp)) {
+                Crossfade(targetState = isExpanded, label = stringResource(R.string.faq_icon), modifier = Modifier.padding(start = 8.dp)) {
                     when(it){
                         true -> {
                             Image(
                                 painter = painterResource(id = R.drawable.ic_faq_up ),
-                                contentDescription = "아이콘")
+                                contentDescription = stringResource(R.string.faq_kr_icon)
+                            )
                         }
                         false ->{
                             Image(
                                 painter = painterResource(id = R.drawable.ic_faq_down),
-                                contentDescription = "아이콘",)
+                                contentDescription = stringResource(R.string.faq_kr_icon))
                         }
                         }
                     }

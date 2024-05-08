@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -99,13 +101,8 @@ class SensorViewModel @Inject constructor(
             Log.d(TAG, "connectState: ${getService()?.getSbSensorInfo()}")
             launch {
                 getService()?.getSbSensorInfo()?.filter { it.batteryInfo != null }?.collectLatest { it ->
-                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
-                    Log.e(
-                        TAG,
-                        "배터리2: ${
-                            getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()
-                        }"
-                    )
+//                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
+//                    Log.e(TAG, "배터리2: ${getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()}")
                     _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
                 }
             }
@@ -117,7 +114,7 @@ class SensorViewModel @Inject constructor(
             //측정중
             BluetoothState.Connected.ReceivingRealtime,
             BluetoothState.Connected.SendDownloadContinue -> {
-                sendErrorMessage(("측정중 입니다.\n측정을 종료후 시도해주세요"))
+                sendErrorMessage((ApplicationManager.instance.baseContext.getString(R.string.sensor_error_message_measurement)))
             }
             //연결 해제
             else -> {
@@ -239,7 +236,7 @@ class SensorViewModel @Inject constructor(
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
             _isBleProgressBar.emit(false)
-            _bleStateResultText.emit("숨이랑 ${device.name}\n 기기와 연결중입니다.")
+            _bleStateResultText.emit(ApplicationManager.instance.baseContext.getString(R.string.sensor_ask_to_connect_message, device.name))
 
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
             getService()?.getSbSensorInfo()?.collectLatest {

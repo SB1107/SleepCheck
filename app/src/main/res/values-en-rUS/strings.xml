@@ -104,7 +104,7 @@
     <string name="detail_snoring">Snoring Time</string>
     <string name="detail_deep_sleep">Deep Sleep Time</string>
     <string name="detail_turns">Number of tosses and turns</string>
-    <string name="detail_times">%1$s Count</string>
+    <string name="detail_times">%1$d Count</string>
     <string name="detail_vibration">Number of vibration events</string>
     <string name="detil_cough">Cough detection count</string>
     <string name="detial_normal_b">Normal breathing</string>

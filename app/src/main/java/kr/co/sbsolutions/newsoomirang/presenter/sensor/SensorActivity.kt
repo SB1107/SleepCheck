@@ -153,7 +153,7 @@ class SensorActivity : BluetoothActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun setConnectDeviceDialog(device: BluetoothDevice) {
-        connectDeviceBinding.tvBleInfoText.text = "${device.name.getChangeDeviceName()}를 찾았습니다\n연결하시겠습니까?"
+        connectDeviceBinding.tvBleInfoText.text = getString(R.string.sensor_ask_connect_message, device.name.getChangeDeviceName())
         connectDeviceBinding.btConnect.setOnSingleClickListener {
             bleClickListener.invoke(device)
         }
@@ -175,7 +175,7 @@ class SensorActivity : BluetoothActivity() {
             }
 
             actionBar.appBar.setBackgroundColor(resources.getColor(android.R.color.transparent, null))
-            actionBar.toolbarTitle.text = "센서 등록"
+            actionBar.toolbarTitle.text = getString(R.string.sensor_registered_device)
 
             actionBar.backButton.setOnSingleClickListener {
                 newBackPressed()
@@ -205,7 +205,7 @@ class SensorActivity : BluetoothActivity() {
                                 binding.btDiss.visibility = View.VISIBLE
                                 binding.deviceSelectMessage.visibility = View.GONE
                             } ?: run {
-                                binding.deviceNameTextView.text = "등록된 기기가 없습니다."
+                                binding.deviceNameTextView.text = getString(R.string.sensor_unregister_info_message)
                                 binding.deviceSelectMessage.visibility = View.VISIBLE
                                 binding.btDiss.visibility = View.GONE
                             }
@@ -216,7 +216,7 @@ class SensorActivity : BluetoothActivity() {
                         viewModel.isScanning.collectLatest {
                             it?.let {
                                 if (it) {
-                                    Toast.makeText(this@SensorActivity, "스캔중", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@SensorActivity, getString(R.string.sensor_scanning), Toast.LENGTH_SHORT).show()
 //                                    showToolTip()
                                     return@collectLatest
                                 }

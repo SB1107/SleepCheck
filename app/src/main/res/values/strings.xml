@@ -304,22 +304,4 @@
     <string name="sensor_info_wait">센서정보를\n 받아오는 중입니다.</string>
     <string name="sensor_conneting">기기와 연결중 입니다.</string>
     <string name="Illustration_Charging">그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요.</string>
-    <string name="data_error_message">측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요</string>
-    <string name="detail_result">결과</string>
-    <string name="detail_share">공유하기</string>
-    <string name="detil_time">측정 시간</string>
-    <string name="detil_sleep_time">총 수면시간</string>
-    <string name="detail_asleep">잠들때까지 걸린 시간</string>
-    <string name="detail_snoring">코골이 시간</string>
-    <string name="detail_deep_sleep">깊은잠 시간</string>
-    <string name="detail_turns">뒤척임 횟수</string>
-    <string name="detail_times">%1$s 회</string>
-    <string name="detail_vibration">진동 발생 횟수</string>
-    <string name="detil_cough">기침 감지 횟수</string>
-    <string name="detial_normal_b">정상 호흡</string>
-    <string name="detial_normal_b_t">정상호흡 시간</string>
-    <string name="detail_average_b">평균 호흡수</string>
-    <string name="detail_min">(분) %1$s 회</string>
-    <string name="detail_a_b">비정상 호흡</string>
-    <string name="detail_no_signal">호흡신호없음</string>
 </resources>
