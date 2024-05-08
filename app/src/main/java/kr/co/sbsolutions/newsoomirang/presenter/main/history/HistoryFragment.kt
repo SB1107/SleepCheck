@@ -46,9 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -154,12 +157,12 @@ class HistoryFragment : Fragment() {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "저장된 이력이 없습니다.", fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                                    text = stringResource(R.string.no_history), fontSize = 21.sp, fontWeight = FontWeight.Normal, color = Color.White,
                                     textAlign = TextAlign.Center,
                                 )
                             }
                         } else {
-                            Box{
+                            Box {
                                 LazyColumn(
                                     modifier = Modifier.fillMaxSize(),
                                     state = scrollState
@@ -186,13 +189,19 @@ class HistoryFragment : Fragment() {
     @Composable
     private fun SleepItemRow(data: SleepDateResult) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-        val titleDate = endedAt?.toDayString("M월 d일 E요일")
+        val titleDate = if (LocalConfiguration.current.locales[0] == java.util.Locale.KOREA) {
+            endedAt?.toDayString("M월 d일 E요일", LocalConfiguration.current.locales[0])
+        } else {
+            endedAt?.toDayString("MMM d EEEE", LocalConfiguration.current.locales[0])
+        }
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) "호흡" else "코골이")
-        Row(modifier = Modifier.padding(16.dp).clickable {
-            clickItem.invoke(data.id)
-        } ) {
+            (startAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
+        Row(modifier = Modifier
+            .padding(16.dp)
+            .clickable {
+                clickItem.invoke(data.id)
+            }) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
@@ -222,7 +231,7 @@ class HistoryFragment : Fragment() {
                         .clip(RoundedCornerShape(10.dp))
                         .background(color = colorResource(id = R.color.color_yellow))
                 ) {
-                    Text(text = "보기", fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
+                    Text(text = stringResource(R.string.detail), fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
                 }
             }
         }
@@ -315,10 +324,10 @@ class HistoryFragment : Fragment() {
                     viewModel.sleepYearData.collectLatest {
 //                        it.result?.data?.let { list ->
 //                            adapter.submitList(list.toMutableList())
-                            binding.composeView.apply {
-                                setContent {
+                        binding.composeView.apply {
+                            setContent {
 //                                    val yearData by viewModel.sleepYearData.collectAsStateWithLifecycle(initialValue = SleepDateEntity(null))
-                                    RootView(it)
+                                RootView(it)
 //                                }
                             }
                         }

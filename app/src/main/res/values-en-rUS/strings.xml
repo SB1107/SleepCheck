@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Soomirang</string>
-    <string name="common_ok">Confirm</string>
+    <string name="common_ok">Done</string>
     <string name="common_update">Update</string>
     <string name="common_title">Notification</string>
     <string name="common_select">Select</string>
@@ -12,14 +12,23 @@
     <string name="action_today">Today</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_select">Select</string>
-
+    <string name="app_yes">Yes</string>
+    <string name="app_no">No</string>
+    <string name="app_confirm">confirm</string>
+    <string name="app_cancel">Cancel</string>
+    <string name="app_error">Error</string>
+    <string name="sir"> Sir</string>
+    <string name="dialog_btn_confirm">Confirm</string>
+    <string name="guide_device_info_message1">Please detach the sensor from the cradle as shown in the image and connect it.              </string>
+    <string name="guide_device_info_message2">Please disconnect the charging cable as shown in the image and connect the sensor.</string>
+    <string name="dialog_info_sensor_connected_message">The app requires a sensor connection</string>
 
     <string name="connect">Connect</string>
     <string name="connected">Connected</string>
     <string name="reconnected">Reconnected</string>
     <string name="disconnected">Disconnected</string>
     <string name="start">Start</string>
-    <string name="battery_Info">Battery %1$s</string>
+    <string name="battery_Info">Battery%1$s</string>
     <string name="snoring_permissions">Please set permissions for snoring analysis</string>
     <string name="data_insuffcient">The measurement data is insufficient. Do you want to end the measurement?</string>
     <string name="data_find">We\'ve found your old data\nWe\'re cleaning it up\nPlease wait a moment.</string>
@@ -30,4 +39,31 @@
     <string name="other_user_sensor">Another user uses the sensor and shuts it down.</string>
     <string name="snoring_start">Click Start\nTo measure your snoring</string>
     <string name="app_update">Soomirang, a new version has been released!\nPlease update.</string>
+    <string name="data_restore">Do you want to restore recently measured data?</string>
+
+    <string name="menu_breathing_nosering">Breathing</string>
+    <string name="menu_nosering_noti">Snoring</string>
+    <string name="menu_history">History</string>
+    <string name="menu_setting">Setting</string>
+    <string name="logout_message">Do you want to log out?</string>
+    <string name="app_version">App Version : %1$s</string>
+    <string name="breathing_measurable_finish">Respiration is being measured\nPlease exit and try to log out again</string>
+    <string name="no_history">No history is saved.</string>
+    <string name="breating">Breathing</string>
+    <string name="nosering">Snoring</string>
+    <string name="detail">Detail</string>
+    <string name="sensor_info_wait">Receiving sensor information.</string>
+    <string name="sensor_conneting">Connecting to the device.</string>
+    <string name="nosering_vibration_noti">Snoring vibration notification</string>
+    <string name="nosering_vibration_intensity">Vibration intensity</string>
+    <string name="vibration_weak">Weak</string>
+    <string name="vibration_medium">Normal</string>
+    <string name="vibration_strong">Strong</string>
+
+    <string name="dialog_info_now_connect">Connect now.</string>
+    <string name="dialog_info_later_connect">Measure later</string>
+    <string name="Illustration_Charging">Place your phone as shown and keep the charger plugged in.</string>
+    <string name="breathing_measuring">Measuring breathing</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_end">Done</string>
 </resources>

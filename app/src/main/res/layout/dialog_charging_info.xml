@@ -38,10 +38,11 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="40dp"
-                android:text="그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요."
+                android:text="@string/Illustration_Charging"
                 android:textColor="@color/color_FFFFFF"
                 android:textSize="21sp" />
 
@@ -57,7 +58,7 @@
                 android:fontFamily="@font/nanumsquarebold"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:text="확인"
+                android:text="@string/common_ok"
                 android:textColor="@color/color_000000"
                 android:textSize="20sp"
                 app:cornerRadius="10dp" />
