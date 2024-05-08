@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Soomirang</string>
+    <string name="common_ok">Confirm</string>
+    <string name="common_update">Update</string>
+    <string name="common_title">Notification</string>
+    <string name="common_select">Select</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_finish">Finish</string>
+    <string name="back_button_label">Back</string>
+    <string name="action_today">Today</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_select">Select</string>
+
+
+
+    <string name="connected">Connected</string>
+    <string name="reconnected">Reconnected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="start">Start</string>
+    <string name="battery_Info">Battery %1$s</string>
+    <string name="snoring_permissions">Please set permissions for snoring analysis</string>
+
 </resources>

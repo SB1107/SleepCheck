@@ -229,7 +229,7 @@ class NoSeringFragment : BluetoothFragment() {
                         if (!it.first) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
                         }
-                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
+                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText(requireContext())
                         val isDisconnect = it.second.contains("시작").not()
                         binding.tvNameDes2.text = if (isDisconnect) {
                             if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요."
@@ -364,7 +364,7 @@ class NoSeringFragment : BluetoothFragment() {
 
     override fun setBluetoothStateIcon(bluetoothState : BluetoothState){
         binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(bluetoothState.getImage()), null)
-        binding.tvBluetooth.text = bluetoothState.getText()
+        binding.tvBluetooth.text = bluetoothState.getText(requireContext())
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")

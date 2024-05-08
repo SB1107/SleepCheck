@@ -219,7 +219,7 @@ class BreathingFragment : BluetoothFragment() {
                         if (!it.first) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
                         }
-                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
+                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText(context = requireContext())
                         val isDisconnect = it.second.contains("시작").not()
                         binding.tvNameDes2.text = if (isDisconnect) {
                             if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결이 필요합니다.\n\n연결버튼을 눌러 기기와 연결해주세요."
@@ -410,7 +410,7 @@ class BreathingFragment : BluetoothFragment() {
                         close()
                     }
                 }).setPermissions(Manifest.permission.RECORD_AUDIO)
-                .setDeniedMessage("코골이 분석을 위해 권한을 설정해 주세요")
+                .setDeniedMessage( getString(R.string.snoring_permissions))
                 .check()
         } else {
             trySend(true)
@@ -428,7 +428,7 @@ class BreathingFragment : BluetoothFragment() {
             requireActivity().getDrawable(bluetoothState.getImage()),
             null
         )
-        binding.tvBluetooth.text = bluetoothState.getText()
+        binding.tvBluetooth.text = bluetoothState.getText(requireContext())
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
@@ -467,6 +467,6 @@ class BreathingFragment : BluetoothFragment() {
                 null
             )
         }
-        binding.batteryTextView.text = "배터리 $batteryInfo%"
+        binding.batteryTextView.text = getString(R.string.battery_Info,  batteryInfo).plus("%")
     }
 }
