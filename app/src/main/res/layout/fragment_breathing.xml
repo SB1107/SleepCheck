@@ -40,7 +40,7 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginTop="100dp"
                 android:fontFamily="@font/nanumsquarebold"
-                android:text="@string/breathing_client"
+                android:text="@string/client"
                 android:textColor="@color/color_FFFFFF"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
