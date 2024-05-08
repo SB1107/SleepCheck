@@ -202,10 +202,10 @@
     <string name="device_measure_timeout">숨이랑 기기 측정 시간이 12시간을 초과하여, 자동으로 측정을 종료합니다.</string>
     <string name="guide_image">guide_Image</string>
 
-
     <string name="login_info_message">숨이랑 앱 사용을 위해\n로그인이 필요합니다.</string>
     <string name="login_google">구글 로그인</string>
     <string name="login_kakao">카카오 로그인</string>
+
     <string name="ble_connecting_massage">숨이랑 기기와 연결중입니다</string>
     <string name="menu_breathing_nosering">호흡+코골이</string>
     <string name="menu_nosering_noti">코골이+알림</string>
@@ -225,6 +225,7 @@
     <string name="remeasurement_info_message">오늘밤 사용을 위해\n스티커 제거후 충전 해주세요</string>
     <string name="measuring_info_message">최대 10분 이상 소요될 수 있습니다.</string>
     <string name="ble_connecting_info_message">숨이랑 기기와 연결중입니다.</string>
+
     <string name="nosering_no_info_message">아직 코골이정보가 없습니다.\n시작을 눌러주세요.</string>
     <string name="nosering_measuring">코골이 측정중</string>
     <string name="nosering_info_result_message">코골이결과를 확인하세요.</string>
@@ -239,6 +240,7 @@
     <string name="example_day">3월 23일 목요일</string>
     <string name="example_measurement_time">23:55~6:23 수면</string>
     <string name="total_sleep_time">총 수면 시간</string>
+
     <string name="setting_my_sensor">내 센서</string>
     <string name="setting_sensor_update">숨이랑 센서 업데이트</string>
     <string name="setting_user_guide">사용 설명서</string>
@@ -248,5 +250,8 @@
     <string name="setting_logout">로그아웃</string>
     <string name="setting_unsubscribing">회원탈퇴</string>
     <string name="setting_version">버전</string>
+
+    <string name="guide_device_info_message1">이미지와 같이 크래들에서\n 분리후 센서를 연결하세요.</string>
+    <string name="guide_device_info_message2">이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요.</string>
 
 </resources>

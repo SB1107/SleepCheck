@@ -190,10 +190,10 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
             withContext(Dispatchers.Main){
                 if (currentPageIndex == imageViewPagerAdapter.itemCount ){
                     currentPageIndex = 0
-                    guideTitle.text = "이미지와 같이 크래들에서\n 분리후 센서를 연결하세요."
+                    guideTitle.text = getString(R.string.guide_device_info_message1)
                 } else {
                     currentPageIndex++
-                    guideTitle.text = "이미지와 같이 충전 케이블을\n 분리후 센서를 연결하세요."
+                    guideTitle.text = getString(R.string.guide_device_info_message2)
                 }
                 dialogView.findViewById<ViewPager2>(R.id.vp_2).currentItem = currentPageIndex
             }
