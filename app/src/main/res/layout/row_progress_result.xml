@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="130dp"
         android:gravity="center"
-        android:text="데이터를 분석중입니다."
+        android:text="@string/analyzing_data"
         android:textColor="@color/white"
         android:textSize="32sp"
         android:textStyle="bold"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="최대 10분 이상 소요될 수 있습니다."
+        android:text="@string/measuring_info_message"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,28 +66,28 @@
         android:id="@+id/tv_3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_marginHorizontal="40dp"
-        android:text="오늘밤 사용을 위해\n스티커 제거후 충전 해주세요 "
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:text="@string/remeasurement_info_message"
         android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginTop="60dp"
-        app:layout_constraintTop_toBottomOf="@id/av"
-        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/iv_sensor_remove"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/iv_sensor_remove" />
+        app:layout_constraintTop_toBottomOf="@id/av" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_sensor_remove"
-        android:contentDescription="센서 제거"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/sensor_remove"
         android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_3"
+        android:contentDescription="@string/sensor_remove"
+        android:src="@drawable/sensor_remove"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

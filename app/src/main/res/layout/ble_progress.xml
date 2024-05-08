@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="숨이랑 기기와 연결중입니다."
+        android:text="@string/ble_connecting_info_message"
         android:textColor="@color/color_FFFFFF"
         android:textSize="30sp"
         android:textStyle="bold"

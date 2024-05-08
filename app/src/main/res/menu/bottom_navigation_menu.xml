@@ -3,25 +3,25 @@
     <item
         android:id="@+id/navigation_breathing"
         android:icon="@drawable/selector_menu_1"
-        android:title="호흡+코골이"
+        android:title="@string/menu_breathing_nosering"
         android:enabled="true"
         />
 
     <item
         android:id="@+id/navigation_no_sering"
         android:icon="@drawable/selector_menu_2"
-        android:title="코골이+알림"
+        android:title="@string/menu_nosering_noti"
         android:enabled="true" />
 
     <item
         android:id="@+id/navigation_history"
         android:icon="@drawable/selector_menu_3"
-        android:title="이력"
+        android:title="@string/menu_history"
         android:enabled="true" />
 
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/selector_menu_4"
-        android:title="설정"
+        android:title="@string/menu_setting"
         android:enabled="true" />
 </menu>
