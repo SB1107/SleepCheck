@@ -3,7 +3,6 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.breathing
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -18,14 +17,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
@@ -95,7 +93,7 @@ class BreathingViewModel @Inject constructor(
                 }
 
             } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
-                sendErrorMessage("코골이 측정중 입니다. 종료후 사용해 주세요")
+                sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.snoring_measurable_finish))
             }
         }
     }
@@ -124,7 +122,7 @@ class BreathingViewModel @Inject constructor(
         registerJob("stopClick()",
             viewModelScope.launch(Dispatchers.Main) {
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
-                    sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
+                    sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.sensor_disconnect_error))
                     cancel()
                     return@launch
                 }
@@ -183,7 +181,7 @@ class BreathingViewModel @Inject constructor(
             if (hasSensor &&
                 realData.sensorName == sensorName &&
                 realData.dataId == dataId.toString()) {
-                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.other_user_sensor))
                 cancelClick(true)
             }
         }

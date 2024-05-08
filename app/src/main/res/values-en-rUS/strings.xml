@@ -14,12 +14,20 @@
     <string name="action_select">Select</string>
 
 
-
+    <string name="connect">Connect</string>
     <string name="connected">Connected</string>
     <string name="reconnected">Reconnected</string>
     <string name="disconnected">Disconnected</string>
     <string name="start">Start</string>
     <string name="battery_Info">Battery %1$s</string>
     <string name="snoring_permissions">Please set permissions for snoring analysis</string>
-
+    <string name="data_insuffcient">The measurement data is insufficient. Do you want to end the measurement?</string>
+    <string name="data_find">We\'ve found your old data\nWe\'re cleaning it up\nPlease wait a moment.</string>
+    <string name="not_measurable">Device battery is low and measurement is not possible, please charge your device</string>
+    <string name="connect_button">Device need to connect.\nTap the Connect button to connect to your device.</string>
+    <string name="snoring_measurable_finish">Snoring is being measured. Please exit and use</string>
+    <string name="sensor_disconnect_error">We\'ve lost connection with your breath and sensors\n\nPlease check the connection status above and try again</string>
+    <string name="other_user_sensor">Another user uses the sensor and shuts it down.</string>
+    <string name="snoring_start">Click Start\nTo measure your snoring</string>
+    <string name="app_update">Soomirang, a new version has been released!\nPlease update.</string>
 </resources>

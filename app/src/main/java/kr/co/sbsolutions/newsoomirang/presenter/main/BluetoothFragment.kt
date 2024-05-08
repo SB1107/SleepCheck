@@ -84,7 +84,7 @@ enum class BluetoothState {
         return when(this) {
             Connected -> context.getString(R.string.start)
             Reconnected -> context.getString(R.string.start)
-            Disconnected ->  context.getString(R.string.connected)
+            Disconnected ->  context.getString(R.string.connect)
         }
 
     }
