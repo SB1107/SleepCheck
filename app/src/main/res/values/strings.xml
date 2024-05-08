@@ -304,4 +304,75 @@
     <string name="sensor_info_wait">센서정보를\n 받아오는 중입니다.</string>
     <string name="sensor_conneting">기기와 연결중 입니다.</string>
     <string name="Illustration_Charging">그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요.</string>
+
+    <string name="leave_title_unsubscribing">회원탈퇴</string>
+    <string name="leave_unsubscribing_info">회원탈퇴 전 아래 내용을 확인해주세요.</string>
+    <string name="leave_unsubscribing_info_delete_data">고객님의 계정에 저장된 정보가 삭제될 예정입니다. 삭제된 정보는 추후에 복원할 수 없습니다.</string>
+    <string name="leave_unsubscribing_choice_reason">탈퇴 사유를 선택해주세요.</string>
+    <string name="leave_etc">기타</string>
+    <string name="leave_character_limits">%1$s / %2$s 글자 이내로 입력해주세요.</string>
+    <string name="leave_farewell_messages">기타 탈퇴 사유를 입력해 주세요. 고객님의 소중한 의견을 반영하여, 더 좋은 서비스로 찾아뵙겠습니다.</string>
+    <string name="leave_unsubscribing_select_agree">안내사항을 모두 확인하였으며, 이에 동의합니다.</string>
+    <string name="leave_unsubscribing_check_confrim">동의사항을 체크해주세요.</string>
+    <string name="leave_reasons_unsubscribing1">예상했던 서비스가 아니에요.</string>
+    <string name="leave_reasons_unsubscribing2">효과를 보지 못했어요.</string>
+    <string name="leave_reasons_unsubscribing3">앱의 기능이 부족해요.</string>
+    <string name="leave_reasons_unsubscribing4">자주 사용하지 않아요.</string>
+    <string name="leave_reasons_unsubscribing5">기타</string>
+
+    <string name="qna_title">질의응답</string>
+    <string name="qna_no_history">문의 내역이 없습니다.</string>
+    <string name="qna_answer_complete">답변완료</string>
+    <string name="qna_before_answering">답변전</string>
+
+
+    <string name="date_format">yy년 MM월 dd일</string>
+    <string name="date_time_format">yy-MM-dd HH:mm</string>
+
+
+    <string name="contact_detail_title">문의하기</string>
+    <string name="contact_detail_waiting_message">답변을 등록하고 있습니다.\n조금만 기다려주세요.!</string>
+    <string name="contact_detail_answer_content">답변 내용</string>
+
+    <string name="contact_title">문의하기</string>
+    <string name="contact_subject">문의 제목</string>
+    <string name="contact_subject_enter">제목을 입력해주세요.</string>
+    <string name="contact_contents">문의 내용</string>
+    <string name="contact_character_limits">%1$s / 200 글자 이내로 입력해주세요.</string>
+    <string name="contact_contents_enter">문의할 내용을 입력해주세요.</string>
+    <string name="contact_character_limits_message">200자 이내로 입력해주세요.</string>
+    <string name="contact_register">등록하기</string>
+
+    <string name="faq_title">FAQ</string>
+    <string name="faq_icon">icon</string>
+    <string name="faq_kr_icon">아이콘</string>
+    <string name="firmupdate_title">숨이랑 소프트웨어 업데이트</string>
+    <string name="firmupdate_current_version">현재 버전 : %1$s</string>
+    <string name="firmupdate_update_version">업데이트 버전 : %1$s</string>
+    <string name="firmupdate_current_version_v">현재 버전 v%1$s</string>
+    <string name="firmupdate_update_version_v">업데이트 버전 v%1$s</string>
+    <string name="sensor_connect_dialog_message">숨이랑 센서 aabv-12를 찾았습니다 연결하시겠습니까?</string>
+    <string name="sensor_ask_connect_message">%1$s를 찾았습니다\n연결하시겠습니까?</string>
+    <string name="sensor_registered_device">센서 등록</string>
+    <string name="sensor_scanning">스캔중</string>
+    <string name="sensor_error_message_measurement">측정중 입니다.\n측정을 종료후 시도해주세요</string>
+    <string name="sensor_ask_to_connect_message">숨이랑 %1$s\n 기기와 연결중입니다.</string>
+    <string name="data_error_message">측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요</string>
+    <string name="detail_result">결과</string>
+    <string name="detail_share">공유하기</string>
+    <string name="detil_time">측정 시간</string>
+    <string name="detil_sleep_time">총 수면시간</string>
+    <string name="detail_asleep">잠들때까지 걸린 시간</string>
+    <string name="detail_snoring">코골이 시간</string>
+    <string name="detail_deep_sleep">깊은잠 시간</string>
+    <string name="detail_turns">뒤척임 횟수</string>
+    <string name="detail_times">%1$d 회</string>
+    <string name="detail_vibration">진동 발생 횟수</string>
+    <string name="detil_cough">기침 감지 횟수</string>
+    <string name="detial_normal_b">정상 호흡</string>
+    <string name="detial_normal_b_t">정상호흡 시간</string>
+    <string name="detail_average_b">평균 호흡수</string>
+    <string name="detail_min">(분) %1$s 회</string>
+    <string name="detail_a_b">비정상 호흡</string>
+    <string name="detail_no_signal">호흡신호없음</string>
 </resources>
