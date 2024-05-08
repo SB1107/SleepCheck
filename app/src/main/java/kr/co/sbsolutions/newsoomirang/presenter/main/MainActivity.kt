@@ -184,7 +184,7 @@ class MainActivity : BaseServiceActivity() {
                 launch {
                     viewModel.dataFlowInfoMessage.collect {
                         binding.icBleProgress.apply {
-                            tvDeviceId.text = "이전 데이터를 찾았습니다.\n 데이터 정리하고 있습니다.\n잠시만 기다려주세요."
+                            tvDeviceId.text = getString(R.string.data_find)
                             root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
                             lpProgress.visibility = View.VISIBLE
                             if (it.totalCount != 0) {
@@ -236,7 +236,7 @@ class MainActivity : BaseServiceActivity() {
             if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
-                showAlertDialogWithCancel(message = "숨이랑 새로운 버전이 출시 되었어요!\n업데이트를 진행해 주세요.", confirmAction = {
+                showAlertDialogWithCancel(message = getString(R.string.app_update), confirmAction = {
                     appUpdateManager.startUpdateFlowForResult(
                         info,
                         appUpdateLauncher,

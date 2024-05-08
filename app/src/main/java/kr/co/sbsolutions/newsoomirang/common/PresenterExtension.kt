@@ -6,6 +6,7 @@ import android.content.Context.POWER_SERVICE
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.PowerManager
 import android.util.DisplayMetrics
 import android.util.Log

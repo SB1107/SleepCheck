@@ -191,7 +191,7 @@ class NoSeringFragment : BluetoothFragment() {
                 //300미만 취소 시
                 launch(Dispatchers.Main) {
                     viewModel.showMeasurementCancelAlert.collectLatest {
-                        requireActivity().showAlertDialogWithCancel(R.string.common_title, "측정 데이터가 부족해 결과를 확인할 수 없어요. 측정을 종료할까요?", confirmAction = {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title, getString(R.string.data_insuffcient), confirmAction = {
                             binding.actionMeasurer.timerTextView.text = String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
                             viewModel.cancelClick()
                         })
@@ -229,12 +229,12 @@ class NoSeringFragment : BluetoothFragment() {
                         if (!it.first) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
                         }
-                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText()
+                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText(requireContext())
                         val isDisconnect = it.second.contains("시작").not()
                         binding.tvNameDes2.text = if (isDisconnect) {
-                            if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "\n숨이랑 기기와 연결하여 코골이 기능을 시작하세요.\n\n연결버튼을 눌러 기기와 연결해주세요."
-                        } else if (it.first.not()) "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요" else "시작버튼을 눌러\n코골이을 측정해 보세요"
-                        val isEnabled = it.second.contains("시작")
+                            if (it.first.not()) getString(R.string.not_measurable)else getString(R.string.connect_button)
+                        } else if (it.first.not()) getString(R.string.not_measurable)else getString(R.string.snoring_start)
+                        val isEnabled = it.second.contains(getString(R.string.start))
                             binding.motorCheckBox.isEnabled = isEnabled
                             binding.type0Chip.isEnabled = isEnabled
                             binding.type1Chip.isEnabled = isEnabled
@@ -353,7 +353,7 @@ class NoSeringFragment : BluetoothFragment() {
                         close()
                     }
                 }).setPermissions(Manifest.permission.RECORD_AUDIO)
-                .setDeniedMessage("코골이 분석을 위해 권한을 설정해 주세요")
+                .setDeniedMessage(getString(R.string.snoring_permissions))
                 .check()
         }else{
             trySend(true)
@@ -364,7 +364,7 @@ class NoSeringFragment : BluetoothFragment() {
 
     override fun setBluetoothStateIcon(bluetoothState : BluetoothState){
         binding.tvBluetooth.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(bluetoothState.getImage()), null)
-        binding.tvBluetooth.text = bluetoothState.getText()
+        binding.tvBluetooth.text = bluetoothState.getText(requireContext())
     }
 
     @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
@@ -383,6 +383,6 @@ class NoSeringFragment : BluetoothFragment() {
         } else {
             binding.batteryTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, requireActivity().getDrawable(R.drawable.new_ic_battery), null)
         }
-        binding.batteryTextView.text = "배터리 $batteryInfo%"
+        binding.batteryTextView.text =  getString(R.string.battery_Info,  batteryInfo).plus("%")
     }
 }

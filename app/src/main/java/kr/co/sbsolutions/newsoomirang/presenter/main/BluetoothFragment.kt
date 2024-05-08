@@ -1,9 +1,11 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kr.co.sbsolutions.newsoomirang.R
@@ -27,6 +29,7 @@ abstract class BluetoothFragment : Fragment() {
                 baseViewModel.setLogHelper(mainActivity.logHelper)
             }
         }
+        
     }
 
     private val connectInfoDialog by lazy {
@@ -35,6 +38,7 @@ abstract class BluetoothFragment : Fragment() {
             connectInfoBinding.btConnect.setOnSingleClickListener {
                 viewModel.connectClick()
                 this.dismiss()
+              
             }
             connectInfoBinding.btLater.setOnSingleClickListener {
                 this.dismiss()
@@ -68,19 +72,19 @@ enum class BluetoothState {
             Disconnected -> R.drawable.bluetooth_disabled
         }
     }
-    fun  getText() : String {
+    fun  getText(context : Context) : String {
         return when(this) {
-            Connected -> "연결"
-            Reconnected -> "재연결 중"
-            Disconnected -> "연결 끊김"
+            Connected ->  context.getString(R.string.connected)
+            Reconnected -> context.getString(R.string.reconnected)
+            Disconnected -> context.getString(R.string.disconnected)
         }
     }
 
-    fun getStartButtonText() : String {
+    fun getStartButtonText(context : Context) : String {
         return when(this) {
-            Connected -> "시작"
-            Reconnected -> "시작"
-            Disconnected -> "연결"
+            Connected -> context.getString(R.string.start)
+            Reconnected -> context.getString(R.string.start)
+            Disconnected ->  context.getString(R.string.connect)
         }
 
     }
