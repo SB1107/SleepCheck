@@ -45,9 +45,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -143,7 +145,7 @@ class HistoryDetailActivity : BaseActivity() {
             ContentView(data, true, columnModifier, scrollState = scrollState)
         }
 
-        SoomScaffold(R.drawable.bg2, "결과", topAction = {
+        SoomScaffold(R.drawable.bg2, stringResource(R.string.detail_result), topAction = {
             finish()
         }, row = {
             IconButton(onClick = {
@@ -151,7 +153,7 @@ class HistoryDetailActivity : BaseActivity() {
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_share),
-                    contentDescription = "공유하기",
+                    contentDescription = stringResource(R.string.detail_share),
                     tint = Color.White
                 )
             }
@@ -197,11 +199,15 @@ class HistoryDetailActivity : BaseActivity() {
         scrollState: ScrollState
     ) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
-        val titleDate = endedAt?.toDayString("M월 d일 E요일")
+        val titleDate = if (LocalConfiguration.current.locales[0] == java.util.Locale.KOREA) {
+            endedAt?.toDayString("M월 d일 E요일", LocalConfiguration.current.locales[0])
+        } else {
+            endedAt?.toDayString("MMM d EEEE", LocalConfiguration.current.locales[0])
+        }
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
             (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ")
-                .plus(if (data.type == 0) "호흡" else "코골이")
+                .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute()
 
@@ -247,29 +253,29 @@ class HistoryDetailActivity : BaseActivity() {
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(thickness = 1.dp, color = Color.White)
             
-            RowTexts(startText = "측정 시간", endText = min)
+            RowTexts(startText = stringResource(R.string.detil_time), endText = min)
             data.sleepTime?.let {
-                RowTexts("총 수면시간", it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute())
             }
             data.asleepTime?.let {
-                RowTexts("잠들때까지 걸린 시간", it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_asleep), it.InpuMintoHourMinute())
             }
             data.snoreTime?.let {
-                RowTexts("코골이 시간", it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_snoring), it.InpuMintoHourMinute())
             }
             data.deepSleepTime?.let {
-                RowTexts("깊은잠 시간", it.InpuMintoHourMinute())
+                RowTexts(stringResource(R.string.detail_deep_sleep), it.InpuMintoHourMinute())
             }
             data.moveCount?.let {
-                RowTexts("뒤척임 횟수", "$it 회")
+                RowTexts(stringResource(R.string.detail_turns), stringResource(R.string.detail_times, it))
             }
             
             if (data.type == 1){
                 data.snoreCount?.let {
-                    RowTexts("진동 발생 횟수", "$it 회")
+                    RowTexts(stringResource(R.string.detail_vibration), stringResource(R.string.detail_times, it))
                 }
                 data.coughCount?.let {
-                    RowTexts("기침 감지 횟수", "$it 회")
+                    RowTexts(stringResource(R.string.detil_cough), stringResource(R.string.detail_times, it))
                 }
             }
             
@@ -286,24 +292,24 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
                 
-                HeaderTitleView("정상 호흡", getString(R.string.detail_normal_breathing_text))
-                RowTexts("정상호흡 시간", it.InpuMintoHourMinute())
+                HeaderTitleView(stringResource(R.string.detial_normal_b), getString(R.string.detail_normal_breathing_text))
+                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute())
             }
             data.avgNormalBreath?.let {
-                RowTexts("평균 호흡수", if (it == 0) "-" else "(분) ${it} 회")
+                RowTexts(stringResource(R.string.detail_average_b), if (it == 0) "-" else stringResource(R.string.detail_min, it))
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
             
             data.apneaCount?.let {
                 //todo 비정상 호흡 시간으로 변경 필요
-                HeaderTitleView("비정상 호흡")
+                HeaderTitleView(stringResource(R.string.detail_a_b))
                 /*data.unstableBreath?.let {
                     RowTexts("비정상 호흡 시간", it.InpuMintoHourMinute())
                 }*/
                 Spacer(modifier = Modifier.height(16.dp))
                 BreathingGraphView(
-                    "호흡신호없음", "총${it}회", listOf(
+                    stringResource(R.string.detail_no_signal), "총${it}회", listOf(
                         Triple(
                             "10초이상 호흡곤란",
                             "${data.apnea10 ?: 0}회",

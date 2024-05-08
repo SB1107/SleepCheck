@@ -59,6 +59,9 @@
     <string name="vibration_weak">Weak</string>
     <string name="vibration_medium">Normal</string>
     <string name="vibration_strong">Strong</string>
+    <string name="nosering_no_info_message">There\'s no snoring information yet\nPlease press Start.</string>
+    <string name="nosering_measuring">Measuring snoring</string>
+    <string name="nosering_info_result_message">Check your snoring results.</string>
 
     <string name="dialog_info_now_connect">Connect now.</string>
     <string name="dialog_info_later_connect">Measure later</string>
@@ -66,4 +69,48 @@
     <string name="breathing_measuring">Measuring breathing</string>
     <string name="btn_start">Start</string>
     <string name="btn_end">Done</string>
+    <string name="data_error_message">We don\'t have enough information from your measurement\nPlease measure again tonight</string>
+    <string name="analyzing_data">Analyzing data.</string>
+    <string name="analyzing_info_message">This can take a few minutes.</string>
+    <string name="ble_disconnected">Not connected</string>
+    <string name="sensor_remove">Remove a sensor</string>
+    <string name="remeasurement_info_message">For tonight\'s use\nPlease remove the sticker and charge it.</string>
+    <string name="measuring_info_message">This can take up to 10 minutes or more.</string>
+    <string name="ble_connecting_info_message">Connecting your device.</string>
+
+
+    <string name="detail_breathing_score_text">Your sleep breathing score is based on a comprehensive analysis of the proportion of normal breathing, no breathing signals, unstable breathing, and more, using a breath-by-breath analysis algorithm.\nNote that we cannot show you if your breathing and snoring are not measured normally during sleep!</string>
+    <string name="detail_normal_breathing_text">Normal, quiet breathing that occurs between 12 and 20 times per minute.</string>
+    <string name="detail_no_signal_breathing_text">It is a condition in which breathing is abnormally reduced or blocked during sleep, resulting in weak or no breathing signals.\n\nNo breathing signals during sleep can be caused by a number of factors, including weight gain, snoring, aging, alcohol consumption, and other conditions, and should be evaluated by a physician for accurate determination.</string>
+    <string name="detail_instability_breathing_text">A typical breathing rate during sleep is between 12 and 20 breaths per minute, and breathing that is faster or slower than this is referred to as:\n\nFast breathing: more than 20 breaths per minute.\n\nSlow breathing: less than 12 breaths per minute.</string>
+    <string name="detail_sleep_position_text">The time and percentage of time spent in each position during sleep.\nIf you have apnea and snoring during sleep, side sleeping may help alleviate apnea more than upright sleeping.</string>
+    <string name="detail_sleep_stages_text">REM (Rapid Eye Movement): The stage of dreaming characterized by rapid eye movements and active brain activity, which accounts for about 20 to 25 percent of sleep and is characterized by increased heart rate and breathing.\n\nDuring REM sleep, mental fatigue is restored, stress is relieved, and short-term memories acquired during the day are stored in long-term memory. However, it is also the stage when muscles are relaxed and abnormal breathing is most common.\n\nLight sleep: This is the initial stage of sleep, when you are in a light sleep state and can be easily awakened.\n\nDeep sleep: This is the stage of sleep when your body and brain are resting and is closely related to sleep quality. Body temperature is lower, muscles are relaxed, and the body's immune system and cellular repair are enhanced, contributing to improved memory and learning.</string>
+
+
+    <string name="setting_my_sensor">My Sensor</string>
+    <string name="setting_sensor_update">Sensor update</string>
+    <string name="setting_user_guide">User Guide</string>
+    <string name="setting_faq">FAQ</string>
+    <string name="setting_qna">QnA</string>
+    <string name="setting_privacy_policy">Privacy Policy</string>
+    <string name="setting_logout">Logout</string>
+    <string name="setting_unsubscribing">Member Leave</string>
+    <string name="setting_version">Version</string>
+    <string name="detail_result">Result</string>
+    <string name="detail_share">Share</string>
+    <string name="detil_time">Measuring Time</string>
+    <string name="detil_sleep_time">Total Sleep Time</string>
+    <string name="detail_asleep">Time to fall asleep</string>
+    <string name="detail_snoring">Snoring Time</string>
+    <string name="detail_deep_sleep">Deep Sleep Time</string>
+    <string name="detail_turns">Number of tosses and turns</string>
+    <string name="detail_times">%1$s Count</string>
+    <string name="detail_vibration">Number of vibration events</string>
+    <string name="detil_cough">Cough detection count</string>
+    <string name="detial_normal_b">Normal breathing</string>
+    <string name="detial_normal_b_t">Normal breathing Time</string>
+    <string name="detail_average_b">Average respiratory rate</string>
+    <string name="detail_min">(Min) %1$s Count</string>
+    <string name="detail_a_b">Abnormal breathing</string>
+    <string name="detail_no_signal">No respiratory signal</string>
 </resources>

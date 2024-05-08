@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -142,7 +143,7 @@ class MainViewModel @Inject constructor(
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 3) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
-                        sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        sendErrorMessage(ApplicationManager.instance.getString(R.string.data_error_message))
                         jobCancel()
                         delay(100)
                         return@collectLatest
@@ -184,7 +185,7 @@ class MainViewModel @Inject constructor(
                     if (_dataIDSet.contains(result.id.toInt()).not() && result.state == 3) {
                         _dataIDSet.add(result.id.toInt())
                         _isResultProgressBar.emit(ResultData(dataId = -1, state = result.state, isShow = false))
-                        sendErrorMessage("측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요")
+                        sendErrorMessage(ApplicationManager.instance.getString(R.string.data_error_message))
                         jobCancel()
                         delay(100)
                         return@collectLatest
