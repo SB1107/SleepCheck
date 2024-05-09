@@ -1,5 +1,6 @@
 package kr.co.sbsolutions.newsoomirang.presenter.policy
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
@@ -49,11 +50,14 @@ class PolicyActivity : AppCompatActivity() {
         bindViews()
     }
 
+    @SuppressLint("ResourceAsColor")
     private fun bindViews() {
         setSystemBarColor(this@PolicyActivity, R.color.color_000000)
         binding.apply {
             actionBar.toolbarTitle.setText(R.string.privacy_title)
-            actionBar.backButton.visibility = View.GONE
+            actionBar.appBar.setBackgroundColor(android.R.color.transparent)
+            
+            
             binding.actionBar.backButton.setOnSingleClickListener { finish() }
             //서비스 이용 약관 보기
             btnServiceTerms.setOnSingleClickListener {
