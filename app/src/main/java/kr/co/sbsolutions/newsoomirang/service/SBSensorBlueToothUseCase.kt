@@ -567,6 +567,7 @@ class SBSensorBlueToothUseCase(
         }
         bluetoothNetworkRepository.sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("${if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
+        logHelper.insertLog("서비스 상태: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.Registered) {
             logHelper.insertLog("서비스 재시작 Registered")
             val hasSensor = dataManager.getHasSensor().first()
