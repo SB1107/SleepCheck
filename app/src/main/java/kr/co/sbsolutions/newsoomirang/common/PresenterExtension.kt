@@ -271,13 +271,13 @@ fun Int.InpuMintoHourMinute(locale: Locale = Locale.KOREA) : String{
         if (locale == Locale.KOREA) {
             String.format("%d시간 %d분", hours, minutes)
         }else{
-            String.format("%d hours % minutes", hours, minutes)
+            String.format("%d h % min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("%d 분", minutes)
         }else{
-            String.format("%d minutes", minutes)
+            String.format("%d min", minutes)
         }
     }
 }
@@ -290,13 +290,13 @@ fun Int.toHourMinute(locale: Locale = Locale.KOREA): String {
         if (locale == Locale.KOREA) {
             String.format("%d시간 %d분", hours, minutes)
         }else{
-            String.format("%d hours %d minutes", hours, minutes)
+            String.format("%d h %d min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("%d 분", minutes)
         }else{
-            String.format("%d minutes", minutes)
+            String.format("%d min", minutes)
         }
     }
 }
@@ -309,13 +309,13 @@ fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
         if (locale == Locale.KOREA) {
             String.format("약\n%d시간", hours)
         }else{
-            String.format("Approx.\n%dhours", hours)
+            String.format("est.\n%dh", hours)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("약\n%d 분", minutes)
         }else{
-            String.format("Approx.\n%d minutes", minutes)
+            String.format("est.\n%d min", minutes)
         }
     }
 }
