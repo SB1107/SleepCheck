@@ -33,6 +33,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.policy.PolicyActivity
 import kr.co.sbsolutions.newsoomirang.presenter.question.QuestionActivity
 import kr.co.sbsolutions.newsoomirang.presenter.sensor.SensorActivity
 import kr.co.sbsolutions.newsoomirang.presenter.webview.WebViewActivity
+import java.util.Locale
 
 
 @AndroidEntryPoint
@@ -62,7 +63,8 @@ class SettingFragment : Fragment() {
         }
         //센서 설명서
         binding.clGuide.setOnSingleClickListener {
-            webViewActivity(WebType.TERMS2)
+            val locale = resources.configuration.locales[0]
+            webViewActivity(WebType.TERMS2, locale)
         }
         //개인정보 방침
         binding.clPolicy.setOnSingleClickListener {
@@ -95,27 +97,28 @@ class SettingFragment : Fragment() {
 
         binding.tvVersionName.text = getString(R.string.app_version, BuildConfig.VERSION_NAME)
     }
-    
+
     override fun onResume() {
         super.onResume()
         viewModel.getFirmwareVersion()
     }
-    
-    private fun webViewActivity(webType: WebType) {
+
+    private fun webViewActivity(webType: WebType, locale: Locale) {
         startActivity(Intent(requireContext(), WebViewActivity::class.java).apply {
             putExtra("webTypeUrl", webType.url)
-            putExtra("webTypeTitle", webType.title)
+            val title = if (locale == Locale.KOREA) webType.titleKo else webType.titleEn
+            putExtra("webTypeTitle", title)
         })
     }
 
     private fun setObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                
+
                 launch {
                     viewModel.updateCheckResult.collectLatest {
                         Log.d(TAG, "setObseasdasdrvers: $it")
-                        binding.ivNewFirmware.visibility = if(it)View.VISIBLE else View.GONE
+                        binding.ivNewFirmware.visibility = if (it) View.VISIBLE else View.GONE
                     }
                 }
 
@@ -133,7 +136,7 @@ class SettingFragment : Fragment() {
                 launch {
                     viewModel.deviceName.collectLatest {
                         it?.let {
-                            if (it == ""){
+                            if (it == "") {
                                 binding.tvDeviceName.visibility = View.GONE
                             } else {
                                 binding.tvDeviceName.visibility = View.VISIBLE

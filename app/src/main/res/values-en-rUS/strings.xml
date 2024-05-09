@@ -12,16 +12,6 @@
     <string name="action_today">Today</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_select">Select</string>
-
-    <string name="privacy_title">Privacy Policy</string>
-    <string name="privacy_detail">님의 건강 \n데이터는 중요합니다.</string>
-    <string name="privacy_data_storage">당사는 모든 사용자 데이터를 보안 서버에 \n안전하게 보관합니다.</string>
-    <string name="privacy_terms_service">Terms of Service</string>
-    <string name="privacy_personal_information_collection_usage_policy">Privacy Policy</string>
-    <string name="privacy_consent_list1">\t (Required) Terms of Service</string>
-    <string name="privacy_consent_list2">\t Consent for data usage in app improvement.</string>
-    <string name="privacy_agree">confirm</string>
-
     <string name="app_yes">Yes</string>
     <string name="app_no">No</string>
     <string name="app_confirm">confirm</string>
@@ -33,12 +23,34 @@
     <string name="guide_device_info_message2">Please disconnect the charging cable as shown in the image and connect the sensor.</string>
     <string name="dialog_info_sensor_connected_message">The app requires a sensor connection</string>
 
-    <string name="connect">Connect</string>
+
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="privacy_detail">Your health.\nData is important.</string>
+    <string name="privacy_data_storage">We keep all user data safe and secure on our secure servers.</string>
+    <string name="privacy_terms_service">Privacy Policy</string>
+    <string name="privacy_personal_information_collection_usage_policy">Privacy Policy for Data Collection and Use</string>
+    <string name="privacy_consent_list1">\t (Required) Accept the Terms of Service</string>
+    <string name="privacy_consent_list2">\t Consent to use data to improve the app</string>
+    <string name="privacy_agree">Agree</string>
+
+
+    <string name="device_power_off_title">Soomirang  device terminated during measurement</string>
+    <string name="device_power_off_battery_low">Soomirang device Battery level is low. Please charge and measure again.</string>
+    <string name="device_power_off_force_off">Soomirang sensor device switched off, please turn it back on and take a measurement..</string>
+    <string name="device_measure_timeout">measurement time exceeds 12 hours, the measurement will automatically end.</string>
+    <string name="guide_image">guide_Image</string>
+
+    <string name="login_info_message">You need to be logged in to use the Soomirang app.</string>
+    <string name="login_google">Google login</string>
+    <string name="login_kakao">Kakao login</string>
+
+
+    <string name="connect">conx</string>
     <string name="connected">Connected</string>
     <string name="reconnected">Reconnected</string>
     <string name="disconnected">Disconnected</string>
     <string name="start">Start</string>
-    <string name="battery_Info">Battery%1$s</string>
+    <string name="battery_Info">Batt %1$s</string>
     <string name="snoring_permissions">Please set permissions for snoring analysis</string>
     <string name="data_insuffcient">The measurement data is insufficient. Do you want to end the measurement?</string>
     <string name="data_find">We\'ve found your old data\nWe\'re cleaning it up\nPlease wait a moment.</string>
@@ -73,7 +85,7 @@
     <string name="nosering_measuring">Measuring snoring</string>
     <string name="nosering_info_result_message">Check your snoring results.</string>
 
-    <string name="dialog_info_now_connect">Connect now.</string>
+    <string name="dialog_info_now_connect">Connect now</string>
     <string name="dialog_info_later_connect">Measure later</string>
     <string name="Illustration_Charging">Place your phone as shown and keep the charger plugged in.</string>
     <string name="breathing_measuring">Measuring breathing</string>
@@ -88,6 +100,9 @@
     <string name="measuring_info_message">This can take up to 10 minutes or more.</string>
     <string name="ble_connecting_info_message">Connecting your device.</string>
 
+    <string name="sensor_error_message_measurement">Measurement is in progress\nPlease try again after the measurement ends</string>
+    <string name="sensor_scanning">On scanning</string>
+    <string name="sensor_ask_to_connect_message">Soomirang %1$s\n Connecting to your device.</string>
 
     <string name="detail_breathing_score_text">Your sleep breathing score is based on a comprehensive analysis of the proportion of normal breathing, no breathing signals, unstable breathing, and more, using a breath-by-breath analysis algorithm.\nNote that we cannot show you if your breathing and snoring are not measured normally during sleep!</string>
     <string name="detail_normal_breathing_text">Normal, quiet breathing that occurs between 12 and 20 times per minute.</string>
@@ -96,13 +111,13 @@
     <string name="detail_sleep_position_text">The time and percentage of time spent in each position during sleep.\nIf you have apnea and snoring during sleep, side sleeping may help alleviate apnea more than upright sleeping.</string>
     <string name="detail_sleep_stages_text">REM (Rapid Eye Movement)</string>
     <string name="setting_my_sensor">My Sensor</string>
-    <string name="setting_sensor_update">Sensor update</string>
+    <string name="setting_sensor_update">Update Soomirang sensor</string>
     <string name="setting_user_guide">User Guide</string>
     <string name="setting_faq">FAQ</string>
     <string name="setting_qna">QnA</string>
     <string name="setting_privacy_policy">Privacy Policy</string>
     <string name="setting_logout">Logout</string>
-    <string name="setting_unsubscribing">Member Leave</string>
+    <string name="setting_unsubscribing">Withdrawal</string>
     <string name="setting_version">Version</string>
     <string name="detail_result">Result</string>
     <string name="detail_share">Share</string>
@@ -121,6 +136,76 @@
     <string name="detail_min">(Min) %1$s Count</string>
     <string name="detail_a_b">Abnormal breathing</string>
     <string name="detail_no_signal">No respiratory signal</string>
+
+    <string name="faq_title">FAQ</string>
+    <string name="faq_icon">icon</string>
+    <string name="faq_kr_icon">icon</string>
+    <string name="firmupdate_title">Soomirang  update software</string>
+    <string name="firmupdate_current_version">Current  version : %1$s</string>
+    <string name="firmupdate_update_version">Update version  : %1$s</string>
+    <string name="firmupdate_current_version_v">Current  version  v%1$s</string>
+    <string name="firmupdate_update_version_v">Update version v%1$s</string>
+    <string name="sensor_connect_dialog_message">Soomirang Sensor aabv-12find.\nDo you want to connect</string>
+    <string name="sensor_ask_connect_message">%1$sfind.\nDo you want to connect?</string>
+    <string name="sensor_registered_device">Registering sensors</string>
+
+    <string name="firmwave_sensor_latest_version_message">Soomirang is the latest Version.</string>
+
+    <string name="firm_update_info_message1">Please place your smartphone close to the Soomirang sensor.</string>
+    <string name="firm_update_info_message2">Update in progress. Please wait until it finishes.</string>
+    <string name="firm_update_current_version">Current  version v1.3.1</string>
+    <string name="firm_update_update_version">Update version v1.4.1</string>
+    <string name="sensor_unregister_info_message">No devices are registered.</string>
+    <string name="sensor_scan_list_click_message">Select the discovered device</string>
+    <string name="sensor_device">Device</string>
+    <string name="sensor_disconnected_device">Disconnected device</string>
+    <string name="sensor_find_sensor">Find Soomirang sensor</string>
+    <string name="adapter_blutooth_icon">blutooth_icon</string>
+    <string name="adapter_example_deivce_name">soomirangDevice</string>
+    <string name="guide_info_message1">Please detach the sensor from the cradle as shown in the image and connect it.</string>
+    <string name="guide_info_message2">Don\'t watch again</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <string name="dialog_disconected_state_message">The current connection to the device was terminated unintentionally and is attempting to reconnect. Do you want to cancel the reconnection attempt and disconnect (any data being measured may be lost)?</string>
+    <string name="leave_button">Withdrawal</string>
+    <string name="leave_title_unsubscribing">Withdrawal</string>
+    <string name="leave_unsubscribing_info">Please review the following contents before withdrawing membership.</string>
+    <string name="leave_unsubscribing_info_delete_data">The information stored in your account will be deleted.\nThe deleted information cannot be restored later.</string>
+    <string name="leave_unsubscribing_choice_reason">Please select the reason for withdrawal.</string>
+    <string name="leave_etc">Etc</string>
+    <string name="leave_character_limits">%1$s / %2$s Please enter within characters.</string>
+    <string name="leave_farewell_messages">Please enter any other reason for unsubscribing. We appreciate your feedback and look forward to serving you better.</string>
+    <string name="leave_unsubscribing_select_agree">I have reviewed all the guidelines and agree to them.</string>
+    <string name="leave_unsubscribing_check_confrim">Please check the agreement.</string>
+    <string name="leave_reasons_unsubscribing1">It\'s not the service I expected.</string>
+    <string name="leave_reasons_unsubscribing2">I didn\'t see any effect.</string>
+    <string name="leave_reasons_unsubscribing3">The app lacks functionality.</string>
+    <string name="leave_reasons_unsubscribing4">I don\'t use it often.</string>
+    <string name="leave_reasons_unsubscribing5">Etc</string>
+    <string name="service_title">Your Soomirang and device are being measured.</string>
+    <string name="qna_title">QnA</string>
+    <string name="qna_no_history">No inquiry history.</string>
+    <string name="qna_answer_complete">Answered</string>
+    <string name="qna_before_answering">Before</string>
+    <string name="app_finish_message">Press Back one more time to exit.</string>
+    <string name="breathing_start_info_message">Press Start\nTake your breathing measurement</string>
+    <string name="date_format">yy-MM-dd</string>
+
+    <string name="contact_detail_title">Contact us</string>
+    <string name="contact_detail_waiting_message">We\'re registering your response\nPlease be patient!</string>
+    <string name="contact_detail_answer_content">Answer content</string>
+
+    <string name="contact_title">Inquiry</string>
+    <string name="contact_subject">Inquiry Title</string>
+    <string name="contact_subject_enter">Please enter a title.</string>
+    <string name="contact_contents">Inquiry Content</string>
+    <string name="contact_character_limits">%1$s / 200 characters.</string>
+    <string name="contact_contents_enter">Please enter your inquiry.</string>
+    <string name="contact_character_limits_message">200 characters.</string>
+    <string name="contact_register">Register</string>
+    <string name="policy_r_agree">Please accept the required terms.</string>
+    <string name="policy_message1">%1$s Your health</string>
+    <string name="policy_message2">Data is important.</string>
 
     <string name="detail_no_signal_10_secs">no_signal_10_secs</string>
     <string name="detail_no_signal_30_secs">no_signal_30_secs</string>
