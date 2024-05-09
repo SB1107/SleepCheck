@@ -12,6 +12,16 @@
     <string name="action_today">Today</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_select">Select</string>
+
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="privacy_detail">님의 건강 \n데이터는 중요합니다.</string>
+    <string name="privacy_data_storage">당사는 모든 사용자 데이터를 보안 서버에 \n안전하게 보관합니다.</string>
+    <string name="privacy_terms_service">Terms of Service</string>
+    <string name="privacy_personal_information_collection_usage_policy">Privacy Policy</string>
+    <string name="privacy_consent_list1">\t (Required) Terms of Service</string>
+    <string name="privacy_consent_list2">\t Consent for data usage in app improvement.</string>
+    <string name="privacy_agree">confirm</string>
+
     <string name="app_yes">Yes</string>
     <string name="app_no">No</string>
     <string name="app_confirm">confirm</string>
@@ -98,9 +108,9 @@
     <string name="detail_share">Share</string>
     <string name="detil_time">Measuring Time</string>
     <string name="detil_sleep_time">Total Sleep Time</string>
-    <string name="detail_asleep">Time to fall asleep</string>
-    <string name="detail_snoring">Snoring Time</string>
-    <string name="detail_deep_sleep">Deep Sleep Time</string>
+    <string name="detail_asleep_time">Time to fall asleep</string>
+    <string name="detail_snoring_time">Snoring Time</string>
+    <string name="detail_deep_sleep_time">Deep Sleep Time</string>
     <string name="detail_turns">Number of tosses and turns</string>
     <string name="detail_times">%1$d Count</string>
     <string name="detail_vibration">Number of vibration events</string>
@@ -111,4 +121,35 @@
     <string name="detail_min">(Min) %1$s Count</string>
     <string name="detail_a_b">Abnormal breathing</string>
     <string name="detail_no_signal">No respiratory signal</string>
+
+    <string name="detail_no_signal_10_secs">no_signal_10_secs</string>
+    <string name="detail_no_signal_30_secs">no_signal_30_secs</string>
+    <string name="detail_no_signal_60_secs">no_signal_60_secs</string>
+    <string name="detail_count">%1$s count</string>
+    <string name="detail_fast_breathing">fast_breathing</string>
+    <string name="detail_average_respiratory_rate">Average respiratory rate (min)</string>
+    <string name="detail_minutes">%1$s min</string>
+    <string name="detail_slow_breathing">slow_breathing</string>
+    <string name="detail_unstable_breathing">unstable_breathing</string>
+    <string name="detail_total_min">total%1$s min</string>
+    <string name="detail_sleep_position">sleep_position</string>
+    <string name="detail_supine">supine</string>
+    <string name="detail_left">left</string>
+    <string name="detail_right">right</string>
+    <string name="detail_prone">prone</string>
+    <string name="detail_standup">standup</string>
+    <string name="detail_sleep_stage">sleep stage</string>
+    <string name="detail_rem_sleep">rem sleep</string>
+    <string name="detail_light_sleep">light sleep</string>
+    <string name="detail_deep_sleep">deep sleep</string>
+    <string name="detail_bad">bad</string>
+    <string name="detail_medium">medium</string>
+    <string name="detail_good">good</string>
+    <string name="detail_your_sleep_respiration_score">your sleep respiration score</string>
+    <string name="detail_your_snoring_score_during_sleep">your sleep Snoring score</string>
+    <string name="detail_respiratory_score">respiratory score</string>
+    <string name="detail_snoring_score">snoring score</string>
+    <string name="detail_score">%1$s score</string>
+    <string name="detail_total_score">total-count</string>
+    <string name="detail_0_count">0count</string>
 </resources>

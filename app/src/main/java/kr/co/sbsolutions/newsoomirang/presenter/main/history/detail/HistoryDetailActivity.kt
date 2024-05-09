@@ -258,13 +258,13 @@ class HistoryDetailActivity : BaseActivity() {
                 RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.asleepTime?.let {
-                RowTexts(stringResource(R.string.detail_asleep), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
+                RowTexts(stringResource(R.string.detail_asleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.snoreTime?.let {
-                RowTexts(stringResource(R.string.detail_snoring), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
+                RowTexts(stringResource(R.string.detail_snoring_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.deepSleepTime?.let {
-                RowTexts(stringResource(R.string.detail_deep_sleep), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
+                RowTexts(stringResource(R.string.detail_deep_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.moveCount?.let {
                 RowTexts(stringResource(R.string.detail_turns), stringResource(R.string.detail_times, it))
@@ -311,18 +311,18 @@ class HistoryDetailActivity : BaseActivity() {
                 BreathingGraphView(
                     stringResource(R.string.detail_no_signal), "총${it}회", listOf(
                         Triple(
-                            "10초이상 호흡곤란",
-                            "${data.apnea10 ?: 0}회",
+                            stringResource(R.string.detail_no_signal_10_secs),
+                            stringResource(R.string.detail_count, data.apnea10 ?: 0),
                             colorResource(id = R.color.color_gray1)
                         ),
                         Triple(
-                            "30초이상 호흡곤란",
-                            "${data.apnea30 ?: 0}회",
+                            stringResource(R.string.detail_no_signal_30_secs),
+                            stringResource(R.string.detail_count, data.apnea30 ?: 0),
                             colorResource(id = R.color.color_gray2)
                         ),
                         Triple(
-                            "60초이상 호흡곤란",
-                            "${data.apnea60 ?: 0}회",
+                            stringResource(R.string.detail_no_signal_60_secs),
+                            stringResource(R.string.detail_count, data.apnea60 ?: 0),
                             colorResource(id = R.color.color_gray3)
                         )
                     )
@@ -331,19 +331,29 @@ class HistoryDetailActivity : BaseActivity() {
             val lists: ArrayList<Triple<Pair<String,String>, Pair<String,String>, Color>> = ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
-                    lists.add(Triple(Pair("빠른호흡","평균 호흡수 (분)"), Pair("${fastBreath}분","${avgFastBreath}회"),colorResource(id = R.color.color_gray1)))
+                    lists.add(Triple(
+                        Pair(stringResource(R.string.detail_fast_breathing),
+                            stringResource(R.string.detail_average_respiratory_rate)),
+                        Pair(stringResource(R.string.detail_minutes, fastBreath),
+                            stringResource(R.string.detail_count, avgFastBreath)),
+                        colorResource(id = R.color.color_gray1)))
                 }
             }
             data.slowBreath?.let { slowBreath ->
                 data.avgSlowBreath?.let { avgSlowBreath ->
-                    lists.add(Triple(Pair("느린호흡","평균 호흡수 (분)"), Pair("${slowBreath}분","${avgSlowBreath}회"),colorResource(id = R.color.color_gray2)))
+                    lists.add(Triple(
+                        Pair(stringResource(R.string.detail_slow_breathing),
+                            stringResource(R.string.detail_average_respiratory_rate)),
+                        Pair(stringResource(R.string.detail_minutes, slowBreath),
+                            stringResource(R.string.detail_count, avgSlowBreath)),
+                        colorResource(id = R.color.color_gray2)))
                 }
             }
             if (lists.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(32.dp))
                 val totalCount =
                     (data.fastBreath ?: 0) + (data.slowBreath ?: 0) + (data.unstableBreath ?: 0)
-                RespiratoryInstabilityGraphView(title = "호흡불안정", "총${totalCount}분", lists)
+                RespiratoryInstabilityGraphView(title = stringResource(R.string.detail_unstable_breathing), stringResource(R.string.detail_total_min, totalCount), lists)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -351,13 +361,13 @@ class HistoryDetailActivity : BaseActivity() {
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 자세", stringResource(R.string.detail_sleep_position_text))
+                HeaderTitleView(stringResource(R.string.detail_sleep_position), stringResource(R.string.detail_sleep_position_text))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 VerticalGraphView(
                     percentValue = (data.straightPer ?: 0).toFloat(),
                     isPercentText = true,
-                    startText = "바른자세",
+                    startText = stringResource(R.string.detail_supine),
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
@@ -368,7 +378,7 @@ class HistoryDetailActivity : BaseActivity() {
                 VerticalGraphView(
                     percentValue = (data.leftPer ?: 0).toFloat(),
                     isPercentText = true,
-                    startText = "왼쪽으로 누운 자세",
+                    startText = stringResource(R.string.detail_left),
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
@@ -379,7 +389,7 @@ class HistoryDetailActivity : BaseActivity() {
                 VerticalGraphView(
                     percentValue = (data.rightPer ?: 0).toFloat(),
                     isPercentText = true,
-                    startText = "오른쪽으로 누운 자세",
+                    startText = stringResource(R.string.detail_right),
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
@@ -390,7 +400,7 @@ class HistoryDetailActivity : BaseActivity() {
                 VerticalGraphView(
                     percentValue = (data.downPer ?: 0).toFloat(),
                     isPercentText = true,
-                    startText = "엎드린 자세",
+                    startText = stringResource(R.string.detail_prone),
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
@@ -401,7 +411,7 @@ class HistoryDetailActivity : BaseActivity() {
                 VerticalGraphView(
                     percentValue = (data.wakePer ?: 0).toFloat(),
                     isPercentText = true,
-                    startText = "수면중 일어남",
+                    startText = stringResource(R.string.detail_standup),
                     startTextSize = 19.sp,
                     endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
@@ -411,7 +421,7 @@ class HistoryDetailActivity : BaseActivity() {
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView("수면 단계", getString(R.string.detail_sleep_stages_text))
+                HeaderTitleView(stringResource(R.string.detail_sleep_stage), getString(R.string.detail_sleep_stages_text))
             }
 
             Row(
@@ -424,13 +434,13 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
 
                 data.remSleepTime?.let {
-                    BarChartView("렘수면", data.sleepTime ?: 0, it, scrollState)
+                    BarChartView(stringResource(R.string.detail_rem_sleep), data.sleepTime ?: 0, it, scrollState)
                 }
                 data.lightSleepTime?.let {
-                    BarChartView("얕은수면", data.sleepTime ?: 0, it, scrollState)
+                    BarChartView(stringResource(R.string.detail_light_sleep), data.sleepTime ?: 0, it, scrollState)
                 }
                 data.deepSleepTime?.let {
-                    BarChartView("깊은수면", data.sleepTime ?: 0, it, scrollState)
+                    BarChartView(stringResource(R.string.detail_deep_sleep), data.sleepTime ?: 0, it, scrollState)
                 }
             }
             Text(
@@ -477,11 +487,11 @@ class HistoryDetailActivity : BaseActivity() {
         type: Int? = null,
         percentValue: Int,
         isPercentText: Boolean = false,
-        startText: String = "나쁨",
+        startText: String = stringResource(R.string.detail_bad),
         startTextSize: TextUnit = 14.sp,
-        centerText: String = "보통",
+        centerText: String = stringResource(R.string.detail_medium),
         centerTextSize: TextUnit = 14.sp,
-        endText: String = "좋음",
+        endText: String = stringResource(R.string.detail_good),
         endTextSize: TextUnit = 14.sp
     ) {
         var width by remember { mutableStateOf(0.dp) }
@@ -504,7 +514,7 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = if (type == 0)"당신의 수면 중 호흡 점수" else "당신의 수면 중 코골이 점수",
+                            text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(R.string.detail_your_snoring_score_during_sleep),
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -514,9 +524,9 @@ class HistoryDetailActivity : BaseActivity() {
                                 .padding(start = 5.dp)
                                 .clickable {
                                     if (type == 0) {
-                                        viewModel.sendInfoMessage("호흡 점수", getString(R.string.detail_breathing_score_text))
+                                        viewModel.sendInfoMessage(getString(R.string.detail_respiratory_score), getString(R.string.detail_breathing_score_text))
                                     } else {
-                                        viewModel.sendInfoMessage("코골이 점수", getString(R.string.detail_breathing_score_text))
+                                        viewModel.sendInfoMessage(getString(R.string.detail_snoring_score), getString(R.string.detail_breathing_score_text))
                                     }
                                 },
                                 painter = painterResource(id = R.drawable.question),
@@ -527,7 +537,7 @@ class HistoryDetailActivity : BaseActivity() {
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "$percentValue 점",
+                        text = stringResource(R.string.detail_score, percentValue),
                         color = Color.White,
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold
@@ -671,7 +681,7 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun BreathingGraphView(
         title: String,
-        totalValue: String = "총-회",
+        totalValue: String = stringResource(R.string.detail_total_score),
         rightBoxValue: List<Triple<String, String, Color>> = emptyList()
         
     ) {
@@ -905,7 +915,7 @@ class HistoryDetailActivity : BaseActivity() {
     @Composable
     private fun RespiratoryInstabilityGraphView (
         title: String,
-        totalValue: String = "총-회",
+        totalValue: String = stringResource(R.string.detail_total_score),
         rightBoxValue: List<Triple<Pair<String,String>, Pair<String,String>, Color>> = emptyList()
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
@@ -1036,7 +1046,7 @@ class HistoryDetailActivity : BaseActivity() {
                                 ), contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if(value.second.second == "0회") "-" else value.second.second,
+                                text = if(value.second.second == stringResource(R.string.detail_0_count)) "-" else value.second.second,
                                 color = Color.White,
                                 maxLines = 2,
                                 fontSize = 17.sp,
@@ -1116,8 +1126,7 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                 }
                 Text(
-
-                    text = time.toHourOrMinute(),
+                    text = time.toHourOrMinute(LocalConfiguration.current.locales[0]),
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,

@@ -357,14 +357,16 @@
     <string name="sensor_scanning">스캔중</string>
     <string name="sensor_error_message_measurement">측정중 입니다.\n측정을 종료후 시도해주세요</string>
     <string name="sensor_ask_to_connect_message">숨이랑 %1$s\n 기기와 연결중입니다.</string>
+
     <string name="data_error_message">측정한 정보가 부족합니다.\n오늘 밤 다시 측정해 주세요</string>
+
     <string name="detail_result">결과</string>
     <string name="detail_share">공유하기</string>
     <string name="detil_time">측정 시간</string>
     <string name="detil_sleep_time">총 수면시간</string>
-    <string name="detail_asleep">잠들때까지 걸린 시간</string>
-    <string name="detail_snoring">코골이 시간</string>
-    <string name="detail_deep_sleep">깊은잠 시간</string>
+    <string name="detail_asleep_time">잠들때까지 걸린 시간</string>
+    <string name="detail_snoring_time">코골이 시간</string>
+    <string name="detail_deep_sleep_time">깊은잠 시간</string>
     <string name="detail_turns">뒤척임 횟수</string>
     <string name="detail_times">%1$d 회</string>
     <string name="detail_vibration">진동 발생 횟수</string>
@@ -375,4 +377,35 @@
     <string name="detail_min">(분) %1$s 회</string>
     <string name="detail_a_b">비정상 호흡</string>
     <string name="detail_no_signal">호흡신호없음</string>
+    <string name="detail_no_signal_10_secs">10초이상 호흡곤란</string>
+    <string name="detail_no_signal_30_secs">30초이상 호흡곤란</string>
+    <string name="detail_no_signal_60_secs">60초이상 호흡곤란</string>
+    <string name="detail_count">%1$s회</string>
+    <string name="detail_fast_breathing">빠른호흡</string>
+    <string name="detail_average_respiratory_rate">평균 호흡수 (분)</string>
+    <string name="detail_minutes">%1$s분</string>
+    <string name="detail_slow_breathing">느린호흡</string>
+    <string name="detail_unstable_breathing">호흡불안정</string>
+    <string name="detail_total_min">총%1$s분</string>
+    <string name="detail_sleep_position">수면 자세</string>
+    <string name="detail_supine">바른자세</string>
+    <string name="detail_left">왼쪽으로 누운 자세</string>
+    <string name="detail_right">오른쪽으로 누운 자세</string>
+    <string name="detail_prone">엎드린 자세</string>
+    <string name="detail_standup">수면중 일어남</string>
+    <string name="detail_sleep_stage">수면 단계</string>
+    <string name="detail_rem_sleep">렘수면</string>
+    <string name="detail_light_sleep">얕은수면</string>
+    <string name="detail_deep_sleep">깊은수면</string>
+    <string name="detail_bad">나쁨</string>
+    <string name="detail_medium">보통</string>
+    <string name="detail_good">좋음</string>
+    <string name="detail_your_sleep_respiration_score">당신의 수면 중 호흡 점수</string>
+    <string name="detail_your_snoring_score_during_sleep">당신의 수면 중 코골이 점수</string>
+    <string name="detail_respiratory_score">호흡 점수</string>
+    <string name="detail_snoring_score">코골이 점수</string>
+    <string name="detail_score">%1$s 점</string>
+    <string name="detail_total_score">총-회</string>
+    <string name="detail_0_count">0회</string>
+
 </resources>
