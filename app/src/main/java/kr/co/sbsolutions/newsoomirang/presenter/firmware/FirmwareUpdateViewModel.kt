@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
@@ -128,7 +129,7 @@ class FirmwareUpdateViewModel
             if (address == null || deviceName == null) {
                 _checkFirmwareVersion.tryEmit(FirmwareDataModel())
                 dismissProgressBar()
-                sendErrorMessage("기기와 연결을 진행해 주세요")
+                sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.firmupdate_error_message))
                 cancel()
                 delay(100)
                 return@launch

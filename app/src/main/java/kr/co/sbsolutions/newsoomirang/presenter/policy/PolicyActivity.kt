@@ -83,8 +83,7 @@ class PolicyActivity : AppCompatActivity() {
             //동의하기 버튼
             btnAgree.setOnSingleClickListener {
                 if (!viewModel.checkServerDataFlow.value.toBoolean()) {
-                    Toast.makeText(this@PolicyActivity, getString(R.string.policy_r_agree), Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@PolicyActivity, getString(R.string.policy_r_agree), Toast.LENGTH_SHORT).show()
                     return@setOnSingleClickListener
                 }
                 viewModel.joinAgree(accessToken)
