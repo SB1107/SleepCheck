@@ -205,7 +205,6 @@
     <string name="login_google">구글 로그인</string>
     <string name="login_kakao">카카오 로그인</string>
 
-    <string name="ble_connecting_massage">숨이랑 기기와 연결중입니다</string>
     <string name="menu_breathing_nosering">호흡+코골이</string>
     <string name="menu_nosering_noti">코골이+알림</string>
     <string name="menu_history">이력</string>
@@ -375,4 +374,7 @@
     <string name="detail_min">(분) %1$s 회</string>
     <string name="detail_a_b">비정상 호흡</string>
     <string name="detail_no_signal">호흡신호없음</string>
+    <string name="policy_r_agree">필수 약관을 동의해주세요.</string>
+    <string name="policy_message1">%1$s 님의 건강</string>
+    <string name="policy_message2">데이터는 중요합니다.</string>
 </resources>

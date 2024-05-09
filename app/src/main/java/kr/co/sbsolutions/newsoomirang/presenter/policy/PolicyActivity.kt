@@ -27,6 +27,7 @@ import kr.co.sbsolutions.newsoomirang.common.toBoolean
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityPolicyBinding
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.webview.WebViewActivity
+import java.util.Locale
 
 @AndroidEntryPoint
 class PolicyActivity : AppCompatActivity() {
@@ -56,12 +57,14 @@ class PolicyActivity : AppCompatActivity() {
             binding.actionBar.backButton.setOnSingleClickListener { finish() }
             //서비스 이용 약관 보기
             btnServiceTerms.setOnSingleClickListener {
-                webViewActivity(WebType.TERMS0)
+                val locale = resources.configuration.locales[0]
+                webViewActivity(WebType.TERMS0, locale)
             }
 
             //개인 정보 수집 및 이용 정책 보기
             btnPersonalInformationCollection.setOnSingleClickListener {
-                webViewActivity(WebType.TERMS1)
+                val locale = resources.configuration.locales[0]
+                webViewActivity(WebType.TERMS1, locale)
             }
 
             //필수 약관 체크
@@ -80,7 +83,7 @@ class PolicyActivity : AppCompatActivity() {
             //동의하기 버튼
             btnAgree.setOnSingleClickListener {
                 if (!viewModel.checkServerDataFlow.value.toBoolean()) {
-                    Toast.makeText(this@PolicyActivity, "필수 약관을 동의해주세요.", Toast.LENGTH_SHORT)
+                    Toast.makeText(this@PolicyActivity, getString(R.string.policy_r_agree), Toast.LENGTH_SHORT)
                         .show()
                     return@setOnSingleClickListener
                 }
@@ -101,8 +104,8 @@ class PolicyActivity : AppCompatActivity() {
                 lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.userName.collect { name ->
                         binding.tvName.text = buildString {
-                            append("${name} 님의 건강")
-                            append("데이터는 중요합니다.")
+                            append(getString(R.string.policy_message1, name))
+                            append(getString(R.string.policy_message2))
                         }
                     }
                 }
@@ -145,10 +148,11 @@ class PolicyActivity : AppCompatActivity() {
         window.statusBarColor = act.resources.getColor(color)
     }
 
-    private fun webViewActivity(webType: WebType) {
+    private fun webViewActivity(webType: WebType, locale: Locale) {
         startActivity(Intent(this, WebViewActivity::class.java).apply {
+            val title = if (locale == Locale.KOREA) webType.titleKo else webType.titleEn
             putExtra("webTypeUrl", webType.url)
-            putExtra("webTypeTitle", webType.title)
+            putExtra("webTypeTitle", title)
         })
     }
 }

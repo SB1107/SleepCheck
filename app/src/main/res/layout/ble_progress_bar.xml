@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:gravity="center"
-        android:text="@string/ble_connecting_massage"
+        android:text="@string/ble_connecting_info_message"
         android:textColor="@color/color_FFFFFF"
         android:textSize="30sp"
         android:textStyle="bold"
