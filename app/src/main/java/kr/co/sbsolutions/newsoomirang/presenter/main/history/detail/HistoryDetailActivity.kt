@@ -309,7 +309,7 @@ class HistoryDetailActivity : BaseActivity() {
                 }*/
                 Spacer(modifier = Modifier.height(16.dp))
                 BreathingGraphView(
-                    stringResource(R.string.detail_no_signal), "총${it}회", listOf(
+                    stringResource(R.string.detail_no_signal), stringResource(R.string.detail_total_min, it), listOf(
                         Triple(
                             stringResource(R.string.detail_no_signal_10_secs),
                             stringResource(R.string.detail_count, data.apnea10 ?: 0),
@@ -514,6 +514,8 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
+                            modifier = Modifier
+                                .weight(9f),
                             text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(R.string.detail_your_snoring_score_during_sleep),
                             color = Color.White,
                             fontSize = 22.sp,
@@ -521,6 +523,7 @@ class HistoryDetailActivity : BaseActivity() {
                         )
                         Image(
                             modifier = Modifier
+                                .weight(1f)
                                 .padding(start = 5.dp)
                                 .clickable {
                                     if (type == 0) {
@@ -697,12 +700,16 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
+                        modifier = Modifier
+                            .weight(8f),
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                     Image(
                         modifier = Modifier
+                            .weight(2f)
                             .padding(start = 5.dp)
                             .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text)) },
                         painter = painterResource(id = R.drawable.question),
@@ -722,7 +729,8 @@ class HistoryDetailActivity : BaseActivity() {
                     Text(
                         text = totalValue, color = Color.White,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -930,12 +938,16 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
+                        modifier = Modifier
+                            .weight(8f),
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.End
                     )
                     Image(
                         modifier = Modifier
+                            .weight(2f)
                             .padding(start = 5.dp)
                             .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text)) },
                         painter = painterResource(id = R.drawable.question),
@@ -955,7 +967,8 @@ class HistoryDetailActivity : BaseActivity() {
                     Text(
                         text = totalValue, color = Color.White,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
