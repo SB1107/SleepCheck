@@ -190,6 +190,7 @@ class BLEServiceHelper(
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
         blueToothUseCase?.startSBService(context, bluetoothAdapter) {
+            logHelper.insertLog("서비스 재시작 callback")
             blueToothUseCase?.setDataId()
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
