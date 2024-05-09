@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
+import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
@@ -100,11 +102,11 @@ class NoSeringViewModel @Inject constructor(
                         reLoginCallBack()
                     }
                 } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
-                sendErrorMessage("호흡 측정중 입니다. 종료후 사용해 주세요")
+                sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.nosering_exit_error_message))
             }
         } else {
             viewModelScope.launch {
-                _isRegisteredMessage.emit("숨이랑 기기와 연결이 되지 않았습니다.\n코골이 만 측정하겠습니까?")
+                _isRegisteredMessage.emit(ApplicationManager.instance.baseContext.getString(R.string.nosering_connected_and_start_message))
             }
         }
     }

@@ -49,7 +49,7 @@ abstract class BluetoothActivity : BaseActivity() {
         bluetoothAdapter?.let {
             if (!it.isEnabled) {
                 showAlertDialogWithCancel(
-                    R.string.common_title, "블루투스 활성화가 필요합니다. \n활성화 하시겠습니까?",
+                    R.string.common_title, getString(R.string.ble_activ_message),
                     confirmButtonText = R.string.setting_bluetooth_connect,
                     confirmAction = {
                         requestBluetoothActivation()
@@ -60,7 +60,7 @@ abstract class BluetoothActivity : BaseActivity() {
                 )
             }
         } ?: showAlertDialog(
-            R.string.common_title, "블루투스 사용이 불가한 기기입니다\n 어플리케이션 을 종료 합니다.",
+            R.string.common_title, getString(R.string.ble_no_use_device_message),
             cancelable = false,
             buttonText = R.string.common_ok,
             confirmAction = {
@@ -68,10 +68,10 @@ abstract class BluetoothActivity : BaseActivity() {
             }
         )
 
-        Log.d(TAG, "onResume11111111: $isGpsEnabled")
+//        Log.d(TAG, "onResume11111111: $isGpsEnabled")
         if (!isGpsEnabled) {
             showAlertDialogWithCancel(
-                R.string.common_title, "블루투스 스캔을 위해 GPS활성화가 필요합니다. \n활성화 하시겠습니까?",
+                R.string.common_title, getString(R.string.gps_activ_message),
                 confirmButtonText = R.string.setting_bluetooth_connect,
                 confirmAction = {
                     requestGpsActivation()

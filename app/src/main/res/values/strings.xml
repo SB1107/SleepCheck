@@ -11,9 +11,7 @@
     <string name="common_finish">종료</string>
     <string name="common_next_update">다음에 하기</string>
     <string name="login"><b><u>로그인</u></b></string>
-    <string name="find_pw_info">가입하신 이메일 주소를 입력해주시면 \n비밀번호 재설정이 가능한 링크가 발송됩니다.</string>
     <string name="qa">QA 타이틀</string>
-    <string name="regist_button">등록버튼</string>
     <string name="back_button_label">뒤로</string>
     <string name="recyclerView_label">기기 검색</string>
 
@@ -291,5 +289,12 @@
     <string name="policy_r_agree">필수 약관을 동의해주세요.</string>
     <string name="policy_message1">%1$s 님의 건강</string>
     <string name="policy_message2">데이터는 중요합니다.</string>
+
     <string name="firmupdate_error_message">기기와 연결을 진행해 주세요</string>
+    <string name="nosering_connected_and_start_message">숨이랑 기기와 연결이 되지 않았습니다.\n코골이 만 측정하겠습니까?</string>
+    <string name="nosering_exit_error_message">호흡 측정중 입니다. 종료후 사용해 주세요</string>
+
+    <string name="ble_activ_message">블루투스 활성화가 필요합니다. \n활성화 하시겠습니까?</string>
+    <string name="ble_no_use_device_message">블루투스 사용이 불가한 기기입니다\n 어플리케이션 을 종료 합니다.</string>
+    <string name="gps_activ_message">블루투스 스캔을 위해 GPS활성화가 필요합니다. \n활성화 하시겠습니까?</string>
 </resources>
