@@ -113,7 +113,7 @@ class ContactUsActivity : BaseServiceActivity() {
             etcText = ""
             etcTitleText = ""
         }
-        SoomScaffold(topText = stringResource(R.string.contact_title),
+        SoomScaffold(topText = stringResource(R.string.setting_qna),
             topAction = { finish() },
             childView = {
                 Column(

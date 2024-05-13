@@ -61,7 +61,7 @@ class ContactDetailActivity : BaseServiceActivity() {
     @Composable
     fun DefaultPreview(intent: Intent?) {
         SoomScaffold(
-            topText = stringResource(R.string.contact_detail_title),
+            topText = stringResource(R.string.setting_qna),
             topAction = { finish() },
             childView =
             {
