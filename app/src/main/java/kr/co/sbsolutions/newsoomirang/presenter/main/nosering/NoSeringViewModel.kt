@@ -201,15 +201,16 @@ class NoSeringViewModel @Inject constructor(
             sleepDataCreate()
         }
         viewModelScope.launch(Dispatchers.IO) {
+            val hasSensor = dataManager.getHasSensor().first()
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first().let {
-                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(it, type = SleepType.NoSering.ordinal.toString())) }
+                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(if(hasSensor) it else null, type = SleepType.NoSering.ordinal.toString())) }
                     .catch {
                         trySend(false)
                         close()
                     }
                     .collectLatest {
                         it.result?.id?.let { id ->
-                            Log.d(TAG, "sleepDataCreate: ${dataManager.getHasSensor().first()}")
+                            Log.d(TAG, "hasSensor: $hasSensor")
                             getService()?.startSBSensor(dataId = id, sleepType = SleepType.NoSering, hasSensor = dataManager.getHasSensor().first())
                             setMeasuringState(MeasuringState.Record)
                             trySend(true)
