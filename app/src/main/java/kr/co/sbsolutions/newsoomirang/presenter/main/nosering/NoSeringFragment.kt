@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialogWithCancel
@@ -235,11 +236,13 @@ class NoSeringFragment : BluetoothFragment() {
                             if (it.first.not()) getString(R.string.not_measurable)else getString(R.string.connect_button)
                         } else if (it.first.not()) getString(R.string.not_measurable)else getString(R.string.snoring_start)
                         val isEnabled = it.second.contains(getString(R.string.start))
-                            binding.motorCheckBox.isEnabled = isEnabled
-                            binding.type0Chip.isEnabled = isEnabled
-                            binding.type1Chip.isEnabled = isEnabled
-                            binding.type2Chip.isEnabled = isEnabled
                         setBluetoothStateIcon(getBluetoothState(it.second))
+                        delay(500)
+                        Log.d(TAG, "setObservers111: $isEnabled")
+                        binding.motorCheckBox.isEnabled = isEnabled
+                        binding.type0Chip.isEnabled = isEnabled
+                        binding.type1Chip.isEnabled = isEnabled
+                        binding.type2Chip.isEnabled = isEnabled
                     }
                 }
                 launch {
