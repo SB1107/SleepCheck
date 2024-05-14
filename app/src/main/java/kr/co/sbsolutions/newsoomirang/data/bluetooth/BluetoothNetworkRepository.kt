@@ -616,6 +616,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
+    private var currentCount = 0
     private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
         gatt?.let {
             stateCallback?.invoke(command.getState())
@@ -636,10 +637,15 @@ class BluetoothNetworkRepository @Inject constructor(
                         when (writeResult) {
                             BluetoothStatusCodes.SUCCESS -> {
                                 result = true
+                                currentCount = 0
                             }
                             BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
-                                logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
-                                gatt.disconnect()
+                                if (currentCount <= 2){
+                                    logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
+                                    currentCount++
+                                }
+                                result = false
+                                /*gatt.disconnect()
                                 logHelper.insertLog("gatt disconnect")
                                 result = false
                                 isSBSensorConnect.collectLatest {  (isConnect , name) ->
@@ -654,26 +660,21 @@ class BluetoothNetworkRepository @Inject constructor(
                                         }
                                     }
                                 }
-                                delay(2000)
+                                delay(2000)*/
                             }
                             else -> {
-                                delay(1000)
-                                logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
+//                                delay(1000)
+                                if (currentCount <= 2){
+                                    logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
+                                    currentCount++
+                                }
                                 result = false
                             }
-                        }
-                        if (writeResult == BluetoothStatusCodes.SUCCESS) {
-                            result = true
-                        } else {
-
-                            logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
                         }
                     } else {
                         cmd.value = byteArr
                         result = gatt.writeCharacteristic(cmd)
                     }
-
-
                     if (result) {
                         Log.d("<--- App To Device", command.getCommandByteArr().hexToString())
                     }
