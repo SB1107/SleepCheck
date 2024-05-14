@@ -405,7 +405,6 @@ class SBSensorBlueToothUseCase(
                                 }
                                 bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
                                 logHelper.insertLog("stopNetworkSBSensor")
-
                             }, 0L)
                         }
                         retryCount += 1

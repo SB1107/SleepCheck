@@ -28,6 +28,8 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.DataFlowInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
 import okhttp3.internal.notify
 import java.lang.ref.WeakReference
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 abstract class BaseServiceViewModel(
     private val dataManager: DataManager,
@@ -68,6 +70,8 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+    
+    private var timerTimeOut: Timer? =null
 
     abstract fun whereTag(): String
 
@@ -90,7 +94,7 @@ abstract class BaseServiceViewModel(
                         BluetoothState.Unregistered -> {
                             launch {
                                 _bluetoothButtonState.emit("연결")
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                setIsHomeBleProgressBar()
                             }
                         }
                         
@@ -98,7 +102,7 @@ abstract class BaseServiceViewModel(
                             launch {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
                                 bluetoothInfo.batteryInfo = null
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                setIsHomeBleProgressBar()
                                 _batteryState.emit("")
                                 _bluetoothButtonState.emit("연결")
                             }
@@ -123,26 +127,26 @@ abstract class BaseServiceViewModel(
                         BluetoothState.Connected.End -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(false, ""))
+                                setIsHomeBleProgressBar()
                             }
                         }
                         
                         BluetoothState.Connected.WaitStart -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
+                                setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
                             }
                         }
                         
                         BluetoothState.Connected.Finish -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
-                                _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
+                                setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
                             }
                         }
                         
                         BluetoothState.Connecting -> {
-                            _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_conneting)))
+                            setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_conneting))
                             _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                         }
@@ -154,7 +158,7 @@ abstract class BaseServiceViewModel(
                         
                         else -> {
                             _bluetoothButtonState.emit("시작")
-                            _isHomeBleProgressBar.emit(Pair(true, ApplicationManager.instance.getString(R.string.sensor_info_wait)))
+                            setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
                         }
                     }
                 }
@@ -173,6 +177,18 @@ abstract class BaseServiceViewModel(
             }
         }
     }
+    
+    private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = ""){timerTimeOut
+        timerTimeOut?.cancel()
+        _isHomeBleProgressBar.emit(Pair(onOff, massage))
+        timerTimeOut = Timer().apply {
+            schedule(timerTask {
+                viewModelScope.launch {
+                    _isHomeBleProgressBar.emit(Pair(false,""))
+                }
+            },5000L)
+        }
+    }
 
 
     open fun serviceSettingCall() {
@@ -189,7 +205,7 @@ abstract class BaseServiceViewModel(
             bluetoothInfo.batteryInfo?.let {
                 _batteryState.emit(it)
                 _bluetoothButtonState.emit("시작")
-                _isHomeBleProgressBar.emit(Pair(false, ""))
+                setIsHomeBleProgressBar()
             }
             when (bluetoothInfo.bluetoothState) {
                 //충전 상태를 알아야하는 상태

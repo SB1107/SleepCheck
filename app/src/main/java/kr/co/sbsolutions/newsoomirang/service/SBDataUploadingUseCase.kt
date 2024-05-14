@@ -99,11 +99,9 @@ class SBDataUploadingUseCase(
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
                                         uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
-                                    }else {
-                                        workInfo.outputData.getString(reason)?.let {
-                                            dataInsufficientUploadFail.emit("${it}으로 데이터 업로드를 실패했습니다.")
+                                    } else {
+                                        dataInsufficientUploadFail.emit("${reason}으로 데이터 업로드를 실패했습니다.")
                                             
-                                        }
                                     }
                                 }
                             }
