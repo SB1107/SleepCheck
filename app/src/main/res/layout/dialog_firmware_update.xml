@@ -37,7 +37,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="45dp"
                 android:fontFamily="@font/nanumsquarebold"
-                android:text="숨이랑 소프트웨어가\n최신버전 이아닙니다."
+                android:text="숨이랑 소프트웨어가\n최신버전이 아닙니다."
                 android:textAlignment="center"
                 android:textColor="@color/color_FFFFFF"
                 android:textSize="24sp"
