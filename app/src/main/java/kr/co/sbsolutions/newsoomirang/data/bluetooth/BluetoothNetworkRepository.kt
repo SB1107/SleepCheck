@@ -632,12 +632,42 @@ class BluetoothNetworkRepository @Inject constructor(
                 var result: Boolean
                 do {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        result = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
-                        
-                        if (result == false){
-                            logHelper.insertLog("체크 gatt.writeCharacteristic: ${gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)}")
+                        val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
+                        when (writeResult) {
+                            BluetoothStatusCodes.SUCCESS -> {
+                                result = true
+                            }
+                            BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
+                                logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
+                                gatt.disconnect()
+                                logHelper.insertLog("gatt disconnect")
+                                result = false
+                                isSBSensorConnect.collectLatest {  (isConnect , name) ->
+                                    run {
+                                        if (isConnect.not()) {
+                                            logHelper.insertLog("gatt disconnect 됨")
+                                            gatt.connect()
+                                            logHelper.insertLog("gatt connect 시도")
+                                        }else{
+                                            logHelper.insertLog("gatt connect 됨 ")
+                                            return@collectLatest
+                                        }
+                                    }
+                                }
+                                delay(2000)
+                            }
+                            else -> {
+                                delay(1000)
+                                logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
+                                result = false
+                            }
                         }
-                        
+                        if (writeResult == BluetoothStatusCodes.SUCCESS) {
+                            result = true
+                        } else {
+
+                            logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
+                        }
                     } else {
                         cmd.value = byteArr
                         result = gatt.writeCharacteristic(cmd)
@@ -814,7 +844,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         }*//*
                     }
                 }*/
-                
+
 
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
@@ -1374,7 +1404,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 val minor = String.format("%02X", value[7]).toUInt(16).toInt()
                                 val patch = String.format("%02X", value[8]).toUInt(16).toInt()
                                 val firmware = major.toString().plus(".").plus(minor.toString().plus(".").plus(patch.toString()))
-                                _sbSensorFirmwareInfo.emit(FirmwareData(firmware , innerData.value.bluetoothName ?: "", innerData.value.bluetoothAddress ?:"" ))
+                                _sbSensorFirmwareInfo.emit(FirmwareData(firmware, innerData.value.bluetoothName ?: "", innerData.value.bluetoothAddress ?: ""))
                                 Log.e(TAG, "version: major =$major minor = $minor patch = $patch")
                             }
                         }
