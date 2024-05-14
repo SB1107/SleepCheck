@@ -408,7 +408,7 @@ class BLEService : LifecycleService() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         bleServiceHelper.cancelSbService(true)
         serviceLiveCheckWorkerHelper.cancelWork()
-        finishService(false)
+        finishService(true)
     }
 
     fun getRealDataRemoved(): StateFlow<RealData?> {
