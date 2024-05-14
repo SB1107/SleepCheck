@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
+import kr.co.sbsolutions.newsoomirang.common.diffTime
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
@@ -334,21 +335,35 @@ class SBSensorBlueToothUseCase(
         }
         setSnoreCountIncreaseCallback()
         timerOfTimeout?.cancel()
-        timerOfTimeout = Timer().apply {
-            schedule(timerTask {
-                stopSBSensor()
-                val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
-                bluetoothNetworkRepository.sbSensorInfo.value.let {
-                    it.dataId?.let { dataId ->
-                        lifecycleScope.launch(IO) {
-                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId)
-                        }
-                    } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
-                }
 
-            }, TIME_OUT_MEASURE)
+        lifecycleScope.launch(IO) {
+            // 서비스 재시작및 강제 재시작 시 타이머 세팅 필요
+            // 저장된 시작 시간 가져와 타이머 세팅 함
+            val tempTime = dataManager.getStartTime().first()
+            val startTime = if (tempTime == 0L) TIME_OUT_MEASURE else tempTime.diffTime()
+            if (startTime == TIME_OUT_MEASURE) {
+                setStartTime()
+            }
+            timerOfTimeout = Timer().apply {
+                schedule(timerTask {
+                    stopSBSensor()
+                    val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
+                    bluetoothNetworkRepository.sbSensorInfo.value.let {
+                        it.dataId?.let { dataId ->
+                            lifecycleScope.launch(IO) {
+                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId)
+                            }
+                        } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
+                    }
+                }, startTime)
+            }
         }
     }
+
+    private suspend fun setStartTime(time: Long = System.currentTimeMillis()) {
+        dataManager.setStartTime(time)
+    }
+
 
     fun isBleDeviceConnect(): Pair<Boolean, String> {
         return bluetoothNetworkRepository.isSBSensorConnect()
@@ -439,6 +454,9 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.setOnUploadCallback(null)
         timerOfTimeout?.cancel()
         bluetoothNetworkRepository.snoreCountIncrease(null)
+        lifecycleScope.launch(IO) {
+            setStartTime(0L)
+        }
     }
 
     suspend fun checkDataSize() = callbackFlow {
@@ -619,7 +637,7 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.startMotorTest(intensity)
     }
 
-    fun getFirmwareVersion() : Flow<FirmwareData?> {
+    fun getFirmwareVersion(): Flow<FirmwareData?> {
         return bluetoothNetworkRepository.getFirmwareVersion()
     }
 

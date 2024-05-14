@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.presenter.main.ImageViewPagerAdapter
+import kr.co.sbsolutions.newsoomirang.service.BLEService
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
@@ -71,8 +72,8 @@ fun ContextWrapper.getPermissionResult(): ArrayList<String> {
     return deniedPermissions
 }
 
-fun Context.showYearDialog(currentYear : Int,  cancelAction: (() -> Unit)? = null, confirmAction: ((Int) -> Unit)){
-    val maxYear : Int = LocalDate.now().year
+fun Context.showYearDialog(currentYear: Int, cancelAction: (() -> Unit)? = null, confirmAction: ((Int) -> Unit)) {
+    val maxYear: Int = LocalDate.now().year
     val minYear = 2020
     val dialogView = LayoutInflater.from(this).inflate(R.layout.show_alert_year_dialog, null)
     val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
@@ -164,8 +165,8 @@ fun Context.showAlertDialogWithCancel(
 }
 
 @SuppressLint("CutPasteId", "MissingInflatedId")
-fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null, ) : AlertDialog {
-    val imageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1,R.drawable.guide2))
+fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = null): AlertDialog {
+    val imageViewPagerAdapter = ImageViewPagerAdapter(listOf(R.drawable.guide1, R.drawable.guide2))
     val dialogView = LayoutInflater.from(this).inflate(R.layout.row_app_guide, null)
     val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
         .setView(dialogView)
@@ -184,12 +185,12 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
     //select any page you want as your starting page
     val guideTitle = dialogView.findViewById<AppCompatTextView>(R.id.tv_guide_title)
 
-   val job = CoroutineScope(Dispatchers.Default).launch{
-        while (true){
+    val job = CoroutineScope(Dispatchers.Default).launch {
+        while (true) {
             delay(1000)
 
-            withContext(Dispatchers.Main){
-                if (currentPageIndex == imageViewPagerAdapter.itemCount ){
+            withContext(Dispatchers.Main) {
+                if (currentPageIndex == imageViewPagerAdapter.itemCount) {
                     currentPageIndex = 0
                     guideTitle.text = getString(R.string.guide_device_info_message1)
                 } else {
@@ -219,7 +220,7 @@ fun Context.guideAlertDialog(confirmAction: ((isChecked: Boolean) -> Unit)? = nu
             }
         }
     }
-    return  dialog
+    return dialog
 }
 
 
@@ -254,15 +255,15 @@ fun String.toDate(format: String): Date? {
     return simpleDateFormat.parse(this)
 }
 
-fun Date.toDayString(format: String , locale: Locale = Locale.KOREA): String? {
+fun Date.toDayString(format: String, locale: Locale = Locale.KOREA): String? {
     if (format.isEmpty()) {
         return null
     }
-    val simpleDateFormat = SimpleDateFormat(format,locale)
+    val simpleDateFormat = SimpleDateFormat(format, locale)
     return simpleDateFormat.format(this)
 }
 
-fun Int.InpuMintoHourMinute(locale: Locale = Locale.KOREA) : String{
+fun Int.InpuMintoHourMinute(locale: Locale = Locale.KOREA): String {
     val time = Duration.ofMinutes(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
 
@@ -270,17 +271,18 @@ fun Int.InpuMintoHourMinute(locale: Locale = Locale.KOREA) : String{
     return if (hours > 0) {
         if (locale == Locale.KOREA) {
             String.format("%d시간 %d분", hours, minutes)
-        }else{
+        } else {
             String.format("%d h % min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("%d 분", minutes)
-        }else{
+        } else {
             String.format("%d min", minutes)
         }
     }
 }
+
 fun Int.toHourMinute(locale: Locale = Locale.KOREA): String {
     val time = Duration.ofSeconds(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
@@ -289,17 +291,18 @@ fun Int.toHourMinute(locale: Locale = Locale.KOREA): String {
     return if (hours > 0) {
         if (locale == Locale.KOREA) {
             String.format("%d시간 %d분", hours, minutes)
-        }else{
+        } else {
             String.format("%d h %d min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("%d 분", minutes)
-        }else{
+        } else {
             String.format("%d min", minutes)
         }
     }
 }
+
 fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
     val time = Duration.ofMinutes(this.toLong())
     val hours = time.toHours() // 전체 시간을 시간 단위로 추출
@@ -308,13 +311,13 @@ fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
     return if (hours > 0) {
         if (locale == Locale.KOREA) {
             String.format("약\n%d시간", hours)
-        }else{
+        } else {
             String.format("est.\n%dh", hours)
         }
     } else {
         if (locale == Locale.KOREA) {
             String.format("약\n%d 분", minutes)
-        }else{
+        } else {
             String.format("est.\n%d min", minutes)
         }
     }
@@ -360,7 +363,7 @@ fun String.prefixToHex(): String {
 fun String.getChangeDeviceName(): String {
     val nameCheck = this.contains("H")
     val bleNumber = this.split("-").last()
-    val resultName = if (!nameCheck)"Soomirang - $bleNumber" else "HSMD - $bleNumber"
+    val resultName = if (!nameCheck) "Soomirang - $bleNumber" else "HSMD - $bleNumber"
     return resultName
 }
 
@@ -374,10 +377,20 @@ fun Any.timeStamp(dateFormat: String = "yyyy년 MM월 dd일 HH시 mm분 SS.sss�
     return timeStamp
 }
 
+fun Long.isTwelveHoursPassed(): Boolean {
+    return this.diffTime() >= BLEService.TIME_OUT_MEASURE
+}
+
+fun Long.diffTime(): Long {
+    val currentTime = System.currentTimeMillis()
+    val diff = currentTime - this
+    return diff
+}
+
 fun hasUpdate(currentVer: String, compareVer: String): Boolean {
     val curVer = currentVer.split(".").map { it.toInt() }
     val comVer = compareVer.split(".").map { it.toInt() }
-    
+
     // 메이저 버전 비교
     if (comVer[0] > curVer[0]) {
         return true

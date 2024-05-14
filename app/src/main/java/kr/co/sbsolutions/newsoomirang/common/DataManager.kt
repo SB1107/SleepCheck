@@ -20,6 +20,7 @@ class DataManager(private val context: Context) {
         private val SNS_TYPE = stringPreferencesKey("sns_type")
 
         private val IS_SENSOR = booleanPreferencesKey("is_sensor")
+        private val startTime = longPreferencesKey("start_time")
 
         private const val ADDRESS = "_address"
         private const val NAME = "_name"
@@ -161,5 +162,14 @@ class DataManager(private val context: Context) {
             preferences[COUGH_COUNT] ?: 0
         }
     }
-
+    suspend fun setStartTime(time : Long) {
+            context.moveStore.edit { preferences ->
+                preferences[startTime] = time
+            }
+    }
+    fun getStartTime(): Flow<Long> {
+        return context.moveStore.data.map { preferences ->
+            preferences[startTime] ?: 0
+        }
+    }
 }
