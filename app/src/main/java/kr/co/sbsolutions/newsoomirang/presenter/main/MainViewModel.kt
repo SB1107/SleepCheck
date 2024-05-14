@@ -45,7 +45,7 @@ class MainViewModel @Inject constructor(
 
     private fun userInfoLog() {
         viewModelScope.launch {
-            logHelper.insertLog("[M] Model Name: ${Build.MODEL} ${dataManager.getUserName().first().toString()}")
+            logHelper.insertLog("[M] Model Name: ${Build.MODEL} OS API:${Build.VERSION.SDK_INT} ${dataManager.getUserName().first().toString()}")
         }
     }
     /*private fun getAppGuide() {
