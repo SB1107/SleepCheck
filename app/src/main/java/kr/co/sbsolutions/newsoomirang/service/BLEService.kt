@@ -467,6 +467,9 @@ class BLEService : LifecycleService() {
     fun getDataFlowPopUp(): StateFlow<Boolean> {
         return bleServiceHelper.getDataFlowPopUp()
     }
+    fun getUploadFailError(): SharedFlow<String>{
+        return  bleServiceHelper.getUploadFailError()
+    }
 
     fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {
         return bleServiceHelper.getTimeHelper()

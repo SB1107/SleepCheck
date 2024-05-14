@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -303,6 +304,9 @@ class BLEServiceHelper(
 
     fun getDataFlowPopUp(): StateFlow<Boolean> {
         return sbDataUploadingUseCase?.getDataFlowPopUp() ?: MutableStateFlow(false)
+    }
+    fun getUploadFailError(): SharedFlow<String> {
+        return sbDataUploadingUseCase?.getUploadFailError() ?: MutableSharedFlow()
     }
 
     fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {

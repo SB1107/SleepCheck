@@ -38,6 +38,7 @@ class MainViewModel @Inject constructor(
     private val _dataIDSet = mutableSetOf<Int>()
     private lateinit var job: Job
     private lateinit var resultJob: Job
+    private lateinit var uploadFailJob: Job
 
     init {
         userInfoLog()
@@ -97,8 +98,32 @@ class MainViewModel @Inject constructor(
     fun forceDataFlowCancel() {
         getService()?.forceDataFlowDataUploadCancel()
     }
-
-
+    
+    override fun onCleared() {
+        super.onCleared()
+        if (::uploadFailJob.isInitialized){
+            uploadFailJob.cancel()
+        }
+        if (::job.isInitialized){
+            job.cancel()
+        }
+        if (::resultJob.isInitialized){
+            resultJob.cancel()
+        }
+    }
+    
+    override fun serviceSettingCall() {
+        if (::uploadFailJob.isInitialized){
+            uploadFailJob.cancel()
+        }
+        uploadFailJob = viewModelScope.launch(Dispatchers.IO) {
+            getService()?.getUploadFailError()?.collectLatest {
+                sendErrorMessage(it)
+                delay(100)
+            }
+        }
+    }
+    
     private fun sleepDataResult() {
         if (::resultJob.isInitialized) {
             resultJob.cancel()

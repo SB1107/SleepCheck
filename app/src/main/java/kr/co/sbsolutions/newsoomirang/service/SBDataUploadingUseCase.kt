@@ -5,14 +5,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.work.WorkInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.UploadData
 import kr.co.sbsolutions.newsoomirang.common.UploadWorkerHelper
-import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.FINISH
@@ -31,6 +32,7 @@ class SBDataUploadingUseCase(
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+    private val dataInsufficientUploadFail: MutableSharedFlow<String> = MutableSharedFlow()
 
     fun setDataUploadingUseCase(sbSensorBlueToothUseCase: SBSensorBlueToothUseCase) {
         this.sbSensorBlueToothUseCase = sbSensorBlueToothUseCase
@@ -93,9 +95,15 @@ class SBDataUploadingUseCase(
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
                                     val reason = workInfo.outputData.getString("reason")
+                                    
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
                                         uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
+                                    }else {
+                                        workInfo.outputData.getString(reason)?.let {
+                                            dataInsufficientUploadFail.emit("${it}으로 데이터 업로드를 실패했습니다.")
+                                            
+                                        }
                                     }
                                 }
                             }
@@ -121,6 +129,9 @@ class SBDataUploadingUseCase(
         }
     }
 
+    fun getUploadFailError(): SharedFlow<String> {
+        return  dataInsufficientUploadFail.asSharedFlow()
+    }
     fun getDataFlowPopUp(): StateFlow<Boolean> {
         return dataFlowPopUp
     }

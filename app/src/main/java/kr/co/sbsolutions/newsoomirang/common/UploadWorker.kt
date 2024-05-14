@@ -62,7 +62,7 @@ class UploadWorker @AssistedInject constructor(
             val sensorName = inputData.getString("sensorName") ?: ""
             val type = if (SleepType.Breathing.ordinal == sleepType) SleepType.Breathing else SleepType.NoSering
             if (dataId == -1) {
-                return@withContext Result.failure(Data.Builder().apply { putString("reason", "dataId 오류") }.build())
+                return@withContext Result.failure(Data.Builder().apply { putString("reason", "dataId 누락") }.build())
             }
 
             if (isFilePass) {
@@ -76,8 +76,8 @@ class UploadWorker @AssistedInject constructor(
                 Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1}  Data Size : $size")
                 logHelper.insertLog("exportLastFile Index From $min~$max = ${max - min + 1}  Data Size : $size")
                 if (size < MINIMUM_UPLOAD_NUMBER) {
-                    Log.d(TAG, "exportLastFile - data size 1000 미만 : $size")
-                    return@withContext Result.failure(Data.Builder().apply { putString("reason", "size 1000 미만") }.build())
+                    Log.d(TAG, "exportLastFile - data size $MINIMUM_UPLOAD_NUMBER 미만 : $size")
+                    return@withContext Result.failure(Data.Builder().apply { putString("reason", "size $MINIMUM_UPLOAD_NUMBER 미만") }.build())
                 }
                 val firstData = sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()
 
