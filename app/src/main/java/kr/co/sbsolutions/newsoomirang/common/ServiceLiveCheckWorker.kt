@@ -13,10 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
-import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.TIME_OUT_MEASURE
+import kr.co.sbsolutions.newsoomirang.service.BLEService
 
 @HiltWorker
 class ServiceLiveCheckWorker @AssistedInject constructor(
@@ -42,7 +41,7 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
             val hasSensor = dataManager.getHasSensor().first()
             if (isServiceRunning.not()) {
                 if (dataManager.getStartTime().first().isTwelveHoursPassed()) {
-                    logHelper.insertLog("ServiceLiveCheckWorker 측정후  12시간 지남}")
+                    logHelper.insertLog("ServiceLiveCheckWorker 측정후  12시간 지남")
                     return@withContext Result.success()
                 }
                 Intent(context, BLEService::class.java).apply {

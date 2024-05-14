@@ -400,8 +400,12 @@ class SBSensorBlueToothUseCase(
                         delay(1500)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
+                                lifecycleScope.launch(IO) {
+                                    fireBaseRemove()
+                                }
                                 bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
                                 logHelper.insertLog("stopNetworkSBSensor")
+
                             }, 0L)
                         }
                         retryCount += 1
