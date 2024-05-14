@@ -633,6 +633,11 @@ class BluetoothNetworkRepository @Inject constructor(
                 do {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         result = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT) == BluetoothStatusCodes.SUCCESS
+                        
+                        if (result == false){
+                            logHelper.insertLog("체크 gatt.writeCharacteristic: ${gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)}")
+                        }
+                        
                     } else {
                         cmd.value = byteArr
                         result = gatt.writeCharacteristic(cmd)
