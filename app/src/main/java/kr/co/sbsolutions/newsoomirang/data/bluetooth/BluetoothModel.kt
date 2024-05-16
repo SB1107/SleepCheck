@@ -52,7 +52,27 @@ fun AppToModule.getState(): BluetoothState.Connected {
         AppToModule.OperateMotorTestWeak, AppToModule.OperateMotorTestNormal, AppToModule.OperateMotorTestStrong -> BluetoothState.Connected.MotTestACK
     }
 }
-
+fun AppToModule.getName() : String{
+    return  when (this) {
+        AppToModule.BreathingOperateStart -> "BreathingOperateStart"
+        AppToModule.BreathingOperateStop -> "BreathingOperateStop"
+        AppToModule.NoSeringOperateStart -> "NoSeringOperateStart"
+        AppToModule.NoSeringOperateStop -> "NoSeringOperateStop"
+        AppToModule.OperateChangeProcessDelayed -> "OperateChangeProcessDelayed"
+        AppToModule.OperateChangeProcessRealtime -> "OperateChangeProcessRealtime"
+        AppToModule.OperateDataFlowDownload -> "OperateDataFlowDownload"
+        AppToModule.OperateDeleteAll -> "OperateDeleteAll"
+        AppToModule.OperateDeleteSector -> "OperateDeleteSector"
+        AppToModule.OperateDownload -> "OperateDownload"
+        AppToModule.OperateDownloadContinue -> "OperateDownloadContinue"
+        AppToModule.OperateMotorTestNormal -> "OperateMotorTestNormal"
+        AppToModule.OperateMotorTestStrong -> "OperateMotorTestStrong"
+        AppToModule.OperateMotorTestWeak -> "OperateMotorTestWeak"
+        AppToModule.VibrationNotificationsNormal -> "VibrationNotificationsNormal"
+        AppToModule.VibrationNotificationsStrong -> "VibrationNotificationsStrong"
+        AppToModule.VibrationNotificationsWeak -> "VibrationNotificationsWeak"
+    }
+}
 fun AppToModule.getCommandByteArr(): ByteArray {
     return when (this) {
         AppToModule.BreathingOperateStart -> {

@@ -22,6 +22,7 @@ class TimeHelper(private val logHelper: LogHelper) {
             _measuringTimer.emit(Triple(0, 0, 0))
         }
         timerJob = scope.launch {
+            logHelper.insertLog("TimeHelper = launch")
             while (true) {
                 delay(1000)
                 time += 1

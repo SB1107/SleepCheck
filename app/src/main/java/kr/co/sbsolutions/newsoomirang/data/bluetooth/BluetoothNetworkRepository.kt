@@ -361,7 +361,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             return
         }
-        val data = _sbSensorInfo.value.realData.updateAndGet {
+        val data   = _sbSensorInfo.value.realData.updateAndGet {
             it?.copy(
                 sensorName = realData.sensorName,
                 dataId = realData.dataId,
@@ -369,12 +369,14 @@ class BluetoothNetworkRepository @Inject constructor(
                 sleepType = realData.sleepType,
                 timeStamp = realData.timeStamp,
             )
-        } ?: run {
+        } ?: let {
             logCoroutine.launch {
                 _sbSensorInfo.value.realData.emit(realData)
+                logHelper.insertLog("setRealData = $realData")
             }
         }
-        logHelper.insertLog("setRealData = $data")
+
+
     }
 
     override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
@@ -396,7 +398,7 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun stopNetworkSBSensor(snoreTime: Long) {
         val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-            logHelper.insertLog("stopNetworkSBSensor: $state   $module  snoreTime: $snoreTime")
+            logHelper.insertLog("stopNetworkSBSensor: $state   ${module.getName()}  snoreTime: $snoreTime")
             _sbSensorInfo.update { it.copy(bluetoothState = state, snoreTime = snoreTime) }
             logHelper.insertLog(state)
         }
@@ -648,7 +650,12 @@ class BluetoothNetworkRepository @Inject constructor(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
                         result = when (writeResult) {
-                            BluetoothStatusCodes.SUCCESS -> true
+                            BluetoothStatusCodes.SUCCESS -> {
+                                if (tryCount != 0) {
+                                    logHelper.insertLog("$command = writeCharacteristic: SUCCESS ")
+                                }
+                                true
+                            }
                             BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
                                 if (tryCount <= 2) {
                                     logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
@@ -660,7 +667,7 @@ class BluetoothNetworkRepository @Inject constructor(
                             else -> {
                                 delay(1000)
                                 if (tryCount <= 2) {
-                                    logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
+                                    logHelper.insertLog("$command = writeCharacteristic: $writeResult")
                                     tryCount++
                                 }
                                 false
