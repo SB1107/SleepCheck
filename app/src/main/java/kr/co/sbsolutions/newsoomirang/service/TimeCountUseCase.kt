@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.NOTIFICATION_CHANNEL_ID
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.NoseRingHelper
 import kr.co.sbsolutions.newsoomirang.common.TimeHelper
 import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.FOREGROUND_SERVICE_NOTIFICATION_ID
@@ -27,6 +28,7 @@ class TimeCountUseCase(
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val noseRingHelper: NoseRingHelper,
+    private  val logHelper: LogHelper
 ) {
 
     fun listenTimer() {
@@ -46,16 +48,19 @@ class TimeCountUseCase(
     private fun setTimer(){
         lifecycleScope.launch {
             dataManager.getTimer().first()?.let {
+                logHelper.insertLog("setTime = $it")
                 timeHelper.setTime(it)
             }
         }
     }
     fun setTimeAndStart(){
+        logHelper.insertLog("setTimeAndStart")
         setTimer()
         startTimer()
     }
 
     fun startTimer() {
+        logHelper.insertLog("startTimer")
         notVibrationNotifyChannelCreate()
         lifecycleScope.launch { timeHelper.startTimer(this) }
     }

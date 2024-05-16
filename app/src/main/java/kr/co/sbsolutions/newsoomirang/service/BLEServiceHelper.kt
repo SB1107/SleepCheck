@@ -96,7 +96,7 @@ class BLEServiceHelper(
 
         this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
         this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope)
-        this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper)
+        this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper , logHelper)
         listenChannelMessage()
         listenTimer()
         setCallVibrationNotifications()

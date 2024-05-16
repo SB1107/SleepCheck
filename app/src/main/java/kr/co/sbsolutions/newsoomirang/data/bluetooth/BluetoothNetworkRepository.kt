@@ -24,13 +24,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
@@ -46,17 +44,15 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
+import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.LinkedList
 import java.util.Locale
-import java.util.Queue
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
-import kotlin.math.log
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
@@ -80,8 +76,17 @@ class BluetoothNetworkRepository @Inject constructor(
     private lateinit var sendDownloadContinueJob: Job
     private lateinit var isSBSensorConnectJob: Job
 
+
     companion object {
         private var isSBSensorConnect: MutableStateFlow<Pair<Boolean, String>> = MutableStateFlow(Pair(false, ""))
+        private val sensorMap: HashMap<String, BluetoothGattCallback> = HashMap()
+
+    }
+
+    init {
+//        sensorMap[SBBluetoothDevice.SB_SOOM_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
+//        sensorMap[SBBluetoothDevice.SB_SPO2_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
+//        sensorMap[SBBluetoothDevice.SB_EEG_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
     }
 
     override suspend fun listenRegisterSBSensor() {
@@ -574,7 +579,9 @@ class BluetoothNetworkRepository @Inject constructor(
         }
         innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
         sendDownloadContinueCancel()
-
+        if (::isSBSensorConnectJob.isInitialized) {
+            isSBSensorConnectJob.cancel()
+        }
         isSBSensorConnectJob = logCoroutine.launch {
             withTimeoutOrNull(20000L) {
 
@@ -582,12 +589,15 @@ class BluetoothNetworkRepository @Inject constructor(
                 isSBSensorConnect.collectLatest {
                     if (it.first) {
                         callback.invoke(true)
+                        delay(100)
                         return@collectLatest
                     }
                 }
             } ?: run {
                 isSBSensorConnectJob.cancel(CancellationException("시간초과"))
-                isConnect(gatt, innerData, callback)
+                if (innerData.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+                    isConnect(gatt, innerData, callback)
+                }
             }
         }
     }
@@ -637,18 +647,19 @@ class BluetoothNetworkRepository @Inject constructor(
                 do {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
-                        result =   when (writeResult) {
-                            BluetoothStatusCodes.SUCCESS ->  true
+                        result = when (writeResult) {
+                            BluetoothStatusCodes.SUCCESS -> true
                             BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
-                                if (tryCount <= 2){
+                                if (tryCount <= 2) {
                                     logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
                                     tryCount++
                                 }
-                                errorProfile(gatt).first()
+                                errorProfile(gatt, command, tryCount).first()
                             }
+
                             else -> {
                                 delay(1000)
-                                if (tryCount <= 2){
+                                if (tryCount <= 2) {
                                     logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
                                     tryCount++
                                 }
@@ -663,21 +674,32 @@ class BluetoothNetworkRepository @Inject constructor(
                         Log.d("<--- App To Device", command.getCommandByteArr().hexToString())
                     }
 
-                } while (!result )
+                } while (!result)
             }
         } ?: stateCallback?.invoke(BluetoothState.DisconnectedNotIntent)
     }
-    private  fun errorProfile(gatt: BluetoothGatt) = callbackFlow {
+
+    private fun errorProfile(gatt: BluetoothGatt, module: AppToModule, count: Int) = callbackFlow {
         gatt.disconnect()
-        isSBSensorConnect.collectLatest {  (isConnect , name) ->
+        if (count <= 2) {
+            logHelper.insertLog("gatt disconnect 됨")
+            logHelper.insertLog("AppToModule = ${module}")
+        }
+
+        isSBSensorConnect.collectLatest { (isConnect, name) ->
             run {
                 if (isConnect.not()) {
-                    logHelper.insertLog("gatt disconnect 됨")
+                    if (count <= 2) {
+                        logHelper.insertLog("gatt disconnect 됨")
+                    }
                     gatt.connect()
-                    logHelper.insertLog("gatt connect 시도")
-                }else{
-                    logHelper.insertLog("gatt connect 됨 ")
+                    if (count <= 2) {
+                        logHelper.insertLog("gatt connect 시도")
+                    }
+
+                } else {
                     send(false)
+                    Log.e(TAG, "errorProfile: gatt connect 됨")
                     cancel()
                     return@collectLatest
                 }
@@ -754,7 +776,14 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
 
-    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback = getCallback(sbBluetoothDevice)
+    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback {
+        return sensorMap[sbBluetoothDevice.type.name] ?: run {
+            val tempCallback = getCallback(sbBluetoothDevice)
+            sensorMap[sbBluetoothDevice.type.name] = tempCallback
+            tempCallback
+        }
+    }
+
 
     //////////////////////////////////////////////////////
     /////                                            /////
@@ -789,12 +818,11 @@ class BluetoothNetworkRepository @Inject constructor(
         private val coroutine = CoroutineScope(Dispatchers.IO)
 
         init {
-//            Log.d(TAG, "getCallback: Connecting ")
+            Log.d(TAG, "getCallback: Connecting ")
             val result = innerData.updateAndGet {
                 it.copy(bluetoothState = BluetoothState.Connecting)
             }
             logHelper.insertLog("BluetoothNetwork = ${result.bluetoothState}")
-
         }
 
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -823,7 +851,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
-                // FIXME: 살려줘 
+                // FIXME: 살려줘
                 /*coroutine.launch {
                     val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
                     val deviceAddress = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
@@ -836,7 +864,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         gatt.close()
                         delay(1500)
                         _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
-                        
+
                         // 복구
                         *//*_sbSensorInfo.value.bluetoothGatt = gatt
                         _sbSensorInfo.value.bluetoothName = gatt.device.name
@@ -1418,3 +1446,5 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 }
+
+

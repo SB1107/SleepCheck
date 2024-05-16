@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.diffTime
@@ -62,12 +63,16 @@ class SBSensorBlueToothUseCase(
     private var timerOfTimeout: Timer? = null
     private lateinit var startJob: Job
     private lateinit var stopJob: Job
+    private lateinit var connectJob: Job
     private var timerOfStartMeasure: Timer? = null
     private var timerOfStopMeasure: Timer? = null
     private var retryCount = 0
     private var noseRingUseCase: NoseRingUseCase? = null
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
+
+    @Volatile
+    private var isConnectExecute = false
 
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
@@ -123,36 +128,49 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
-        if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
-            lifecycleScope.launch {
-                val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
-                address?.let {
-                    bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
-                    connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
-                } ?: run {
-                    disconnectDevice(context, bluetoothAdapter)
+        if (isConnectExecute) {
+            return
+        }
+        isConnectExecute = true
+        connectJob = lifecycleScope.launch {
+            if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
+                lifecycleScope.launch {
+                    val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
+                    address?.let {
+                        bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
+                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+                    } ?: run {
+                        disconnectDevice(context, bluetoothAdapter)
+                    }
                 }
+                cancel()
+                delay(100)
+                return@launch
             }
-            return
-        }
-        val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
-        device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+            val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
+            device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
 
-        getOneDataIdReadData()
+            getOneDataIdReadData()
 
-        if (isForceBleDeviceConnect) {
-            bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
-            return
+            if (isForceBleDeviceConnect) {
+                bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+                cancel()
+                delay(100)
+                return@launch
+            }
+            timerOfDisconnection?.cancel()
+            timerOfDisconnection = Timer().apply {
+                schedule(timerTask {
+                    Log.e(TAG, "connectDevice: ")
+                    logHelper.insertLog("!!재연결중 disconnectDevice")
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        disconnectDevice(context, bluetoothAdapter)
+                    }
+                }, 10000L)
+            }
         }
-        timerOfDisconnection?.cancel()
-        timerOfDisconnection = Timer().apply {
-            schedule(timerTask {
-                Log.e(TAG, "connectDevice: ")
-                logHelper.insertLog("!!재연결중 disconnectDevice")
-                lifecycleScope.launch(Dispatchers.Main) {
-                    disconnectDevice(context, bluetoothAdapter)
-                }
-            }, 10000L)
+        connectJob.invokeOnCompletion {
+            this.isConnectExecute = false
         }
     }
 
@@ -448,7 +466,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-     fun firebaseRemoveListener() {
+    fun firebaseRemoveListener() {
         lifecycleScope.launch {
             fireBaseRealRepository.removeListener(getSensorName())
         }

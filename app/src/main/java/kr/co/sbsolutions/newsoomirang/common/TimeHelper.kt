@@ -1,6 +1,5 @@
 package kr.co.sbsolutions.newsoomirang.common
 
-import androidx.compose.ui.util.trace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -9,13 +8,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class TimeHelper {
+class TimeHelper(private val logHelper: LogHelper) {
     lateinit var timerJob: Job
     private var time: Int = 0
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    private var pauseTimer: Boolean = false
     fun startTimer(scope: CoroutineScope) {
+        logHelper.insertLog("TimeHelper = startTimer")
         if (::timerJob.isInitialized) {
             timerJob.cancel()
         }
@@ -25,9 +24,7 @@ class TimeHelper {
         timerJob = scope.launch {
             while (true) {
                 delay(1000)
-                if (pauseTimer.not()) {
-                    time += 1
-                }
+                time += 1
                 val hour = time / 3600
                 val minute = time % 3600 / 60
                 val second = time % 60

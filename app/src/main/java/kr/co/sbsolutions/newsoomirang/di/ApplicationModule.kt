@@ -80,7 +80,7 @@ object ApplicationModule {
     fun provideAESHelper() = AESHelper()
 
     @Provides
-    fun provideTimeHelperManager() = TimeHelper()
+    fun provideTimeHelperManager(logHelper: LogHelper) = TimeHelper(logHelper)
 
     @Provides
     fun provideNoseRingManager() = NoseRingHelper()
