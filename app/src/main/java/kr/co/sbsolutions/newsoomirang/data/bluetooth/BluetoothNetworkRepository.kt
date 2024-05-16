@@ -50,10 +50,13 @@ import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.LinkedList
 import java.util.Locale
+import java.util.Queue
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
+import kotlin.math.log
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
@@ -616,7 +619,6 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    private var currentCount = 0
     private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
         gatt?.let {
             stateCallback?.invoke(command.getState())
@@ -629,46 +631,28 @@ class BluetoothNetworkRepository @Inject constructor(
             logCoroutine.launch {
                 val byteArr = encryptByteArray(isEncrypt, command.getCommandByteArr())
 //            cmd.value = byteArr
+                var tryCount = 0
 
                 var result: Boolean
                 do {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
-                        when (writeResult) {
-                            BluetoothStatusCodes.SUCCESS -> {
-                                result = true
-                                currentCount = 0
-                            }
+                        result =   when (writeResult) {
+                            BluetoothStatusCodes.SUCCESS ->  true
                             BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
-                                if (currentCount <= 2){
+                                if (tryCount <= 2){
                                     logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
-                                    currentCount++
+                                    tryCount++
                                 }
-                                result = false
-                                /*gatt.disconnect()
-                                logHelper.insertLog("gatt disconnect")
-                                result = false
-                                isSBSensorConnect.collectLatest {  (isConnect , name) ->
-                                    run {
-                                        if (isConnect.not()) {
-                                            logHelper.insertLog("gatt disconnect 됨")
-                                            gatt.connect()
-                                            logHelper.insertLog("gatt connect 시도")
-                                        }else{
-                                            logHelper.insertLog("gatt connect 됨 ")
-                                            return@collectLatest
-                                        }
-                                    }
-                                }
-                                delay(2000)*/
+                                errorProfile(gatt).first()
                             }
                             else -> {
-//                                delay(1000)
-                                if (currentCount <= 2){
+                                delay(1000)
+                                if (tryCount <= 2){
                                     logHelper.insertLog("체크 gatt.writeCharacteristic: $writeResult")
-                                    currentCount++
+                                    tryCount++
                                 }
-                                result = false
+                                false
                             }
                         }
                     } else {
@@ -679,10 +663,27 @@ class BluetoothNetworkRepository @Inject constructor(
                         Log.d("<--- App To Device", command.getCommandByteArr().hexToString())
                     }
 
-                } while (!result)
+                } while (!result )
             }
         } ?: stateCallback?.invoke(BluetoothState.DisconnectedNotIntent)
-
+    }
+    private  fun errorProfile(gatt: BluetoothGatt) = callbackFlow {
+        gatt.disconnect()
+        isSBSensorConnect.collectLatest {  (isConnect , name) ->
+            run {
+                if (isConnect.not()) {
+                    logHelper.insertLog("gatt disconnect 됨")
+                    gatt.connect()
+                    logHelper.insertLog("gatt connect 시도")
+                }else{
+                    logHelper.insertLog("gatt connect 됨 ")
+                    send(false)
+                    cancel()
+                    return@collectLatest
+                }
+            }
+        }
+        awaitClose()
     }
 
     override fun stopNetworkSpO2Sensor() {}

@@ -61,7 +61,7 @@ interface AuthServiceAPI {
 
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/yearsdetail")
-    suspend fun sleepDataDetail(@Query("data_id") id: String): Response<SleepDetailEntity>
+    suspend fun sleepDataDetail(@Query("data_id") id: String , @Query("language") language : String): Response<SleepDetailEntity>
 
     //수면데이터 측정 시작
     @POST("sleepdata/createv2")
@@ -89,7 +89,7 @@ interface AuthServiceAPI {
     suspend fun postDisconnect(@Body checkSensor: CheckSensor) : Response<BaseEntity>
 
     @GET("sleepdata/viewappfaq")
-    suspend fun getFAQ(): Response<FAQEntity>
+    suspend fun getFAQ(@Query("language") language : String): Response<FAQEntity>
     
     @GET("sleepdata/chkversion")
     suspend fun getNewFirmVersion(@Query("number") id: String): Response<FirmwareEntity>

@@ -250,7 +250,7 @@ class BLEService : LifecycleService() {
         when (intent?.action?.let { ActionMessage.getMessage(it) }) {
 
             ActionMessage.StartSBService -> {
-                Log.d(TAG, "onStartCommand: 1")
+                logHelper.insertLog("StartSBService")
                 lifecycleScope.launch(IO) {
                     serviceLiveWorkCheck()
                     bleServiceHelper.startSBService(baseContext, bluetoothAdapter)
@@ -259,13 +259,13 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.StopSBService -> {
-                Log.d(TAG, "onStartCommand: 2")
+                logHelper.insertLog("StopSBService")
                 bleServiceHelper.stopSBService()
                 serviceLiveCheckWorkerHelper.cancelWork()
             }
 
             ActionMessage.CancelSbService -> {
-                Log.d(TAG, "onStartCommand: 3")
+                logHelper.insertLog("CancelSbService")
                 bleServiceHelper.cancelSbService()
                 serviceLiveCheckWorkerHelper.cancelWork()
                 finishService(false)

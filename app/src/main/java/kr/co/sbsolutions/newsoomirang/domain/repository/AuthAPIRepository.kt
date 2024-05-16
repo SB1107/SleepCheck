@@ -63,8 +63,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.getSleepDataResult()
     }
 
-    override fun getSleepDataDetail(endedAt: String): Flow<ApiResponse<SleepDetailEntity>> = apiRequestFlow {
-        api.sleepDataDetail(endedAt)
+    override fun getSleepDataDetail(id: String, language : String): Flow<ApiResponse<SleepDetailEntity>> = apiRequestFlow {
+        api.sleepDataDetail(id, language)
     }
 
     override fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
@@ -99,8 +99,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postDisconnect(sensorInfo)
     }
 
-    override fun getFAQ(): Flow<ApiResponse<FAQEntity>> = apiRequestFlow {
-        api.getFAQ()
+    override fun getFAQ(language:String): Flow<ApiResponse<FAQEntity>> = apiRequestFlow {
+        api.getFAQ(language)
     }
     
     override fun getNewFirmVersion(device: String): Flow<ApiResponse<FirmwareEntity>> = apiRequestFlow {

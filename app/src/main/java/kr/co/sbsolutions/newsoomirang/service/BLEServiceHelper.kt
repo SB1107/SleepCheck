@@ -171,7 +171,6 @@ class BLEServiceHelper(
         blueToothUseCase?.finishStop {
             finishSenor()
         }
-        blueToothUseCase?.firebaseRemoveListener()
     }
 
     fun removeDataId() {
@@ -233,6 +232,7 @@ class BLEServiceHelper(
     fun cancelSbService(forceCancel: Boolean = false) {
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
         logHelper.insertLog(message)
+        blueToothUseCase?.firebaseRemoveListener()
         blueToothUseCase?.stopScheduler()
         blueToothUseCase?.deletePastList()
         if (!forceCancel) {

@@ -89,6 +89,7 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
             userName = tempData["userName"] ?: "",
             sleepType = tempData["sleepType"] ?: "",
             timeStamp = tempData["timeStamp"] ?: "",
+            platforms = tempData["platforms"] ?: "",
         )
         return realData
     }
@@ -102,7 +103,7 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
                 }
             }
             val timeStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(System.currentTimeMillis())
-            val data = RealData(sensorName = sensorName, dataId = dataId.toString(), userName = userName, sleepType = sleepType.name, timeStamp = timeStamp)
+            val data = RealData(sensorName = sensorName, dataId = dataId.toString(), userName = userName, sleepType = sleepType.name, timeStamp = timeStamp, platforms = "AOS")
             realDatabase.reference.child("sensorNames").child(sensorName).child(dataId.toString()).setValue(data)
         }
     }
@@ -158,4 +159,4 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
 }
 
 @IgnoreExtraProperties
-data class RealData(val sensorName: String , val dataId: String , val userName: String , val sleepType: String, val timeStamp: String)
+data class RealData(val sensorName: String , val dataId: String , val userName: String , val sleepType: String, val timeStamp: String , val platforms : String)

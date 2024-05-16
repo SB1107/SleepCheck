@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateIntAsState
@@ -67,7 +68,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.InpuMintoHourMinute
+import kr.co.sbsolutions.newsoomirang.common.getLanguage
 import kr.co.sbsolutions.newsoomirang.common.setOnSingleClickListener
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.common.toDate
@@ -84,7 +87,9 @@ import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffo
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCaptureOptions
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.rememberScreenCaptureState
+import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.log
 
 @AndroidEntryPoint
 class HistoryDetailActivity : BaseActivity() {
@@ -92,11 +97,11 @@ class HistoryDetailActivity : BaseActivity() {
     private val binding: ActivityHistoryDetailBinding by lazy {
         ActivityHistoryDetailBinding.inflate(layoutInflater)
     }
-    
+
     private val infoDialogBinding: DialogInfoMassageBinding by lazy {
         DialogInfoMassageBinding.inflate(layoutInflater)
     }
-    
+
     private val infoDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(infoDialogBinding.root, null)
@@ -123,7 +128,7 @@ class HistoryDetailActivity : BaseActivity() {
         }
         intent?.let {
             it.getStringExtra("id")?.let { id ->
-                viewModel.getSleepData(id)
+                viewModel.getSleepData(id, this.getLanguage())
             }
         }
         setObservers()
@@ -249,10 +254,10 @@ class HistoryDetailActivity : BaseActivity() {
                     color = Color.White,
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
             HorizontalDivider(thickness = 1.dp, color = Color.White)
-            
+
             RowTexts(startText = stringResource(R.string.detil_time), endText = min)
             data.sleepTime?.let {
                 RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
@@ -269,8 +274,8 @@ class HistoryDetailActivity : BaseActivity() {
             data.moveCount?.let {
                 RowTexts(stringResource(R.string.detail_turns), stringResource(R.string.detail_times, it))
             }
-            
-            if (data.type == 1){
+
+            if (data.type == 1) {
                 data.snoreCount?.let {
                     RowTexts(stringResource(R.string.detail_vibration), stringResource(R.string.detail_times, it))
                 }
@@ -278,29 +283,29 @@ class HistoryDetailActivity : BaseActivity() {
                     RowTexts(stringResource(R.string.detil_cough), stringResource(R.string.detail_times, it))
                 }
             }
-            
-            
+
+
             (if (data.type == 0) data.breathScore else data.snoreScore)?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                
+
                 MainScoreGraphView(percentValue = it, type = data.type)
             }
-            
-            
+
+
             data.normalBreathTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
-                
+
                 HeaderTitleView(stringResource(R.string.detial_normal_b), stringResource(R.string.detail_normal_breathing_text))
-                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]))
+                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
             }
             data.avgNormalBreath?.let {
                 RowTexts(stringResource(R.string.detail_average_b), if (it == 0) "-" else stringResource(R.string.detail_min, it))
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(thickness = 1.dp, color = Color.White)
             }
-            
+
             data.apneaCount?.let {
                 //todo 비정상 호흡 시간으로 변경 필요
                 HeaderTitleView(stringResource(R.string.detail_a_b))
@@ -328,25 +333,39 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                 )
             }
-            val lists: ArrayList<Triple<Pair<String,String>, Pair<String,String>, Color>> = ArrayList()
+            val lists: ArrayList<Triple<Pair<String, String>, Pair<String, String>, Color>> = ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
-                    lists.add(Triple(
-                        Pair(stringResource(R.string.detail_fast_breathing),
-                            stringResource(R.string.detail_average_respiratory_rate)),
-                        Pair(stringResource(R.string.detail_minutes, fastBreath),
-                            stringResource(R.string.detail_count, avgFastBreath)),
-                        colorResource(id = R.color.color_gray1)))
+                    lists.add(
+                        Triple(
+                            Pair(
+                                stringResource(R.string.detail_fast_breathing),
+                                stringResource(R.string.detail_average_respiratory_rate)
+                            ),
+                            Pair(
+                                stringResource(R.string.detail_minutes, fastBreath),
+                                stringResource(R.string.detail_count, avgFastBreath)
+                            ),
+                            colorResource(id = R.color.color_gray1)
+                        )
+                    )
                 }
             }
             data.slowBreath?.let { slowBreath ->
                 data.avgSlowBreath?.let { avgSlowBreath ->
-                    lists.add(Triple(
-                        Pair(stringResource(R.string.detail_slow_breathing),
-                            stringResource(R.string.detail_average_respiratory_rate)),
-                        Pair(stringResource(R.string.detail_minutes, slowBreath),
-                            stringResource(R.string.detail_count, avgSlowBreath)),
-                        colorResource(id = R.color.color_gray2)))
+                    lists.add(
+                        Triple(
+                            Pair(
+                                stringResource(R.string.detail_slow_breathing),
+                                stringResource(R.string.detail_average_respiratory_rate)
+                            ),
+                            Pair(
+                                stringResource(R.string.detail_minutes, slowBreath),
+                                stringResource(R.string.detail_count, avgSlowBreath)
+                            ),
+                            colorResource(id = R.color.color_gray2)
+                        )
+                    )
                 }
             }
             if (lists.isNotEmpty()) {
@@ -369,7 +388,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = stringResource(R.string.detail_supine),
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
+                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -380,7 +399,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = stringResource(R.string.detail_left),
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
+                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -391,7 +410,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = stringResource(R.string.detail_right),
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
+                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -402,7 +421,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = stringResource(R.string.detail_prone),
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
+                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -413,7 +432,7 @@ class HistoryDetailActivity : BaseActivity() {
                     isPercentText = true,
                     startText = stringResource(R.string.detail_standup),
                     startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute( LocalConfiguration.current.locales[0]),
+                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     endTextSize = 19.sp
                 )
             }
@@ -444,7 +463,7 @@ class HistoryDetailActivity : BaseActivity() {
                 }
             }
             Text(
-                text = data.ment ?:"",
+                text = data.ment ?: "",
                 color = Color.White,
                 fontSize = 21.sp,
                 fontWeight = FontWeight.Normal
@@ -481,7 +500,7 @@ class HistoryDetailActivity : BaseActivity() {
             )
         }
     }
-    
+
     @Composable
     private fun MainScoreGraphView(
         type: Int? = null,
@@ -532,13 +551,13 @@ class HistoryDetailActivity : BaseActivity() {
                                         viewModel.sendInfoMessage(getString(R.string.detail_snoring_score), getString(R.string.detail_breathing_score_text))
                                     }
                                 },
-                                painter = painterResource(id = R.drawable.question),
-                                contentDescription = ""
+                            painter = painterResource(id = R.drawable.question),
+                            contentDescription = ""
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
                         text = stringResource(R.string.detail_score, percentValue),
                         color = Color.White,
@@ -547,7 +566,7 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                 }
             }
-            
+
             Box(contentAlignment = Alignment.Center) {
                 val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
                 Image(
@@ -555,7 +574,7 @@ class HistoryDetailActivity : BaseActivity() {
                     painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
                     contentDescription = ""
                 )
-                
+
                 Text(
                     modifier = Modifier
                         .padding(start = percent)
@@ -632,7 +651,7 @@ class HistoryDetailActivity : BaseActivity() {
             }
         }
     }
-    
+
     @Composable
     private fun HeaderTitleView(title: String, detailText: String? = null) {
         Box(
@@ -667,8 +686,8 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                 }
             }
-            
-            
+
+
             /*IconButton(onClick = {
                 state.capture(options = ScreenCaptureOptions(height = contentHeightPx))
             }) {
@@ -686,7 +705,7 @@ class HistoryDetailActivity : BaseActivity() {
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
         rightBoxValue: List<Triple<String, String, Color>> = emptyList()
-        
+
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
@@ -766,7 +785,7 @@ class HistoryDetailActivity : BaseActivity() {
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Normal,
                             maxLines = 2,
-                            modifier =  Modifier.weight(7f)
+                            modifier = Modifier.weight(7f)
                         )
                         Box(
                             modifier = Modifier
@@ -918,13 +937,13 @@ class HistoryDetailActivity : BaseActivity() {
             }
         }
     }
-    
-    
+
+
     @Composable
-    private fun RespiratoryInstabilityGraphView (
+    private fun RespiratoryInstabilityGraphView(
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
-        rightBoxValue: List<Triple<Pair<String,String>, Pair<String,String>, Color>> = emptyList()
+        rightBoxValue: List<Triple<Pair<String, String>, Pair<String, String>, Color>> = emptyList()
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
@@ -978,7 +997,7 @@ class HistoryDetailActivity : BaseActivity() {
                     .padding(16.dp, 0.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            
+
             ) {
                 rightBoxValue.mapIndexed { index, value ->
                     Row(
@@ -1059,7 +1078,7 @@ class HistoryDetailActivity : BaseActivity() {
                                 ), contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if(value.second.second == stringResource(R.string.detail_0_count)) "-" else value.second.second,
+                                text = if (value.second.second == stringResource(R.string.detail_0_count)) "-" else value.second.second,
                                 color = Color.White,
                                 maxLines = 2,
                                 fontSize = 17.sp,
@@ -1068,8 +1087,8 @@ class HistoryDetailActivity : BaseActivity() {
                             )
                         }
                     }
-                    
-                    
+
+
                     if (index < rightBoxValue.size - 1) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -1178,20 +1197,21 @@ class HistoryDetailActivity : BaseActivity() {
             }
         }
     }
+
     private fun getReversPercentImage(percent: Float): Int {
         return when {
             percent < 31 -> {
                 R.drawable.ic_red_value
             }
-            
+
             percent < 51 -> {
                 R.drawable.ic_orange_value
             }
-            
+
             percent < 71 -> {
                 R.drawable.ic_yallow_value
             }
-            
+
             else -> {
                 R.drawable.ic_green_value
             }
@@ -1236,14 +1256,14 @@ class HistoryDetailActivity : BaseActivity() {
             }
         }
     }
-    
+
     fun showConnectDialog() {
         if (infoDialog.isShowing) {
             infoDialog.dismiss()
         }
         infoDialog.show()
     }
-    
+
     /*private fun breathingScore(apneaCount: Int = 0, noSeringTime: Int = 0, apneaTime: Int = 0, sleepTime: Int = 0): Int{
         var resultScore =
             (60 - ((apneaCount.toFloat() / apneaTime.toFloat()) * 2)) +
@@ -1267,5 +1287,5 @@ class HistoryDetailActivity : BaseActivity() {
         }
         return resultScore.toInt()
     }*/
-    
+
 }

@@ -387,6 +387,15 @@ fun Long.diffTime(): Long {
     return diff
 }
 
+fun Context.getLanguage(): String {
+    val locale = resources.configuration.locales.get(0)
+    return if (locale == Locale.KOREA) {
+        "KR"
+    } else {
+        "EN"
+    }
+}
+
 fun hasUpdate(currentVer: String, compareVer: String): Boolean {
     val curVer = currentVer.split(".").map { it.toInt() }
     val comVer = compareVer.split(".").map { it.toInt() }

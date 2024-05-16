@@ -23,6 +23,7 @@ import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.model.SnsLoginModel
 import okhttp3.ResponseBody
 import java.io.File
+import java.util.Locale
 
 interface RemoteLoginDataSource {
      fun postLogin(loginModel: SnsLoginModel): Flow<ApiResponse<UserEntity>>
@@ -34,7 +35,7 @@ interface RemoteAuthDataSource {
      fun postUploading(file : File?, dataId : Int, sleepType: SleepType, snoreTime: Long = 0, snoreCount : Int = 0, coughCount : Int = 0, sensorName : String) : Flow<ApiResponse<UploadingEntity>>
      fun getYear(year: String): Flow<ApiResponse<SleepDateEntity>>
      fun getSleepDataResult() : Flow<ApiResponse<SleepResultEntity>>
-     fun getSleepDataDetail(id: String): Flow<ApiResponse<SleepDetailEntity>>
+     fun getSleepDataDetail(id: String, language : String): Flow<ApiResponse<SleepDetailEntity>>
      fun postSleepDataRemove(sleepDataRemoveModel: SleepDataRemoveModel) : Flow<ApiResponse<BaseEntity>>
      fun getNoSeringDataResult() : Flow<ApiResponse<NoSeringResultEntity>>
 
@@ -46,7 +47,7 @@ interface RemoteAuthDataSource {
      fun postContactDetail(contactDetail: ContactDetail) : Flow<ApiResponse<BaseEntity>>
      fun postDisconnect(sensorInfo: CheckSensor) : Flow<ApiResponse<BaseEntity>>
 
-     fun getFAQ() : Flow<ApiResponse<FAQEntity>>
+     fun getFAQ(language:String) : Flow<ApiResponse<FAQEntity>>
      
      fun getNewFirmVersion(deviceName: String) : Flow<ApiResponse<FirmwareEntity>>
      

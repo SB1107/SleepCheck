@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
+import kr.co.sbsolutions.newsoomirang.common.getLanguage
 import kr.co.sbsolutions.newsoomirang.common.showAlertDialog
 import kr.co.sbsolutions.newsoomirang.data.entity.FAQContentsData
 import kr.co.sbsolutions.newsoomirang.data.entity.FAQResultData
@@ -63,6 +64,7 @@ import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
+import java.util.Locale
 
 @AndroidEntryPoint
 class FAQActivity : BaseActivity() {
@@ -85,7 +87,7 @@ class FAQActivity : BaseActivity() {
         binding.composeView.apply {
             setContent { RootView()}
         }
-        viewModel.getFAQList()
+        viewModel.getFAQList(this.getLanguage())
         setObservers()
     }
 

@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import org.intellij.lang.annotations.Language
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -45,9 +46,9 @@ class HistoryDetailViewModel @Inject constructor(
     
     private var isSharing = false
 
-    fun getSleepData(id: String) {
+    fun getSleepData(id: String , language: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            request { authDataSource.getSleepDataDetail(id) }
+            request { authDataSource.getSleepDataDetail(id,language) }
                 .collectLatest {
                     it.result?.let { result ->
                         _sleepDataDetailData.emit(result)

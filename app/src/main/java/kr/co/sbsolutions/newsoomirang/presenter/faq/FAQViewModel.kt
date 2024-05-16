@@ -23,9 +23,9 @@ class FAQViewModel @Inject constructor(
     private  val _faqData : MutableStateFlow<FAQResultData?> = MutableStateFlow(null)
       val faqData : StateFlow<FAQResultData?> = _faqData
 
-    fun getFAQList() {
+    fun getFAQList(language : String) {
         viewModelScope.launch(Dispatchers.IO) {
-            request { authAPIRepository.getFAQ() }.collectLatest {
+            request { authAPIRepository.getFAQ(language) }.collectLatest {
                 it.result?.let { data ->
                     _faqData.emit(data)
                 }

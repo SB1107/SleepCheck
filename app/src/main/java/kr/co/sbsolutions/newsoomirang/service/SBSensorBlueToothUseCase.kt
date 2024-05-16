@@ -384,6 +384,7 @@ class SBSensorBlueToothUseCase(
 
     fun stopSBSensor(isCancel: Boolean = false) {
         isStartAndStopCancel = false
+        firebaseRemoveListener()
         logHelper.insertLog("stopSBSensor 코골이 시간: ${noseRingUseCase?.getSnoreTime()}  isCancel: $isCancel dataId: ${bluetoothNetworkRepository.sbSensorInfo.value.dataId}")
         if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
             logHelper.insertLog("bluetoothState: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
@@ -447,7 +448,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun firebaseRemoveListener() {
+     fun firebaseRemoveListener() {
         lifecycleScope.launch {
             fireBaseRealRepository.removeListener(getSensorName())
         }
