@@ -74,7 +74,6 @@ class BluetoothNetworkRepository @Inject constructor(
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
     private lateinit var sendDownloadContinueJob: Job
-    private lateinit var isSBSensorConnectJob: Job
 
 
     companion object {
@@ -593,25 +592,16 @@ class BluetoothNetworkRepository @Inject constructor(
         }
         innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
         sendDownloadContinueCancel()
-        if (::isSBSensorConnectJob.isInitialized) {
-            isSBSensorConnectJob.cancel()
-        }
-        isSBSensorConnectJob = logCoroutine.launch {
-            withTimeoutOrNull(20000L) {
-
-                gatt.connect()
-                isSBSensorConnect.collectLatest {
-                    if (it.first) {
-                        callback.invoke(true)
-                        delay(100)
-                        return@collectLatest
-                    }
-                }
-            } ?: run {
-                isSBSensorConnectJob.cancel(CancellationException("시간초과"))
-                if (innerData.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
-                    isConnect(gatt, innerData, callback)
-                }
+        val isSuccessfully = gatt.connect()
+        if (isSuccessfully) {
+            logHelper.insertLog("isConnect -> 연결 성공")
+            callback.invoke(true)
+            delay(100)
+        }else{
+            delay(10000)
+            if (innerData.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
+                logHelper.insertLog("isConnect -> 연결 실패 재귀")
+                isConnect(gatt, innerData, callback)
             }
         }
     }
@@ -712,16 +702,17 @@ class BluetoothNetworkRepository @Inject constructor(
                     if (count <= 2) {
                         logHelper.insertLog("gatt disconnect 됨")
                     }
-                    gatt.connect()
+                    val isSuccessfully = gatt.connect()
+                    if (isSuccessfully) {
+                        send(false)
+                        Log.e(TAG, "errorProfile: gatt connect 됨")
+                        cancel()
+                        return@collectLatest
+                    }
                     if (count <= 2) {
                         logHelper.insertLog("gatt connect 시도")
                     }
 
-                } else {
-                    send(false)
-                    Log.e(TAG, "errorProfile: gatt connect 됨")
-                    cancel()
-                    return@collectLatest
                 }
             }
         }
@@ -862,8 +853,8 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION) {
                     innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
-                    gatt.connect()
-                    logHelper.insertLog("onConnectionStateChange: NOT GATT_INSUFFICIENT_AUTHORIZATION gatt.connect")
+                    val isSuccessfully = gatt.connect()
+                    logHelper.insertLog("onConnectionStateChange: NOT GATT AUTHORIZATION connect = $isSuccessfully ")
                     return
                 }
                 disconnectedDevice(gatt)
