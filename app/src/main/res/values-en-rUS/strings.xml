@@ -42,6 +42,7 @@
     <string name="device_power_off_battery_low">Soomirang device Battery level is low. Please charge and measure again.</string>
     <string name="device_power_off_force_off">Soomirang sensor device switched off, please turn it back on and take a measurement..</string>
     <string name="device_measure_timeout">measurement time exceeds 12 hours, the measurement will automatically end.</string>
+    <string name="device_measure_stop_error">measurements did not end properly. </string>
     <string name="guide_image">guide_Image</string>
 
     <string name="login_info_message">You need to be logged in to use the Soomirang app.</string>
@@ -66,7 +67,7 @@
     <string name="snoring_start">Click Start\nTo measure your snoring</string>
     <string name="app_update">Soomirang, a new version has been released!\nPlease update.</string>
     <string name="data_restore">Do you want to restore recently measured data?</string>
-
+    <string name="detail_total_score2">sum\n%1$s cnt</string>
     <string name="menu_breathing_nosering">Breathing</string>
     <string name="menu_nosering_noti">Snoring</string>
     <string name="menu_history">History</string>

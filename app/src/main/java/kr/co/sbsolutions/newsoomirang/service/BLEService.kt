@@ -460,14 +460,14 @@ class BLEService : LifecycleService() {
         bleServiceHelper.forceDataFlowDataUpload()
     }
 
-    fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
+    fun getSbSensorInfo(): StateFlow<BluetoothInfo>? {
         return bleServiceHelper.getSbSensorInfo()
     }
 
-    fun getDataFlowPopUp(): StateFlow<Boolean> {
+    fun getDataFlowPopUp(): StateFlow<Boolean>? {
         return bleServiceHelper.getDataFlowPopUp()
     }
-    fun getUploadFailError(): SharedFlow<String>{
+    fun getUploadFailError(): SharedFlow<String>?{
         return  bleServiceHelper.getUploadFailError()
     }
 

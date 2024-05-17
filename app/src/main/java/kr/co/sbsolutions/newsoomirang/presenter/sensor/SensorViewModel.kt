@@ -101,8 +101,8 @@ class SensorViewModel @Inject constructor(
             Log.d(TAG, "connectState: ${getService()?.getSbSensorInfo()}")
             launch {
                 getService()?.getSbSensorInfo()?.filter { it.batteryInfo != null }?.collectLatest { it ->
-//                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
-//                    Log.e(TAG, "배터리2: ${getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()}")
+                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
+                    Log.e(TAG, "배터리2: ${getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()}")
                     _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
                 }
             }

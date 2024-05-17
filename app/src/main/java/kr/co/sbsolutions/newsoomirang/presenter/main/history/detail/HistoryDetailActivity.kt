@@ -314,7 +314,7 @@ class HistoryDetailActivity : BaseActivity() {
                 }*/
                 Spacer(modifier = Modifier.height(16.dp))
                 BreathingGraphView(
-                    stringResource(R.string.detail_no_signal), stringResource(R.string.detail_total_min, it), listOf(
+                    stringResource(R.string.detail_no_signal), stringResource(R.string.detail_total_score2, it), listOf(
                         Triple(
                             stringResource(R.string.detail_no_signal_10_secs),
                             stringResource(R.string.detail_count, data.apnea10 ?: 0),

@@ -298,15 +298,15 @@ class BLEServiceHelper(
         }
     }
 
-    fun getSbSensorInfo(): StateFlow<BluetoothInfo> {
-        return blueToothUseCase?.getSbSensorInfo() ?: MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
+    fun getSbSensorInfo(): StateFlow<BluetoothInfo>? {
+        return blueToothUseCase?.getSbSensorInfo()
     }
 
-    fun getDataFlowPopUp(): StateFlow<Boolean> {
-        return sbDataUploadingUseCase?.getDataFlowPopUp() ?: MutableStateFlow(false)
+    fun getDataFlowPopUp(): StateFlow<Boolean>? {
+        return sbDataUploadingUseCase?.getDataFlowPopUp()
     }
-    fun getUploadFailError(): SharedFlow<String> {
-        return sbDataUploadingUseCase?.getUploadFailError() ?: MutableSharedFlow()
+    fun getUploadFailError(): SharedFlow<String>? {
+        return sbDataUploadingUseCase?.getUploadFailError()
     }
 
     fun getTimeHelper(): SharedFlow<Triple<Int, Int, Int>> {

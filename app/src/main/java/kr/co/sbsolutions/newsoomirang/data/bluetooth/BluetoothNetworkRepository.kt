@@ -206,7 +206,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 return
             }
         }.apply {
-            Log.e(TAG, "connectedDevice: ${value.bluetoothState}")
+            logHelper.insertLog("connectedDevice: ${value.bluetoothState}")
             val result = updateAndGet {
                 it.copy(
                     bluetoothState =
@@ -257,11 +257,12 @@ class BluetoothNetworkRepository @Inject constructor(
                     }
 
                     else -> {
-                        gatt.disconnect()
-                        gatt.close()
                         Log.d(TAG, "disconnect = disconnect")
                         this.update { it.copy(bluetoothGatt = null, bluetoothState = BluetoothState.DisconnectedByUser) }
                         logHelper.insertLog(BluetoothState.DisconnectedByUser)
+                        logCoroutine.launch {
+                            bi.isResetGatt.emit(true)
+                        }
                     }
                 }
             }
@@ -304,14 +305,21 @@ class BluetoothNetworkRepository @Inject constructor(
                     bluetoothState = BluetoothState.DisconnectedByUser
                     //                Log.d(TAG, "disconnectedDevice: 2")
                 }
+
                 bluetoothGatt?.let {
                     it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
                     it.disconnect()
                     it.close()
                     Log.e(TAG, "releaseResource: ")
                 }
-                dataId = null
-                bluetoothGatt = null
+                _sbSensorInfo.update {
+                    it.copy(
+                        dataId = null, bluetoothGatt = null, bluetoothState =
+                        if (bluetoothState != BluetoothState.Unregistered) {
+                            BluetoothState.DisconnectedByUser
+                        } else it.bluetoothState
+                    )
+                }
             } catch (_e: Exception) {
                 logHelper.insertLog("_sbSensorInfo ${_e.message.toString()}")
             }
@@ -361,7 +369,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             return
         }
-        val data   = _sbSensorInfo.value.realData.updateAndGet {
+        val data = _sbSensorInfo.value.realData.updateAndGet {
             it?.copy(
                 sensorName = realData.sensorName,
                 dataId = realData.dataId,
@@ -395,12 +403,15 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun stopNetworkSBSensor(snoreTime: Long) {
+    private var stopCallBack: (() -> Unit)? = null
+    override fun stopNetworkSBSensor(snoreTime: Long, callback: (() -> Unit)) {
         val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
+        stopCallBack = callback
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
             logHelper.insertLog("stopNetworkSBSensor: $state   ${module.getName()}  snoreTime: $snoreTime")
             _sbSensorInfo.update { it.copy(bluetoothState = state, snoreTime = snoreTime) }
             logHelper.insertLog(state)
+
         }
     }
 
@@ -652,10 +663,11 @@ class BluetoothNetworkRepository @Inject constructor(
                         result = when (writeResult) {
                             BluetoothStatusCodes.SUCCESS -> {
                                 if (tryCount != 0) {
-                                    logHelper.insertLog("$command = writeCharacteristic: SUCCESS ")
+                                    logHelper.insertLog("${command.getName()} =  SUCCESS ")
                                 }
                                 true
                             }
+
                             BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
                                 if (tryCount <= 2) {
                                     logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
@@ -667,7 +679,7 @@ class BluetoothNetworkRepository @Inject constructor(
                             else -> {
                                 delay(1000)
                                 if (tryCount <= 2) {
-                                    logHelper.insertLog("$command = writeCharacteristic: $writeResult")
+                                    logHelper.insertLog("${command.getName()} = writeError: $writeResult")
                                     tryCount++
                                 }
                                 false
@@ -974,6 +986,7 @@ class BluetoothNetworkRepository @Inject constructor(
 //                                innerData.tryEmit(it)
                                     logHelper.insertLog("${info.bluetoothState} -> Finish")
                                     sendDownloadContinueCancel()
+                                    stopCallBack?.invoke()
                                 }
 
                                 BluetoothState.Connected.DataFlow -> {

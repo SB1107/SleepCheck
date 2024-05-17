@@ -71,8 +71,16 @@ class SBSensorBlueToothUseCase(
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
 
-    @Volatile
-    private var isConnectExecute = false
+    init {
+        lifecycleScope.launch {
+            bluetoothNetworkRepository.sbSensorInfo.value.isResetGatt.collectLatest {
+                if (it) {
+                    logHelper.insertLog("isResetGatt call")
+                    disconnectDevice()
+                }
+            }
+        }
+    }
 
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
         this.noseRingUseCase = noseRingUseCase
@@ -128,10 +136,6 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
-        if (isConnectExecute) {
-            return
-        }
-        isConnectExecute = true
         connectJob = lifecycleScope.launch {
             if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
                 lifecycleScope.launch {
@@ -147,30 +151,35 @@ class SBSensorBlueToothUseCase(
                 delay(100)
                 return@launch
             }
+            //연결 시도가 중복되는 경우가 있어 gatt 연결이 다중으로 접속이되는경우가 있음
+            // 디바이스 주소로 디바이스 객체를 가져와서 각트 에서 연결 상태 확인후 연결을 시도 한다.
             val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
-            device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
-
-            getOneDataIdReadData()
-
-            if (isForceBleDeviceConnect) {
-                bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
-                cancel()
-                delay(100)
-                return@launch
-            }
-            timerOfDisconnection?.cancel()
-            timerOfDisconnection = Timer().apply {
-                schedule(timerTask {
-                    Log.e(TAG, "connectDevice: ")
-                    logHelper.insertLog("!!재연결중 disconnectDevice")
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        disconnectDevice(context, bluetoothAdapter)
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            val connectionState = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
+            gattConnectionStateLog(connectionState)
+            when (connectionState) {
+                BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
+                    device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                    getOneDataIdReadData()
+                    if (isForceBleDeviceConnect) {
+                        bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+                        cancel()
+                        delay(100)
+                        return@launch
                     }
-                }, 10000L)
+                    timerOfDisconnection?.cancel()
+                    timerOfDisconnection = Timer().apply {
+                        schedule(timerTask {
+                            logHelper.insertLog("!!재연결중 disconnectDevice")
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                disconnectDevice(context, bluetoothAdapter)
+                            }
+                        }, 10000L)
+                    }
+                }
+
+                else -> {}
             }
-        }
-        connectJob.invokeOnCompletion {
-            this.isConnectExecute = false
         }
     }
 
@@ -179,6 +188,15 @@ class SBSensorBlueToothUseCase(
             fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
                 bluetoothNetworkRepository.setRealData(it)
             }
+        }
+    }
+
+    private fun gattConnectionStateLog(connectionState: Int) {
+        when (connectionState) {
+            BluetoothProfile.STATE_CONNECTING -> logHelper.insertLog("deviceGattState = STATE_CONNECTING")
+            BluetoothProfile.STATE_CONNECTED -> logHelper.insertLog("deviceGattState = STATE_CONNECTED")
+            BluetoothProfile.STATE_DISCONNECTED -> logHelper.insertLog("deviceGattState = STATE_DISCONNECTED")
+            BluetoothProfile.STATE_DISCONNECTING -> logHelper.insertLog("deviceGattState = STATE_DISCONNECTING")
         }
     }
 
@@ -203,7 +221,6 @@ class SBSensorBlueToothUseCase(
 
             // BluetoothDevice 객체를 가져옵니다.
             val bluetoothDevice = bluetoothAdapter?.getRemoteDevice(device.address)
-
             // 본딩되어 있지 않으면 본딩을 시작합니다.
             if (bluetoothDevice?.bondState != BluetoothDevice.BOND_BONDED) {
                 bluetoothAdapter?.startDiscovery()
@@ -412,21 +429,35 @@ class SBSensorBlueToothUseCase(
         } else {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
-                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
+                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0) {
+                    if (::stopJob.isInitialized) {
+                        stopJob.cancel()
+                    }
+                    lifecycleScope.launch(IO) {
+                        fireBaseRemove()
+                    }
+                }
                 stopJob = lifecycleScope.launch {
                     timerOfStopMeasure?.cancel()
                     while (retryCount <= MAX_RETRY && isStartAndStopCancel.not()) {
-                        delay(1500)
+                        delay(3000)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
-                                lifecycleScope.launch(IO) {
-                                    fireBaseRemove()
+                                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0) {
+                                    if (::stopJob.isInitialized) {
+                                        stopJob.cancel()
+                                    }
+                                    lifecycleScope.launch(IO) {
+                                        fireBaseRemove()
+                                    }
                                 }
-                                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0)
                                 logHelper.insertLog("stopNetworkSBSensor")
                             }, 0L)
                         }
                         retryCount += 1
+                    }
+                    if (retryCount == MAX_RETRY) {
+                        stopSBServiceForced(false)
                     }
                 }
 
@@ -467,6 +498,7 @@ class SBSensorBlueToothUseCase(
     }
 
     fun firebaseRemoveListener() {
+        logHelper.insertLog("firebaseRemoveListener")
         lifecycleScope.launch {
             fireBaseRealRepository.removeListener(getSensorName())
         }
