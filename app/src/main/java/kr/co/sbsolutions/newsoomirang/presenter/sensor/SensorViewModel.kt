@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
@@ -102,9 +103,11 @@ class SensorViewModel @Inject constructor(
         viewModelScope.launch {
             logHelper.insertLog("connectState: ${getService()?.getSbSensorInfo()?.value.toString()}")
             launch {
-                getService()?.getSbSensorInfo()?.filter { it.batteryInfo != null }?.collectLatest { it ->
-                    Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")
-                    Log.e(TAG, "배터리2: ${getService()?.getSbSensorInfo()?.value?.batteryInfo.isNullOrEmpty().not()}")
+                getService()?.getSbSensorInfo()?.onEach {
+                    logHelper.insertLog("onEach batteryInfo -> ${it.batteryInfo}  ")
+                }?.filter { it.batteryInfo != null }?.collectLatest {
+                    Log.e(TAG, "배터리1: ${it.batteryInfo}")
+                    Log.e(TAG, "배터리2: ${it.batteryInfo.isNullOrEmpty().not()}")
                     _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
                 }
             }
