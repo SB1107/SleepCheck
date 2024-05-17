@@ -30,6 +30,7 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
+import kr.co.sbsolutions.newsoomirang.common.LogHelper
 import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
@@ -51,6 +52,7 @@ class SensorViewModel @Inject constructor(
     private val dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
+    private  val logHelper: LogHelper
 ) : BaseServiceViewModel(dataManager, tokenManager) {
     companion object {
         private const val DELAY_TIMEOUT = 5000L
@@ -98,7 +100,7 @@ class SensorViewModel @Inject constructor(
 
     fun connectState() {
         viewModelScope.launch {
-            Log.d(TAG, "connectState: ${getService()?.getSbSensorInfo()}")
+            logHelper.insertLog("connectState: ${getService()?.getSbSensorInfo()?.value.toString()}")
             launch {
                 getService()?.getSbSensorInfo()?.filter { it.batteryInfo != null }?.collectLatest { it ->
                     Log.e(TAG, "배터리1: ${getService()?.getSbSensorInfo()?.value?.batteryInfo}")

@@ -22,8 +22,8 @@ android {
         applicationId = "kr.co.sbsolutions.newsoomirang"
         minSdk = 26
         targetSdk = 34
-        versionCode = 46
-        versionName = "1.4.4"
+        versionCode = 47
+        versionName = "1.4.5"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
         buildConfigField ("String", "KAKAO",getProperties("kakao"))
         buildConfigField ("String", "ivData",getProperties("ivData"))
