@@ -75,7 +75,7 @@ class SBSensorBlueToothUseCase(
         lifecycleScope.launch {
             bluetoothNetworkRepository.sbSensorInfo.value.isResetGatt.collectLatest {
                 if (it) {
-                    logHelper.insertLog("isResetGatt call")
+                    logHelper.insertLog("isResetGatt collect")
                     disconnectDevice()
                 }
             }
@@ -381,6 +381,7 @@ class SBSensorBlueToothUseCase(
             }
             timerOfTimeout = Timer().apply {
                 schedule(timerTask {
+                    logHelper.insertLog("12 시간 강제 종료")
                     stopSBSensor()
                     val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
@@ -457,6 +458,7 @@ class SBSensorBlueToothUseCase(
                         retryCount += 1
                     }
                     if (retryCount == MAX_RETRY) {
+                        logHelper.insertLog("stop count 초과 강제종료 호출")
                         stopSBServiceForced(false)
                     }
                 }
@@ -552,12 +554,11 @@ class SBSensorBlueToothUseCase(
                             logHelper.insertLog("(max - min + 1) == size)")
                             sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false)
                         } else {
-                            logHelper.insertLog("(max - min + 1) == size)")
+                            logHelper.insertLog("(max - min + 1) != size)")
                             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
                         }
                     }
                 } ?: {
-
                     sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
                 }
             } ?: {

@@ -259,8 +259,9 @@ class BluetoothNetworkRepository @Inject constructor(
                     else -> {
                         Log.d(TAG, "disconnect = disconnect")
                         this.update { it.copy(bluetoothGatt = null, bluetoothState = BluetoothState.DisconnectedByUser) }
-                        logHelper.insertLog(BluetoothState.DisconnectedByUser)
+                        logHelper.insertLog("disconnectedDevice -> DisconnectedByUser")
                         logCoroutine.launch {
+                            logHelper.insertLog("isResetGatt call")
                             bi.isResetGatt.emit(true)
                         }
                     }
