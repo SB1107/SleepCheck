@@ -179,15 +179,7 @@ abstract class BaseServiceViewModel(
     }
     
     private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = ""){timerTimeOut
-        timerTimeOut?.cancel()
         _isHomeBleProgressBar.emit(Pair(onOff, massage))
-        timerTimeOut = Timer().apply {
-            schedule(timerTask {
-                viewModelScope.launch {
-                    _isHomeBleProgressBar.emit(Pair(false,""))
-                }
-            },5000L)
-        }
     }
 
 
