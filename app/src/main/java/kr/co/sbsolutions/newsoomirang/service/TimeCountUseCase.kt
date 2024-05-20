@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -49,6 +48,11 @@ class TimeCountUseCase(
         lifecycleScope.launch {
             dataManager.getTimer().first()?.let {
                 logHelper.insertLog("setTime = $it")
+                val starTime = dataManager.getStartTime().first()
+                val nowTime =  System.currentTimeMillis()
+                val tempResultTime =  nowTime  - starTime
+                val resultSecond = tempResultTime / 1000
+                logHelper.insertLog("resultSecond = $resultSecond")
                 timeHelper.setTime(it)
             }
         }

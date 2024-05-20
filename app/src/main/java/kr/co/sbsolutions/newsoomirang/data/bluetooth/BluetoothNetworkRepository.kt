@@ -102,32 +102,37 @@ class BluetoothNetworkRepository @Inject constructor(
                 !name.isNullOrEmpty() && !address.isNullOrEmpty()
             }.collect { registered ->
                 //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
-                when {
-                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered -> {
-                        Log.e(TAG, "listenRegisterSBSensor: 1")
-                    }
 
-                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered -> {
-                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Registered) }
-                        logHelper.insertLog(result.bluetoothState)
-                        Log.e(TAG, "listenRegisterSBSensor: 2")
-                    }
+                val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if(registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                logHelper.insertLog(result.bluetoothState)
+                Log.e(TAG, "listenRegisterSBSensor: 2")
 
-                    _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered.not()
-                            || _sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedByUser && registered.not()
-                            || _sbSensorInfo.value.bluetoothState == BluetoothState.Connected.Ready && registered.not() -> {
-                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Unregistered) }
-                        logHelper.insertLog(result.bluetoothState)
-                        Log.e(TAG, "listenRegisterSBSensor: 3")
-                    }
-
-                    else -> {
-                        Log.e(TAG, "listenRegisterSBSensor: 4")
-                        Log.e(TAG, "state =${_sbSensorInfo.value.bluetoothState}")
-//                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
-//                        insertLog(result.bluetoothState)
-                    }
-                }
+//                when {
+//                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered -> {
+//                        Log.e(TAG, "listenRegisterSBSensor: 1")
+//                    }
+//
+//                    _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered -> {
+//                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Registered) }
+//                        logHelper.insertLog(result.bluetoothState)
+//                        Log.e(TAG, "listenRegisterSBSensor: 2")
+//                    }
+//
+//                    _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered.not()
+//                            || _sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedByUser && registered.not()
+//                            || _sbSensorInfo.value.bluetoothState == BluetoothState.Connected.Ready && registered.not() -> {
+//                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Unregistered) }
+//                        logHelper.insertLog(result.bluetoothState)
+//                        Log.e(TAG, "listenRegisterSBSensor: 3")
+//                    }
+//
+//                    else -> {
+//                        Log.e(TAG, "listenRegisterSBSensor: 4")
+//                        Log.e(TAG, "state =${_sbSensorInfo.value.bluetoothState}")
+////                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+////                        insertLog(result.bluetoothState)
+//                    }
+//                }
             }
 
 
@@ -329,10 +334,10 @@ class BluetoothNetworkRepository @Inject constructor(
     override fun releaseResource() {
         _sbSensorInfo.value.apply {
             try {
-                if (bluetoothState != BluetoothState.Unregistered) {
-                    bluetoothState = BluetoothState.DisconnectedByUser
-                    //                Log.d(TAG, "disconnectedDevice: 2")
-                }
+//                if (bluetoothState != BluetoothState.Unregistered) {
+//                    bluetoothState = BluetoothState.DisconnectedByUser
+//                    //                Log.d(TAG, "disconnectedDevice: 2")
+//                }
 
                 bluetoothGatt?.let {
                     it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
@@ -342,10 +347,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 _sbSensorInfo.update {
                     it.copy(
-                        dataId = null, bluetoothGatt = null, bluetoothState =
-                        if (bluetoothState != BluetoothState.Unregistered) {
-                            BluetoothState.DisconnectedByUser
-                        } else it.bluetoothState
+                        dataId = null, bluetoothGatt = null
                     )
                 }
             } catch (_e: Exception) {
