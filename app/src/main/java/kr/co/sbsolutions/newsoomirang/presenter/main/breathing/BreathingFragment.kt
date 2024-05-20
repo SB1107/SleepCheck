@@ -210,10 +210,7 @@ class BreathingFragment : BluetoothFragment() {
                 }
                 launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collect {
-                        Log.e(
-                            TAG,
-                            "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}"
-                        )
+                        Log.e(TAG, "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}")
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
                         if (!it.first) {

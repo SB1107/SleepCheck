@@ -60,8 +60,8 @@ abstract class BaseServiceViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(true, "시작"))
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
-    private val _isHomeBleProgressBar: MutableSharedFlow<Pair<Boolean, String>> = MutableSharedFlow()
-    val isHomeBleProgressBar: SharedFlow<Pair<Boolean, String>> = _isHomeBleProgressBar
+    private val _isHomeBleProgressBar: MutableStateFlow<Pair<Boolean, String>> = MutableStateFlow(Pair(false,""))
+    val isHomeBleProgressBar: StateFlow<Pair<Boolean, String>> = _isHomeBleProgressBar.asStateFlow()
     private val _guideAlert: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val guideAlert: StateFlow<Boolean> = _guideAlert
 
