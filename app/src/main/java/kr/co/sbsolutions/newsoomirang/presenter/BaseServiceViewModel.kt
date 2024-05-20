@@ -70,9 +70,6 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
-    
-    private var timerTimeOut: Timer? =null
-
     abstract fun whereTag(): String
 
     init {
@@ -178,7 +175,7 @@ abstract class BaseServiceViewModel(
         }
     }
     
-    private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = ""){timerTimeOut
+    private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = ""){
         _isHomeBleProgressBar.emit(Pair(onOff, massage))
     }
 
