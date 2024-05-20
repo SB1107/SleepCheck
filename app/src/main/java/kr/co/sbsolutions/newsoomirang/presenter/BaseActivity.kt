@@ -72,7 +72,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+//        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         onBackPressedDispatcher.addCallback(this, callback)
         _viewModel.setReAuthorizeCallBack(reAuthorizeCallBack)

@@ -191,6 +191,7 @@ class SensorViewModel @Inject constructor(
                 if (it.success.not()) {
                     _checkSensorResult.emit(it.message)
                 } else {
+                    connectState()
                     stopTimer()
                     registerBluetoothDevice(bluetoothDevice)
                 }
@@ -231,6 +232,7 @@ class SensorViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopTimer()
+        Log.e(TAG, "onCleared: ", )
     }
 
     private fun deviceConnect() {

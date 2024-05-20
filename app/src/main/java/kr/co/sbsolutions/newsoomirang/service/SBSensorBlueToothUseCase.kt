@@ -159,7 +159,10 @@ class SBSensorBlueToothUseCase(
             gattConnectionStateLog(connectionState)
             when (connectionState) {
                 BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
-                    device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                    disconnectDevice()
+                    val gatt  =device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+
+
                     getOneDataIdReadData()
                     if (isForceBleDeviceConnect) {
                         bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent

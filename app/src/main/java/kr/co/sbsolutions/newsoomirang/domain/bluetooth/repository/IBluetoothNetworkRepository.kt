@@ -58,6 +58,7 @@ interface IBluetoothNetworkRepository {
     fun getDataFlowMaxCount() : Int
     fun sendDownloadContinueCancel()
     fun snoreCountIncrease(callBack: (() -> Unit)?)
+
     val sbSensorInfo : StateFlow<BluetoothInfo>
     val spo2SensorInfo : StateFlow<BluetoothInfo>
     val eegSensorInfo : StateFlow<BluetoothInfo>
