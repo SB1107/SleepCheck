@@ -395,10 +395,10 @@ class BLEService : LifecycleService() {
         serviceLiveCheckWorkerHelper.cancelWork()
     }
 
-    fun stopSBSensor(isCancel: Boolean = false) {
+    fun stopSBSensor(isCancel: Boolean = false, callback : () -> Unit) {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         serviceLiveCheckWorkerHelper.cancelWork()
-        bleServiceHelper.stopSBSensor(isCancel)
+        bleServiceHelper.stopSBSensor(isCancel, callback)
     }
 
     fun motorTest(intensity: Int) {

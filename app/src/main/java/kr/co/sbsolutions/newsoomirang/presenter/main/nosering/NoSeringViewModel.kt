@@ -171,7 +171,9 @@ class NoSeringViewModel @Inject constructor(
             viewModelScope.launch {
                 if (isForce.not()) {
                     if (dataManager.getHasSensor().first()) {
-                        getService()?.stopSBSensor(true)
+                        getService()?.stopSBSensor(true, callback = {
+                            setMeasuringState(MeasuringState.InIt)
+                        })
                         setCommend(ServiceCommend.CANCEL)
                         cancel()
                         return@launch
@@ -180,10 +182,7 @@ class NoSeringViewModel @Inject constructor(
                 getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
         )
-        viewModelScope.launch {
-            delay(800)
-            setMeasuringState(MeasuringState.InIt)
-        }
+
     }
 
     private fun sleepDataDelete() {
@@ -259,8 +258,10 @@ class NoSeringViewModel @Inject constructor(
                         cancel()
                         return@collectLatest
                     }
-                    getService()?.stopSBSensor() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
-                    setMeasuringState(MeasuringState.InIt)
+                    getService()?.stopSBSensor(callback = {
+                        setMeasuringState(MeasuringState.InIt)
+                    }) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+
                 }
             } else {
                 if ((getService()?.getTime() ?: 0) < 300) {

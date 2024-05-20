@@ -52,7 +52,7 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    private  lateinit var dataRemovedJob : Job
+    private lateinit var dataRemovedJob: Job
 
     init {
         registerJob("Breathing init",
@@ -97,22 +97,20 @@ class BreathingViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun cancelClick(isForce: Boolean = false) {
         sleepDataDelete()
         registerJob("cancelClick",
             viewModelScope.launch {
                 if (isForce.not()) {
-                    getService()?.stopSBSensor(true)
+                    getService()?.stopSBSensor(true, callback = {
+                        setMeasuringState(MeasuringState.InIt)
+                    })
                     setCommend(ServiceCommend.CANCEL)
                 } else {
                     getService()?.forceStopBreathing()
                 }
             })
-        viewModelScope.launch {
-            delay(800)
-            setMeasuringState(MeasuringState.InIt)
-        }
     }
 
     fun stopClick() {
@@ -133,8 +131,10 @@ class BreathingViewModel @Inject constructor(
                         return@collectLatest
                     }
 
-                    getService()?.stopSBSensor() ?: insertLog("호흡 측중중 서비스가 없습니다.")
-                    setMeasuringState(MeasuringState.InIt)
+                    getService()?.stopSBSensor(callback = {
+                        setMeasuringState(MeasuringState.InIt)
+                    }) ?: insertLog("호흡 측중중 서비스가 없습니다.")
+
                 }
             }
         )
@@ -143,7 +143,7 @@ class BreathingViewModel @Inject constructor(
     private fun sleepDataDelete() {
         viewModelScope.launch(Dispatchers.IO) {
             val dataId = settingDataRepository.getDataId() ?: -1
-            request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel( dataId)) }
+            request { authAPIRepository.postSleepDataRemove(SleepDataRemoveModel(dataId)) }
                 .collectLatest {
                     getService()?.removeDataId()
                 }
@@ -177,10 +177,11 @@ class BreathingViewModel @Inject constructor(
             Log.d(TAG, "realDataChange: ${realData.sensorName} ${sensorName}")
             Log.d(TAG, "realDataChange: ${dataId} ")
             Log.d(TAG, "realDataChange: ${realData.dataId}} ")
-            
+
             if (hasSensor &&
                 realData.sensorName == sensorName &&
-                realData.dataId == dataId.toString()) {
+                realData.dataId == dataId.toString()
+            ) {
                 sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.other_user_sensor))
                 cancelClick(true)
             }

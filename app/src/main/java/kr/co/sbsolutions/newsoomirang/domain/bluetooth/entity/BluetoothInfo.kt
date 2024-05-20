@@ -21,7 +21,6 @@ data class BluetoothInfo(
     var cancelCheck: Boolean = false,
     val isResetGatt : MutableSharedFlow<Boolean> = MutableSharedFlow(),
 //    var removedRealData : MutableStateFlow<RealData?> = MutableStateFlow(null),
-    var bluetoothManager: BluetoothManager? = null,
     var realData : MutableStateFlow<RealData?> = MutableStateFlow(null),
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,

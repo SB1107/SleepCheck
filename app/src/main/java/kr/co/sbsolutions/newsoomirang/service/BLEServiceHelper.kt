@@ -167,10 +167,11 @@ class BLEServiceHelper(
         blueToothUseCase?.stopSBServiceForced()
     }
 
-    fun stopSBSensor(isCancel: Boolean = false) {
+    fun stopSBSensor(isCancel: Boolean = false , callback: () -> Unit) {
         blueToothUseCase?.stopSBSensor(isCancel)
         blueToothUseCase?.finishStop {
             finishSenor()
+            callback.invoke()
         }
     }
 
