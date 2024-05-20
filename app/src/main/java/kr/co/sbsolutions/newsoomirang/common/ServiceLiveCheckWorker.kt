@@ -51,8 +51,8 @@ class ServiceLiveCheckWorker @AssistedInject constructor(
                 }
             }
             if (isConnect.not() && hasSensor && isServiceRunning) {
-                BLEService.getInstance()?.connectDevice(true)
                 logHelper.insertLog("ServiceWorker connect call")
+                BLEService.getInstance()?.connectDevice(true)
             }
             return@withContext Result.success()
         }

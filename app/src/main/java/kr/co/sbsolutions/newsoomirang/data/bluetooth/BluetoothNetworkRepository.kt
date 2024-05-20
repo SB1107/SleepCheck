@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothStatusCodes
 import android.os.Build
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
@@ -102,32 +104,26 @@ class BluetoothNetworkRepository @Inject constructor(
                 //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
                 when {
                     _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered.not() || _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered -> {
-                        Log.e(TAG, "listenRegisterSBSensor: 1",)
+                        Log.e(TAG, "listenRegisterSBSensor: 1")
                     }
 
                     _sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered && registered -> {
                         val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Registered) }
                         logHelper.insertLog(result.bluetoothState)
-                        Log.e(TAG, "listenRegisterSBSensor: 2",)
+                        Log.e(TAG, "listenRegisterSBSensor: 2")
                     }
 
                     _sbSensorInfo.value.bluetoothState == BluetoothState.Registered && registered.not()
                             || _sbSensorInfo.value.bluetoothState == BluetoothState.DisconnectedByUser && registered.not()
-                            ||  _sbSensorInfo.value.bluetoothState == BluetoothState.Connected.Ready && registered.not()-> {
+                            || _sbSensorInfo.value.bluetoothState == BluetoothState.Connected.Ready && registered.not() -> {
                         val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = BluetoothState.Unregistered) }
-                        gatt?.let {
-                            disconnectedDevice(it)
-                            Log.e(TAG, "listenRegisterSBSensor: 33", )
-                        }?: run {
-                            Log.e(TAG, "listenRegisterSBSensor: 44", )
-                        }
                         logHelper.insertLog(result.bluetoothState)
-                        Log.e(TAG, "listenRegisterSBSensor: 3", )
+                        Log.e(TAG, "listenRegisterSBSensor: 3")
                     }
 
                     else -> {
-                        Log.e(TAG, "listenRegisterSBSensor: 4", )
-                        Log.e(TAG, "state =${_sbSensorInfo.value.bluetoothState}", )
+                        Log.e(TAG, "listenRegisterSBSensor: 4")
+                        Log.e(TAG, "state =${_sbSensorInfo.value.bluetoothState}")
 //                        val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
 //                        insertLog(result.bluetoothState)
                     }
@@ -135,6 +131,23 @@ class BluetoothNetworkRepository @Inject constructor(
             }
 
 
+    }
+
+    override fun reConnectDevice() {
+        logCoroutine.launch {
+            gatt?.let {
+                isConnect(it, _sbSensorInfo) {isSuccessfully ->
+                    if (isSuccessfully.not()) {
+                        logCoroutine.launch {
+                            delay(5000)
+                            reConnectDevice()
+                        }
+                    }
+                }
+
+            }
+
+        }
     }
 
     override fun setSBSensorCancel(isCancel: Boolean) {
@@ -321,7 +334,7 @@ class BluetoothNetworkRepository @Inject constructor(
                     //                Log.d(TAG, "disconnectedDevice: 2")
                 }
 
-                gatt?.let {
+                bluetoothGatt?.let {
                     it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
                     it.disconnect()
                     it.close()
@@ -612,7 +625,7 @@ class BluetoothNetworkRepository @Inject constructor(
             logHelper.insertLog("isConnect -> 연결 성공")
             callback.invoke(true)
             delay(100)
-        }else{
+        } else {
             delay(10000)
             if (innerData.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
                 logHelper.insertLog("isConnect -> 연결 실패 재귀")
@@ -802,7 +815,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
 
-    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback  =  getCallback(sbBluetoothDevice)
+    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback = getCallback(sbBluetoothDevice)
 
 
     //////////////////////////////////////////////////////
@@ -871,7 +884,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
-                BluetoothNetworkRepository.gatt = gatt
+//                BluetoothNetworkRepository.gatt = gatt
                 // FIXME: 살려줘
                 /*coroutine.launch {
                     val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
@@ -904,7 +917,6 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
-                BluetoothNetworkRepository.gatt = null
                 logCoroutine.launch {
                     isSBSensorConnect.emit(Pair(true, gatt.device.name))
                 }
@@ -1422,31 +1434,32 @@ class BluetoothNetworkRepository @Inject constructor(
                     ModuleToApp.BatteryState -> {
                         val data = String.format("%02X", value[6])
                         val result = Integer.parseInt(data, 16)
-                        Log.e(TAG, "BatteryState: ${result}", )
+                        Log.e(TAG, "BatteryState: ${result}")
                         innerData.value.let { info ->
-                                when (info.bluetoothState) {
-                                    BluetoothState.Connecting -> {
-                                        innerData.update {
-                                            it.copy(
-                                                batteryInfo = result.toString(), canMeasurement = result > 20,
-                                                bluetoothState = BluetoothState.Connected.Reconnected
-                                            )
-                                        }
-                                    }
-
-                                    else -> {
-                                        innerData.update {
-                                            it.copy(
-                                                batteryInfo = result.toString(), canMeasurement = result > 20,
-                                                bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init
-                                                    || it.bluetoothState == BluetoothState.DisconnectedByUser) BluetoothState.Connected.Ready
-                                                 else it.bluetoothState
-                                            )
-                                        }
-
+                            when (info.bluetoothState) {
+                                BluetoothState.Connecting -> {
+                                    innerData.update {
+                                        it.copy(
+                                            batteryInfo = result.toString(), canMeasurement = result > 20,
+                                            bluetoothState = BluetoothState.Connected.Reconnected
+                                        )
                                     }
                                 }
+
+                                else -> {
+                                    innerData.update {
+                                        it.copy(
+                                            batteryInfo = result.toString(), canMeasurement = result > 20,
+                                            bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init
+                                                || it.bluetoothState == BluetoothState.DisconnectedByUser
+                                            ) BluetoothState.Connected.Ready
+                                            else it.bluetoothState
+                                        )
+                                    }
+
+                                }
                             }
+                        }
                     }
 
                     ModuleToApp.MOTCData -> {

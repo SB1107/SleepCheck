@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity
 
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ data class BluetoothInfo(
     var cancelCheck: Boolean = false,
     val isResetGatt : MutableSharedFlow<Boolean> = MutableSharedFlow(),
 //    var removedRealData : MutableStateFlow<RealData?> = MutableStateFlow(null),
+    var bluetoothManager: BluetoothManager? = null,
     var realData : MutableStateFlow<RealData?> = MutableStateFlow(null),
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,

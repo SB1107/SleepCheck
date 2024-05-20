@@ -12,19 +12,15 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.R
@@ -32,9 +28,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
-import kr.co.sbsolutions.newsoomirang.common.LogWorkerHelper
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.usecase.BluetoothManageUseCase
@@ -81,7 +75,6 @@ class SensorViewModel @Inject constructor(
 
     private val _scanSet = mutableSetOf<BluetoothDevice>()
     private var timer: Timer? = null
-
     init {
         viewModelScope.launch(Dispatchers.IO) {
             //디바이스 네임 상태 이벤트
@@ -99,7 +92,7 @@ class SensorViewModel @Inject constructor(
         Log.d(TAG, "디바이스 이름: $it")
     }
 
-    fun connectState() {
+    private fun connectState() {
         viewModelScope.launch {
             logHelper.insertLog("connectState: ${getService()?.getSbSensorInfo()?.value.toString()}")
             launch {
@@ -235,10 +228,6 @@ class SensorViewModel @Inject constructor(
         Log.e(TAG, "onCleared: ", )
     }
 
-    private fun deviceConnect() {
-        getService()?.connectDevice()
-    }
-
     @SuppressLint("MissingPermission")
     private fun registerBluetoothDevice(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -246,18 +235,6 @@ class SensorViewModel @Inject constructor(
             _bleStateResultText.emit(ApplicationManager.instance.baseContext.getString(R.string.sensor_ask_to_connect_message, device.name))
 
             bluetoothManagerUseCase.registerSBSensor(SBBluetoothDevice.SB_SOOM_SENSOR, device.name, device.address)
-            getService()?.getSbSensorInfo()?.collectLatest {
-                if (it.bluetoothState == BluetoothState.DisconnectedByUser) {
-                    deviceConnect()
-                }
-            }
-//            canMeasurement.collectLatest {
-//                Log.d(TAG, "registerBluetoothDevice: $it")
-//                if (bluetoothInfo.bluetoothState == BluetoothState.Connected.Ready) {
-//                    _isBleProgressBar.emit(it.not())
-//                }
-//            }
-
         }
     }
 

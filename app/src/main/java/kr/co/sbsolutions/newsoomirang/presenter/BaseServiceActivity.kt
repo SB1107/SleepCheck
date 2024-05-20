@@ -54,6 +54,7 @@ abstract class BaseServiceActivity : BluetoothActivity() {
                 service.get()?.let {
                     it.getSbSensorInfo()?.collectLatest { info ->
                         if (info.bluetoothState == BluetoothState.Registered) {
+                            Log.e(TAG, "onServiceAvailable: connectDevice", )
                             service.get()?.connectDevice()
                         } else if (info.bluetoothState == BluetoothState.Connected.Finish) {
                             when(info.cancelCheck){

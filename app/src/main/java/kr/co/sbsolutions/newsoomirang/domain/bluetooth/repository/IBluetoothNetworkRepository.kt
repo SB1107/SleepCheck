@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
@@ -32,6 +33,7 @@ interface IBluetoothNetworkRepository {
 
     fun getDeviceAddress(sbBluetoothDevice: SBBluetoothDevice) : String?
     fun connectedDevice(device: BluetoothDevice?)
+    fun reConnectDevice()
     fun changeBluetoothState(isOn: Boolean)
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
     fun releaseResource()

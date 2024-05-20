@@ -136,6 +136,12 @@ class SBSensorBlueToothUseCase(
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
+        if (isForceBleDeviceConnect) {
+            logHelper.insertLog("reConnectDevice call")
+            bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
+            bluetoothNetworkRepository.reConnectDevice()
+            return
+        }
         connectJob = lifecycleScope.launch {
             if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
                 lifecycleScope.launch {
@@ -143,6 +149,7 @@ class SBSensorBlueToothUseCase(
                     address?.let {
                         bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
                         connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+                        Log.e(TAG, "connectDevice: call2", )
                     } ?: run {
                         disconnectDevice(context, bluetoothAdapter)
                     }
@@ -160,16 +167,10 @@ class SBSensorBlueToothUseCase(
             when (connectionState) {
                 BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
                     disconnectDevice()
-                    val gatt  =device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
-
+                    val gatt  =device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
+                    Log.e(TAG, "connectDevice: call", )
 
                     getOneDataIdReadData()
-                    if (isForceBleDeviceConnect) {
-                        bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
-                        cancel()
-                        delay(100)
-                        return@launch
-                    }
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = Timer().apply {
                         schedule(timerTask {
@@ -214,7 +215,7 @@ class SBSensorBlueToothUseCase(
     }
 
     private fun disconnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?) {
-        bluetoothNetworkRepository.disconnectedDevice(SBBluetoothDevice.SB_SOOM_SENSOR)
+        bluetoothNetworkRepository.disconnectedDevice(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice)
         bluetoothNetworkRepository.releaseResource()
 
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -649,6 +650,7 @@ class SBSensorBlueToothUseCase(
             val hasSensor = dataManager.getHasSensor().first()
             if (hasSensor) {
                 connectDevice(context, bluetoothAdapter, true)
+                Log.e(TAG, "startSBService: 33", )
             }
             callback.invoke()
         }

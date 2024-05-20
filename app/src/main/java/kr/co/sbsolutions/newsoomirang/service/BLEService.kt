@@ -170,6 +170,7 @@ class BLEService : LifecycleService() {
     }
 
     fun connectDevice(isForceBleDeviceConnect: Boolean = false) {
+        Log.e(TAG, "connectDevice: service", )
         bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
 

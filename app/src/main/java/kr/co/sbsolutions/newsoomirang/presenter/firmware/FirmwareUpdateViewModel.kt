@@ -179,6 +179,7 @@ class FirmwareUpdateViewModel
 
     fun deviceConnect() = callbackFlow {
         viewModelScope.launch {
+            Log.e(TAG, "deviceConnect: fimware ", )
             getService()?.connectDevice()
             getService()?.getSbSensorInfo()?.collectLatest {
                 if (it.bluetoothState == BluetoothState.Connected.Ready) {
