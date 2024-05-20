@@ -1,14 +1,10 @@
 package kr.co.sbsolutions.newsoomirang.service
 
-import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.soomirang.db.SBSensorData
