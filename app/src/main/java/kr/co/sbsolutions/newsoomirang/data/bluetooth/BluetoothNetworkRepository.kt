@@ -104,7 +104,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
 
                 val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if(registered) BluetoothState.Registered else BluetoothState.Unregistered) }
-                logHelper.insertLog(result.bluetoothState)
+                logHelper.insertLog("listenRegisterSBSensor -> ${result.bluetoothState}")
                 Log.e(TAG, "listenRegisterSBSensor: 2")
 
 //                when {
