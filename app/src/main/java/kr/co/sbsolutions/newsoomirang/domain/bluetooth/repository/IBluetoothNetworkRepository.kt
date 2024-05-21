@@ -33,7 +33,7 @@ interface IBluetoothNetworkRepository {
 
     fun getDeviceAddress(sbBluetoothDevice: SBBluetoothDevice) : String?
     fun connectedDevice(device: BluetoothDevice?)
-    fun reConnectDevice()
+    fun reConnectDevice(callback: (() -> Unit))
     fun changeBluetoothState(isOn: Boolean)
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
     fun releaseResource()

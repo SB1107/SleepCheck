@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothStatusCodes
 import android.os.Build
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
 import kr.co.sbsolutions.newsoomirang.common.BluetoothUtils
 import kr.co.sbsolutions.newsoomirang.common.Cons.CLIENT_CHARACTERISTIC_CONFIG
@@ -53,7 +51,6 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
@@ -83,7 +80,6 @@ class BluetoothNetworkRepository @Inject constructor(
         private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
         private val _spo2SensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
         private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
-        private var gatt: BluetoothGatt? = null
     }
 
     init {
@@ -138,18 +134,16 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    override fun reConnectDevice() {
+    override fun reConnectDevice( callback: (() -> Unit)) {
         logCoroutine.launch {
-            gatt?.let {
+            _sbSensorInfo.value.bluetoothGatt?.let {
+                logHelper.insertLog("reconnectDevice gatt 재접속 실행")
                 isConnect(it, _sbSensorInfo) {isSuccessfully ->
-                    if (isSuccessfully.not()) {
-                        logCoroutine.launch {
-                            delay(5000)
-                            reConnectDevice()
-                        }
-                    }
+                    logHelper.insertLog("reconnectDevice isSuccessfully = $isSuccessfully")
                 }
-
+            }?: run{
+                logHelper.insertLog("gatt 연결 접속 정보 없음 ")
+                callback.invoke()
             }
 
         }

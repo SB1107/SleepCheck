@@ -141,7 +141,10 @@ class SBSensorBlueToothUseCase(
         if (isForceBleDeviceConnect) {
             logHelper.insertLog("reConnectDevice call")
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
-            bluetoothNetworkRepository.reConnectDevice()
+            bluetoothNetworkRepository.reConnectDevice{
+                logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
+                 connectDevice(context, bluetoothAdapter, false)
+            }
             return
         }
         connectJob = lifecycleScope.launch {
