@@ -182,7 +182,8 @@ class FirmwareUpdateViewModel
             Log.e(TAG, "deviceConnect: fimware ", )
             getService()?.connectDevice()
             getService()?.getSbSensorInfo()?.collectLatest {
-                if (it.bluetoothState == BluetoothState.Connected.Ready) {
+                if (it.bluetoothState == BluetoothState.Connected.Init ||
+                    it.bluetoothState == BluetoothState.Connected.Ready) {
                     trySend(true)
                     close()
                     cancel()
