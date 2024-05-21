@@ -174,15 +174,14 @@ class SBSensorBlueToothUseCase(
             when (connectionState) {
                 BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
                     disconnectDevice()
-                    val gatt  = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
-                    if (connectGattMap.containsKey(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)) {
-                        val tempGatt = connectGattMap[bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress]
-                        tempGatt?.disconnect()
-                        tempGatt?.close()
+                    val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
+                    if (connectGattMap.containsKey(address).not()) {
+                        val gatt  = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
+                        address?.let {
+                            connectGattMap[it] = gatt!!
+                        }
                     }
-                    bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress?.let {
-                        connectGattMap[it] = gatt!!
-                    }
+
                     Log.e(TAG, "connectDevice: call", )
 
                     getOneDataIdReadData()
