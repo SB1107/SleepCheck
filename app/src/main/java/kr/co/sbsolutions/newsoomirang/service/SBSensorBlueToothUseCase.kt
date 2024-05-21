@@ -174,12 +174,8 @@ class SBSensorBlueToothUseCase(
                 // 디바이스 주소로 디바이스 객체를 가져와서 각트 에서 연결 상태 확인후 연결을 시도 한다.
                 val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
                 val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-                val connectionState = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
-                gattConnectionStateLog(connectionState)
-                when (connectionState) {
-                    BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
 //                        disconnectDevice()
-                        val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
+//                        val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
                         /*Log.d(TAG, "주소주소: $address ")
                         Log.d(TAG, "이름이름: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName} ")*/
                         
@@ -210,9 +206,6 @@ class SBSensorBlueToothUseCase(
                         }
                     }
                     
-                    else -> {}
-                }
-            }
         }
     }
 
