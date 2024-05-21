@@ -21,7 +21,7 @@ class SBSensorUseCase(
     fun listenChannelMessage() {
         lifecycleScope.launch(IO) {
             launch {
-                sbSensorBlueToothUseCase?.getSbSensorChannel()?.receiveAsFlow()?.collectLatest { data ->
+                sbSensorBlueToothUseCase?.getSbSensorChannel()?.collectLatest { data ->
                     sbSensorDBRepository.insert(data)
                 }
             }

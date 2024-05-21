@@ -24,7 +24,7 @@ data class BluetoothInfo(
     var realData : MutableStateFlow<RealData?> = MutableStateFlow(null),
     var currentData: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1),
     var sleepType: SleepType = SleepType.Breathing,
-    val channel: Channel<SBSensorData> = Channel(Channel.UNLIMITED),
+    val channel: MutableSharedFlow<SBSensorData> = MutableSharedFlow(),
     var snoreTime : Long = 0,
     var isDataFlow : MutableStateFlow<DataFlowInfo> = MutableStateFlow(DataFlowInfo()),
 ) {

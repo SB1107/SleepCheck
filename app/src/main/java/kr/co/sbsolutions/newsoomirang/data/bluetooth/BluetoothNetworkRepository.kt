@@ -1178,8 +1178,8 @@ class BluetoothNetworkRepository @Inject constructor(
                                         }
 
                                         info.channel.apply {
-                                            send(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
-                                            send(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))
+                                            emit(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
+                                            emit(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))
                                         }
                                     }
                                     writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
@@ -1237,7 +1237,7 @@ class BluetoothNetworkRepository @Inject constructor(
 
                                         val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
 
-                                        info.channel.send(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, info.dataId ?: -1))
+                                        info.channel.emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, info.dataId ?: -1))
                                     }
                                 }
                                 writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)
@@ -1313,7 +1313,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                         val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
 
 //                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
-                                        it.channel.send(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, it.dataId ?: -1))
+                                        it.channel.emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, it.dataId ?: -1))
                                     }
                                 }
                                 //writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)

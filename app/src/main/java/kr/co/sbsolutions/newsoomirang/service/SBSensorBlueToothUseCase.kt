@@ -96,7 +96,7 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.callVibrationNotifications(intensity)
     }
 
-    fun getSbSensorChannel(): Channel<SBSensorData> {
+    fun getSbSensorChannel(): SharedFlow<SBSensorData> {
         return bluetoothNetworkRepository.sbSensorInfo.value.channel
     }
 
