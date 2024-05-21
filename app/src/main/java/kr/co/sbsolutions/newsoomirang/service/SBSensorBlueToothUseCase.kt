@@ -3,6 +3,7 @@ package kr.co.sbsolutions.newsoomirang.service
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
@@ -72,6 +73,7 @@ class SBSensorBlueToothUseCase(
     private var noseRingUseCase: NoseRingUseCase? = null
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
+    private  val connectGattMap : MutableMap<String, BluetoothGatt> = mutableMapOf()
 
     init {
         lifecycleScope.launch {
@@ -134,8 +136,8 @@ class SBSensorBlueToothUseCase(
         timerOfDisconnection = null
         bluetoothNetworkRepository.connectedDevice(device)
     }
-    
-    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
+
+    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false, retryConnect : Boolean =  false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect) {
@@ -143,7 +145,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             bluetoothNetworkRepository.reConnectDevice {
                 logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                connectDevice(context, bluetoothAdapter, false)
+                 connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, retryConnect = true)
             }
             return
         }
@@ -172,21 +174,33 @@ class SBSensorBlueToothUseCase(
             when (connectionState) {
                 BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
                     disconnectDevice()
-                    val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
-                    Log.e(TAG, "connectDevice: call")
-                    
+                    val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
+                    if (connectGattMap.containsKey(address).not()) {
+                        logHelper.insertLog("저장된 키없을시 연결")
+                        val gatt  = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
+                        address?.let {
+                            connectGattMap[it] = gatt!!
+                        }
+                    }else{
+                        logHelper.insertLog("저장된 키 있을시 강제 연결")
+                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = true)
+                    }
+
+                    Log.e(TAG, "connectDevice: call", )
+
                     getOneDataIdReadData()
                     timerOfDisconnection?.cancel()
-                    timerOfDisconnection = Timer().apply {
-                        schedule(timerTask {
-                            logHelper.insertLog("!!재연결중 disconnectDevice")
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                disconnectDevice(context, bluetoothAdapter)
-                            }
-                        }, 10000L)
+                    if (retryConnect.not()) {
+                        timerOfDisconnection = Timer().apply {
+                            schedule(timerTask {
+                                logHelper.insertLog("!!재연결중 disconnectDevice")
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    disconnectDevice(context, bluetoothAdapter)
+                                }
+                            }, 10000L)
+                        }
                     }
                 }
-                
                 else -> {}
             }
         }
