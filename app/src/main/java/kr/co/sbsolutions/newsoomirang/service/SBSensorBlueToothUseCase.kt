@@ -176,10 +176,14 @@ class SBSensorBlueToothUseCase(
                     disconnectDevice()
                     val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
                     if (connectGattMap.containsKey(address).not()) {
+                        logHelper.insertLog("저장된 키없을시 연결")
                         val gatt  = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
                         address?.let {
                             connectGattMap[it] = gatt!!
                         }
+                    }else{
+                        logHelper.insertLog("저장된 키 있을시 강제 연결")
+                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = true)
                     }
 
                     Log.e(TAG, "connectDevice: call", )
