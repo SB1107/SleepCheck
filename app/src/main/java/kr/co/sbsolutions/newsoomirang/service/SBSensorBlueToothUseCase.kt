@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.util.Log
+import android.util.StatsLog
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -73,7 +74,8 @@ class SBSensorBlueToothUseCase(
     private var noseRingUseCase: NoseRingUseCase? = null
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
-    private  val connectGattMap : MutableMap<String, BluetoothGatt> = mutableMapOf()
+    private var count: Int = 0
+    
 
     init {
         lifecycleScope.launch {
@@ -136,16 +138,17 @@ class SBSensorBlueToothUseCase(
         timerOfDisconnection = null
         bluetoothNetworkRepository.connectedDevice(device)
     }
-
-    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false, retryConnect : Boolean =  false) {
+    
+    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
-        if (isForceBleDeviceConnect) {
+        if (isForceBleDeviceConnect && count <= MAX_RETRY) {
             logHelper.insertLog("reConnectDevice call")
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             bluetoothNetworkRepository.reConnectDevice {
                 logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                 connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, retryConnect = true)
+                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false)
+                count++
             }
             return
         }
@@ -165,32 +168,38 @@ class SBSensorBlueToothUseCase(
                 delay(100)
                 return@launch
             }
-            //연결 시도가 중복되는 경우가 있어 gatt 연결이 다중으로 접속이되는경우가 있음
-            // 디바이스 주소로 디바이스 객체를 가져와서 각트 에서 연결 상태 확인후 연결을 시도 한다.
-            val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
-            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-            val connectionState = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
-            gattConnectionStateLog(connectionState)
-            when (connectionState) {
-                BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
-                    disconnectDevice()
-                    val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
-                    if (connectGattMap.containsKey(address).not()) {
-                        logHelper.insertLog("저장된 키없을시 연결")
-                        val gatt  = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
-                        address?.let {
-                            connectGattMap[it] = gatt!!
+            if (count <= MAX_RETRY) {
+                count++
+                //연결 시도가 중복되는 경우가 있어 gatt 연결이 다중으로 접속이되는경우가 있음
+                // 디바이스 주소로 디바이스 객체를 가져와서 각트 에서 연결 상태 확인후 연결을 시도 한다.
+                val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
+                val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                val connectionState = bluetoothManager.getConnectionState(device, BluetoothProfile.GATT)
+                gattConnectionStateLog(connectionState)
+                when (connectionState) {
+                    BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
+//                        disconnectDevice()
+                        val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
+                        /*Log.d(TAG, "주소주소: $address ")
+                        Log.d(TAG, "이름이름: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName} ")*/
+                        
+                        val getDeviceName = bluetoothManager.getDevicesMatchingConnectionStates(
+                            BluetoothProfile.GATT,
+                            intArrayOf(BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING)
+                        ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
+                        if (getDeviceName.isEmpty()) {
+                            logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
+                            device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                            count = 0
+                            getOneDataIdReadData()
+                            timerOfDisconnection?.cancel()
+                        } else {
+                            logHelper.insertLog("PASS 연결된 디바이스 있다.")
                         }
-                    }else{
-                        logHelper.insertLog("저장된 키 있을시 강제 연결")
-                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = true)
-                    }
-
-                    Log.e(TAG, "connectDevice: call", )
-
-                    getOneDataIdReadData()
-                    timerOfDisconnection?.cancel()
-                    if (retryConnect.not()) {
+                        Log.d(TAG, "connectDevice: $getDeviceName")
+                        Log.e(TAG, "connectDevice: call")
+                        
+                        
                         timerOfDisconnection = Timer().apply {
                             schedule(timerTask {
                                 logHelper.insertLog("!!재연결중 disconnectDevice")
@@ -200,8 +209,9 @@ class SBSensorBlueToothUseCase(
                             }, 10000L)
                         }
                     }
+                    
+                    else -> {}
                 }
-                else -> {}
             }
         }
     }

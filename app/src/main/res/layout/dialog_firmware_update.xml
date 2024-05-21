@@ -80,9 +80,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_current_version" />
 
+
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/cl_update_detail"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/firmupdate_rectangle_back"
                 app:layout_constraintBottom_toTopOf="@id/bt_done"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -90,12 +96,11 @@
 
                 <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="0dp">
+                    android:layout_height="match_parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/color_acacac"
+                        android:layout_height="match_parent"
                         android:padding="16dp">
 
                         <androidx.appcompat.widget.AppCompatTextView
@@ -104,22 +109,25 @@
                             android:layout_height="wrap_content"
                             android:text="새로운 기능"
                             android:textAlignment="center"
+                            android:textColor="@color/color_000000"
                             android:textSize="20sp"
+                            android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/tv_detail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:textAlignment="center"
-                            android:textSize="20sp"
+                            android:layout_marginTop="20dp"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/color_000000"
+                            android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.core.widget.NestedScrollView>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -129,7 +137,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginBottom="40dp"
                 android:backgroundTint="@color/color_yellow"
@@ -143,7 +151,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_update_version" />
+                app:layout_constraintTop_toBottomOf="@id/cl_update_detail" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </io.github.florent37.shapeofview.shapes.RoundRectView>

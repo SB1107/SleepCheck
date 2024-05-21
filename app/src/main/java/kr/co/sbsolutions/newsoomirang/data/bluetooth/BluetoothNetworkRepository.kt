@@ -223,6 +223,7 @@ class BluetoothNetworkRepository @Inject constructor(
                 _eegSensorInfo
 
             else -> {
+                Log.d(TAG, "주소가 다르다.: ")
                 return
             }
         }.apply {
@@ -908,7 +909,7 @@ class BluetoothNetworkRepository @Inject constructor(
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
                 logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(true, gatt.device.name))
+                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
                 }
                 disconnectedDevice(gatt)
                 return

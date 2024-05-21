@@ -137,11 +137,9 @@ class FirmwareUpdateActivity : BluetoothActivity() {
                             }
                             
                             firmwareUpdateBinding.tvCurrentVersion.text = getString(R.string.firmupdate_current_version_v, data.firmwareVersion)
+                            firmwareUpdateBinding.tvDetail.text = data.updateDetail
                             
                             firmwareUpdateBinding.tvUpdateVersion.text = getString(R.string.firmupdate_update_version_v, data.updateVersion)
-                            
-//                            firmwareUpdateBinding.tvUpdateTitle.text = data.updateDetail
-                            firmwareUpdateBinding.updateDetail.tvDetail.text = data.updateDetail
                             
                             firmwareUpdateBinding.btDone.setOnSingleClickListener {
                                 viewModel.firmwareUpdateCall(data)
