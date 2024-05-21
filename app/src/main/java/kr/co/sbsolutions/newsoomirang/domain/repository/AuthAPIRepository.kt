@@ -103,8 +103,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.getFAQ(language)
     }
     
-    override fun getNewFirmVersion(device: String): Flow<ApiResponse<FirmwareEntity>> = apiRequestFlow {
-        api.getNewFirmVersion(device)
+    override fun getNewFirmVersion(device: String, language: String): Flow<ApiResponse<FirmwareEntity>> = apiRequestFlow {
+        api.getNewFirmVersion(device, language)
     }
     
     override fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {

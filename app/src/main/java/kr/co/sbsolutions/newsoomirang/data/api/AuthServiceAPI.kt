@@ -92,7 +92,7 @@ interface AuthServiceAPI {
     suspend fun getFAQ(@Query("language") language : String): Response<FAQEntity>
     
     @GET("sleepdata/chkversion")
-    suspend fun getNewFirmVersion(@Query("number") id: String): Response<FirmwareEntity>
+    suspend fun getNewFirmVersion(@Query("number") id: String, @Query("language") language: String): Response<FirmwareEntity>
     
     @POST("sleepdata/regversion")
     suspend fun postRegisterFirmVersion(@Body sensorFirmVersion: SensorFirmVersion) : Response<BaseEntity>

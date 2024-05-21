@@ -21,6 +21,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.DataRemove
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.getLanguage
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
@@ -85,7 +86,7 @@ class SettingViewModel @Inject constructor(
     private fun getNewFirmVersion(deviceInfo: FirmwareData?) {
         viewModelScope.launch {
             deviceInfo?.let { info ->
-                request { remoteAuthDataSource.getNewFirmVersion(info.deviceName) }.collectLatest { result ->
+                request { remoteAuthDataSource.getNewFirmVersion(info.deviceName, ApplicationManager.instance.baseContext.getLanguage())}.collectLatest { result ->
                     Log.d(TAG, "getFirmwareVersion: $result")
                     result.result?.newFirmVer?.let { newFirmVer ->
                         _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))

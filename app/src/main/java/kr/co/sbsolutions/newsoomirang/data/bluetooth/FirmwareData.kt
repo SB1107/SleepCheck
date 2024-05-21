@@ -12,4 +12,12 @@ data class FirmwareDataModel(
     val serverFirmwareVersion: String = "1.0.0"
 )
 
-data class FirmwareUpdateModel(val filePath: String, val url: String, val firmwareVersion: String, val updateVersion: String, val deviceName: String, val deviceAddress: String)
+data class FirmwareUpdateModel(
+    val filePath: String,
+    val url: String,
+    val firmwareVersion: String,
+    val updateVersion: String,
+    val deviceName: String,
+    val deviceAddress: String,
+    val updateDetail: String
+)

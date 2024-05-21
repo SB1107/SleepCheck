@@ -13,5 +13,9 @@ data class FirmwareEntityData (
     @SerializedName("ver")
     val newFirmVer: String? = null,
     @SerializedName("url")
-    val url: String? = null
+    val url: String? = null,
+    @SerializedName("desc")
+    val desc: String? = null,
+    @SerializedName("sensor_ver")
+    val sensorVer: String? = null
 )

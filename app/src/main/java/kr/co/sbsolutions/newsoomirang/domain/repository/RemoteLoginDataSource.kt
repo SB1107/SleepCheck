@@ -49,7 +49,7 @@ interface RemoteAuthDataSource {
 
      fun getFAQ(language:String) : Flow<ApiResponse<FAQEntity>>
      
-     fun getNewFirmVersion(deviceName: String) : Flow<ApiResponse<FirmwareEntity>>
+     fun getNewFirmVersion(deviceName: String, language: String) : Flow<ApiResponse<FirmwareEntity>>
      
      fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion) : Flow<ApiResponse<BaseEntity>>
 }

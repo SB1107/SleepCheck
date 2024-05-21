@@ -20,6 +20,7 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.common.getLanguage
 import kr.co.sbsolutions.newsoomirang.common.hasUpdate
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareDataModel
@@ -88,7 +89,7 @@ class FirmwareUpdateViewModel
 
     private fun getAPICall(path: String, firmwareData: FirmwareData) {
         viewModelScope.launch(Dispatchers.IO) {
-            request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName) }
+            request { authAPIRepository.getNewFirmVersion(firmwareData.deviceName, ApplicationManager.instance.baseContext.getLanguage()) }
                 .collectLatest { firmware ->
                     firmware.result?.let { result ->
                         serverFirmwareVersion = result.newFirmVer ?: "1.0.0"
@@ -104,7 +105,8 @@ class FirmwareUpdateViewModel
                                         firmwareVersion = firmwareData.firmwareVersion,
                                         updateVersion = serverFirmwareVersion!!,
                                         deviceName = firmwareData.deviceName,
-                                        deviceAddress = firmwareData.deviceAddress
+                                        deviceAddress = firmwareData.deviceAddress,
+                                        updateDetail = result.desc.toString()
                                     )
                                 )
                             }
