@@ -93,16 +93,21 @@ class FirmwareUpdateViewModel
                 .collectLatest { firmware ->
                     firmware.result?.let { result ->
                         serverFirmwareVersion = result.newFirmVer ?: "1.0.0"
+                        val currentVersion = if (result.sensorVer.isNullOrEmpty()) {
+                            firmwareData.firmwareVersion
+                        } else {
+                            result.sensorVer
+                        }
                         /*Log.d(TAG, "getAPICall: ${hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)}")
                         Log.d(TAG, "getAPICall1: ${firmwareData.firmwareVersion}")
                         Log.d(TAG, "getAPICall2: ${serverFirmwareVersion!!}")*/
-                        if (hasUpdate(firmwareData.firmwareVersion, serverFirmwareVersion!!)) {
+                        if (hasUpdate(currentVersion, serverFirmwareVersion!!)) {
                             result.url?.let { url ->
                                 _firmwareUpdate.tryEmit(
                                     FirmwareUpdateModel(
                                         filePath = path,
                                         url = url,
-                                        firmwareVersion = firmwareData.firmwareVersion,
+                                        firmwareVersion = currentVersion,
                                         updateVersion = serverFirmwareVersion!!,
                                         deviceName = firmwareData.deviceName,
                                         deviceAddress = firmwareData.deviceAddress,

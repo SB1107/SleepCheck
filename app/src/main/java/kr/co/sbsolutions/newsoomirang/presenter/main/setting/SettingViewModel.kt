@@ -37,14 +37,14 @@ class SettingViewModel @Inject constructor(
     private val dataManager: DataManager,
     private val remoteAuthDataSource: RemoteAuthDataSource,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
-) : BaseServiceViewModel(dataManager, tokenManager) , DataRemove {
+) : BaseServiceViewModel(dataManager, tokenManager), DataRemove {
 
     private val _logoutResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val logoutResult: SharedFlow<Boolean> = _logoutResult
 
     private val _deviceName: MutableStateFlow<String?> = MutableStateFlow("")
     val deviceName: StateFlow<String?> = _deviceName
-    
+
     private val _updateCheckResult: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updateCheckResult: StateFlow<Boolean> = _updateCheckResult
 
@@ -63,34 +63,41 @@ class SettingViewModel @Inject constructor(
         )
 
     }
+
     fun getFirmwareVersion() {
         viewModelScope.launch {
             getService()?.getSbSensorInfo()?.value?.bluetoothState?.let { infoState ->
-                if ( infoState == BluetoothState.Connected.Ready ||
+                if (infoState == BluetoothState.Connected.Ready ||
                     infoState == BluetoothState.Connected.Init ||
-                    infoState == BluetoothState.Connected.End )
-                ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
-                Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}")
-                    if (deviceInfo?.firmwareVersion.isNullOrEmpty()) {
-                        _updateCheckResult.emit(true)
-                        cancel()
-                        delay(100)
-                        return@collectLatest
+                    infoState == BluetoothState.Connected.End
+                )
+                    ApplicationManager.getService().value.get()?.getFirmwareVersion()?.collectLatest { deviceInfo ->
+                        Log.e(TAG, "getFirmwareVersion11: ${deviceInfo?.firmwareVersion}")
+                        if (deviceInfo?.firmwareVersion.isNullOrEmpty()) {
+                            _updateCheckResult.emit(true)
+                            cancel()
+                            delay(100)
+                            return@collectLatest
+                        }
+                        deviceInfo?.let { getNewFirmVersion(it) }
                     }
-                    deviceInfo?.let { getNewFirmVersion(it) }
-                }
             }
         }
     }
-    
+
     private fun getNewFirmVersion(deviceInfo: FirmwareData?) {
         viewModelScope.launch {
             deviceInfo?.let { info ->
-                request { remoteAuthDataSource.getNewFirmVersion(info.deviceName, ApplicationManager.instance.baseContext.getLanguage())}.collectLatest { result ->
+                request { remoteAuthDataSource.getNewFirmVersion(info.deviceName, ApplicationManager.instance.baseContext.getLanguage()) }.collectLatest { result ->
                     Log.d(TAG, "getFirmwareVersion: $result")
                     result.result?.newFirmVer?.let { newFirmVer ->
-                        _updateCheckResult.emit(hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer))
-                        Log.d(TAG, "getFirmwareVersion000: ${hasUpdate(currentVer = deviceInfo.firmwareVersion, compareVer = newFirmVer)}")
+                        val currentVersion = if (result.result.sensorVer.isNullOrEmpty()) {
+                            deviceInfo.firmwareVersion
+                        } else {
+                            result.result.sensorVer
+                        }
+                        _updateCheckResult.emit(hasUpdate(currentVer = currentVersion, compareVer = newFirmVer))
+                        Log.d(TAG, "getFirmwareVersion000: ${hasUpdate(currentVer = currentVersion, compareVer = newFirmVer)}")
                         cancel()
                         delay(100)
                     }
@@ -98,7 +105,7 @@ class SettingViewModel @Inject constructor(
             }
         }
     }
-    
+
     //로그아웃
     fun logout() {
         if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime ||
@@ -145,21 +152,21 @@ class SettingViewModel @Inject constructor(
     override fun whereTag(): String {
         return "Setting"
     }
-    
-    
+
+
     private fun isVersionCheck(version1: String? = null, version2: String): Boolean {
         val v1Components = version1?.split(".")
         val v2Components = version2.split(".")
-        
-        if (version1.isNullOrEmpty()){
+
+        if (version1.isNullOrEmpty()) {
             return true
         }
-        
+
         if (v1Components != null) {
             for (i in 0 until maxOf(v1Components.size, v2Components.size)) {
                 val v1Component = v1Components.getOrElse(i) { "0" }.toInt()
                 val v2Component = v2Components.getOrElse(i) { "0" }.toInt()
-                
+
                 if (v1Component < v2Component) {
                     return true
                 } else if (v1Component > v2Component) {
