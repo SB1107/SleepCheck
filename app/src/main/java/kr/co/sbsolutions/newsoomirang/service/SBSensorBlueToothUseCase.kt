@@ -134,16 +134,16 @@ class SBSensorBlueToothUseCase(
         timerOfDisconnection = null
         bluetoothNetworkRepository.connectedDevice(device)
     }
-
+    
     fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect) {
             logHelper.insertLog("reConnectDevice call")
             bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
-            bluetoothNetworkRepository.reConnectDevice{
+            bluetoothNetworkRepository.reConnectDevice {
                 logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                 connectDevice(context, bluetoothAdapter, false)
+                connectDevice(context, bluetoothAdapter, false)
             }
             return
         }
@@ -154,7 +154,7 @@ class SBSensorBlueToothUseCase(
                     address?.let {
                         bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
                         connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
-                        Log.e(TAG, "connectDevice: call2", )
+                        Log.e(TAG, "connectDevice: call2")
                     } ?: run {
                         disconnectDevice(context, bluetoothAdapter)
                     }
@@ -172,9 +172,9 @@ class SBSensorBlueToothUseCase(
             when (connectionState) {
                 BluetoothProfile.STATE_DISCONNECTED, BluetoothProfile.STATE_DISCONNECTING -> {
                     disconnectDevice()
-                    val gatt  =device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ))
-                    Log.e(TAG, "connectDevice: call", )
-
+                    val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                    Log.e(TAG, "connectDevice: call")
+                    
                     getOneDataIdReadData()
                     timerOfDisconnection?.cancel()
                     timerOfDisconnection = Timer().apply {
@@ -186,7 +186,7 @@ class SBSensorBlueToothUseCase(
                         }, 10000L)
                     }
                 }
-
+                
                 else -> {}
             }
         }
