@@ -613,13 +613,13 @@ class BluetoothNetworkRepository @Inject constructor(
         sendDownloadContinueCancel()
         val isSuccessfully = gatt.connect()
         if (isSuccessfully) {
-            logHelper.insertLog("isConnect -> 연결 성공")
+            logHelper.insertLog("isConnect -> 요청 성공")
             callback.invoke(true)
             delay(100)
         } else {
             delay(10000)
             if (innerData.value.bluetoothState == BluetoothState.DisconnectedNotIntent) {
-                logHelper.insertLog("isConnect -> 연결 실패 재귀")
+                logHelper.insertLog("isConnect -> 요청 실패 재귀")
                 isConnect(gatt, innerData, callback)
             }
         }
