@@ -76,6 +76,8 @@ class SBSensorBlueToothUseCase(
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
     private var count: Int = 0
     
+    companion object { val bleGattList: MutableList<BluetoothGatt> = mutableListOf() }
+    
 
     init {
         lifecycleScope.launch {
@@ -185,7 +187,13 @@ class SBSensorBlueToothUseCase(
                         ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
                         if (getDeviceName.isEmpty()) {
                             logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
-                            device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                            bleGattList.map {
+                                it.disconnect()
+                                it.close()
+                            }
+                            bleGattList.clear()
+                            val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                            gatt?.let { bleGattList.add(it) }
                             count = 0
                             getOneDataIdReadData()
                             timerOfDisconnection?.cancel()
