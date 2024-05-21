@@ -82,12 +82,6 @@ class BluetoothNetworkRepository @Inject constructor(
         private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
     }
 
-    init {
-//        sensorMap[SBBluetoothDevice.SB_SOOM_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
-//        sensorMap[SBBluetoothDevice.SB_SPO2_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
-//        sensorMap[SBBluetoothDevice.SB_EEG_SENSOR.type.name] = getCallback(_sbSensorInfo.value.sbBluetoothDevice)
-    }
-
     override suspend fun listenRegisterSBSensor() {
 
         dataManager.getBluetoothDeviceName(_sbSensorInfo.value.sbBluetoothDevice.type.toString())
