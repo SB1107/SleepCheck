@@ -217,15 +217,6 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    private fun gattConnectionStateLog(connectionState: Int) {
-        when (connectionState) {
-            BluetoothProfile.STATE_CONNECTING -> logHelper.insertLog("deviceGattState = STATE_CONNECTING")
-            BluetoothProfile.STATE_CONNECTED -> logHelper.insertLog("deviceGattState = STATE_CONNECTED")
-            BluetoothProfile.STATE_DISCONNECTED -> logHelper.insertLog("deviceGattState = STATE_DISCONNECTED")
-            BluetoothProfile.STATE_DISCONNECTING -> logHelper.insertLog("deviceGattState = STATE_DISCONNECTING")
-        }
-    }
-
     fun disconnectDevice() {
         context?.let {
             disconnectDevice(it, bluetoothAdapter)
