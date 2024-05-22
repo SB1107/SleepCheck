@@ -211,8 +211,8 @@ class HistoryDetailActivity : BaseActivity() {
         }
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" ")
-                .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
+            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" [")
+                .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering)).plus("]")
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(LocalConfiguration.current.locales[0])
 

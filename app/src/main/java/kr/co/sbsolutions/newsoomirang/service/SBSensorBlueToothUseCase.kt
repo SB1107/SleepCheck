@@ -402,12 +402,12 @@ class SBSensorBlueToothUseCase(
             timerOfTimeout = Timer().apply {
                 schedule(timerTask {
                     logHelper.insertLog("12 시간 강제 종료")
-//                    stopSBSensor()
+                    stopSBSensor()
                     val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                stopSBServiceForced()
+                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId , isForced = true)
                             }
                         } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
                     }

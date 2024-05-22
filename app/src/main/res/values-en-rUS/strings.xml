@@ -18,9 +18,9 @@
     <string name="app_cancel">Cancel</string>
     <string name="app_error">Error</string>
     <string name="sir"> Sir</string>
-    <string name="dialog_btn_confirm">OK</string>
-    <string name="guide_device_info_message1">Please detach the sensor from the cradle as shown in the image and connect it.</string>
-    <string name="guide_device_info_message2">Please disconnect the charging cable as shown in the image and connect the sensor.</string>
+    <string name="dialog_btn_confirm">Confirm</string>
+    <string name="guide_device_info_message1">Remove th sensor frim the cradle and connect it to the Sommirang App.</string>
+    <string name="guide_device_info_message2">Disconnect the charging cable from the sensor and connect the sensor to the Soomirang App.</string>
     <string name="dialog_info_sensor_connected_message">The app requires a sensor connection</string>
 
     <string name="common_next_update">Next time</string>
@@ -31,11 +31,11 @@
     <string name="privacy_title">Privacy Policy</string>
     <string name="privacy_detail">Your health.\nData is important.</string>
     <string name="privacy_data_storage">We keep all user data safe and secure on our secure servers.</string>
-    <string name="privacy_terms_service">Privacy Policy</string>
+    <string name="privacy_terms_service">Terms of Service</string>
     <string name="privacy_personal_information_collection_usage_policy">Privacy Policy for Data Collection and Use</string>
     <string name="privacy_consent_list1">\t (Required) Accept the Terms of Service</string>
-    <string name="privacy_consent_list2">\t Consent to use data to improve the app</string>
-    <string name="privacy_agree">Agree</string>
+    <string name="privacy_consent_list2">\t Consent for data usage in app improvement.</string>
+    <string name="privacy_agree">Confirm</string>
 
 
     <string name="device_power_off_title">Soomirang  device terminated during measurement</string>
@@ -55,20 +55,20 @@
     <string name="reconnected">Reconnected</string>
     <string name="disconnected">Disconnected</string>
     <string name="start">Start</string>
-    <string name="battery_Info">Batt %1$s</string>
+    <string name="battery_Info">Battery %1$s</string>
     <string name="snoring_permissions">Please set permissions for snoring analysis</string>
     <string name="data_insuffcient">The measurement data is insufficient. Do you want to end the measurement?</string>
     <string name="data_find">We\'ve found your old data\nWe\'re cleaning it up\nPlease wait a moment.</string>
     <string name="not_measurable">Device battery is low and measurement is not possible, please charge your device</string>
-    <string name="connect_button">Device need to connect.\nTap the Connect button to connect to your device.</string>
+    <string name="connect_button">The Soomirang sensor should be connected. Please press \'CONNECT\' button to connect the device.</string>
     <string name="snoring_measurable_finish">Snoring is being measured. Please exit and use</string>
     <string name="sensor_disconnect_error">We\'ve lost connection with your breath and sensors\n\nPlease check the connection status above and try again</string>
     <string name="other_user_sensor">Another user uses the sensor and shuts it down.</string>
     <string name="snoring_start">Click Start\nTo measure your snoring</string>
     <string name="app_update">Soomirang, a new version has been released!\nPlease update.</string>
     <string name="data_restore">Do you want to restore recently measured data?</string>
-    <string name="detail_total_score2">sum\n%1$s cnt</string>
-    <string name="menu_breathing_nosering">Breathing</string>
+    <string name="detail_total_score2">%1$s times</string>
+    <string name="menu_breathing_nosering">Respiration</string>
     <string name="menu_nosering_noti">Snoring</string>
     <string name="menu_history">History</string>
     <string name="menu_setting">Setting</string>
@@ -77,12 +77,12 @@
     <string name="app_version">App Version : %1$s</string>
     <string name="breathing_measurable_finish">Respiration is being measured\nPlease exit and try to log out again</string>
     <string name="no_history">No history is saved.</string>
-    <string name="breating">Breathing</string>
+    <string name="breating">RESP</string>
     <string name="nosering">Snoring</string>
     <string name="detail">Detail</string>
     <string name="sensor_info_wait">Receiving sensor information.</string>
     <string name="sensor_conneting">Connecting to the device.</string>
-    <string name="nosering_vibration_noti">Snoring vibration notification</string>
+    <string name="nosering_vibration_noti">Snoring vibration alert</string>
     <string name="nosering_vibration_intensity">Vibration intensity</string>
     <string name="vibration_weak">Weak</string>
     <string name="vibration_medium">Normal</string>
@@ -97,28 +97,31 @@
     <string name="breathing_measuring">Measuring breathing</string>
     <string name="btn_start">Start</string>
     <string name="btn_end">STOP</string>
-    <string name="data_error_message">We don\'t have enough information from your measurement\nPlease measure again tonight</string>
-    <string name="analyzing_data">Analyzing data.</string>
+    <string name="data_error_message">The measured information is insufficient. Please measure again tonight.</string>
+    <string name="analyzing_data">Please wait a few minutes for the respiratory data analysis.</string>
     <string name="analyzing_info_message">This can take a few minutes.</string>
     <string name="ble_disconnected">Not connected</string>
     <string name="sensor_remove">Remove a sensor</string>
-    <string name="remeasurement_info_message">For tonight\'s use\nPlease remove the sticker and charge it.</string>
-    <string name="measuring_info_message">This can take up to 10 minutes or more.</string>
+    <string name="remeasurement_info_message">Please remove the sticker on the sensor and charge it for tonight\'s use.</string>
+    <string name="measuring_info_message">It may take up to 10 minutes or more</string>
     <string name="ble_connecting_info_message">Connecting your device.</string>
 
-    <string name="sensor_error_message_measurement">Measurement is in progress\nPlease try again after the measurement ends</string>
+    <string name="sensor_error_message_measurement">Measurement in progress. Please try again after the measurement is completed.</string>
     <string name="sensor_scanning">On scanning</string>
     <string name="sensor_ask_to_connect_message">Soomirang %1$s\n Connecting to your device.</string>
 
-    <string name="detail_breathing_score_text">Your sleep breathing score is based on a comprehensive analysis of the proportion of normal breathing, no breathing signals, unstable breathing, and more, using a breath-by-breath analysis algorithm.\nNote that we cannot show you if your breathing and snoring are not measured normally during sleep!</string>
-    <string name="detail_normal_breathing_text">Normal, quiet breathing that occurs between 12 and 20 times per minute.</string>
-    <string name="detail_no_signal_breathing_text">It is a condition in which breathing is abnormally reduced or blocked during sleep, resulting in weak or no breathing signals.\n\nNo breathing signals during sleep can be caused by a number of factors, including weight gain, snoring, aging, alcohol consumption, and other conditions, and should be evaluated by a physician for accurate determination.</string>
-    <string name="detail_instability_breathing_text">A typical breathing rate during sleep is between 12 and 20 breaths per minute, and breathing that is faster or slower than this is referred to as:\n\nFast breathing: more than 20 breaths per minute.\n\nSlow breathing: less than 12 breaths per minute.</string>
-    <string name="detail_sleep_position_text">The time and percentage of time spent in each position during sleep.\nIf you have apnea and snoring during sleep, side sleeping may help alleviate apnea more than upright sleeping.</string>
-    <string name="detail_sleep_stages_text">REM (Rapid Eye Movement)</string>
+    <string name="detail_breathing_score_text">The respiratory score during sleep is determined by analyzing a comprehensive range of factors such as normal breathing, no breathing signal, unstable breathing, etc. Please note that if sleep respiration and snoring are not measured properly during sleep, they cannot be displayed!</string>
+    <string name="detail_normal_breathing_text">This refers to normal, quiet breathing occurring approximately 12 to 20 times per minute.</string>
+    <string name="detail_no_signal_breathing_text">During sleep, when breathing decreases abnormally or is obstructed, it refers to a state where respiratory signals become faint or absent. The absence of respiratory signals during sleep can be attributed to various factors such as weight gain, snoring, aging, alcohol consumption, and more. Therefore, a medical examination by a doctor is necessary for an accurate diagnosis.</string>
+    <string name="detail_instability_breathing_text">During sleep, the typical normal respiratory rate is 12 to 20 breaths per minute, with faster or slower breathing referred to as follows:
+\n\nFast breathing: Respiratory rate exceeding 20 breaths per minute.\nSlow breathing: Respiratory rate less than 12 breaths per minute.</string>
+    <string name="detail_sleep_position_text">It represents the time and proportion of each posture during sleep.\n\nIn cases of severe absence of breathing signals and snoring during sleep, sleeping on the side may help alleviate absence of breathing signals more than sleeping on the back.</string>
+    <string name="detail_sleep_stages_text">REM Sleep (Rapid Eye Movement): This stage involves rapid eye movements and active brain activity, during which dreams occur. It accounts for about 20% to 25% of sleep and is characterized by increased heart rate and breathing. During REM sleep, mental fatigue is recovered, stress is relieved, and short-term memories acquired during the day are consolidated into long-term memory. However, it is also a stage where muscles relax, making it prone to abnormal breathing.
+Light Sleep: This is the initial stage of sleep characterized by a light sleep state, occupying most of the sleep time and being easy to wake up from.
+Deep Sleep: This stage is where the body and brain recover during sleep. It is deeply associated with the quality of sleep. Body temperature decreases, muscles relax, immune function and cell recovery are enhanced, and it contributes to memory and learning enhancement.</string>
     <string name="setting_my_sensor">My Sensor</string>
     <string name="setting_sensor_update">Update Soomirang sensor</string>
-    <string name="setting_user_guide">User Guide</string>
+    <string name="setting_user_guide">User Manual</string>
     <string name="setting_faq">FAQ</string>
     <string name="setting_qna">QnA</string>
     <string name="setting_privacy_policy">Privacy Policy</string>
@@ -132,17 +135,17 @@
     <string name="detail_asleep_time">Time to fall asleep</string>
     <string name="detail_snoring_time">Snoring Time</string>
     <string name="detail_deep_sleep_time">Deep Sleep Time</string>
-    <string name="detail_turns">Number of tosses and turns</string>
-    <string name="detail_times">%1$d cnt</string>
-    <string name="detail_vibration">Number of vibration events</string>
-    <string name="detil_cough">Cough detection count</string>
+    <string name="detail_turns">Tosses and turns</string>
+    <string name="detail_times">%1$d times</string>
+    <string name="detail_vibration">Vibration occurrence</string>
+    <string name="detil_cough">Cough detection</string>
     <string name="detial_normal_b">Normal breathing</string>
     <string name="detial_normal_b_t">Normal breathing Time</string>
     <string name="detail_average_b">Average respiratory rate</string>
     <string name="detail_min">(Min) %1$s Count</string>
     <string name="detail_a_b">Abnormal breathing</string>
-    <string name="detail_no_signal">No respiratory signal</string>
-
+    <string name="detail_no_signal">No breathing</string>
+    <string name="download">Download &amp;  Install</string>
     <string name="faq_title">FAQ</string>
     <string name="faq_icon">icon</string>
     <string name="faq_kr_icon">icon</string>
@@ -151,8 +154,8 @@
     <string name="firmupdate_update_version">Update version  : %1$s</string>
     <string name="firmupdate_current_version_v">Current  version  v%1$s</string>
     <string name="firmupdate_update_version_v">Update version v%1$s</string>
-    <string name="sensor_connect_dialog_message">Soomirang Sensor aabv-12find.\nDo you want to connect</string>
-    <string name="sensor_ask_connect_message">%1$sfind.\nDo you want to connect?</string>
+    <string name="sensor_connect_dialog_message">Soomirang Sensor aabv-12find.\nWould you like to connect?</string>
+    <string name="sensor_ask_connect_message">%1$sfind.\nWould you like to connect?</string>
     <string name="sensor_registered_device">Registering sensors</string>
 
     <string name="firmwave_sensor_latest_version_message">Soomirang is the latest Version.</string>
@@ -161,11 +164,11 @@
     <string name="firm_update_info_message2">Update in progress. Please wait until it finishes.</string>
     <string name="firm_update_current_version">Current  version v1.3.1</string>
     <string name="firm_update_update_version">Update version v1.4.1</string>
-    <string name="sensor_unregister_info_message">No devices are registered.</string>
-    <string name="sensor_scan_list_click_message">Select the discovered device</string>
+    <string name="sensor_unregister_info_message">No registered sensor found.</string>
+    <string name="sensor_scan_list_click_message">Please select the discovered sensor.</string>
     <string name="sensor_device">Device</string>
     <string name="sensor_disconnected_device">Disconnected device</string>
-    <string name="sensor_find_sensor">Find Soomirang sensor</string>
+    <string name="sensor_find_sensor">Search for Soomirang.</string>
     <string name="adapter_blutooth_icon">blutooth_icon</string>
     <string name="adapter_example_deivce_name">soomirangDevice</string>
     <string name="guide_info_message1">Please detach the sensor from the cradle as shown in the image and connect it.</string>
@@ -205,7 +208,7 @@
     <string name="setting_bluetooth_connect">CONX</string>
 
 
-    <string name="breathing_start_info_message">Press Start\nTake your breathing measurement</string>
+    <string name="breathing_start_info_message">Press \'Start\'\nTake your Respiratory measurement</string>
     <string name="date_format">yy-MM-dd</string>
 
     <string name="contact_detail_title">Contact us</string>
@@ -224,16 +227,16 @@
     <string name="policy_message1">%1$s Your health</string>
     <string name="policy_message2">Data is important.</string>
 
-    <string name="detail_no_signal_10_secs">No signal\n10 secs</string>
-    <string name="detail_no_signal_30_secs">No signal\n30 secs</string>
-    <string name="detail_no_signal_60_secs">No signal\n60 secs</string>
-    <string name="detail_count">%1$s cnt</string>
+    <string name="detail_no_signal_10_secs">over10 secs</string>
+    <string name="detail_no_signal_30_secs">over30 secs</string>
+    <string name="detail_no_signal_60_secs">over60 secs</string>
+    <string name="detail_count">%1$s times</string>
     <string name="detail_fast_breathing">Fast breathing</string>
-    <string name="detail_average_respiratory_rate">Average respiratory rate (min)</string>
+    <string name="detail_average_respiratory_rate">Avg RESP rate (min)</string>
     <string name="detail_minutes">%1$s min</string>
     <string name="detail_slow_breathing">Slow breathing</string>
     <string name="detail_unstable_breathing">Unstable breathing</string>
-    <string name="detail_total_min">sum\n%1$s min</string>
+    <string name="detail_total_min">%1$s min</string>
     <string name="detail_sleep_position">Sleep Position</string>
     <string name="detail_supine">Supine</string>
     <string name="detail_left">Left</string>
@@ -241,15 +244,15 @@
     <string name="detail_prone">Prone</string>
     <string name="detail_standup">Stand up</string>
     <string name="detail_sleep_stage">Sleep stage</string>
-    <string name="detail_rem_sleep">Rem sleep</string>
+    <string name="detail_rem_sleep">REM sleep</string>
     <string name="detail_light_sleep">Light sleep</string>
     <string name="detail_deep_sleep">Deep sleep</string>
-    <string name="detail_bad">bad</string>
-    <string name="detail_medium">medium</string>
-    <string name="detail_good">good</string>
-    <string name="detail_your_sleep_respiration_score">Your sleep respiration score</string>
-    <string name="detail_your_snoring_score_during_sleep">Your sleep Snoring score</string>
-    <string name="detail_respiratory_score">respiratory score</string>
+    <string name="detail_bad">Bad</string>
+    <string name="detail_medium">Moderate</string>
+    <string name="detail_good">Good</string>
+    <string name="detail_your_sleep_respiration_score">Sleep Respiratory Score</string>
+    <string name="detail_your_snoring_score_during_sleep">Sleep Snoring Score</string>
+    <string name="detail_respiratory_score">Respiratory score</string>
     <string name="detail_snoring_score">snoring score</string>
     <string name="detail_score">%1$s score</string>
     <string name="detail_total_score">total-count</string>
@@ -262,4 +265,6 @@
     <string name="ble_activ_message">Bluetooth activation is required.\nDo you want to activate?</string>
     <string name="ble_no_use_device_message">The device is not Bluetooth-enabled.\nExit the application.</string>
     <string name="gps_activ_message">GPS activation is required for Bluetooth scanning.\nAre you sure you want to enable it?</string>
+    <string name="new_func">New features</string>
+    <string name="last_software">Soomirang software is not up to date</string>
 </resources>
