@@ -141,15 +141,14 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.connectedDevice(device)
     }
     
-    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
+    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false , bluetoothState :BluetoothState =  BluetoothState.Connecting ) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect && count <= MAX_RETRY) {
             logHelper.insertLog("reConnectDevice call")
-            bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState = BluetoothState.DisconnectedNotIntent
             bluetoothNetworkRepository.reConnectDevice {
                 logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false)
+                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false , bluetoothState = BluetoothState.DisconnectedNotIntent)
                 count++
             }
             return
@@ -192,7 +191,7 @@ class SBSensorBlueToothUseCase(
                                 it.close()
                             }
                             bleGattList.clear()
-                            val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice))
+                            val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ,bluetoothState))
                             gatt?.let { bleGattList.add(it) }
                             count = 0
                             getOneDataIdReadData()

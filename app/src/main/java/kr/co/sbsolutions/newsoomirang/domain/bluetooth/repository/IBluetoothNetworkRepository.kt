@@ -9,6 +9,7 @@ import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.service.BLEService
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 
@@ -25,7 +26,7 @@ interface IBluetoothNetworkRepository {
     fun setLastIndexCk(data: Boolean)
     var uploadCallback: (() -> Unit)?
     fun setOnUploadCallback(callback: (() -> Unit)?)
-    fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice) : BluetoothGattCallback
+    fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice , bluetoothState : BluetoothState) : BluetoothGattCallback
 
     suspend fun listenRegisterSBSensor()
     suspend fun listenRegisterSpO2Sensor()

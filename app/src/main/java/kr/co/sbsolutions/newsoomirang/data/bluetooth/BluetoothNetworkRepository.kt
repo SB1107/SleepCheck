@@ -806,7 +806,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
 
-    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice): BluetoothGattCallback = getCallback(sbBluetoothDevice)
+    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice , bluetoothState: BluetoothState): BluetoothGattCallback = getCallback(sbBluetoothDevice ,bluetoothState)
 
 
     //////////////////////////////////////////////////////
@@ -814,7 +814,7 @@ class BluetoothNetworkRepository @Inject constructor(
     /////           BluetoothGattCallback            /////
     /////                                            /////
     //////////////////////////////////////////////////////
-    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice) = object : BluetoothGattCallback() {
+    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice , bluetoothState: BluetoothState) = object : BluetoothGattCallback() {
         private val UPLOAD_COUNT_INTERVAL = 300 * 3
         private val DATA_INTERVAL = 9
 
@@ -844,7 +844,7 @@ class BluetoothNetworkRepository @Inject constructor(
         init {
             Log.d(TAG, "getCallback: Connecting ")
             val result = innerData.updateAndGet {
-                it.copy(bluetoothState = BluetoothState.Connecting)
+                it.copy(bluetoothState = bluetoothState)
             }
             logHelper.insertLog("BluetoothNetwork = ${result.bluetoothState}")
         }

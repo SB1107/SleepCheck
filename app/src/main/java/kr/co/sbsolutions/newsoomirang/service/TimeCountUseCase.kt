@@ -53,7 +53,7 @@ class TimeCountUseCase(
                 val tempResultTime =  nowTime  - starTime
                 val resultSecond = tempResultTime / 1000
                 logHelper.insertLog("resultSecond = $resultSecond")
-                timeHelper.setTime(it)
+                timeHelper.setTime(resultSecond.toInt())
             }
         }
     }
