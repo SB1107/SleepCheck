@@ -75,9 +75,11 @@ class SBSensorBlueToothUseCase(
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
     private var count: Int = 0
-    
-    companion object { val bleGattList: MutableList<BluetoothGatt> = mutableListOf() }
-    
+
+    companion object {
+        val bleGattList: MutableList<BluetoothGatt> = mutableListOf()
+    }
+
 
     init {
         lifecycleScope.launch {
@@ -140,15 +142,15 @@ class SBSensorBlueToothUseCase(
         timerOfDisconnection = null
         bluetoothNetworkRepository.connectedDevice(device)
     }
-    
-    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false , bluetoothState :BluetoothState =  BluetoothState.Connecting ) {
+
+    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false, bluetoothState: BluetoothState = BluetoothState.Connecting) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect && count <= MAX_RETRY) {
             logHelper.insertLog("reConnectDevice call")
             bluetoothNetworkRepository.reConnectDevice {
                 logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false , bluetoothState = BluetoothState.DisconnectedNotIntent)
+                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
                 count++
             }
             return
@@ -177,42 +179,42 @@ class SBSensorBlueToothUseCase(
                 val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 //                        disconnectDevice()
 //                        val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
-                        /*Log.d(TAG, "주소주소: $address ")
-                        Log.d(TAG, "이름이름: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName} ")*/
-                        
-                        val getDeviceName = bluetoothManager.getDevicesMatchingConnectionStates(
-                            BluetoothProfile.GATT,
-                            intArrayOf(BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING)
-                        ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
-                        if (getDeviceName.isEmpty()) {
-                            logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
-                            bleGattList.map {
-                                it.disconnect()
-                                it.close()
-                            }
-                            bleGattList.clear()
-                            val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice ,bluetoothState))
-                            gatt?.let { bleGattList.add(it) }
-                            count = 0
-                            getOneDataIdReadData()
-                            timerOfDisconnection?.cancel()
-                        } else {
-                            logHelper.insertLog("PASS 연결된 디바이스 있다.")
-                        }
-                        Log.d(TAG, "connectDevice: $getDeviceName")
-                        Log.e(TAG, "connectDevice: call")
-                        
-                        
-                        timerOfDisconnection = Timer().apply {
-                            schedule(timerTask {
-                                logHelper.insertLog("!!재연결중 disconnectDevice")
-                                lifecycleScope.launch(Dispatchers.Main) {
-                                    disconnectDevice(context, bluetoothAdapter)
-                                }
-                            }, 10000L)
-                        }
+                /*Log.d(TAG, "주소주소: $address ")
+                Log.d(TAG, "이름이름: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName} ")*/
+
+                val getDeviceName = bluetoothManager.getDevicesMatchingConnectionStates(
+                    BluetoothProfile.GATT,
+                    intArrayOf(BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING)
+                ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
+                if (getDeviceName.isEmpty()) {
+                    logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
+                    bleGattList.map {
+                        it.disconnect()
+                        it.close()
                     }
-                    
+                    bleGattList.clear()
+                    val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice, bluetoothState))
+                    gatt?.let { bleGattList.add(it) }
+                    count = 0
+                    getOneDataIdReadData()
+                    timerOfDisconnection?.cancel()
+                } else {
+                    logHelper.insertLog("PASS 연결된 디바이스 있다.")
+                }
+                Log.d(TAG, "connectDevice: $getDeviceName")
+                Log.e(TAG, "connectDevice: call")
+
+
+                timerOfDisconnection = Timer().apply {
+                    schedule(timerTask {
+                        logHelper.insertLog("!!재연결중 disconnectDevice")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            disconnectDevice(context, bluetoothAdapter)
+                        }
+                    }, 10000L)
+                }
+            }
+
         }
     }
 
@@ -396,26 +398,20 @@ class SBSensorBlueToothUseCase(
         timerOfTimeout?.cancel()
 
         lifecycleScope.launch(IO) {
-            // 서비스 재시작및 강제 재시작 시 타이머 세팅 필요
-            // 저장된 시작 시간 가져와 타이머 세팅 함
-            val tempTime = dataManager.getStartTime().first()
-            val startTime = if (tempTime == 0L) TIME_OUT_MEASURE else tempTime.diffTime()
-            if (startTime == TIME_OUT_MEASURE) {
-                setStartTime()
-            }
+            setStartTime()
             timerOfTimeout = Timer().apply {
                 schedule(timerTask {
                     logHelper.insertLog("12 시간 강제 종료")
-                    stopSBSensor()
+//                    stopSBSensor()
                     val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId)
+                                stopSBServiceForced()
                             }
                         } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
                     }
-                }, startTime)
+                }, TIME_OUT_MEASURE)
             }
         }
     }
@@ -442,7 +438,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun stopSBSensor(isCancel: Boolean = false ) {
+    fun stopSBSensor(isCancel: Boolean = false) {
         isStartAndStopCancel = false
         firebaseRemoveListener()
         logHelper.insertLog("stopSBSensor 코골이 시간: ${noseRingUseCase?.getSnoreTime()}  isCancel: $isCancel dataId: ${bluetoothNetworkRepository.sbSensorInfo.value.dataId}")
@@ -576,7 +572,7 @@ class SBSensorBlueToothUseCase(
                         logHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
-                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false)
+                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false , isForced =  true)
                         } else {
                             logHelper.insertLog("(max - min + 1) != size)")
                             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
@@ -670,7 +666,7 @@ class SBSensorBlueToothUseCase(
             val hasSensor = dataManager.getHasSensor().first()
             if (hasSensor) {
                 connectDevice(context, bluetoothAdapter, true)
-                Log.e(TAG, "startSBService: 33", )
+                Log.e(TAG, "startSBService: 33")
             }
             callback.invoke()
         }

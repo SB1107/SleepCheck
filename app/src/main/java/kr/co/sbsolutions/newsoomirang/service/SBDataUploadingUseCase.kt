@@ -54,7 +54,7 @@ class SBDataUploadingUseCase(
         _dataFlowPopUp.emit(false)
     }
 
-    suspend fun uploading(packageName: String, sensorName: String, dataId: Int, forceClose: Boolean = false, isFilePass: Boolean = false) {
+    suspend fun uploading(packageName: String, sensorName: String, dataId: Int, forceClose: Boolean = false, isFilePass: Boolean = false , isForced : Boolean = false) {
         val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("uploading:${sleepType}  업로드")
         _resultMessage.emit(UPLOADING)
@@ -65,7 +65,7 @@ class SBDataUploadingUseCase(
             snoreCount = noseRingUseCase?.getSnoreCount() ?: 0,
             coughCount = noseRingUseCase?.getCoughCount() ?: 0
         )
-        uploadWorker(data, packageName, sensorName, forceClose, isFilePass)
+        uploadWorker(data, packageName, sensorName, forceClose, isFilePass , isForced)
     }
 
     fun getFinishForceCloseCallback(): ((Boolean) -> Unit)? {
@@ -82,7 +82,7 @@ class SBDataUploadingUseCase(
         return _resultMessage.value
     }
 
-    private suspend fun uploadWorker(uploadData: UploadData, packageName: String, sensorName: String, forceClose: Boolean, isFilePass: Boolean = false) {
+    private suspend fun uploadWorker(uploadData: UploadData, packageName: String, sensorName: String, forceClose: Boolean, isFilePass: Boolean = false ,isForced : Boolean = false) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
             val newUploadData = uploadData.copy(packageName = packageName, sensorName = sensorName, isFilePass = isFilePass)
@@ -101,7 +101,9 @@ class SBDataUploadingUseCase(
                                         uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
                                     } else {
                                         dataInsufficientUploadFail.emit("${reason}으로 데이터 업로드를 실패했습니다.")
-                                            
+                                        if (isForced) {
+                                            callback?.invoke(true)
+                                        }
                                     }
                                 }
                             }

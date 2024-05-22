@@ -73,10 +73,9 @@ class UploadWorker @AssistedInject constructor(
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
                 val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
 
-                Log.d(TAG, "exportLastFile - Index From $min~$max = ${max - min + 1}  Data Size : $size")
                 logHelper.insertLog("exportLastFile Index From $min~$max = ${max - min + 1}  Data Size : $size")
                 if (size < MINIMUM_UPLOAD_NUMBER) {
-                    Log.d(TAG, "exportLastFile - data size $MINIMUM_UPLOAD_NUMBER 미만 : $size")
+                    logHelper.insertLog("exportLastFile - data size $MINIMUM_UPLOAD_NUMBER 미만 : $size")
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "데이터 부족 ($MINIMUM_UPLOAD_NUMBER 미만)") }.build())
                 }
                 val firstData = sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()
