@@ -515,7 +515,16 @@ class SBSensorBlueToothUseCase(
         if (isCancel) {
             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
         } else {
-            forcedFlow()
+            lifecycleScope.launch {
+                if (bluetoothNetworkRepository.sbSensorInfo.value.dataId == null) {
+                    logHelper.insertLog("sbSensorInfo dataId 없음")
+                    val dataId = settingDataRepository.getDataId()
+                    bluetoothNetworkRepository.sbSensorInfo.value.dataId = dataId
+                    logHelper.insertLog("settingDataRepository dataId 복원")
+                }
+                forcedFlow()
+
+            }
         }
     }
 
