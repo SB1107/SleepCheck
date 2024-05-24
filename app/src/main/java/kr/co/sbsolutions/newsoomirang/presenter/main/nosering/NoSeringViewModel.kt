@@ -179,7 +179,9 @@ class NoSeringViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                getService()?.noSensorSeringMeasurement(true) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+                getService()?.noSensorSeringMeasurement(true , callback = {
+                    setMeasuringState(MeasuringState.InIt)
+                }) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
         )
 
@@ -269,7 +271,10 @@ class NoSeringViewModel @Inject constructor(
                     cancel()
                     return@launch
                 }
-                getService()?.noSensorSeringMeasurement() ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+                getService()?.noSensorSeringMeasurement(callback = {
+                    setMeasuringState(MeasuringState.InIt)
+                }) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
+
                 setMeasuringState(MeasuringState.InIt)
             }
         }

@@ -254,8 +254,8 @@ class BLEService : LifecycleService() {
                 logHelper.insertLog("StartSBService")
                 lifecycleScope.launch(IO) {
                     serviceLiveWorkCheck()
-                    bleServiceHelper.startSBService(baseContext, bluetoothAdapter)
                     startSetting()
+                    bleServiceHelper.startSBService(baseContext, bluetoothAdapter)
                 }
             }
 
@@ -390,8 +390,8 @@ class BLEService : LifecycleService() {
         bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
     }
 
-    fun noSensorSeringMeasurement(isForce: Boolean = false, isCancel: Boolean = false) {
-        bleServiceHelper.noSensorSeringMeasurement(isForce, isCancel)
+    fun noSensorSeringMeasurement(isForce: Boolean = false, isCancel: Boolean = false , callback: () -> Unit) {
+        bleServiceHelper.noSensorSeringMeasurement(isForce, isCancel, callback)
         serviceLiveCheckWorkerHelper.cancelWork()
     }
 

@@ -96,7 +96,7 @@ class BLEServiceHelper(
 
         this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
         this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope)
-        this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper , logHelper)
+        this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper, logHelper)
         listenChannelMessage()
         listenTimer()
         setCallVibrationNotifications()
@@ -123,7 +123,7 @@ class BLEServiceHelper(
     }
 
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
-        Log.e(TAG, "sbConnectDevice: call11", )
+        Log.e(TAG, "sbConnectDevice: call11")
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 
@@ -167,7 +167,7 @@ class BLEServiceHelper(
         blueToothUseCase?.stopSBServiceForced()
     }
 
-    fun stopSBSensor(isCancel: Boolean = false , callback: () -> Unit) {
+    fun stopSBSensor(isCancel: Boolean = false, callback: () -> Unit) {
         blueToothUseCase?.stopSBSensor(isCancel)
         blueToothUseCase?.finishStop {
             finishSenor()
@@ -183,16 +183,17 @@ class BLEServiceHelper(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false) {
+    fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false, callback: () -> Unit) {
         blueToothUseCase?.noSensorSeringMeasurement(isForce, isCancel)
         timeCountUseCase?.stopTimer()
+        callback.invoke()
     }
 
     suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?) {
         val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
         blueToothUseCase?.startSBService(context, bluetoothAdapter) {
-            logHelper.insertLog("서비스 재시작 callback")
+            logHelper.insertLog("서비스  callback")
             blueToothUseCase?.setDataId()
             timeCountUseCase?.setTimeAndStart()
             noseRingUseCase?.setNoseRingDataAndStart()
@@ -307,6 +308,7 @@ class BLEServiceHelper(
     fun getDataFlowPopUp(): StateFlow<Boolean>? {
         return sbDataUploadingUseCase?.getDataFlowPopUp()
     }
+
     fun getUploadFailError(): SharedFlow<String>? {
         return sbDataUploadingUseCase?.getUploadFailError()
     }
