@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.presenter.main.history.detail
 
 import android.os.Bundle
 import android.util.Log
+import android.view.RoundedCorner
 import android.view.View
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateIntAsState
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -62,6 +64,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -80,8 +85,11 @@ import kr.co.sbsolutions.newsoomirang.common.toHourOrMinute
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
 import kr.co.sbsolutions.newsoomirang.databinding.ActivityHistoryDetailBinding
 import kr.co.sbsolutions.newsoomirang.databinding.DialogInfoMassageBinding
+import kr.co.sbsolutions.newsoomirang.databinding.DialogSocreInfoMassageBinding
+import kr.co.sbsolutions.newsoomirang.databinding.RowScoreBinding
 import kr.co.sbsolutions.newsoomirang.presenter.BaseActivity
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
+import kr.co.sbsolutions.newsoomirang.presenter.components.Components.LottieLoading
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.newsoomirang.presenter.components.Components.SoomScaffold
 import kr.co.sbsolutions.newsoomirang.presenter.components.capture.ScreenCapture
@@ -101,10 +109,23 @@ class HistoryDetailActivity : BaseActivity() {
     private val infoDialogBinding: DialogInfoMassageBinding by lazy {
         DialogInfoMassageBinding.inflate(layoutInflater)
     }
+    private  val scoreDialogBinding : DialogSocreInfoMassageBinding  by lazy {
+        DialogSocreInfoMassageBinding.inflate(layoutInflater)
+    }
+    private  val scoreInfoBinding: RowScoreBinding by lazy {
+        RowScoreBinding.inflate(layoutInflater)
+    }
 
     private val infoDialog by lazy {
         BottomSheetDialog(this).apply {
             setContentView(infoDialogBinding.root, null)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            behavior.isFitToContents = true
+        }
+    }
+    private  val scoreInfoDialog by lazy {
+        BottomSheetDialog(this).apply {
+            setContentView(scoreDialogBinding.root, null)
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
             behavior.isFitToContents = true
         }
@@ -557,13 +578,19 @@ class HistoryDetailActivity : BaseActivity() {
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = stringResource(R.string.detail_score, percentValue),
-                        color = Color.White,
-                        fontSize = 40.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(verticalAlignment =  Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.detail_score, percentValue),
+                            color = Color.White,
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        LottieLoading(modifier = Modifier.padding(start = 8.dp)
+                            .size(40.dp)
+                            .clickable {
+                                viewModel.getInfoMessage()
+                            })
+                    }
                 }
             }
 
@@ -576,7 +603,7 @@ class HistoryDetailActivity : BaseActivity() {
                 )
 
                 Text(
-                    modifier = Modifier
+                    modifier =Modifier
                         .padding(start = percent)
                         .offset(y = (-5).dp),
                     text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
@@ -665,7 +692,8 @@ class HistoryDetailActivity : BaseActivity() {
         ) {
             Row(
                 modifier = Modifier
-                    .align(alignment = Alignment.Center)
+                    .align(alignment = Alignment.Center ),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     modifier = Modifier
@@ -1247,12 +1275,31 @@ class HistoryDetailActivity : BaseActivity() {
                     viewModel.infoMessage.collectLatest {
                         infoDialogBinding.tvTitleInfoText.text = it.first
                         infoDialogBinding.tvInfoText.text = it.second
+                        infoDialogBinding.btConnect.setOnSingleClickListener {
+                            infoDialog.dismiss()
+                        }
                         showConnectDialog()
                     }
                 }
-                infoDialogBinding.btConnect.setOnSingleClickListener {
-                    infoDialog.dismiss()
+                launch {
+                    viewModel.scoreInfoMessage.collectLatest {
+                        it.map { data ->
+                            scoreDialogBinding.llContent.removeAllViews()
+                            scoreInfoBinding.tvTitleInfoText.text = data.score
+                            scoreInfoBinding.tvTitleInfoText.setTextColor(getScoreColor(data.score.toInt()))
+                            scoreInfoBinding.tvInfoText.text = data.contents
+                            Glide.with(this@HistoryDetailActivity)
+                                .load(data.image)
+                                .apply(RequestOptions.bitmapTransform(RoundedCorners(10)))
+                                .centerCrop()
+                                .into(scoreInfoBinding.ivImage)
+                            scoreInfoBinding.tvInfoDesText.text = data.imageDes
+                            scoreDialogBinding.llContent.addView(scoreInfoBinding.root)
+                            scoreInfoDialog.show()
+                        }
+                    }
                 }
+
             }
         }
     }
@@ -1287,5 +1334,13 @@ class HistoryDetailActivity : BaseActivity() {
         }
         return resultScore.toInt()
     }*/
+
+    private fun getScoreColor(score: Int): Int {
+        return when (score) {
+            in 0..40 -> getColor(R.color.color_CA0000)
+            in 41..80 -> getColor(R.color.color_FFDB1C)
+            else -> getColor(R.color.color_0DAD13)
+        }
+    }
 
 }

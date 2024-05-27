@@ -24,6 +24,7 @@ import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
+import kr.co.sbsolutions.newsoomirang.domain.model.ScoreModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
 import org.intellij.lang.annotations.Language
@@ -40,15 +41,18 @@ class HistoryDetailViewModel @Inject constructor(
 ) : BaseViewModel(dataManager, tokenManager) {
     private val _sleepDataDetailData: MutableSharedFlow<SleepDetailResult> = MutableSharedFlow()
     val sleepDataDetailData: SharedFlow<SleepDetailResult> = _sleepDataDetailData.asSharedFlow()
-    
-    private val _infoMessage: MutableSharedFlow<Pair<String,String>> = MutableSharedFlow()
-    val infoMessage: SharedFlow<Pair<String,String>> = _infoMessage
-    
+
+    private val _infoMessage: MutableSharedFlow<Pair<String, String>> = MutableSharedFlow()
+    val infoMessage: SharedFlow<Pair<String, String>> = _infoMessage.asSharedFlow()
+
+    private val _scoreInfoMessage: MutableSharedFlow<List<ScoreModel>> = MutableSharedFlow()
+    val scoreInfoMessage: SharedFlow<List<ScoreModel>> = _scoreInfoMessage.asSharedFlow()
+
     private var isSharing = false
 
-    fun getSleepData(id: String , language: String) {
+    fun getSleepData(id: String, language: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            request { authDataSource.getSleepDataDetail(id,language) }
+            request { authDataSource.getSleepDataDetail(id, language) }
                 .collectLatest {
                     it.result?.let { result ->
                         _sleepDataDetailData.emit(result)
@@ -56,10 +60,25 @@ class HistoryDetailViewModel @Inject constructor(
                 }
         }
     }
-    
-    fun sendInfoMessage(title:String, message: String) {
+
+    fun sendInfoMessage(title: String, message: String) {
         viewModelScope.launch {
             _infoMessage.emit(Pair(title, message))
+        }
+    }
+
+    fun getInfoMessage() {
+        viewModelScope.launch {
+            _scoreInfoMessage.emit(
+                listOf(
+                ScoreModel(
+                    score = "40", contents = "수면 상태(점수)가 낮은 편입니다.\n" +
+                            "전문 병원을 내원하여 상담을 권장합니다. (이비인후과, 호흡기내과,수면 센터 등등)",
+                    image = "https://www.sleep.or.kr/custom/196/images/favicon_400x210.png",
+                    imageDes = "해당 이미지 선택 해주세요"
+                )
+            )
+            )
         }
     }
 

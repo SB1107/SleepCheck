@@ -71,7 +71,7 @@ object Components {
 
     @Composable
     fun LottieLoading(modifier: Modifier) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.firmwave_update))
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.question_ani))
         Box(
             modifier = modifier,
             contentAlignment = Alignment.Center
