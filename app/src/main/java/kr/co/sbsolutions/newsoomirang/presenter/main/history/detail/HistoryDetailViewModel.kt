@@ -5,29 +5,22 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.kakao.sdk.share.ShareClient
-import com.kakao.sdk.template.model.Content
-import com.kakao.sdk.template.model.FeedTemplate
-import com.kakao.sdk.template.model.Link
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.TokenManager
+import kr.co.sbsolutions.newsoomirang.data.entity.ScoreData
+import kr.co.sbsolutions.newsoomirang.data.entity.ScoreResultData
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailResult
-import kr.co.sbsolutions.newsoomirang.domain.model.ScoreModel
 import kr.co.sbsolutions.newsoomirang.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.newsoomirang.presenter.BaseViewModel
-import org.intellij.lang.annotations.Language
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -45,8 +38,8 @@ class HistoryDetailViewModel @Inject constructor(
     private val _infoMessage: MutableSharedFlow<Pair<String, String>> = MutableSharedFlow()
     val infoMessage: SharedFlow<Pair<String, String>> = _infoMessage.asSharedFlow()
 
-    private val _scoreInfoMessage: MutableSharedFlow<List<ScoreModel>> = MutableSharedFlow()
-    val scoreInfoMessage: SharedFlow<List<ScoreModel>> = _scoreInfoMessage.asSharedFlow()
+    private val _scoreInfoMessage: MutableSharedFlow<ScoreResultData> = MutableSharedFlow()
+    val scoreInfoMessage: SharedFlow<ScoreResultData> = _scoreInfoMessage.asSharedFlow()
 
     private var isSharing = false
 
@@ -67,18 +60,22 @@ class HistoryDetailViewModel @Inject constructor(
         }
     }
 
-    fun getInfoMessage() {
+    fun getInfoMessage(score: String, language: String) {
         viewModelScope.launch {
-            _scoreInfoMessage.emit(
-                listOf(
-                ScoreModel(
-                    score = "40", contents = "수면 상태(점수)가 낮은 편입니다.\n" +
-                            "전문 병원을 내원하여 상담을 권장합니다. (이비인후과, 호흡기내과,수면 센터 등등)",
-                    image = "https://www.sleep.or.kr/custom/196/images/favicon_400x210.png",
-                    imageDes = "해당 이미지 선택 해주세요"
-                )
-            )
-            )
+//            _scoreInfoMessage.emit(ScoreResultData(
+//                data = listOf(ScoreData(title = "이미지 베너" ,
+//                    link = "https://www.naver.com/" ,
+//                    image = "https://wimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png"),
+//                    ScoreData(title = "이미지 베너" ,
+//                        link = "https://www.naver.com/" ,
+//                        image = "https://wimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png"))
+//            , msg = "상태가 좋아요 !!@3123"))
+            request { authDataSource.getScoreMsg(score, language) }
+                .collectLatest {
+                    it.result?.let { data ->
+                        _scoreInfoMessage.emit(data.copy(score = score.toInt()))
+                    }
+                }
         }
     }
 

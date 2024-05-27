@@ -5,6 +5,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.FAQEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.FirmwareEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.ScoreEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
@@ -96,4 +97,7 @@ interface AuthServiceAPI {
     
     @POST("sleepdata/regversion")
     suspend fun postRegisterFirmVersion(@Body sensorFirmVersion: SensorFirmVersion) : Response<BaseEntity>
+
+    @GET("sleepdata/scoremsg")
+    suspend fun getScoreMsg(@Query("score") score : String, @Query("language") language : String) : Response<ScoreEntity>
 }

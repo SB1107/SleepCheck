@@ -6,6 +6,7 @@ import kr.co.sbsolutions.newsoomirang.data.entity.ContactEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.FAQEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.FirmwareEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.NoSeringResultEntity
+import kr.co.sbsolutions.newsoomirang.data.entity.ScoreEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDateEntity
 import kr.co.sbsolutions.newsoomirang.data.entity.SleepDetailEntity
@@ -52,6 +53,8 @@ interface RemoteAuthDataSource {
      fun getNewFirmVersion(deviceName: String, language: String) : Flow<ApiResponse<FirmwareEntity>>
      
      fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion) : Flow<ApiResponse<BaseEntity>>
+
+     fun getScoreMsg(score : String,  language : String): Flow<ApiResponse<ScoreEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>
