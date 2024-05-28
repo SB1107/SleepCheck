@@ -89,8 +89,8 @@ class HistoryDetailViewModel @Inject constructor(
                 image?.compress(Bitmap.CompressFormat.PNG, 100, stream)
                 stream.close()
 
-                val bytes = ByteArrayOutputStream()
-                image?.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+//                val bytes = ByteArrayOutputStream()
+//                image?.compress(Bitmap.CompressFormat.PNG, 100, bytes)
                 val path: String = MediaStore.Images.Media.insertImage(
                     context.contentResolver,
                     image,
