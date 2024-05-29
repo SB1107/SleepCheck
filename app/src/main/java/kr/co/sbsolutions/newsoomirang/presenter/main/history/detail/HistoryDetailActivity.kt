@@ -585,7 +585,7 @@ class HistoryDetailActivity : BaseActivity() {
                             .padding(start = 8.dp)
                             .size(40.dp)
                             .clickable {
-                                viewModel.getInfoMessage(percentValue.toString(), getLanguage())
+                                viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
                             })
                     }
                 }

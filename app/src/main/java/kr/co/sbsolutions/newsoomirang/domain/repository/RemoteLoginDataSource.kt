@@ -54,7 +54,7 @@ interface RemoteAuthDataSource {
      
      fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion) : Flow<ApiResponse<BaseEntity>>
 
-     fun getScoreMsg(score : String,  language : String): Flow<ApiResponse<ScoreEntity>>
+     fun getScoreMsg(score : String, type: String, language : String): Flow<ApiResponse<ScoreEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>

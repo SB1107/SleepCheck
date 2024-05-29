@@ -42,18 +42,19 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postSleepDataCreate(createModel = sleepCreateModel)
     }
 
-    override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long, snoreCount : Int , coughCount : Int ,sensorName: String): Flow<ApiResponse<UploadingEntity>> = apiRequestFlow {
-        val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
-        val appKind = MultipartBody.Part.createFormData("app_kind", "C")
-        val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
-        val snore_count = MultipartBody.Part.createFormData("snore_count", "$snoreCount")
-        val cough_count = MultipartBody.Part.createFormData("cough_count", "$coughCount")
-        val sensorName = MultipartBody.Part.createFormData("number", sensorName)
-        file?.let {
-            val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
-            api.postUploading(arrayListOf(body, dataId, appKind, snoreTime , snore_count, cough_count, sensorName))
-        } ?: api.postUploading(arrayListOf(dataId, appKind, snoreTime ,snore_count, cough_count,  sensorName))
-    }
+    override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long, snoreCount: Int, coughCount: Int, sensorName: String): Flow<ApiResponse<UploadingEntity>> =
+        apiRequestFlow {
+            val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
+            val appKind = MultipartBody.Part.createFormData("app_kind", "C")
+            val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
+            val snore_count = MultipartBody.Part.createFormData("snore_count", "$snoreCount")
+            val cough_count = MultipartBody.Part.createFormData("cough_count", "$coughCount")
+            val sensorName = MultipartBody.Part.createFormData("number", sensorName)
+            file?.let {
+                val body = MultipartBody.Part.createFormData("file", "sumirang.csv", RequestBody.create("multipart/formdata".toMediaType(), file))
+                api.postUploading(arrayListOf(body, dataId, appKind, snoreTime, snore_count, cough_count, sensorName))
+            } ?: api.postUploading(arrayListOf(dataId, appKind, snoreTime, snore_count, cough_count, sensorName))
+        }
 
 
     override fun getYear(year: String): Flow<ApiResponse<SleepDateEntity>> = apiRequestFlow {
@@ -64,7 +65,7 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.getSleepDataResult()
     }
 
-    override fun getSleepDataDetail(id: String, language : String): Flow<ApiResponse<SleepDetailEntity>> = apiRequestFlow {
+    override fun getSleepDataDetail(id: String, language: String): Flow<ApiResponse<SleepDetailEntity>> = apiRequestFlow {
         api.sleepDataDetail(id, language)
     }
 
@@ -88,11 +89,11 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postChkSensor(sensorInfo)
     }
 
-    override fun getContact(): Flow<ApiResponse<ContactEntity>>  = apiRequestFlow {
+    override fun getContact(): Flow<ApiResponse<ContactEntity>> = apiRequestFlow {
         api.getContact()
     }
 
-    override fun postContactDetail(contactDetail: ContactDetail): Flow<ApiResponse<BaseEntity>>  = apiRequestFlow {
+    override fun postContactDetail(contactDetail: ContactDetail): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
         api.postContactDetail(contactDetail)
     }
 
@@ -100,19 +101,19 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postDisconnect(sensorInfo)
     }
 
-    override fun getFAQ(language:String): Flow<ApiResponse<FAQEntity>> = apiRequestFlow {
+    override fun getFAQ(language: String): Flow<ApiResponse<FAQEntity>> = apiRequestFlow {
         api.getFAQ(language)
     }
-    
+
     override fun getNewFirmVersion(device: String, language: String): Flow<ApiResponse<FirmwareEntity>> = apiRequestFlow {
         api.getNewFirmVersion(device, language)
     }
-    
+
     override fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
         api.postRegisterFirmVersion(sensorFirmVersion)
     }
 
-    override fun getScoreMsg(score: String, language: String): Flow<ApiResponse<ScoreEntity>> = apiRequestFlow {
-        api.getScoreMsg(score, language)
+    override fun getScoreMsg(score: String, type: String, language: String): Flow<ApiResponse<ScoreEntity>> = apiRequestFlow {
+        api.getScoreMsg(score, type, language)
     }
 }

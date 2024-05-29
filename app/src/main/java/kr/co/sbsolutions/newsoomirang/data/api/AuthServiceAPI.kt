@@ -32,11 +32,11 @@ import retrofit2.http.Query
 interface AuthServiceAPI {
 
     @POST("joinagree")
-    suspend fun postJoinAgree(@Body policyModel : PolicyModel): Response<UserEntity>
+    suspend fun postJoinAgree(@Body policyModel: PolicyModel): Response<UserEntity>
 
     @FormUrlEncoded
     @POST("fcmupdate")
-    suspend fun postFcmUpdate(@Field("fcm_key") newToken : String): Response<UserEntity>
+    suspend fun postFcmUpdate(@Field("fcm_key") newToken: String): Response<UserEntity>
 
     //로그 아웃
     @POST("logout")
@@ -45,7 +45,7 @@ interface AuthServiceAPI {
     //회원 탈퇴
     @FormUrlEncoded
     @POST("leave")
-    suspend fun postLeave(@Field("leave_reason")  leaveReason : String): Response<BaseEntity>
+    suspend fun postLeave(@Field("leave_reason") leaveReason: String): Response<BaseEntity>
 
     //수면 데이터 결과
     @GET("sleepdata/result")
@@ -54,7 +54,7 @@ interface AuthServiceAPI {
 
     //수면 데이터 결과 년도로 보기
     @GET("sleepdata/years")
-    suspend fun getSleepDataYearsResult(@Query("toyear") year : String): Response<SleepDateEntity>
+    suspend fun getSleepDataYearsResult(@Query("toyear") year: String): Response<SleepDateEntity>
 
     //코골이 데이터 결과
     @GET("snoredata/result")
@@ -62,7 +62,7 @@ interface AuthServiceAPI {
 
     //수면 데이터 날짜별 상세 보기
     @GET("sleepdata/yearsdetail")
-    suspend fun sleepDataDetail(@Query("data_id") id: String , @Query("language") language : String): Response<SleepDetailEntity>
+    suspend fun sleepDataDetail(@Query("data_id") id: String, @Query("language") language: String): Response<SleepDetailEntity>
 
     //수면데이터 측정 시작
     @POST("sleepdata/createv2")
@@ -73,31 +73,31 @@ interface AuthServiceAPI {
 
     @Multipart
     @POST("sleepdata/uploadv2")
-    suspend fun postUploading(@Part file : List<MultipartBody.Part>) : Response<UploadingEntity>
+    suspend fun postUploading(@Part file: List<MultipartBody.Part>): Response<UploadingEntity>
 
     //센서 등록 사용가능여부 확인
     @POST("sleepdata/chksensor")
-    suspend fun postChkSensor(@Body checkSensor: CheckSensor ) : Response<UserEntity>
+    suspend fun postChkSensor(@Body checkSensor: CheckSensor): Response<UserEntity>
 
     //문의 내용 조회
     @GET("sleepdata/viewappqa")
-    suspend fun getContact(@Query("app_kind") appKind : String = "C") : Response<ContactEntity>
+    suspend fun getContact(@Query("app_kind") appKind: String = "C"): Response<ContactEntity>
 
     @POST("sleepdata/regappqa")
-    suspend fun postContactDetail(@Body contactDetail: ContactDetail) : Response<BaseEntity>
+    suspend fun postContactDetail(@Body contactDetail: ContactDetail): Response<BaseEntity>
 
     @POST("sleepdata/disconnect")
-    suspend fun postDisconnect(@Body checkSensor: CheckSensor) : Response<BaseEntity>
+    suspend fun postDisconnect(@Body checkSensor: CheckSensor): Response<BaseEntity>
 
     @GET("sleepdata/viewappfaq")
-    suspend fun getFAQ(@Query("language") language : String): Response<FAQEntity>
-    
+    suspend fun getFAQ(@Query("language") language: String): Response<FAQEntity>
+
     @GET("sleepdata/chkversion")
     suspend fun getNewFirmVersion(@Query("number") id: String, @Query("language") language: String): Response<FirmwareEntity>
-    
+
     @POST("sleepdata/regversion")
-    suspend fun postRegisterFirmVersion(@Body sensorFirmVersion: SensorFirmVersion) : Response<BaseEntity>
+    suspend fun postRegisterFirmVersion(@Body sensorFirmVersion: SensorFirmVersion): Response<BaseEntity>
 
     @GET("sleepdata/scoremsg")
-    suspend fun getScoreMsg(@Query("score") score : String, @Query("language") language : String) : Response<ScoreEntity>
+    suspend fun getScoreMsg(@Query("score") score: String, @Query("type") type: String, @Query("language") language: String): Response<ScoreEntity>
 }

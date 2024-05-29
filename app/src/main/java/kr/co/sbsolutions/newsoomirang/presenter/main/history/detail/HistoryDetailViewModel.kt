@@ -60,7 +60,8 @@ class HistoryDetailViewModel @Inject constructor(
         }
     }
 
-    fun getInfoMessage(score: String, language: String) {
+    fun getInfoMessage(score: String, type: Int, language: String) {
+        val tempType: String = if (type == 0) "a" else "s"
         viewModelScope.launch {
 //            _scoreInfoMessage.emit(ScoreResultData(
 //                data = listOf(ScoreData(title = "이미지 베너" ,
@@ -70,7 +71,8 @@ class HistoryDetailViewModel @Inject constructor(
 //                        link = "https://www.naver.com/" ,
 //                        image = "https://wimg.mk.co.kr/news/cms/202311/03/news-p.v1.20231103.d4ee94d7f4ab4ea887536033551298ae.png"))
 //            , msg = "상태가 좋아요 !!@3123"))
-            request { authDataSource.getScoreMsg(score, language) }
+
+            request { authDataSource.getScoreMsg(score, tempType, language) }
                 .collectLatest {
                     it.result?.let { data ->
                         _scoreInfoMessage.emit(data.copy(score = score.toInt()))
