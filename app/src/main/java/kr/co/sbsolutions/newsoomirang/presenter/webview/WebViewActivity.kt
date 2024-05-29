@@ -45,8 +45,7 @@ class WebViewActivity : AppCompatActivity() {
             WebType.TERMS1.url -> {
                 binding.webView.loadUrl(BuildConfig.SERVER_URL + mWebTypeUrl)
             }
-
-            WebType.TERMS2.url -> {
+            WebType.TERMS2.url , WebType.TERMS2EN.url-> {
                 binding.webView.loadUrl(mWebTypeUrl)
             }
         }

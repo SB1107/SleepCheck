@@ -64,7 +64,7 @@ class SettingFragment : Fragment() {
         //센서 설명서
         binding.clGuide.setOnSingleClickListener {
             val locale = resources.configuration.locales[0]
-            webViewActivity(WebType.TERMS2, locale)
+                webViewActivity( if (locale == Locale.KOREA) WebType.TERMS2 else WebType.TERMS2EN, locale)
         }
         //개인정보 방침
         binding.clPolicy.setOnSingleClickListener {
