@@ -80,6 +80,7 @@ class BluetoothNetworkRepository @Inject constructor(
         private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
         private val _spo2SensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
         private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
+        private var reConnectCount = 0
     }
 
     override suspend fun listenRegisterSBSensor() {
@@ -93,7 +94,7 @@ class BluetoothNetworkRepository @Inject constructor(
             }.collect { registered ->
                 //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
 
-                val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if(registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
                 logHelper.insertLog("listenRegisterSBSensor -> ${result.bluetoothState}")
                 Log.e(TAG, "listenRegisterSBSensor: 2")
 
@@ -128,16 +129,23 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    override fun reConnectDevice( callback: (() -> Unit)) {
+    override fun reConnectDevice(callback: ((isMaxCount : Boolean) -> Unit)) {
         logCoroutine.launch {
             _sbSensorInfo.value.bluetoothGatt?.let {
                 logHelper.insertLog("reconnectDevice gatt 재접속 실행")
-                isConnect(it, _sbSensorInfo) {isSuccessfully ->
+                if (reConnectCount >= BLEService.MAX_RETRY) {
+                    logHelper.insertLog("reconnectDevice gatt 재접속 ${BLEService.MAX_RETRY} 도달로 인하여 다시 connect callback")
+                    callback.invoke(true)
+                    reConnectCount  = 0
+                  return@launch
+                }
+                reConnectCount += 1
+                isConnect(it, _sbSensorInfo) { isSuccessfully ->
                     logHelper.insertLog("reconnectDevice isSuccessfully = $isSuccessfully")
                 }
-            }?: run{
+            } ?: run {
                 logHelper.insertLog("gatt 연결 접속 정보 없음 ")
-                callback.invoke()
+                callback.invoke(false)
             }
 
         }
@@ -806,7 +814,7 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
 
-    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice , bluetoothState: BluetoothState): BluetoothGattCallback = getCallback(sbBluetoothDevice ,bluetoothState)
+    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice, bluetoothState: BluetoothState): BluetoothGattCallback = getCallback(sbBluetoothDevice, bluetoothState)
 
 
     //////////////////////////////////////////////////////
@@ -814,7 +822,7 @@ class BluetoothNetworkRepository @Inject constructor(
     /////           BluetoothGattCallback            /////
     /////                                            /////
     //////////////////////////////////////////////////////
-    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice , bluetoothState: BluetoothState) = object : BluetoothGattCallback() {
+    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice, bluetoothState: BluetoothState) = object : BluetoothGattCallback() {
         private val UPLOAD_COUNT_INTERVAL = 300 * 3
         private val DATA_INTERVAL = 9
 
@@ -899,8 +907,7 @@ class BluetoothNetworkRepository @Inject constructor(
                         }*//*
                     }
                 }*/
-
-
+                reConnectCount = 0
                 gatt.discoverServices()
                 innerData.update { it.copy(bluetoothGatt = gatt) }
                 logCoroutine.launch {

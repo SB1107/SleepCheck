@@ -43,6 +43,7 @@ import kr.co.sbsolutions.newsoomirang.common.TokenManager
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
@@ -172,6 +173,11 @@ class BLEService : LifecycleService() {
     fun connectDevice(isForceBleDeviceConnect: Boolean = false) {
         Log.e(TAG, "connectDevice: service", )
         bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
+    }
+    //측정 중지시 센서 연결 안되어 있을시  다시 연결 선택 함 강제 연결시도
+    fun forceConnectDevice(callback: (String) -> Unit) {
+        logHelper.insertLog("측정 중지시 센서 연결 안되어 있음 디바이스 스캔  시작")
+        bleServiceHelper.forceSbScanDevice(baseContext, bluetoothAdapter , callback)
     }
 
     fun disconnectDevice() {

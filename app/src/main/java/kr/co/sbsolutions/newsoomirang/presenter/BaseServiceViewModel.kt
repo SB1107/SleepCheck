@@ -60,7 +60,7 @@ abstract class BaseServiceViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Pair(true, "시작"))
     protected var bluetoothInfo = ApplicationManager.getBluetoothInfo()
 
-    private val _isHomeBleProgressBar: MutableStateFlow<Pair<Boolean, String>> = MutableStateFlow(Pair(false,""))
+    private val _isHomeBleProgressBar: MutableStateFlow<Pair<Boolean, String>> = MutableStateFlow(Pair(false, ""))
     val isHomeBleProgressBar: StateFlow<Pair<Boolean, String>> = _isHomeBleProgressBar.asStateFlow()
     private val _guideAlert: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val guideAlert: StateFlow<Boolean> = _guideAlert
@@ -70,6 +70,10 @@ abstract class BaseServiceViewModel(
 
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
+
+    private val _blueToothErrorMessage: MutableSharedFlow<String> = MutableSharedFlow()
+    val blueToothErrorMessage: SharedFlow<String> = _blueToothErrorMessage.asSharedFlow()
+
     abstract fun whereTag(): String
 
     init {
@@ -86,7 +90,7 @@ abstract class BaseServiceViewModel(
                             return@collectLatest
                         }
                     }
-                    
+
                     when (it.bluetoothState) {
                         BluetoothState.Unregistered -> {
                             launch {
@@ -94,7 +98,7 @@ abstract class BaseServiceViewModel(
                                 setIsHomeBleProgressBar()
                             }
                         }
-                        
+
                         BluetoothState.DisconnectedByUser -> {
                             launch {
                                 Log.e(TAG, "BluetoothState.DisconnectedByUser ")
@@ -104,12 +108,12 @@ abstract class BaseServiceViewModel(
                                 _bluetoothButtonState.emit("연결")
                             }
                         }
-                        
+
                         BluetoothState.Connected.Reconnected -> {
                             _bluetoothButtonState.emit("재 연결중")
                             setBatteryInfo()
                         }
-                        
+
                         BluetoothState.DisconnectedNotIntent -> {
                             launch {
                                 bluetoothInfo.batteryInfo = null
@@ -117,7 +121,7 @@ abstract class BaseServiceViewModel(
                                 _bluetoothButtonState.emit("연결 끊김")
                             }
                         }
-                        
+
                         BluetoothState.Connected.Ready,
                         BluetoothState.Connected.ReceivingRealtime,
                         BluetoothState.Connected.SendDownloadContinue,
@@ -127,32 +131,32 @@ abstract class BaseServiceViewModel(
                                 setIsHomeBleProgressBar()
                             }
                         }
-                        
+
                         BluetoothState.Connected.WaitStart -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
                                 setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
                             }
                         }
-                        
+
                         BluetoothState.Connected.Finish -> {
                             launch {
                                 _bluetoothButtonState.emit("시작")
                                 setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
                             }
                         }
-                        
+
                         BluetoothState.Connecting -> {
                             setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_conneting))
                             _bluetoothButtonState.emit("재 연결중")
 //                                getService()?.timerOfDisconnection()
                         }
-                        
+
                         BluetoothState.Connected.DataFlow,
                         BluetoothState.Connected.DataFlowUploadFinish -> {
                             _guideAlert.emit(false)
                         }
-                        
+
                         else -> {
                             _bluetoothButtonState.emit("시작")
                             setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_info_wait))
@@ -174,11 +178,18 @@ abstract class BaseServiceViewModel(
             }
         }
     }
-    
-    private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = ""){
+
+    private suspend fun setIsHomeBleProgressBar(onOff: Boolean = false, massage: String = "") {
         _isHomeBleProgressBar.emit(Pair(onOff, massage))
     }
 
+    fun reConnectBluetooth() {
+        getService()?.forceConnectDevice {
+            if (it != "success") {
+                sendErrorMessage(it)
+            }
+        }
+    }
 
     open fun serviceSettingCall() {
         viewModelScope.launch {
@@ -226,11 +237,19 @@ abstract class BaseServiceViewModel(
         return getService()?.getResultMessage()
     }
 
+
+    fun sendBlueToothErrorMessage(msg: String) {
+        viewModelScope.launch {
+            _blueToothErrorMessage.emit(msg)
+        }
+    }
+
     fun isRegistered(isConnectAlertShow: Boolean): Boolean {
         if (bluetoothInfo.bluetoothState == BluetoothState.Unregistered
             || bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser
             || bluetoothInfo.bluetoothGatt == null
-            || (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedNotIntent && getService()?.getTime() == 0)) {
+            || (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedNotIntent && getService()?.getTime() == 0)
+        ) {
             Log.d(TAG, "isRegistered: 여기도 콜 baseService")
             /*if (bluetoothInfo.bluetoothState == BluetoothState.DisconnectedByUser) {
                 viewModelScope.launch {

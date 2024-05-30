@@ -10,14 +10,20 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
@@ -29,6 +35,7 @@ import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
+import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
@@ -48,6 +55,7 @@ class BLEServiceHelper(
     private val fireBaseRealRepository: FireBaseRealRepository,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
+    private val blueToothScanHelper: BlueToothScanHelper,
     private var lifecycleScope: LifecycleCoroutineScope? = null,
     private var sbSensorUseCase: SBSensorUseCase? = null,
     private var timeCountUseCase: TimeCountUseCase? = null,
@@ -91,6 +99,7 @@ class BLEServiceHelper(
             sbDataUploadingUseCase!!,
             fireBaseRealRepository,
             logHelper,
+            blueToothScanHelper,
             packageName
         )
 
@@ -125,6 +134,10 @@ class BLEServiceHelper(
     fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
         Log.e(TAG, "sbConnectDevice: call11")
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+    }
+
+    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: (String) -> Unit) {
+        blueToothUseCase?.forceSbScanDevice(context, bluetoothAdapter, callback = callback)
     }
 
     fun sbDisconnectDevice() {

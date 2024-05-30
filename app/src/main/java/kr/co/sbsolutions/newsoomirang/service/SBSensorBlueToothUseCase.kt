@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
@@ -59,12 +61,13 @@ class SBSensorBlueToothUseCase(
     private val sbDataUploadingUseCase: SBDataUploadingUseCase,
     private val fireBaseRealRepository: FireBaseRealRepository,
     private val logHelper: LogHelper,
+    private val blueToothScanHelper: BlueToothScanHelper,
     private val packageName: String
 ) {
     private var timerOfDisconnection: Timer? = null
     private var context: Context? = null
     private var bluetoothAdapter: BluetoothAdapter? = null
-    private var timerOfTimeout: Timer? = null
+
     private lateinit var startJob: Job
     private lateinit var stopJob: Job
     private lateinit var connectJob: Job
@@ -78,6 +81,7 @@ class SBSensorBlueToothUseCase(
 
     companion object {
         val bleGattList: MutableList<BluetoothGatt> = mutableListOf()
+        private var timerOfTimeout: Timer? = null
     }
 
 
@@ -148,9 +152,14 @@ class SBSensorBlueToothUseCase(
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect && count <= MAX_RETRY) {
             logHelper.insertLog("reConnectDevice call")
-            bluetoothNetworkRepository.reConnectDevice {
-                logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
+            bluetoothNetworkRepository.reConnectDevice { isMaxCount ->
+                if (isMaxCount) {
+                    logHelper.insertLog("강제 연결 시도 하였으나 gatt 객체는 있으나 $MAX_RETRY 로인하여 디바이스 검색")
+                    forceSbScanDevice(context, bluetoothAdapter, isBackground = true)
+                } else {
+                    logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
+                    connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
+                }
                 count++
             }
             return
@@ -186,6 +195,16 @@ class SBSensorBlueToothUseCase(
                     BluetoothProfile.GATT,
                     intArrayOf(BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING)
                 ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
+
+                timerOfDisconnection = Timer().apply {
+                    schedule(timerTask {
+                        logHelper.insertLog("!!재연결중 disconnectDevice")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            disconnectDevice(context, bluetoothAdapter)
+                        }
+                    }, 10000L)
+                }
+
                 if (getDeviceName.isEmpty()) {
                     logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
                     bleGattList.map {
@@ -200,19 +219,10 @@ class SBSensorBlueToothUseCase(
                     timerOfDisconnection?.cancel()
                 } else {
                     logHelper.insertLog("PASS 연결된 디바이스 있다.")
+                    timerOfDisconnection?.cancel()
                 }
                 Log.d(TAG, "connectDevice: $getDeviceName")
                 Log.e(TAG, "connectDevice: call")
-
-
-                timerOfDisconnection = Timer().apply {
-                    schedule(timerTask {
-                        logHelper.insertLog("!!재연결중 disconnectDevice")
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            disconnectDevice(context, bluetoothAdapter)
-                        }
-                    }, 10000L)
-                }
             }
 
         }
@@ -401,13 +411,16 @@ class SBSensorBlueToothUseCase(
             setStartTime()
             timerOfTimeout = Timer().apply {
                 schedule(timerTask {
+                    if(BLEService.getInstance()?.isForegroundServiceRunning() != true){
+                        return@timerTask
+                    }
                     logHelper.insertLog("12 시간 강제 종료")
                     stopSBSensor()
                     val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId , isForced = true)
+                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isForced = true)
                             }
                         } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
                     }
@@ -581,7 +594,7 @@ class SBSensorBlueToothUseCase(
                         logHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
-                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false , isForced =  true)
+                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false, isForced = true)
                         } else {
                             logHelper.insertLog("(max - min + 1) != size)")
                             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
@@ -679,7 +692,7 @@ class SBSensorBlueToothUseCase(
             }
             callback.invoke()
         }
-        if (sleepType ==  SleepType.NoSering .name && hasSensor.not()) {
+        if (sleepType == SleepType.NoSering.name && hasSensor.not()) {
             callback.invoke()
         }
     }
@@ -727,6 +740,36 @@ class SBSensorBlueToothUseCase(
 
     fun getFirmwareVersion(): Flow<FirmwareData?> {
         return bluetoothNetworkRepository.getFirmwareVersion()
+    }
+
+    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isBackground: Boolean = false, callback: ((String) -> Unit)? = null) {
+        var job: Job? = null
+        lifecycleScope.let {
+            it.launch {
+                blueToothScanHelper.scanBLEDevices(it, isBack = isBackground)
+                logHelper.insertLog("디바이스 스캔 호출")
+            }
+            job = it.launch {
+                launch {
+                    blueToothScanHelper.isScanning.collectLatest { isScanning ->
+                        if (isScanning.not()) {
+                            val device = blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
+                            device?.let {
+                                logHelper.insertLog("디바이스 찾기 완료")
+                                callback?.invoke("success")
+                                connectDevice(context, bluetoothAdapter, bluetoothState = BluetoothState.DisconnectedNotIntent)
+                                job?.cancel()
+                            } ?: run {
+                                logHelper.insertLog("디바이스 찾기 실패")
+                                callback?.invoke(context.getString(R.string.not_searching))
+                                job?.cancel()
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
 }

@@ -62,7 +62,7 @@
     <string name="not_measurable">Device battery is low and measurement is not possible, please charge your device</string>
     <string name="connect_button">The Soomirang sensor should be connected. Please press \'CONNECT\' button to connect the device.</string>
     <string name="snoring_measurable_finish">Snoring is being measured. Please exit and use</string>
-    <string name="sensor_disconnect_error">We\'ve lost connection with your breath and sensors\n\nPlease check the connection status above and try again</string>
+    <string name="sensor_disconnect_error">We\'ve lost connection with your breath and sensors\n\nDo you want to try connecting the sensor again?</string>
     <string name="other_user_sensor">Another user uses the sensor and shuts it down.</string>
     <string name="snoring_start">Click Start\nTo measure your snoring</string>
     <string name="app_update">Soomirang, a new version has been released!\nPlease update.</string>
@@ -267,4 +267,5 @@ Deep Sleep: This stage is where the body and brain recover during sleep. It is d
     <string name="gps_activ_message">GPS activation is required for Bluetooth scanning.\nAre you sure you want to enable it?</string>
     <string name="new_func">New features</string>
     <string name="last_software">Soomirang software is not up to date</string>
+    <string name="not_searching">Registered Soomirang devices are not detected.</string>
 </resources>

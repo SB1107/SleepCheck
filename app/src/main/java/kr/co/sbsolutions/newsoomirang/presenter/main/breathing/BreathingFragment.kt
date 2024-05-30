@@ -108,7 +108,7 @@ class BreathingFragment : BluetoothFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (::job.isInitialized){
+        if (::job.isInitialized) {
             job.cancel()
         }
     }
@@ -131,6 +131,16 @@ class BreathingFragment : BluetoothFragment() {
                 launch {
                     viewModel.errorMessage.collectLatest {
                         requireActivity().showAlertDialog(R.string.common_title, it)
+                    }
+                }
+                launch {
+                    viewModel.blueToothErrorMessage.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,
+                            it,
+                            confirmAction = {
+                                viewModel.reConnectBluetooth()
+                            }
+                        )
                     }
                 }
                 // 블루투스 연결 팝업
@@ -220,7 +230,7 @@ class BreathingFragment : BluetoothFragment() {
                         val isDisconnect = it.second.contains(getString(R.string.start)).not()
                         binding.tvNameDes2.text = if (isDisconnect) {
                             if (it.first.not()) getString(R.string.not_measurable) else getString(R.string.connect_button)
-                        } else if (it.first.not()) getString(R.string.not_measurable)  else getString(R.string.breathing_start_info_message)
+                        } else if (it.first.not()) getString(R.string.not_measurable) else getString(R.string.breathing_start_info_message)
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
@@ -240,7 +250,7 @@ class BreathingFragment : BluetoothFragment() {
                 }
                 launch {
                     activityViewModel.isHomeBleProgressBar.collect {
-                        Log.e(TAG, "isHomeBleProgressBar: 1 = ${it.first} 2 = ${it.second}", )
+                        Log.e(TAG, "isHomeBleProgressBar: 1 = ${it.first} 2 = ${it.second}")
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility =
                             if (it.first) View.VISIBLE else View.GONE
@@ -407,7 +417,7 @@ class BreathingFragment : BluetoothFragment() {
                         close()
                     }
                 }).setPermissions(Manifest.permission.RECORD_AUDIO)
-                .setDeniedMessage( getString(R.string.snoring_permissions))
+                .setDeniedMessage(getString(R.string.snoring_permissions))
                 .check()
         } else {
             trySend(true)
@@ -464,6 +474,6 @@ class BreathingFragment : BluetoothFragment() {
                 null
             )
         }
-        binding.batteryTextView.text = getString(R.string.battery_Info,  batteryInfo).plus("%")
+        binding.batteryTextView.text = getString(R.string.battery_Info, batteryInfo).plus("%")
     }
 }

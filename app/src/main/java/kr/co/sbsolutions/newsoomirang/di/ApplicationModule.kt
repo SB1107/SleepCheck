@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.newsoomirang.di
 
 import android.app.NotificationManager
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
@@ -18,6 +19,7 @@ import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.newsoomirang.BuildConfig
 import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.AESHelper
+import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -95,6 +97,9 @@ object ApplicationModule {
     fun provideRealDatabaseRepository(realDatabase: FirebaseDatabase, logHelper: LogHelper) = FireBaseRealRepository(realDatabase, logHelper = logHelper)
 
     @Provides
+    fun provideBlueToothScanHelper(@ApplicationContext context: Context) = BlueToothScanHelper(context)
+
+    @Provides
     fun provideBLEServiceHelper(
         dataManager: DataManager, tokenManager: TokenManager,
         bluetoothNetworkRepository: IBluetoothNetworkRepository,
@@ -107,10 +112,11 @@ object ApplicationModule {
         notificationBuilder: NotificationCompat.Builder,
         notificationManager: NotificationManager,
         fireBaseRealRepository: FireBaseRealRepository,
+        blueToothScanHelper: BlueToothScanHelper,
     ) = BLEServiceHelper(
         dataManager, tokenManager, bluetoothNetworkRepository, sbSensorDBRepository,
         settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper, fireBaseRealRepository,
-        notificationBuilder, notificationManager,
+        notificationBuilder, notificationManager, blueToothScanHelper
     )
 
     @Provides

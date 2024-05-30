@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.newsoomirang.ApplicationManager
 import kr.co.sbsolutions.newsoomirang.R
+import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -42,22 +43,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SensorViewModel @Inject constructor(
-    private val bluetoothAdapter: BluetoothAdapter,
+    private val blueToothScanHelper: BlueToothScanHelper,
     private val bluetoothManagerUseCase: BluetoothManageUseCase,
     private val dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
-    private  val logHelper: LogHelper
+    private val logHelper: LogHelper
+
 ) : BaseServiceViewModel(dataManager, tokenManager) {
-    companion object {
-        private const val DELAY_TIMEOUT = 5000L
-    }
 
-    private val _isScanning: MutableStateFlow<Boolean?> = MutableStateFlow(null)
-    val isScanning: StateFlow<Boolean?> = _isScanning
+    val isScanning: StateFlow<Boolean?> = blueToothScanHelper.isScanning
 
-    private val _scanList: MutableStateFlow<List<BluetoothDevice>> = MutableStateFlow(emptyList())
-    val scanList: StateFlow<List<BluetoothDevice>> = _scanList
+    val scanList: StateFlow<List<BluetoothDevice>> = blueToothScanHelper.scanList
 
     private val _bleName: MutableStateFlow<String?> = MutableStateFlow(null)
     val bleName: StateFlow<String?> = _bleName
@@ -71,10 +68,7 @@ class SensorViewModel @Inject constructor(
     private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
 
-//    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
-
-    private val _scanSet = mutableSetOf<BluetoothDevice>()
-    private var timer: Timer? = null
+    //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
     init {
         viewModelScope.launch(Dispatchers.IO) {
             //디바이스 네임 상태 이벤트
@@ -158,21 +152,7 @@ class SensorViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun scanBLEDevices() {
-        if (!bluetoothAdapter.isEnabled) {
-            _isScanning.tryEmit(false)
-            return
-        }
-
-        /*Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(1)} ")
-        Log.d(TAG, "scanBLEDevices:${bluetoothAdapter.getProfileConnectionState(2)} ")*/
-
-        viewModelScope.launch(Dispatchers.IO) {
-            startTimer()
-            delay(1000)
-            _scanList.tryEmit(emptyList())
-            _scanSet.clear()
-            bluetoothAdapter.bluetoothLeScanner.startScan(scanFilter, scanSettings, bleScanCallback)
-        }
+        blueToothScanHelper.scanBLEDevices(viewModelScope)
     }
 
     @SuppressLint("MissingPermission")
@@ -185,38 +165,12 @@ class SensorViewModel @Inject constructor(
                     _checkSensorResult.emit(it.message)
                 } else {
                     connectState()
-                    stopTimer()
+                    blueToothScanHelper.stopTimer()
                     registerBluetoothDevice(bluetoothDevice)
                 }
             }
     }
 
-    private fun startTimer() {
-        stopTimer()
-
-        _isScanning.tryEmit(true)
-        timer = Timer()
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                stopTimer()
-            }
-        }, DELAY_TIMEOUT)
-    }
-
-    private val scanFilter: MutableList<ScanFilter> by lazy {
-        arrayListOf(
-            ScanFilter.Builder().setServiceUuid(ParcelUuid(UUID.fromString(Cons.SERVICE_STRING))).build()
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun stopTimer() {
-        _isScanning.tryEmit(false)
-        timer?.let { bluetoothAdapter.bluetoothLeScanner.stopScan(bleScanCallback)
-            it.cancel()
-        }
-        timer = null
-    }
 
     override fun whereTag(): String {
         return "Sensor"
@@ -224,8 +178,8 @@ class SensorViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopTimer()
-        Log.e(TAG, "onCleared: ", )
+        blueToothScanHelper.stopTimer()
+        Log.e(TAG, "onCleared: ")
     }
 
     @SuppressLint("MissingPermission")
@@ -238,28 +192,4 @@ class SensorViewModel @Inject constructor(
         }
     }
 
-
-    private val scanSettings: ScanSettings by lazy {
-        ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
-    }
-    private val bleScanCallback = object : ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult) {
-            super.onScanResult(callbackType, result)
-            addScanResult(result)
-        }
-
-        override fun onBatchScanResults(results: List<ScanResult>) {
-            for (result in results) {
-                addScanResult(result)
-            }
-        }
-
-        @SuppressLint("MissingPermission")
-        private fun addScanResult(result: ScanResult) {
-            val device = result.device
-            if (_scanSet.add(device)) {
-                    _scanList.tryEmit(_scanSet.toList())
-            }
-        }
-    }
 }

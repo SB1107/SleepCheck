@@ -250,7 +250,7 @@ class NoSeringViewModel @Inject constructor(
             Log.d(TAG, "stopClick 코골이: $hasSensor")
             if (hasSensor) {
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
-                    sendErrorMessage("숨이랑 센서와 연결이 끊겼습니다.\n\n상단의 연결상태를 확인후 다시 시도해 주세요.")
+                    sendBlueToothErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.sensor_disconnect_error))
                     cancel()
                     return@launch
                 }

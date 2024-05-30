@@ -146,6 +146,16 @@ class NoSeringFragment : BluetoothFragment() {
                         requireActivity().showAlertDialog(R.string.common_title, it)
                     }
                 }
+                launch {
+                    viewModel.blueToothErrorMessage.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,
+                            it,
+                            confirmAction = {
+                                viewModel.reConnectBluetooth()
+                            }
+                        )
+                    }
+                }
 
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {

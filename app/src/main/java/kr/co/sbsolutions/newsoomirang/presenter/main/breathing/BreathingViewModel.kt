@@ -120,7 +120,7 @@ class BreathingViewModel @Inject constructor(
         registerJob("stopClick()",
             viewModelScope.launch(Dispatchers.Main) {
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
-                    sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.sensor_disconnect_error))
+                    sendBlueToothErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.sensor_disconnect_error))
                     cancel()
                     return@launch
                 }
@@ -139,6 +139,7 @@ class BreathingViewModel @Inject constructor(
             }
         )
     }
+
 
     private fun sleepDataDelete() {
         viewModelScope.launch(Dispatchers.IO) {
