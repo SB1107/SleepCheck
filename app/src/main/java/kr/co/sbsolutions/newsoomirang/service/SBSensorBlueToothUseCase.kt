@@ -147,7 +147,13 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.connectedDevice(device)
     }
 
-    fun connectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false, bluetoothState: BluetoothState = BluetoothState.Connecting) {
+    fun connectDevice(
+        context: Context,
+        bluetoothAdapter: BluetoothAdapter?,
+        isForceBleDeviceConnect: Boolean = false,
+        bluetoothState: BluetoothState = BluetoothState.Connecting,
+        callback: ((String) -> Unit)? = null
+    ) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
         if (isForceBleDeviceConnect && count <= MAX_RETRY) {
@@ -170,7 +176,7 @@ class SBSensorBlueToothUseCase(
                     val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
                     address?.let {
                         bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
-                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
+                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect, callback = callback)
                         Log.e(TAG, "connectDevice: call2")
                     } ?: run {
                         disconnectDevice(context, bluetoothAdapter)
@@ -217,6 +223,7 @@ class SBSensorBlueToothUseCase(
                     count = 0
                     getOneDataIdReadData()
                     timerOfDisconnection?.cancel()
+                    callback?.invoke("success")
                 } else {
                     logHelper.insertLog("PASS 연결된 디바이스 있다.")
                     timerOfDisconnection?.cancel()
@@ -411,7 +418,7 @@ class SBSensorBlueToothUseCase(
             setStartTime()
             timerOfTimeout = Timer().apply {
                 schedule(timerTask {
-                    if(BLEService.getInstance()?.isForegroundServiceRunning() != true){
+                    if (BLEService.getInstance()?.isForegroundServiceRunning() != true) {
                         return@timerTask
                     }
                     logHelper.insertLog("12 시간 강제 종료")
@@ -756,15 +763,14 @@ class SBSensorBlueToothUseCase(
                             val device = blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
                             device?.let {
                                 logHelper.insertLog("디바이스 찾기 완료")
-                                callback?.invoke("success")
-                                connectDevice(context, bluetoothAdapter, bluetoothState = BluetoothState.DisconnectedNotIntent)
+                                connectDevice(context, bluetoothAdapter, bluetoothState = BluetoothState.DisconnectedNotIntent, callback = callback)
                                 job?.cancel()
                             } ?: run {
                                 logHelper.insertLog("디바이스 찾기 실패")
                                 if (bluetoothNetworkRepository.isSBSensorConnect().first) {
                                     logHelper.insertLog("디바이스 연결됨")
                                     callback?.invoke("success")
-                                }else{
+                                } else {
                                     callback?.invoke(context.getString(R.string.sensor_disconnect_error2))
                                 }
                                 job?.cancel()
