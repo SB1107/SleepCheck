@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">숨이랑</string>
+    <string name="app_name">수면체크</string>
     <string name="version_unknown">V</string>
 
     <string name="common_ok">확인</string>
