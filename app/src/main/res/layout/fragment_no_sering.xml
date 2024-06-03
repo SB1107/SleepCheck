@@ -303,4 +303,10 @@
         android:id="@+id/action_progress_result"
         layout="@layout/row_progress_result"
         android:visibility="gone" />
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ic_ble_progress"
+        layout="@layout/ble_progress" />
 </androidx.constraintlayout.widget.ConstraintLayout>

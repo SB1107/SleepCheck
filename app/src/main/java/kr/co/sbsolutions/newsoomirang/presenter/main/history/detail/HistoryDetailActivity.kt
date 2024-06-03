@@ -581,12 +581,14 @@ class HistoryDetailActivity : BaseActivity() {
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        LottieLoading(modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(40.dp)
-                            .clickable {
-                                viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
-                            })
+                        if ((type ?: 0) == 0) {
+                            LottieLoading(modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(40.dp)
+                                .clickable {
+                                    viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
+                                })
+                        }
                     }
                 }
             }

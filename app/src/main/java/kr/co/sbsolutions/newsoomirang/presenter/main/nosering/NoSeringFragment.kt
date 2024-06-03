@@ -175,6 +175,14 @@ class NoSeringFragment : BluetoothFragment() {
                         showConnectDialog()
                     }
                 }
+                    launch {
+                        viewModel.isHomeBleProgressBar.collectLatest {
+                            Log.e(TAG, "isHomeBleProgressBar2: 1 = ${it.first} 2 = ${it.second}")
+                            binding.icBleProgress.tvDeviceId.text = it.second
+                            binding.icBleProgress.root.visibility =
+                                if (it.first) View.VISIBLE else View.GONE
+                        }
+                }
 
 //                //기기 베터리 여부에 따라 버튼 활성 및 문구 변경
 //                launch {

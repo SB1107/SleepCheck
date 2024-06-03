@@ -52,12 +52,10 @@ class BlueToothScanHelper(private val context: Context) {
     private val scanSettings: ScanSettings by lazy {
         ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
     }
-    private val backScanSettings: ScanSettings by lazy {
-        ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_POWER).build()
-    }
+
 
     @SuppressLint("MissingPermission")
-    fun scanBLEDevices(lifecycleScope: CoroutineScope, isBack: Boolean = false) {
+    fun scanBLEDevices(lifecycleScope: CoroutineScope) {
         if (bluetoothAdapter?.isEnabled != true) {
             _isScanning.tryEmit(false)
             Log.e(TAG, "scanBLEDevices: false")
@@ -72,7 +70,7 @@ class BlueToothScanHelper(private val context: Context) {
             delay(1000)
             _scanList.tryEmit(emptyList())
             _scanSet.clear()
-            bluetoothAdapter?.bluetoothLeScanner?.startScan(scanFilter, if (!isBack) scanSettings else backScanSettings, bleScanCallback)
+            bluetoothAdapter?.bluetoothLeScanner?.startScan(scanFilter,  scanSettings , bleScanCallback)
         }
     }
 

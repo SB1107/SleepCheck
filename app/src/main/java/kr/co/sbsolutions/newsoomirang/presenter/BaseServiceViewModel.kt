@@ -184,9 +184,19 @@ abstract class BaseServiceViewModel(
     }
 
     fun reConnectBluetooth() {
+        viewModelScope.launch {
+            setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_conneting))
+        }
         getService()?.forceConnectDevice {
             if (it != "success") {
-                sendErrorMessage(it)
+                sendBlueToothErrorMessage(it)
+                viewModelScope.launch {
+                    setIsHomeBleProgressBar(false)
+                }
+            } else {
+                viewModelScope.launch {
+                    setIsHomeBleProgressBar(false)
+                }
             }
         }
     }

@@ -249,8 +249,17 @@ class BreathingFragment : BluetoothFragment() {
                     }
                 }
                 launch {
-                    activityViewModel.isHomeBleProgressBar.collect {
+                    activityViewModel.isHomeBleProgressBar.collectLatest {
                         Log.e(TAG, "isHomeBleProgressBar: 1 = ${it.first} 2 = ${it.second}")
+                        binding.icBleProgress.tvDeviceId.text = it.second
+                        binding.icBleProgress.root.visibility =
+                            if (it.first) View.VISIBLE else View.GONE
+                    }
+                }
+                //블루투스 재연결시 호출
+                launch {
+                    viewModel.isHomeBleProgressBar.collectLatest {
+                        Log.e(TAG, "isHomeBleProgressBar2: 1 = ${it.first} 2 = ${it.second}")
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility =
                             if (it.first) View.VISIBLE else View.GONE

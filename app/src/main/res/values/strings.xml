@@ -168,7 +168,8 @@
     <string name="not_measurable">기기 배터리 부족으로 측정이 불가합니다.기기를 충전해 주세요</string>
     <string name="connect_button">\n숨이랑 기기와 연결이 필요합니다.\n연결버튼을 눌러 기기와 연결해주세요.</string>
     <string name="snoring_measurable_finish">코골이 측정중 입니다. 종료후 사용해 주세요</string>
-    <string name="sensor_disconnect_error">숨이랑 센서와 연결이 끊겼습니다.\n\센서 연결을 다시 시도 하시겠습니까?</string>
+    <string name="sensor_disconnect_error">숨이랑 센서와 연결이 끊겼습니다.\n\n연결을 다시 시도 하시겠습니까?</string>
+    <string name="sensor_disconnect_error2">숨이랑 센서를 찾지 못하였습니다.\n\n연결을 다시 시도 하시겠습니까?</string>
     <string name="other_user_sensor">다른 사용자가 센서 사용을 하여 종료 합니다.</string>
     <string name="snoring_start">시작버튼을 눌러\n코골이을 측정해 보세요</string>
     <string name="app_update">숨이랑 새로운 버전이 출시 되었어요!\n업데이트를 진행해 주세요.</string>

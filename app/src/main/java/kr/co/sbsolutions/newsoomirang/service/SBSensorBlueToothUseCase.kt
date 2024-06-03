@@ -155,7 +155,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.reConnectDevice { isMaxCount ->
                 if (isMaxCount) {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 객체는 있으나 $MAX_RETRY 로인하여 디바이스 검색")
-                    forceSbScanDevice(context, bluetoothAdapter, isBackground = true)
+                    forceSbScanDevice(context, bluetoothAdapter)
                 } else {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
                     connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
@@ -474,7 +474,7 @@ class SBSensorBlueToothUseCase(
                 stopJob = lifecycleScope.launch {
                     timerOfStopMeasure?.cancel()
                     while (retryCount <= MAX_RETRY && isStartAndStopCancel.not()) {
-                        delay(3000)
+                        delay(10000)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
                                 bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0) {
@@ -742,11 +742,11 @@ class SBSensorBlueToothUseCase(
         return bluetoothNetworkRepository.getFirmwareVersion()
     }
 
-    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isBackground: Boolean = false, callback: ((String) -> Unit)? = null) {
+    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: ((String) -> Unit)? = null) {
         var job: Job? = null
         lifecycleScope.let {
             it.launch {
-                blueToothScanHelper.scanBLEDevices(it, isBack = isBackground)
+                blueToothScanHelper.scanBLEDevices(it)
                 logHelper.insertLog("디바이스 스캔 호출")
             }
             job = it.launch {
@@ -761,7 +761,12 @@ class SBSensorBlueToothUseCase(
                                 job?.cancel()
                             } ?: run {
                                 logHelper.insertLog("디바이스 찾기 실패")
-                                callback?.invoke(context.getString(R.string.not_searching))
+                                if (bluetoothNetworkRepository.isSBSensorConnect().first) {
+                                    logHelper.insertLog("디바이스 연결됨")
+                                    callback?.invoke("success")
+                                }else{
+                                    callback?.invoke(context.getString(R.string.sensor_disconnect_error2))
+                                }
                                 job?.cancel()
                             }
                         }

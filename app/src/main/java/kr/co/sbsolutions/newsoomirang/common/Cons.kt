@@ -2,6 +2,7 @@ package kr.co.sbsolutions.newsoomirang.common
 
 import android.Manifest.permission.*
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 object Cons {
     const val TAG = "HoHo"
@@ -18,8 +19,17 @@ object Cons {
     const val NOTIFICATION_ACTION = "ACTION_SEND_DATA"
     val PERMISSIONS_ALL = arrayOf(
         ACCESS_FINE_LOCATION,
+
     )
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    val PERMISSIONS_29 = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        arrayOf(
+            USE_FULL_SCREEN_INTENT,
+        )
+    } else {
+        emptyArray()
+    }
     val PERMISSIONS_30 = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
         arrayOf(
             BLUETOOTH,
