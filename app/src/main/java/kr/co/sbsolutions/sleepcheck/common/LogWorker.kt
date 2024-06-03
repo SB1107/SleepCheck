@@ -47,7 +47,7 @@ class LogWorker @AssistedInject constructor(
         logDBDataRepository.insertLogData(this@log)
         Log.d(TAG, "log: ${this@log}")
         dataManager.getUserName().first()?.let { name ->
-            val logCollection = ff.collection("B2B").document(name).collection(timeId)
+            val logCollection = ff.collection("SleepCheck AOS").document(name).collection(timeId)
             val logDocument = logCollection.document("${this@log.time} - ${this@log.log}")
             val task = logDocument.set(hashMapOf<Void, Void>())
             task.addOnCompleteListener{
