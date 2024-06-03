@@ -47,6 +47,7 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
 import kr.co.sbsolutions.newsoomirang.presenter.ActionMessage
+import kr.co.sbsolutions.newsoomirang.presenter.ForceConnectDeviceMessage
 import kr.co.sbsolutions.newsoomirang.presenter.main.MainActivity
 import kr.co.sbsolutions.newsoomirang.presenter.splash.SplashActivity
 import javax.inject.Inject
@@ -175,7 +176,7 @@ class BLEService : LifecycleService() {
         bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
     //측정 중지시 센서 연결 안되어 있을시  다시 연결 선택 함 강제 연결시도
-    fun forceConnectDevice(callback: (String) -> Unit) {
+    fun forceConnectDevice(callback: (ForceConnectDeviceMessage) -> Unit) {
         logHelper.insertLog("측정 중지시 센서 연결 안되어 있음 디바이스 스캔  시작")
         bleServiceHelper.forceSbScanDevice(baseContext, bluetoothAdapter , callback)
     }
@@ -411,6 +412,11 @@ class BLEService : LifecycleService() {
         bleServiceHelper.motorTest(intensity)
     }
 
+    fun forceUploadStop( callback: () -> Unit){
+        bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
+        serviceLiveCheckWorkerHelper.cancelWork()
+        bleServiceHelper.timStopCallback(callback)
+    }
     fun forceStopBreathing() {
         bleServiceHelper.getNotificationManager().getNotificationChannel(NOTIFICATION_CHANNEL_ID).enableVibration(true)
         bleServiceHelper.cancelSbService(true)

@@ -138,7 +138,9 @@ class BreathingFragment : BluetoothFragment() {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title,
                             it,
                             confirmAction = {
-                                viewModel.reConnectBluetooth()
+                                viewModel.reConnectBluetooth{
+                                    viewModel.forceUploadResetUIAndTimer()
+                                }
                             }
                         )
                     }
@@ -149,6 +151,7 @@ class BreathingFragment : BluetoothFragment() {
                         showConnectDialog()
                     }
                 }
+
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {
                     viewModel.gotoScan.collectLatest {

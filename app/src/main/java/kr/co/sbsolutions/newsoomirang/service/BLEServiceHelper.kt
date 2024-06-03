@@ -10,19 +10,13 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
 import kr.co.sbsolutions.newsoomirang.common.DataManager
@@ -36,11 +30,11 @@ import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.RealData
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
-import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
+import kr.co.sbsolutions.newsoomirang.presenter.ForceConnectDeviceMessage
 
 class BLEServiceHelper(
     private val dataManager: DataManager,
@@ -136,8 +130,10 @@ class BLEServiceHelper(
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 
-    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: (String) -> Unit) {
-        blueToothUseCase?.forceSbScanDevice(context, bluetoothAdapter, callback = callback)
+    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: (ForceConnectDeviceMessage) -> Unit) {
+        //혹시나 내가 연결 중인데 검색이 안될수 있으니 일단 끊어 버리고 스캔 시작
+        blueToothUseCase?.resetBleGattList()
+        blueToothUseCase?.forceSbScanDevice(context, bluetoothAdapter, callback = callback , bluetoothState = BluetoothState.Connecting)
     }
 
     fun sbDisconnectDevice() {
@@ -198,6 +194,9 @@ class BLEServiceHelper(
 
     fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false, callback: () -> Unit) {
         blueToothUseCase?.noSensorSeringMeasurement(isForce, isCancel)
+
+    }
+    fun timStopCallback( callback: () -> Unit){
         timeCountUseCase?.stopTimer()
         callback.invoke()
     }

@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -212,7 +211,15 @@ class BreathingViewModel @Inject constructor(
         )
         awaitClose()
     }
-
+    /*
+    종료시 연결이 끊어져 있어 검색후 다시 연결시 강제 업로드 콜백
+    으로 오기 때문에 UI 초기화 및 타이머 초기화
+    */
+    fun forceUploadResetUIAndTimer(){
+        getService()?.forceUploadStop{
+            setMeasuringState(MeasuringState.InIt)
+        } ?: insertLog("호흡 측중중 서비스가 없습니다.")
+    }
     fun setMeasuringState(state: MeasuringState) {
         viewModelScope.launch {
             _measuringState.emit(state)

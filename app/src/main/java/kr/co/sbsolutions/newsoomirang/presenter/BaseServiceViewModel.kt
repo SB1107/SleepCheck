@@ -26,6 +26,7 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.newsoomirang.domain.bluetooth.entity.DataFlowInfo
 import kr.co.sbsolutions.newsoomirang.presenter.main.ServiceCommend
+import kr.co.sbsolutions.newsoomirang.presenter.main.breathing.MeasuringState
 import okhttp3.internal.notify
 import java.lang.ref.WeakReference
 import java.util.Timer
@@ -183,23 +184,25 @@ abstract class BaseServiceViewModel(
         _isHomeBleProgressBar.emit(Pair(onOff, massage))
     }
 
-    fun reConnectBluetooth() {
+    fun reConnectBluetooth(uploadCallback : () -> Unit) {
         viewModelScope.launch {
             setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_conneting))
         }
+
         getService()?.forceConnectDevice {
-            if (it != "success") {
-                sendBlueToothErrorMessage(it)
-                viewModelScope.launch {
-                    setIsHomeBleProgressBar(false)
+            viewModelScope.launch {
+                setIsHomeBleProgressBar(false)
+            }
+            when (it){
+                ForceConnectDeviceMessage.SUCCESS ->    {}
+                ForceConnectDeviceMessage.SUCCESS_UPLOAD ->{
+                    uploadCallback.invoke()
                 }
-            } else {
-                viewModelScope.launch {
-                    setIsHomeBleProgressBar(false)
-                }
+                is ForceConnectDeviceMessage.FAIL -> sendBlueToothErrorMessage(it.msg)
             }
         }
     }
+
 
     open fun serviceSettingCall() {
         viewModelScope.launch {
@@ -303,5 +306,10 @@ abstract class BaseServiceViewModel(
             _guideAlert.emit(false)
         }
     }
+}
 
+sealed class ForceConnectDeviceMessage(val msg: String) {
+    object SUCCESS : ForceConnectDeviceMessage("success")
+    object SUCCESS_UPLOAD : ForceConnectDeviceMessage("success_upload")
+    class FAIL(msg: String) : ForceConnectDeviceMessage(msg)
 }

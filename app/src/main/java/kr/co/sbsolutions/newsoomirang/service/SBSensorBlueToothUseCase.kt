@@ -8,20 +8,17 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.util.Log
-import android.util.StatsLog
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -30,10 +27,8 @@ import kr.co.sbsolutions.newsoomirang.R
 import kr.co.sbsolutions.newsoomirang.common.BlueToothScanHelper
 import kr.co.sbsolutions.newsoomirang.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.newsoomirang.common.Cons.TAG
-import kr.co.sbsolutions.newsoomirang.common.CoroutineScopeHandler
 import kr.co.sbsolutions.newsoomirang.common.DataManager
 import kr.co.sbsolutions.newsoomirang.common.LogHelper
-import kr.co.sbsolutions.newsoomirang.common.diffTime
 import kr.co.sbsolutions.newsoomirang.common.pattern.DataFlowHelper
 import kr.co.sbsolutions.newsoomirang.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.newsoomirang.data.firebasedb.FireBaseRealRepository
@@ -45,6 +40,7 @@ import kr.co.sbsolutions.newsoomirang.domain.bluetooth.repository.IBluetoothNetw
 import kr.co.sbsolutions.newsoomirang.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.newsoomirang.domain.db.SettingDataRepository
 import kr.co.sbsolutions.newsoomirang.domain.model.SleepType
+import kr.co.sbsolutions.newsoomirang.presenter.ForceConnectDeviceMessage
 import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.MAX_RETRY
 import kr.co.sbsolutions.newsoomirang.service.BLEService.Companion.TIME_OUT_MEASURE
 import kr.co.sbsolutions.soomirang.db.SBSensorData
@@ -94,6 +90,15 @@ class SBSensorBlueToothUseCase(
                 }
             }
         }
+    }
+
+    fun resetBleGattList() {
+        logHelper.insertLog("resetBleGattList call")
+        bleGattList.map {
+            it.disconnect()
+            it.close()
+        }
+        bleGattList.clear()
     }
 
     fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
@@ -152,7 +157,7 @@ class SBSensorBlueToothUseCase(
         bluetoothAdapter: BluetoothAdapter?,
         isForceBleDeviceConnect: Boolean = false,
         bluetoothState: BluetoothState = BluetoothState.Connecting,
-        callback: ((String) -> Unit)? = null
+        callback: ((ForceConnectDeviceMessage) -> Unit)? = null
     ) {
         this.context = context
         this.bluetoothAdapter = bluetoothAdapter
@@ -161,7 +166,7 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.reConnectDevice { isMaxCount ->
                 if (isMaxCount) {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 객체는 있으나 $MAX_RETRY 로인하여 디바이스 검색")
-                    forceSbScanDevice(context, bluetoothAdapter)
+                    forceSbScanDevice(context, bluetoothAdapter , bluetoothState = BluetoothState.DisconnectedNotIntent)
                 } else {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
                     connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
@@ -213,17 +218,13 @@ class SBSensorBlueToothUseCase(
 
                 if (getDeviceName.isEmpty()) {
                     logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
-                    bleGattList.map {
-                        it.disconnect()
-                        it.close()
-                    }
-                    bleGattList.clear()
+                    resetBleGattList()
                     val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice, bluetoothState))
                     gatt?.let { bleGattList.add(it) }
                     count = 0
                     getOneDataIdReadData()
                     timerOfDisconnection?.cancel()
-                    callback?.invoke("success")
+                    callback?.invoke(ForceConnectDeviceMessage.SUCCESS_UPLOAD)
                 } else {
                     logHelper.insertLog("PASS 연결된 디바이스 있다.")
                     timerOfDisconnection?.cancel()
@@ -749,7 +750,12 @@ class SBSensorBlueToothUseCase(
         return bluetoothNetworkRepository.getFirmwareVersion()
     }
 
-    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: ((String) -> Unit)? = null) {
+    fun forceSbScanDevice(
+        context: Context,
+        bluetoothAdapter: BluetoothAdapter?,
+        bluetoothState: BluetoothState = BluetoothState.DisconnectedNotIntent,
+        callback: ((ForceConnectDeviceMessage) -> Unit)? = null
+    ) {
         var job: Job? = null
         lifecycleScope.let {
             it.launch {
@@ -763,15 +769,15 @@ class SBSensorBlueToothUseCase(
                             val device = blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
                             device?.let {
                                 logHelper.insertLog("디바이스 찾기 완료")
-                                connectDevice(context, bluetoothAdapter, bluetoothState = BluetoothState.DisconnectedNotIntent, callback = callback)
+                                connectDevice(context, bluetoothAdapter, bluetoothState = bluetoothState, callback = callback)
                                 job?.cancel()
                             } ?: run {
                                 logHelper.insertLog("디바이스 찾기 실패")
                                 if (bluetoothNetworkRepository.isSBSensorConnect().first) {
                                     logHelper.insertLog("디바이스 연결됨")
-                                    callback?.invoke("success")
+                                    callback?.invoke(ForceConnectDeviceMessage.SUCCESS)
                                 } else {
-                                    callback?.invoke(context.getString(R.string.sensor_disconnect_error2))
+                                    callback?.invoke(ForceConnectDeviceMessage.FAIL(context.getString(R.string.sensor_disconnect_error2)))
                                 }
                                 job?.cancel()
                             }

@@ -65,7 +65,7 @@ class NoSeringViewModel @Inject constructor(
 
     private val _isRegisteredMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val isRegisteredMessage: SharedFlow<String> = _isRegisteredMessage
-    private  lateinit var dataRemovedJob : Job
+    private lateinit var dataRemovedJob: Job
 
     init {
         registerJob("NoSeringViewModelInit",
@@ -151,15 +151,24 @@ class NoSeringViewModel @Inject constructor(
 //            Log.d(TAG, "realDataChange: ${dataId } ")
 //            Log.d(TAG, "realDataChange: ${realData.dataId}} ")
 
-                if (hasSensor &&
-                    realData.sensorName == sensorName &&
-                    realData.dataId == dataId.toString()
-                ) {
-                    sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
-                    cancelClick()
-                }
+            if (hasSensor &&
+                realData.sensorName == sensorName &&
+                realData.dataId == dataId.toString()
+            ) {
+                sendErrorMessage("다른 사용자가 센서 사용을 하여 종료 합니다.")
+                cancelClick()
+            }
         }
 
+    }
+    /*
+ 종료시 연결이 끊어져 있어 검색후 다시 연결시 강제 업로드 콜백
+ 으로 오기 때문에 UI 초기화 및 타이머 초기화
+ */
+    fun forceUploadResetUIAndTimer() {
+        getService()?.forceUploadStop {
+            setMeasuringState(MeasuringState.InIt)
+        } ?: insertLog("코골이 측정 중 서비스가 없습니다.")
     }
 
     fun cancelClick(isForce: Boolean = false) {
@@ -179,7 +188,7 @@ class NoSeringViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                getService()?.noSensorSeringMeasurement(true , callback = {
+                getService()?.noSensorSeringMeasurement(true, callback = {
                     setMeasuringState(MeasuringState.InIt)
                 }) ?: insertLog("코골이 측정 중 서비스가 없습니다.")
             }
@@ -204,7 +213,7 @@ class NoSeringViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val hasSensor = dataManager.getHasSensor().first()
             dataManager.getBluetoothDeviceName(bluetoothInfo.sbBluetoothDevice.type.name).first().let {
-                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(if(hasSensor) it else null, type = SleepType.NoSering.ordinal.toString())) }
+                request { authAPIRepository.postSleepDataCreate(SleepCreateModel(if (hasSensor) it else null, type = SleepType.NoSering.ordinal.toString())) }
                     .catch {
                         trySend(false)
                         close()
@@ -244,10 +253,10 @@ class NoSeringViewModel @Inject constructor(
         if (::dataRemovedJob.isInitialized) {
             dataRemovedJob.cancel()
         }
-        insertLog("stopClick()")
+
         viewModelScope.launch {
             val hasSensor = dataManager.getHasSensor().first()
-            Log.d(TAG, "stopClick 코골이: $hasSensor")
+            insertLog("stopClick 코골이: $hasSensor")
             if (hasSensor) {
                 if (getService()?.isBleDeviceConnect()?.first?.not() == true) {
                     sendBlueToothErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.sensor_disconnect_error))
@@ -285,7 +294,7 @@ class NoSeringViewModel @Inject constructor(
         this.type = type
         viewModelScope.launch(Dispatchers.IO) {
             settingDataRepository.setSnoringVibrationIntensity(type)
-                getService()?.motorTest(type)
+            getService()?.motorTest(type)
         }
     }
 

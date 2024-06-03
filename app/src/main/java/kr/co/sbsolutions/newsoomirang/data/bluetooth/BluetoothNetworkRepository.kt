@@ -133,13 +133,13 @@ class BluetoothNetworkRepository @Inject constructor(
         logCoroutine.launch {
             _sbSensorInfo.value.bluetoothGatt?.let {
                 logHelper.insertLog("reconnectDevice gatt 재접속 실행")
-                if (reConnectCount >= BLEService.MAX_RETRY) {
+                reConnectCount += 1
+                if (reConnectCount >= BLEService.MAX_RETRY ) {
                     logHelper.insertLog("reconnectDevice gatt 재접속 ${BLEService.MAX_RETRY} 도달로 인하여 다시 connect callback")
                     callback.invoke(true)
                     reConnectCount  = 0
                   return@launch
                 }
-                reConnectCount += 1
                 isConnect(it, _sbSensorInfo) { isSuccessfully ->
                     logHelper.insertLog("reconnectDevice isSuccessfully = $isSuccessfully")
                 }

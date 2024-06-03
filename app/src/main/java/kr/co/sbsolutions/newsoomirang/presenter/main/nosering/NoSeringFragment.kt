@@ -151,7 +151,9 @@ class NoSeringFragment : BluetoothFragment() {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title,
                             it,
                             confirmAction = {
-                                viewModel.reConnectBluetooth()
+                                viewModel.reConnectBluetooth{
+                                    viewModel.forceUploadResetUIAndTimer()
+                                }
                             }
                         )
                     }
