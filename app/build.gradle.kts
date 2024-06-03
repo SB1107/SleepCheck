@@ -1,5 +1,4 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -15,15 +14,15 @@ fun getProperties(key  : String) : String {
 }
 
 android {
-    namespace = "kr.co.sbsolutions.newsoomirang"
+    namespace = "kr.co.sbsolutions.sleepcheck"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "kr.co.sbsolutions.newsoomirang"
+        applicationId = "kr.co.sbsolutions.sleepcheck"
         minSdk = 26
         targetSdk = 34
-        versionCode = 58
-        versionName = "1.4.7"
+        versionCode = 1
+        versionName = "1.0.0"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
         buildConfigField ("String", "KAKAO",getProperties("kakao"))
         buildConfigField ("String", "ivData",getProperties("ivData"))

@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_breathing"
-        android:name="kr.co.sbsolutions.newsoomirang.presenter.main.breathing.BreathingFragment"
+        android:name="kr.co.sbsolutions.sleepcheck.presenter.main.breathing.BreathingFragment"
         android:label="Breathing"
         tools:layout="@layout/fragment_breathing" />
 
     <fragment
         android:id="@+id/navigation_no_sering"
-        android:name="kr.co.sbsolutions.newsoomirang.presenter.main.nosering.NoSeringFragment"
+        android:name="kr.co.sbsolutions.sleepcheck.presenter.main.nosering.NoSeringFragment"
         android:label="NoSering"
         tools:layout="@layout/fragment_no_sering" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="kr.co.sbsolutions.newsoomirang.presenter.main.history.HistoryFragment"
+        android:name="kr.co.sbsolutions.sleepcheck.presenter.main.history.HistoryFragment"
         android:label="History"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="kr.co.sbsolutions.newsoomirang.presenter.main.setting.SettingFragment"
+        android:name="kr.co.sbsolutions.sleepcheck.presenter.main.setting.SettingFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_setting" />
 </navigation>
