@@ -27,6 +27,7 @@ import kr.co.sbsolutions.sleepcheck.common.showAlertDialog
 import kr.co.sbsolutions.sleepcheck.databinding.ActivityLoginBinding
 import kr.co.sbsolutions.sleepcheck.presenter.main.MainActivity
 import kr.co.sbsolutions.sleepcheck.presenter.policy.PolicyActivity
+import kr.co.sbsolutions.sleepcheck.presenter.signup.SignUpActivity
 import kr.co.sbsolutions.sleepcheck.presenter.splash.WHERE
 import javax.inject.Inject
 
@@ -83,7 +84,7 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.socialLogin(SocialType.KAKAO)
             }
         }
-        lifecycleScope.launch{
+        lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.whereActivity.collectLatest {
@@ -94,61 +95,63 @@ class LoginActivity : AppCompatActivity() {
                                 startActivity(Intent(this@LoginActivity, MainActivity::class.java).addFlag())
                                 finish()
                             }
-
                             WHERE.Policy -> {
                                 startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
+                            }
+                            WHERE.SignUp -> {
+                                startActivity(Intent(this@LoginActivity, SignUpActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
                             }
                         }
                     }
                 }
-                launch {
-                    viewModel.errorMessage.collectLatest {
-                        showAlertDialog(message = it)
-                    }
+            launch {
+                viewModel.errorMessage.collectLatest {
+                    showAlertDialog(message = it)
                 }
-                launch {
-                    viewModel.isProgressBar.collect {
-                        binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
-                    }
+            }
+            launch {
+                viewModel.isProgressBar.collect {
+                    binding.actionProgress.clProgress.visibility = if (it) View.VISIBLE else View.GONE
                 }
-
             }
-        }
-    }
 
-    private fun setGoogle() {
-        if (mAuth.currentUser != null) {
-            // 로그인된 사용자입니다.
-            val uid = mAuth.currentUser?.uid
-            Log.d(TAG, "[GOOGLE_ UID]: $uid")
-            if (uid == null) {
-                Log.d(TAG, "[GOOGLE_ UID_NULL]: $uid")
-            }
-        } else {
-            // 로그인되지 않은 사용자입니다.
         }
-        /*gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()*/
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
+}
 
-    private fun requestGoogleLoginActivation() {
-        if (::googleSignInClient.isInitialized){
-            val signInIntent = Intent(googleSignInClient.signInIntent)
-            googleLoginActivityResultLauncher.launch(signInIntent)
+private fun setGoogle() {
+    if (mAuth.currentUser != null) {
+        // 로그인된 사용자입니다.
+        val uid = mAuth.currentUser?.uid
+        Log.d(TAG, "[GOOGLE_ UID]: $uid")
+        if (uid == null) {
+            Log.d(TAG, "[GOOGLE_ UID_NULL]: $uid")
         }
+    } else {
+        // 로그인되지 않은 사용자입니다.
     }
+    /*gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestIdToken(getString(R.string.default_web_client_id))
+        .requestEmail()
+        .build()*/
+    googleSignInClient = GoogleSignIn.getClient(this, gso)
+}
 
-    private fun onGoogleLogin() {
-        googleLoginActivityResultLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                viewModel.socialLogin(SocialType.GOOGLE , result.data)
-            }
+private fun requestGoogleLoginActivation() {
+    if (::googleSignInClient.isInitialized) {
+        val signInIntent = Intent(googleSignInClient.signInIntent)
+        googleLoginActivityResultLauncher.launch(signInIntent)
+    }
+}
+
+private fun onGoogleLogin() {
+    googleLoginActivityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            viewModel.socialLogin(SocialType.GOOGLE, result.data)
         }
     }
+}
 }

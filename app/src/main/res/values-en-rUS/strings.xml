@@ -269,4 +269,5 @@ Deep Sleep: This stage is where the body and brain recover during sleep. It is d
     <string name="new_func">New features</string>
     <string name="last_software">Soomirang software is not up to date</string>
     <string name="not_searching">Registered Soomirang devices are not detected.</string>
+    <string name="signup">SignUp</string>
 </resources>

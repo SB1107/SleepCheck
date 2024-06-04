@@ -16,6 +16,7 @@ import kr.co.sbsolutions.sleepcheck.domain.model.CheckSensor
 import kr.co.sbsolutions.sleepcheck.domain.model.ContactDetail
 import kr.co.sbsolutions.sleepcheck.domain.model.PolicyModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SensorFirmVersion
+import kr.co.sbsolutions.sleepcheck.domain.model.SignUpModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepCreateModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepDataRemoveModel
 import okhttp3.MultipartBody
@@ -100,4 +101,7 @@ interface AuthServiceAPI {
 
     @GET("sleepdata/scoremsg")
     suspend fun getScoreMsg(@Query("score") score: String, @Query("type") type: String, @Query("language") language: String): Response<ScoreEntity>
+
+    @POST("sleepdata/signup")
+    suspend fun postSignUp(@Body signUpModel: SignUpModel): Response<UserEntity>
 }

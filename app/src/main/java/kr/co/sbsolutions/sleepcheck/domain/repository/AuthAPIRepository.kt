@@ -20,9 +20,11 @@ import kr.co.sbsolutions.sleepcheck.domain.model.CheckSensor
 import kr.co.sbsolutions.sleepcheck.domain.model.ContactDetail
 import kr.co.sbsolutions.sleepcheck.domain.model.PolicyModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SensorFirmVersion
+import kr.co.sbsolutions.sleepcheck.domain.model.SignUpModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepCreateModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
+import kr.co.sbsolutions.sleepcheck.domain.model.SnsLoginModel
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -34,6 +36,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postJoinAgree(policyModel = policyModel)
     }
 
+    override fun postSignUp(signUpModel: SignUpModel): Flow<ApiResponse<UserEntity>>  = apiRequestFlow {
+        api.postSignUp(signUpModel)
+    }
     override fun postLogout(): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
         api.postLogOut()
     }

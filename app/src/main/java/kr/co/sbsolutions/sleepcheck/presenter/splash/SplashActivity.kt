@@ -28,6 +28,7 @@ import kr.co.sbsolutions.sleepcheck.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.sleepcheck.databinding.ActivitySplashBinding
 import kr.co.sbsolutions.sleepcheck.presenter.login.LoginActivity
 import kr.co.sbsolutions.sleepcheck.presenter.main.MainActivity
+import kr.co.sbsolutions.sleepcheck.presenter.signup.SignUpActivity
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -49,32 +50,31 @@ class SplashActivity : AppCompatActivity() {
 //        splashScreen.setKeepOnScreenCondition{true}
 
         lifecycleScope.launch {
-                lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    launch {
-                        viewModel.nextProcess.filter { it }.collectLatest {
-                            refreshPermissionViews()
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.nextProcess.filter { it }.collectLatest {
+                        refreshPermissionViews()
+                    }
+                }
+                viewModel.whereActivity.collectLatest {
+                    when (it) {
+                        WHERE.None, WHERE.Policy, WHERE.SignUp -> {}
+                        WHERE.Login -> {
+
+                            startActivity(Intent(this@SplashActivity, LoginActivity::class.java).addFlag())
+                        }
+
+                        WHERE.Main -> {
+                            startActivity(Intent(this@SplashActivity, SignUpActivity::class.java).apply {
+                                putExtra("data", intent.getIntExtra("data", -1))
+                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            })
+                            finish()
                         }
                     }
-                    viewModel.whereActivity.collectLatest {
-                        when (it) {
-                            WHERE.None, WHERE.Policy -> {}
-                            WHERE.Login -> {
-
-                                startActivity(Intent(this@SplashActivity, LoginActivity::class.java).addFlag())
-                            }
-
-                            WHERE.Main -> {
-                                startActivity(Intent(this@SplashActivity, MainActivity::class.java).apply {
-                                    putExtra("data",intent.getIntExtra("data", -1))
-                                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-                                })
-                                finish()
-                            }
-                        }
-                    }
-
                 }
             }
+        }
 
     }
 

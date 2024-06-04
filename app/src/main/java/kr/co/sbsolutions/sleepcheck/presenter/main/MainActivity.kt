@@ -103,10 +103,11 @@ class MainActivity : BaseServiceActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        gotoFragment(intent)
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        gotoFragment(intent)
     }
+
 
     private fun gotoFragment(intent: Intent?) {
         val value = intent?.getIntExtra("data", -1)

@@ -18,6 +18,7 @@ import kr.co.sbsolutions.sleepcheck.domain.model.CheckSensor
 import kr.co.sbsolutions.sleepcheck.domain.model.ContactDetail
 import kr.co.sbsolutions.sleepcheck.domain.model.PolicyModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SensorFirmVersion
+import kr.co.sbsolutions.sleepcheck.domain.model.SignUpModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepCreateModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
@@ -30,6 +31,7 @@ interface RemoteLoginDataSource {
 }
 interface RemoteAuthDataSource {
      fun postPolicy(policyModel: PolicyModel): Flow<ApiResponse<UserEntity>>
+     fun postSignUp(signUpModel: SignUpModel): Flow<ApiResponse<UserEntity>>
      fun postLogout(): Flow<ApiResponse<UserEntity>>
      fun postSleepDataCreate(sleepCreateModel: SleepCreateModel) : Flow<ApiResponse<SleepCreateEntity>>
      fun postUploading(file : File?, dataId : Int, sleepType: SleepType, snoreTime: Long = 0, snoreCount : Int = 0, coughCount : Int = 0, sensorName : String) : Flow<ApiResponse<UploadingEntity>>

@@ -30,6 +30,7 @@ class SplashViewModel @Inject constructor(
         gotoLogin()
         getFcmToken()
     }
+
     private fun getFcmToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
 
@@ -66,5 +67,5 @@ class SplashViewModel @Inject constructor(
 }
 
 enum class WHERE {
-    None, Login, Main ,Policy
+    None, Login, Main, SignUp, Policy
 }
