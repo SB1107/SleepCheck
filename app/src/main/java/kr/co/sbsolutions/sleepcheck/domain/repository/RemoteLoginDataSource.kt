@@ -6,11 +6,13 @@ import kr.co.sbsolutions.sleepcheck.data.entity.ContactEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FAQEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FirmwareEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.NoSeringResultEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.RentalCompanyEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.ScoreEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDateEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepResultEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.UpdateUserEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.UploadingEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.UserEntity
 import kr.co.sbsolutions.sleepcheck.data.server.ApiResponse
@@ -31,7 +33,7 @@ interface RemoteLoginDataSource {
 }
 interface RemoteAuthDataSource {
      fun postPolicy(policyModel: PolicyModel): Flow<ApiResponse<UserEntity>>
-     fun postSignUp(signUpModel: SignUpModel): Flow<ApiResponse<UserEntity>>
+     fun postSignUp(company: String, name: String, birthday: String): Flow<ApiResponse<UpdateUserEntity>>
      fun postLogout(): Flow<ApiResponse<UserEntity>>
      fun postSleepDataCreate(sleepCreateModel: SleepCreateModel) : Flow<ApiResponse<SleepCreateEntity>>
      fun postUploading(file : File?, dataId : Int, sleepType: SleepType, snoreTime: Long = 0, snoreCount : Int = 0, coughCount : Int = 0, sensorName : String) : Flow<ApiResponse<UploadingEntity>>
@@ -56,6 +58,8 @@ interface RemoteAuthDataSource {
      fun postRegisterFirmVersion(sensorFirmVersion: SensorFirmVersion) : Flow<ApiResponse<BaseEntity>>
 
      fun getScoreMsg(score : String, type: String, language : String): Flow<ApiResponse<ScoreEntity>>
+
+     fun getRentalCompany() : Flow<ApiResponse<RentalCompanyEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>

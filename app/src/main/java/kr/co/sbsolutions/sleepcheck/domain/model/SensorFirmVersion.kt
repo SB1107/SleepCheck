@@ -8,5 +8,5 @@ data class SensorFirmVersion(
     @SerializedName("version")
     private val version: String,
     @SerializedName("app_kind")
-    private val appKind: String = "C"
+    private val appKind: String = "R"
 )

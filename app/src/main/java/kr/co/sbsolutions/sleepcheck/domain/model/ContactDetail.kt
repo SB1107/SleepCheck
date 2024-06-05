@@ -8,5 +8,5 @@ data class ContactDetail(
     @SerializedName("content")
     private val detail: String,
     @SerializedName("app_kind")
-    private val appKind: String = "C"
+    private val appKind: String = "R"
 )

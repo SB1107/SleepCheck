@@ -65,7 +65,7 @@ class SplashActivity : AppCompatActivity() {
                         }
 
                         WHERE.Main -> {
-                            startActivity(Intent(this@SplashActivity, SignUpActivity::class.java).apply {
+                            startActivity(Intent(this@SplashActivity, MainActivity::class.java).apply {
                                 putExtra("data", intent.getIntExtra("data", -1))
                                 flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                             })

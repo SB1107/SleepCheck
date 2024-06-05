@@ -306,6 +306,7 @@
     <string name="not_searching">등록된 숨이랑 기기가 검색이 되지 않습니다.</string>
     <string name="signup">회원 가입</string>
     <string name="company">회사명을 선택해주세요</string>
-    <string name="name_des">이름을 선택해주세요</string>
-    <string name="birth_des">YYMMDD</string>
+    <string name="name_des">이름을 입력해주세요</string>
+    <string name="birth_des">YYYYMMDD</string>
+    <string name="birth_des2">생년월일을 선택 해주세요</string>
 </resources>

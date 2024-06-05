@@ -1,8 +1,10 @@
 package kr.co.sbsolutions.sleepcheck.presenter.signup
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -36,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,11 +60,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.R
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
+import kr.co.sbsolutions.sleepcheck.common.addFlag
 import kr.co.sbsolutions.sleepcheck.common.showAlertDialog
+import kr.co.sbsolutions.sleepcheck.data.entity.RentalCompanyItemData
 import kr.co.sbsolutions.sleepcheck.databinding.ActivitySignUpBinding
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SoomScaffold
+import kr.co.sbsolutions.sleepcheck.presenter.policy.PolicyActivity
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -72,6 +84,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+@AndroidEntryPoint
 class SignUpActivity : AppCompatActivity() {
     private val binding: ActivitySignUpBinding by lazy { ActivitySignUpBinding.inflate(layoutInflater) }
     private var accessToken: String? = null
@@ -85,6 +98,8 @@ class SignUpActivity : AppCompatActivity() {
             where = it.getStringExtra("where")
         }
         bindViews()
+        setObservers()
+        viewModel.getCompanyList()
     }
 
     @SuppressLint("ResourceAsColor")
@@ -95,14 +110,16 @@ class SignUpActivity : AppCompatActivity() {
                     RootView()
                 }
             }
+
         }
     }
 
     @Preview
     @Composable
-    fun RootView() {
+    fun RootView(items: List<RentalCompanyItemData> = emptyList()) {
         var isButtonEnable by remember { mutableStateOf(false) }
         var companyText by remember { mutableStateOf("") }
+        var companyCode by remember { mutableStateOf("") }
         var nameText by remember { mutableStateOf("") }
         var birthdayText by remember { mutableStateOf("") }
         var isBirthdayShow by remember { mutableStateOf(false) }
@@ -116,9 +133,11 @@ class SignUpActivity : AppCompatActivity() {
                             text = "회사명", style = TextStyle(fontWeight = FontWeight.Bold, color = Color.White),
                             fontSize = 18.sp
                         )
-                        CompanySpinner(text = companyText, selectText = { company ->
-                            companyText = company
-                            isButtonEnable = isEnabled(companyText, nameText, birthdayText)
+                        CompanySpinner(items = items, text = companyText, selectText = { company ->
+                            companyText = company.name
+                            companyCode = company.code
+                            Log.e(TAG, "code 123= ${company.code} ")
+                            isButtonEnable = isEnabled(companyCode, nameText, birthdayText)
                         })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -129,7 +148,7 @@ class SignUpActivity : AppCompatActivity() {
                         )
                         InputTextField(R.string.name_des, value = nameText, valueChange = { value ->
                             nameText = value
-                            isButtonEnable = isEnabled(companyText, nameText, birthdayText)
+                            isButtonEnable = isEnabled(companyCode, nameText, birthdayText)
                         })
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -149,7 +168,7 @@ class SignUpActivity : AppCompatActivity() {
                             onClickConfirm = {
                                 isBirthdayShow = false
                                 birthdayText = it
-                                isButtonEnable = isEnabled(companyText, nameText, birthdayText)
+                                isButtonEnable = isEnabled(companyCode, nameText, birthdayText)
                             })
                     }
                 }
@@ -178,11 +197,11 @@ class SignUpActivity : AppCompatActivity() {
                         } else if (birthdayText.isEmpty()) {
                             showAlertDialog(message = getString(R.string.birth_des))
                             return@Button
-                        } else if (birthdayText.length != 6) {
-                            showAlertDialog(message = "생년월일을 6자리 입력 해주세요")
+                        } else if (birthdayText.isEmpty()) {
+                            showAlertDialog(message = getString(R.string.birth_des2))
                             return@Button
                         }
-                        viewModel.signUp(accessToken, companyText, nameText, birthdayText)
+                        viewModel.signUp(accessToken, companyCode, nameText, birthdayText)
 //                            if (etcText.isNotEmpty() && etcTitleText.isNotEmpty() && etcText.length <= 200) {
 //                                viewModel.sendDetail(etcTitleText, etcText)
 //                            }
@@ -199,9 +218,8 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     @Composable
-    fun CompanySpinner(text: String, selectText: (String) -> Unit) {
-        val items = listOf("Option 1", "Option 2", "Option 3")
-        var expanded = rememberSaveable { mutableStateOf(false) }
+    fun CompanySpinner(items: List<RentalCompanyItemData>, text: String, selectText: (RentalCompanyItemData) -> Unit) {
+        val expanded = rememberSaveable { mutableStateOf(false) }
         val density = LocalDensity.current
         var width by remember { mutableStateOf(0.dp) }
         Box(
@@ -256,12 +274,12 @@ class SignUpActivity : AppCompatActivity() {
             items.forEach { item ->
                 DropdownMenuItem(
                     text = {
-                        Text(text = item)
+                        Text(text = item.name)
                     },
                     onClick = {
+                        // 항목을 선택했을 때 수행할 작업
                         selectText.invoke(item)
                         expanded.value = false
-                        // 항목을 선택했을 때 수행할 작업
                     })
             }
         }
@@ -304,7 +322,6 @@ class SignUpActivity : AppCompatActivity() {
 
     @Composable
     fun InputDate(stringId: Int, value: String, click: () -> Unit) {
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -322,7 +339,6 @@ class SignUpActivity : AppCompatActivity() {
                 style = if (value.isEmpty()) TextStyle(color = colorResource(id = R.color.color_797979)) else TextStyle(color = Color.Black),
             )
         }
-
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -363,28 +379,45 @@ class SignUpActivity : AppCompatActivity() {
 
             DatePicker(
                 state = datePickerState,
+                colors = DatePickerDefaults.colors().copy(
+                    selectedDayContainerColor = colorResource(id = R.color.color_1A447D),
+                    todayDateBorderColor = colorResource(id = R.color.color_1A447D)
+                )
             )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
             ) {
-                Button(onClick = {
-                    onClickCancel()
-                }) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.color_1A447D),
+                        contentColor = Color.White,
+                        disabledContainerColor = colorResource(id = R.color.color_777777),
+                        disabledContentColor = Color.Black
+                    ),
+                    onClick = {
+                        onClickCancel()
+                    }) {
                     Text(text = "취소")
                 }
                 Spacer(modifier = Modifier.width(5.dp))
-                Button(onClick = {
-                    datePickerState.selectedDateMillis?.let { selectedDateMillis ->
-                        val yyyyMMdd = SimpleDateFormat(
-                            "yyyyMMdd",
-                            Locale.getDefault()
-                        ).format(Date(selectedDateMillis))
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.color_1A447D),
+                        contentColor = Color.White,
+                        disabledContainerColor = colorResource(id = R.color.color_777777),
+                        disabledContentColor = Color.Black
+                    ),
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { selectedDateMillis ->
+                            val yyyyMMdd = SimpleDateFormat(
+                                "yyyyMMdd",
+                                Locale.getDefault()
+                            ).format(Date(selectedDateMillis))
 
-                        onClickConfirm(yyyyMMdd)
-                    }
-                }) {
+                            onClickConfirm(yyyyMMdd)
+                        }
+                    }) {
                     Text(text = "확인")
                 }
             }
@@ -392,7 +425,40 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun isEnabled(company: String, name: String, birthday: String): Boolean {
-        return (company.isNotEmpty() && name.isNotEmpty() && birthday.length == 6)
+        return (company.isNotEmpty() && name.isNotEmpty() && birthday.isNotEmpty())
+    }
+
+    private fun setObservers() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.errorMessage.collectLatest {
+                        showAlertDialog(R.string.common_title, it)
+                    }
+                }
+                launch {
+                    viewModel.isProgressBar.collect {
+//                        Log.e(TAG, "isProgressBar: ${it}")
+                        binding.actionProgress.clProgress.visibility =
+                            if (it) View.VISIBLE else View.GONE
+                    }
+                }
+                launch {
+                    viewModel.companyList.collectLatest {
+                        binding.composeView.apply {
+                            setContent {
+                                RootView(it)
+                            }
+                        }
+                    }
+                }
+                launch {
+                    viewModel.signUpResult.collectLatest {
+                        startActivity(Intent(this@SignUpActivity, PolicyActivity::class.java).putExtra("accessToken", accessToken).addFlag())
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -7,11 +7,13 @@ import kr.co.sbsolutions.sleepcheck.data.entity.ContactEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FAQEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FirmwareEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.NoSeringResultEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.RentalCompanyEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.ScoreEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepCreateEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDateEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepResultEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.UpdateUserEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.UploadingEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.UserEntity
 import kr.co.sbsolutions.sleepcheck.data.server.ApiResponse
@@ -36,7 +38,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
         api.postJoinAgree(policyModel = policyModel)
     }
 
-    override fun postSignUp(signUpModel: SignUpModel): Flow<ApiResponse<UserEntity>>  = apiRequestFlow {
+    override fun postSignUp(company: String, name: String, birthday: String): Flow<ApiResponse<UpdateUserEntity>>  = apiRequestFlow {
+        val signUpModel = SignUpModel(company, name, birthday)
         api.postSignUp(signUpModel)
     }
     override fun postLogout(): Flow<ApiResponse<UserEntity>> = apiRequestFlow {
@@ -50,7 +53,7 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun postUploading(file: File?, dataId: Int, sleepType: SleepType, snoreTime: Long, snoreCount: Int, coughCount: Int, sensorName: String): Flow<ApiResponse<UploadingEntity>> =
         apiRequestFlow {
             val dataId = MultipartBody.Part.createFormData("data_id", dataId.toString())
-            val appKind = MultipartBody.Part.createFormData("app_kind", "C")
+            val appKind = MultipartBody.Part.createFormData("app_kind", "R")
             val snoreTime = MultipartBody.Part.createFormData("snore_time", "$snoreTime")
             val snore_count = MultipartBody.Part.createFormData("snore_count", "$snoreCount")
             val cough_count = MultipartBody.Part.createFormData("cough_count", "$coughCount")
@@ -120,5 +123,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
 
     override fun getScoreMsg(score: String, type: String, language: String): Flow<ApiResponse<ScoreEntity>> = apiRequestFlow {
         api.getScoreMsg(score, type, language)
+    }
+
+    override fun getRentalCompany(): Flow<ApiResponse<RentalCompanyEntity>>  = apiRequestFlow {
+        api.getRentalCompany()
     }
 }

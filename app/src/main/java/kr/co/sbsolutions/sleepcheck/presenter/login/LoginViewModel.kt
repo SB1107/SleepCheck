@@ -56,7 +56,7 @@ class LoginViewModel @Inject constructor(
                             user.result?.let { result ->
                                 val isMember = result.member == "Y"
                                 dataManager.saveSNSType(snsType)
-                                dataManager.saveUserName(name)
+                                dataManager.saveUserName(result.user?.name ?: name)
                                 _whereActivity.emit(whereActivity(isMember, result.access_token ?: ""))
                             }
                         }
@@ -73,6 +73,6 @@ class LoginViewModel @Inject constructor(
             }
         }
         this.accessToken = accessToken
-        return if (isMember) WHERE.Main else WHERE.Policy
+        return if (isMember) WHERE.Main else WHERE.SignUp
     }
 }

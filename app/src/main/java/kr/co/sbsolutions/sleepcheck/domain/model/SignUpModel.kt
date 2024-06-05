@@ -3,10 +3,12 @@ package kr.co.sbsolutions.sleepcheck.domain.model
 import com.google.gson.annotations.SerializedName
 
 data class SignUpModel(
-    @SerializedName("title")
-    private val title: String,
-    @SerializedName("content")
-    private val detail: String,
+    @SerializedName("comp_code")
+    private val compCode: String,
+    @SerializedName("name")
+    private val name: String,
+    @SerializedName("birth")
+    private val birth: String,
     @SerializedName("app_kind")
-    private val appKind: String = "C"
+    private val appKind: String = "R"
 )

@@ -6,5 +6,5 @@ data class CheckSensor(
     @SerializedName("number")
     private val sensorName: String,
     @SerializedName("app_kind")
-    private val appKind: String = "C"
+    private val appKind: String = "R"
 )

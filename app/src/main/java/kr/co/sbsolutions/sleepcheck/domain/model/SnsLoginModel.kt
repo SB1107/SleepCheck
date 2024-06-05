@@ -31,6 +31,6 @@ data class SnsLoginModel(
     val fcm_key: String,
 
     @SerializedName("app_kind")
-    val app_kind : String = "C"
+    val app_kind : String = "R"
 
 )

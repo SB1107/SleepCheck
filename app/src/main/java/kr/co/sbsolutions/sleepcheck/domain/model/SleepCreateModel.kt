@@ -8,7 +8,7 @@ data class SleepCreateModel(
     @SerializedName("type")
     private val type: String = SleepType.Breathing.ordinal.toString(),
     @SerializedName("app_kind")
-    private val appKind: String = "C"
+    private val appKind: String = "R"
 )
 
 enum class SleepType(type: Int) {
