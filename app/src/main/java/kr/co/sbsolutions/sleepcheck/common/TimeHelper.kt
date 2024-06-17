@@ -47,6 +47,12 @@ class TimeHelper(private val logHelper: LogHelper) {
     fun setTime(time: Int) {
         this.time = time
     }
+    fun clearTime(){
+        time = 0
+        runBlocking {
+            _measuringTimer.emit(Triple(0, 0, 0))
+        }
+    }
 
     fun stopTimer() {
         time = 0

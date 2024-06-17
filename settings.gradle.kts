@@ -16,6 +16,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "soomirang"
+rootProject.name = "SleepCheck"
 include(":app")
  

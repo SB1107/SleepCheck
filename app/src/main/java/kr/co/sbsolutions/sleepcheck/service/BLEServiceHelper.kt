@@ -269,6 +269,7 @@ class BLEServiceHelper(
     }
 
     fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
+        timeHelper.clearTime()
         blueToothUseCase?.startSBSensor(dataId, sleepType, hasSensor)
         if (hasSensor.not()) {
             waitStart()

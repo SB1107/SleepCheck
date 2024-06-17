@@ -88,6 +88,7 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
             sleepType = tempData["sleepType"] ?: "",
             timeStamp = tempData["timeStamp"] ?: "",
             platforms = tempData["platforms"] ?: "",
+            type = tempData["type"] ?: "",
         )
         return realData
     }
@@ -114,8 +115,16 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
         realDatabase.reference.child("sensorNames").child(sensorName).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 snapshot.value?.let {
-                    val tempData = it as Map<String, String>
-                    trySend(tempData.keys.toList())
+                    if(it is List<*>) {
+                        it.filterNotNull().map {
+                            val tempData = it as Map<String, String>
+                            trySend(tempData.keys.toList())
+                        }
+                    }else{
+                        val tempData = it as Map<String, String>
+                        trySend(tempData.keys.toList())
+                    }
+
                     close()
                 } ?: run {
                     Log.e(TAG, "oneReadData: data없음")
@@ -157,4 +166,4 @@ class FireBaseRealRepository(private val realDatabase: FirebaseDatabase, private
 }
 
 @IgnoreExtraProperties
-data class RealData(val sensorName: String , val dataId: String , val userName: String , val sleepType: String, val timeStamp: String , val platforms : String)
+data class RealData(val sensorName: String , val dataId: String , val userName: String , val sleepType: String, val timeStamp: String , val platforms : String, val type : String = "R")
