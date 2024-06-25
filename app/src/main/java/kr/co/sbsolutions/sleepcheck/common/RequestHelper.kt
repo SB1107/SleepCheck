@@ -17,6 +17,7 @@ import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.data.entity.BaseEntity
 import kr.co.sbsolutions.sleepcheck.data.server.ApiResponse
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.SBBluetoothDevice
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 
 class RequestHelper(
     private val scope: CoroutineScope,
@@ -27,7 +28,7 @@ class RequestHelper(
 ) {
     companion object {
         var reAuthorizeCallBack: ReAuthorizeCallBack? = null
-        var logHelper: LogHelper? = null
+        var logHelper: ILogHelper? = null
     }
 
     private val requestMap: MutableMap<String, Job> = mutableMapOf()
@@ -36,7 +37,7 @@ class RequestHelper(
         RequestHelper.reAuthorizeCallBack = reAuthorizeCallBack
     }
 
-    fun setLogWorkerHelper(logHelper: LogHelper) {
+    fun setLogWorkerHelper(logHelper: ILogHelper) {
         RequestHelper.logHelper = logHelper
     }
 

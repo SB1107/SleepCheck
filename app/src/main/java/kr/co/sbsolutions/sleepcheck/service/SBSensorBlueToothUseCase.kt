@@ -56,9 +56,10 @@ class SBSensorBlueToothUseCase(
     private val dataManager: DataManager,
     private val sbDataUploadingUseCase: SBDataUploadingUseCase,
     private val fireBaseRealRepository: FireBaseRealRepository,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val blueToothScanHelper: BlueToothScanHelper,
-    private val packageName: String
+    private val packageName: String,
+    private var noseRingUseCase: INoseRingHelper? = null
 ) {
     private var timerOfDisconnection: Timer? = null
     private var context: Context? = null
@@ -70,7 +71,6 @@ class SBSensorBlueToothUseCase(
     private var timerOfStartMeasure: Timer? = null
     private var timerOfStopMeasure: Timer? = null
     private var retryCount = 0
-    private var noseRingUseCase: NoseRingUseCase? = null
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
     private var count: Int = 0
@@ -299,7 +299,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
+    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true, callback: () -> Unit) {
         isStartAndStopCancel = false
         if (hasSensor) {
             sleepDataCreate(dataId, sleepType)
@@ -327,6 +327,7 @@ class SBSensorBlueToothUseCase(
                     }
                 }
             }
+            callback.invoke()
         }
     }
 
@@ -377,7 +378,9 @@ class SBSensorBlueToothUseCase(
                                 val sensorName = dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
                                 chainData.dataId?.let { id ->
                                     logHelper.insertLog("uploading:${bluetoothNetworkRepository.sbSensorInfo.value.sleepType} dataFlow 좀비 업로드")
-                                    sbDataUploadingUseCase.uploading(packageName, sensorName, id)
+                                    sbDataUploadingUseCase.uploading(packageName, sensorName, id, uploadSucceededCallback = {
+                                        uploadingFinish()
+                                    })
                                 }
                                 bluetoothNetworkRepository.setDataFlow(false)
                             }
@@ -428,7 +431,9 @@ class SBSensorBlueToothUseCase(
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isForced = true)
+                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isForced = true, uploadSucceededCallback = {
+                                    uploadingFinish()
+                                })
                             }
                         } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
                     }
@@ -520,7 +525,9 @@ class SBSensorBlueToothUseCase(
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId} hasSensor: ${hasSensor} isCancel: ${isCancel}")
-                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isFilePass = if (hasSensor) checkDataSize().first() else true)
+                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isFilePass = if (hasSensor) checkDataSize().first() else true, uploadSucceededCallback = {
+                            uploadingFinish()
+                        })
                     }
                 }
             }
@@ -602,7 +609,9 @@ class SBSensorBlueToothUseCase(
                         logHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
-                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false, isForced = true)
+                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false, isForced = true, uploadSucceededCallback = {
+                                uploadingFinish()
+                            })
                         } else {
                             logHelper.insertLog("(max - min + 1) != size)")
                             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
@@ -625,7 +634,9 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
-                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, forceClose)
+                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, forceClose, uploadSucceededCallback = {
+                            uploadingFinish()
+                        })
                         logHelper.insertLog("uploading: register")
                     }
                 } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
@@ -664,7 +675,9 @@ class SBSensorBlueToothUseCase(
                             val sensorName = dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
                             chainData.dataId?.let { id ->
                                 logHelper.insertLog("uploading:${bluetoothNetworkRepository.sbSensorInfo.value.sleepType} dataFlow 좀비 업로드")
-                                sbDataUploadingUseCase.uploading(packageName, sensorName, id)
+                                sbDataUploadingUseCase.uploading(packageName, sensorName, id, uploadSucceededCallback = {
+                                    uploadingFinish()
+                                })
                             }
                             bluetoothNetworkRepository.setDataFlow(false)
                         }

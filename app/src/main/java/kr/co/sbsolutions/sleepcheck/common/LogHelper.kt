@@ -4,15 +4,17 @@ import android.util.Log
 import kotlinx.coroutines.Job
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothState
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 
-class LogHelper(private val logWorkerHelper: LogWorkerHelper, private val coroutineScopeHandler: CoroutineScopeHandler) {
+class LogHelper(private val logWorkerHelper: LogWorkerHelper, private val coroutineScopeHandler: CoroutineScopeHandler)  :
+    ILogHelper {
 
-    fun insertLog(logMethod: () -> Unit) {
+    override fun insertLog(logMethod: () -> Unit) {
         val name = getClazzName(logMethod)
         logWorkerHelper.insertLog("Method : $name ")
     }
 
-    fun insertLog(message: String) {
+    override fun insertLog(message: String) {
         var tempData = message
         if (tempData.contains("null")) {
             tempData = message.replace("null", "").replace("", "").trim()
@@ -21,18 +23,18 @@ class LogHelper(private val logWorkerHelper: LogWorkerHelper, private val corout
         Log.e(TAG, tempData)
     }
 
-    fun insertLog(state: BluetoothState) {
+    override fun insertLog(state: BluetoothState) {
         logWorkerHelper.insertLog(state.toString())
         Log.e(TAG, "insertLog: $state")
     }
 
-    fun registerJob(job: Job, method: () -> Unit) {
+    override fun registerJob(job: Job, method: () -> Unit) {
         val tag = getClazzName(method)
         insertLog("registerJob = $tag")
         return coroutineScopeHandler.registerJob(job, tag,logWorkerHelper)
     }
 
-    fun registerJob(tag: String, job: Job) {
+    override fun registerJob(tag: String, job: Job) {
         insertLog("registerJob = $tag")
         return coroutineScopeHandler.registerJob(job, tag, logWorkerHelper)
     }

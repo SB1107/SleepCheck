@@ -11,6 +11,7 @@ import dagger.hilt.components.SingletonComponent
 import kr.co.sbsolutions.sleepcheck.common.AuthInterceptor
 import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.KaKaoLinkHelper
+import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.presenter.login.KaKaoLoginHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
 import kr.co.sbsolutions.sleepcheck.data.api.AuthServiceAPI
@@ -25,6 +26,7 @@ import kr.co.sbsolutions.sleepcheck.domain.repository.LoginRepository
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteLoginDataSource
 import kr.co.sbsolutions.sleepcheck.presenter.login.GoogleLoginHelper
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -123,4 +125,7 @@ abstract class SingleToneBindingModule {
     @Binds
     abstract fun bindBluetoothNetworkRepository(bluetoothNetworkRepository: BluetoothNetworkRepository): IBluetoothNetworkRepository
 
+
+    @Binds
+    abstract  fun bindLogHelper(logHelper: LogHelper): ILogHelper
 }

@@ -19,6 +19,7 @@ import kr.co.sbsolutions.sleepcheck.R
 import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.RequestHelper
 import kr.co.sbsolutions.sleepcheck.presenter.splash.SplashActivity
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,7 +36,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     @Inject
-    lateinit var  logHelper: LogHelper
+    lateinit var  logHelper: ILogHelper
 
     protected fun twiceBackPressed() {
         if (backPressedTime + 2000L > System.currentTimeMillis()) {

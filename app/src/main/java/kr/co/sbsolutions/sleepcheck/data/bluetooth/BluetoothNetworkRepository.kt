@@ -45,6 +45,7 @@ import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetwor
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
 import kr.co.sbsolutions.sleepcheck.service.BLEService
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -57,7 +58,7 @@ import javax.inject.Inject
 class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val aesHelper: AESHelper
 ) : IBluetoothNetworkRepository {
     private val logCoroutine = CoroutineScope(Dispatchers.IO)

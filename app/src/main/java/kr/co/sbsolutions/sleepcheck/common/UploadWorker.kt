@@ -24,6 +24,7 @@ import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.io.File
 import java.io.FileWriter
@@ -38,7 +39,7 @@ class UploadWorker @AssistedInject constructor(
     private val dataManager: DataManager,
     private val tokenManager: TokenManager,
     private val sbSensorDBRepository: SBSensorDBRepository,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val remoteAuthDataSource: RemoteAuthDataSource
 ) : CoroutineWorker(context, params) {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->

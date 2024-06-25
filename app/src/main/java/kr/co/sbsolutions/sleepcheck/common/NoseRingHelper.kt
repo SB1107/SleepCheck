@@ -25,16 +25,25 @@ class NoseRingHelper {
                         }
 //                        callVibrationNotifications()
                     }
-                    Log.d(TAG, "timeDelta: $timeDelta  mSnoreTime: $mSnoreTime mContSnoringTime $mContSnoringTime")
+                    Log.d(
+                        TAG,
+                        "timeDelta: $timeDelta  mSnoreTime: $mSnoreTime mContSnoringTime $mContSnoringTime"
+                    )
                 } else {
                     mContSnoringTime = 0
                 }
-                Log.d(TAG, "currentTime: $currentTime  mLastEventTime: $mLastEventTime  =  ${currentTime - mLastEventTime}")
+                Log.d(
+                    TAG,
+                    "currentTime: $currentTime  mLastEventTime: $mLastEventTime  =  ${currentTime - mLastEventTime}"
+                )
                 mLastEventTime = currentTime
                 inferenceTime?.let {
                     mSnoreTime += it
                 }
-                Log.d(TAG, "currentTime: $currentTime  mLastEventTime: $mLastEventTime currentTime: $currentTime")
+                Log.d(
+                    TAG,
+                    "currentTime: $currentTime  mLastEventTime: $mLastEventTime currentTime: $currentTime"
+                )
             }
             if (value?.index == 42) {
                 mCoughCount++
@@ -43,34 +52,38 @@ class NoseRingHelper {
         }
     }
 
-    fun snoreCountIncrease(){
-        mSnoreCount +=1
+    fun snoreCountIncrease() {
+        mSnoreCount += 1
     }
 
     fun getSnoreTime(): Long {
         return mSnoreTime
     }
 
-    fun getCoughCount() : Int {
+    fun getCoughCount(): Int {
         return mCoughCount
     }
 
-    fun getSnoreCount() : Int {
+    fun getSnoreCount(): Int {
         return mSnoreCount
     }
 
     fun setCallVibrationNotifications(callback: (() -> Unit)) {
         this.callback = callback
     }
-    fun setSnoreTime(time : Long){
-        this.mSnoreTime  = time
+
+    fun setSnoreTime(time: Long) {
+        this.mSnoreTime = time
     }
-    fun setSnoreCount(count : Int){
-      this.mSnoreCount = count
+
+    fun setSnoreCount(count: Int) {
+        this.mSnoreCount = count
     }
-    fun setCoughCount(count: Int){
+
+    fun setCoughCount(count: Int) {
         this.mCoughCount = count
     }
+
     fun clearData() {
         mSnoreTime = 0
         mLastEventTime = 0

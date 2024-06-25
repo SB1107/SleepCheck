@@ -8,10 +8,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import javax.inject.Inject
 
 
-class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource, logHelper: LogHelper) {
+class FCMTokenUpdateHelper @Inject constructor (tokenManager: TokenManager, dataManager: DataManager, authAPIRepository: RemoteAuthDataSource, logHelper: ILogHelper) {
     init {
         CoroutineScope(Dispatchers.IO).launch {
             val state = tokenManager.getTokenState().first()

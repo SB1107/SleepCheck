@@ -27,7 +27,7 @@ class TimeCountUseCase(
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val noseRingHelper: NoseRingHelper,
-    private  val logHelper: LogHelper
+    private  val logHelper: ILogHelper
 ) {
 
     fun listenTimer() {

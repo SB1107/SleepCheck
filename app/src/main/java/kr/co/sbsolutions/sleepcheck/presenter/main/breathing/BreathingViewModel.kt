@@ -198,11 +198,12 @@ class BreathingViewModel @Inject constructor(
                         }
                         .collectLatest {
                             it.result?.id?.let { id ->
-                                getService()?.startSBSensor(id, SleepType.Breathing)
-                                setMeasuringState(MeasuringState.FiveRecode)
+                                getService()?.startSBSensor(id, SleepType.Breathing){
+                                    setMeasuringState(MeasuringState.FiveRecode)
 
-                                trySend(true)
-                                close()
+                                    trySend(true)
+                                    close()
+                                }
                             }
                         }
                 }

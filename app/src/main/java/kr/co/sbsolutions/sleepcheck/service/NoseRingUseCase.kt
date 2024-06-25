@@ -20,11 +20,9 @@ class NoseRingUseCase(
     private val context: Context,
     private var lifecycleScope: LifecycleCoroutineScope,
     private val noseRingHelper: NoseRingHelper,
-    private val timeHelper: TimeHelper,
     private val settingDataRepository: SettingDataRepository,
     private val dataManager: DataManager,
-    private val sbSensorBlueToothUseCase: SBSensorBlueToothUseCase?,
-) {
+) : INoseRingHelper{
     private val audioClassificationHelper: AudioClassificationHelper by lazy {
         AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
             override fun onError(error: String?) {
@@ -38,39 +36,35 @@ class NoseRingUseCase(
 
     private var timerOfStartAudio: Timer? = null
 
-    fun setCallVibrationNotifications() {
+    fun setCallVibrationNotifications(callback :  (intensity: Int) -> Unit) {
         noseRingHelper.setCallVibrationNotifications {
             lifecycleScope.launch(IO) {
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
-                    callVibrationNotifications(settingDataRepository.getSnoringVibrationIntensity())
+                    callback.invoke(settingDataRepository.getSnoringVibrationIntensity())
                 }
             }
         }
     }
 
-    private fun callVibrationNotifications(intensity: Int) {
-        sbSensorBlueToothUseCase?.callVibrationNotifications(intensity)
-    }
-
-    fun getSnoreTime(): Long {
+    override fun getSnoreTime(): Long {
         return (noseRingHelper.getSnoreTime() / 1000) / 60
     }
 
-    fun getSnoreCount(): Int {
+    override fun getSnoreCount(): Int {
         return noseRingHelper.getSnoreCount()
     }
 
-    fun getCoughCount(): Int {
+    override fun getCoughCount(): Int {
         return noseRingHelper.getCoughCount()
     }
 
-    fun stopAudioClassification() {
+    override fun stopAudioClassification() {
         timerOfStartAudio?.cancel()
         audioClassificationHelper.stopAudioClassification()
     }
 
-    fun snoreCountIncrease() {
+    override fun snoreCountIncrease() {
         noseRingHelper.snoreCountIncrease()
     }
 
@@ -89,7 +83,7 @@ class NoseRingUseCase(
     }
 
     private fun setSnoreTime() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(IO) {
             val time = dataManager.getNoseRingTimer().first()
             val noseRingCount = dataManager.getNoseRingCount().first()
             val coughCount = dataManager.getCoughCount().first()

@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 
-class TimeHelper(private val logHelper: LogHelper) {
+class TimeHelper(private val logHelper: ILogHelper) {
     lateinit var timerJob: Job
     private var time: Int = 0
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()

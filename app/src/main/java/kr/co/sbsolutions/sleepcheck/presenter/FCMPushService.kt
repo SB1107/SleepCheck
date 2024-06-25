@@ -9,7 +9,10 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -18,8 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,7 +35,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
     @Inject
     lateinit var notificationManager: NotificationManager
     @Inject
-    lateinit var logHelper: LogHelper
+    lateinit var logHelper: ILogHelper
 
 
     companion object {

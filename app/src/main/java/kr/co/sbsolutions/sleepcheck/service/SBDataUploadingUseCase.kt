@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.UploadData
 import kr.co.sbsolutions.sleepcheck.common.UploadWorkerHelper
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
@@ -22,25 +21,16 @@ import kr.co.sbsolutions.sleepcheck.service.BLEService.Companion.UPLOADING
 class SBDataUploadingUseCase(
     private val settingDataRepository: SettingDataRepository,
     private val lifecycleScope: LifecycleCoroutineScope,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val lifecycleOwner: LifecycleOwner,
     private val uploadWorkerHelper: UploadWorkerHelper,
-    private var callback: ((Boolean) -> Unit)? = null
+    private var callback: ((Boolean) -> Unit)? = null,
+    private val INoseRingHelper: INoseRingHelper,
 ) {
-    private var sbSensorBlueToothUseCase: SBSensorBlueToothUseCase? = null
-    private var noseRingUseCase: NoseRingUseCase? = null
     private val _resultMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     private val _dataFlowPopUp: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val dataFlowPopUp: StateFlow<Boolean> = _dataFlowPopUp
     private val dataInsufficientUploadFail: MutableSharedFlow<String> = MutableSharedFlow()
-
-    fun setDataUploadingUseCase(sbSensorBlueToothUseCase: SBSensorBlueToothUseCase) {
-        this.sbSensorBlueToothUseCase = sbSensorBlueToothUseCase
-    }
-
-    fun setNoseRingUseCase(noseRingUseCase: NoseRingUseCase) {
-        this.noseRingUseCase = noseRingUseCase
-    }
 
     fun setCallback(callback: (Boolean) -> Unit) {
         this.callback = callback
@@ -54,18 +44,35 @@ class SBDataUploadingUseCase(
         _dataFlowPopUp.emit(false)
     }
 
-    suspend fun uploading(packageName: String, sensorName: String, dataId: Int, forceClose: Boolean = false, isFilePass: Boolean = false , isForced : Boolean = false) {
-        val sleepType = if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+    suspend fun uploading(
+        packageName: String,
+        sensorName: String,
+        dataId: Int,
+        forceClose: Boolean = false,
+        isFilePass: Boolean = false,
+        isForced: Boolean = false,
+        uploadSucceededCallback: () -> Unit
+    ) {
+        val sleepType =
+            if (settingDataRepository.getSleepType() == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("uploading:${sleepType}  업로드")
         _resultMessage.emit(UPLOADING)
         val data = UploadData(
             dataId = dataId,
             sleepType = sleepType,
-            snoreTime = noseRingUseCase?.getSnoreTime() ?: 0,
-            snoreCount = noseRingUseCase?.getSnoreCount() ?: 0,
-            coughCount = noseRingUseCase?.getCoughCount() ?: 0
+            snoreTime = INoseRingHelper.getSnoreTime(),
+            snoreCount = INoseRingHelper.getSnoreCount(),
+            coughCount = INoseRingHelper.getCoughCount()
         )
-        uploadWorker(data, packageName, sensorName, forceClose, isFilePass , isForced)
+        uploadWorker(
+            data,
+            packageName,
+            sensorName,
+            forceClose,
+            isFilePass,
+            isForced,
+            uploadSucceededCallback
+        )
     }
 
     fun getFinishForceCloseCallback(): ((Boolean) -> Unit)? {
@@ -82,10 +89,22 @@ class SBDataUploadingUseCase(
         return _resultMessage.value
     }
 
-    private suspend fun uploadWorker(uploadData: UploadData, packageName: String, sensorName: String, forceClose: Boolean, isFilePass: Boolean = false ,isForced : Boolean = false) {
+    private suspend fun uploadWorker(
+        uploadData: UploadData,
+        packageName: String,
+        sensorName: String,
+        forceClose: Boolean,
+        isFilePass: Boolean = false,
+        isForced: Boolean = false,
+        uploadSucceededCallback: () -> Unit
+    ) {
         _resultMessage.emit(UPLOADING)
         lifecycleScope.launch(Dispatchers.Main) {
-            val newUploadData = uploadData.copy(packageName = packageName, sensorName = sensorName, isFilePass = isFilePass)
+            val newUploadData = uploadData.copy(
+                packageName = packageName,
+                sensorName = sensorName,
+                isFilePass = isFilePass
+            )
             uploadWorkerHelper.uploadData(newUploadData)
                 .observe(lifecycleOwner) { workInfo: WorkInfo? ->
                     if (workInfo != null) {
@@ -95,10 +114,17 @@ class SBDataUploadingUseCase(
                             WorkInfo.State.FAILED -> {
                                 lifecycleScope.launch(IO) {
                                     val reason = workInfo.outputData.getString("reason")
-                                    
+
                                     logHelper.insertLog("서버 업로드 실패 - ${workInfo.outputData.keyValueMap}")
                                     if (reason == null) {
-                                        uploadWorker(uploadData, packageName, sensorName, forceClose, isFilePass)
+                                        uploadWorker(
+                                            uploadData,
+                                            packageName,
+                                            sensorName,
+                                            forceClose,
+                                            isFilePass,
+                                            uploadSucceededCallback = uploadSucceededCallback
+                                        )
                                     } else {
                                         dataInsufficientUploadFail.emit("${reason}으로 데이터 업로드를 실패했습니다.")
                                         if (isForced) {
@@ -119,7 +145,7 @@ class SBDataUploadingUseCase(
                                 lifecycleScope.launch(IO) {
                                     logHelper.insertLog("서버 업로드 종료")
                                     _resultMessage.emit(FINISH)
-                                    sbSensorBlueToothUseCase?.uploadingFinish()
+                                    uploadSucceededCallback.invoke()
                                     callback?.invoke(forceClose)
                                 }
                             }
@@ -130,8 +156,9 @@ class SBDataUploadingUseCase(
     }
 
     fun getUploadFailError(): SharedFlow<String> {
-        return  dataInsufficientUploadFail.asSharedFlow()
+        return dataInsufficientUploadFail.asSharedFlow()
     }
+
     fun getDataFlowPopUp(): StateFlow<Boolean> {
         return dataFlowPopUp
     }
