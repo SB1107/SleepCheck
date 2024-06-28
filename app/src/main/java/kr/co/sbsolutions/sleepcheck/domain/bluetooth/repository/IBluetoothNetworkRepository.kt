@@ -38,7 +38,7 @@ interface IBluetoothNetworkRepository {
     fun disconnectedDevice(sbBluetoothDevice: SBBluetoothDevice)
     fun releaseResource()
 
-    fun startNetworkSBSensor(dataId: Int, sleepType: SleepType)
+    fun startNetworkSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean)
     fun stopNetworkSBSensor(snoreTime : Long = 0 ,callback: (() -> Unit))
     fun endNetworkSBSensor(isForcedClose: Boolean)
     fun startMotorTest(intensity : Int)

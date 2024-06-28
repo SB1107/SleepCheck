@@ -51,8 +51,10 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.Timer
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.concurrent.timerTask
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
@@ -74,6 +76,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
     private lateinit var sendDownloadContinueJob: Job
+    private var timerOfSendDownloadTimer: Timer? = null
 
 
     companion object {
@@ -415,13 +418,13 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
-        val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
-        if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered) {
+    override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean) {
+        if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered || !hasSensor) {
             _sbSensorInfo.update { it.copy(dataId = dataId, sleepType = sleepType, snoreTime = 0) }
             return
         }
 
+        val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
         if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
             writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
                 _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
@@ -513,6 +516,16 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDownloadSbSensor(isContinue: Boolean) {
+        if (isContinue.not()) {
+            timerOfSendDownloadTimer?.cancel()
+            timerOfSendDownloadTimer = Timer().apply {
+                schedule(timerTask {
+                    logHelper.insertLog("operateDownloadSbSensor 다시 콜 메모리 10초 응답 없음")
+                    operateDownloadSbSensor(isContinue)
+                }, 10000L)
+            }
+        }
+
         writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
@@ -1326,6 +1339,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.SendDownload -> {
                                     downloadContinueCount = 0
                                     lastDownloadCompleteCallback?.invoke(BLEService.FinishState.FinishNormal)
+                                    timerOfSendDownloadTimer?.cancel()
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.FinishDownload) }
                                     Log.d(TAG, "readData: finish 먼저!!")
 //                                it.bluetoothState = BluetoothState.Connected.FinishDownload

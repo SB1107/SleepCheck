@@ -530,151 +530,155 @@ class HistoryDetailActivity : BaseActivity() {
     ) {
         var width by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Box(
+        Box {
+            Column(
                 modifier = Modifier
-                    .padding(top = 24.dp, start = 20.dp, end = 20.dp)
                     .fillMaxWidth()
-                    .padding(16.dp, 3.dp),
-                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .padding(top = 24.dp, start = 20.dp, end = 20.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp, 3.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            modifier = Modifier
-                                .weight(9f),
-                            text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(R.string.detail_your_snoring_score_during_sleep),
-                            color = Color.White,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Image(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 5.dp)
-                                .clickable {
-                                    if (type == 0) {
-                                        viewModel.sendInfoMessage(getString(R.string.detail_respiratory_score), getString(R.string.detail_breathing_score_text))
-                                    } else {
-                                        viewModel.sendInfoMessage(getString(R.string.detail_snoring_score), getString(R.string.detail_breathing_score_text))
-                                    }
-                                },
-                            painter = painterResource(id = R.drawable.question),
-                            contentDescription = ""
-                        )
-                    }
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                modifier = Modifier.offset(x = 20.dp),
+                                text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(R.string.detail_your_snoring_score_during_sleep),
+                                color = Color.White,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Image(
+                                modifier = Modifier
+                                    .padding(start = 5.dp)
+                                    .offset(x = 20.dp)
+                                    .clickable {
+                                        if (type == 0) {
+                                            viewModel.sendInfoMessage(getString(R.string.detail_respiratory_score), getString(R.string.detail_breathing_score_text))
+                                        } else {
+                                            viewModel.sendInfoMessage(getString(R.string.detail_snoring_score), getString(R.string.detail_breathing_score_text))
+                                        }
+                                    },
+                                painter = painterResource(id = R.drawable.question),
+                                contentDescription = ""
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.height(16.dp))
+//                        Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
+                            modifier = Modifier.fillMaxWidth(),
                             text = stringResource(R.string.detail_score, percentValue),
                             color = Color.White,
                             fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
-                        if ((type ?: 0) == 0) {
-                            LottieLoading(modifier = Modifier
-                                .padding(start = 8.dp)
-                                .size(40.dp)
-                                .clickable {
-                                    viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
-                                })
-                        }
+//                        }
                     }
                 }
-            }
 
-            Box(contentAlignment = Alignment.Center) {
-                val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
-                Image(
-                    modifier = Modifier.padding(start = percent),
-                    painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
-                    contentDescription = ""
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
+                    Image(
+                        modifier = Modifier.padding(start = percent),
+                        painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
+                        contentDescription = ""
+                    )
 
-                Text(
+                    Text(
+                        modifier = Modifier
+                            .padding(start = percent)
+                            .offset(y = (-5).dp),
+                        text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
+                        color = colorResource(id = R.color.md_grey_800),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Box(
                     modifier = Modifier
-                        .padding(start = percent)
-                        .offset(y = (-5).dp),
-                    text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
-                    color = colorResource(id = R.color.md_grey_800),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .padding(18.dp, 0.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(40.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                colorResource(id = R.color.color_EB361B),
-                                colorResource(id = R.color.color_FFF33A),
-                                colorResource(id = R.color.color_44A64B)
-                            ),
-                            startX = 0f,
-                            endX = Float.POSITIVE_INFINITY
+                        .padding(18.dp, 0.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(40.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    colorResource(id = R.color.color_EB361B),
+                                    colorResource(id = R.color.color_FFF33A),
+                                    colorResource(id = R.color.color_44A64B)
+                                ),
+                                startX = 0f,
+                                endX = Float.POSITIVE_INFINITY
+                            )
                         )
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.color_FFFFFF),
-                        shape = RoundedCornerShape(40.dp)
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        width = with(density) {
-                            coordinates.size.width.toDp()
+                        .border(
+                            width = 1.dp,
+                            color = colorResource(id = R.color.color_FFFFFF),
+                            shape = RoundedCornerShape(40.dp)
+                        )
+                        .onGloballyPositioned { coordinates ->
+                            width = with(density) {
+                                coordinates.size.width.toDp()
+                            }
                         }
-                    }
-            ) {
-                Spacer(modifier = Modifier.height(25.dp))
+                ) {
+                    Spacer(modifier = Modifier.height(25.dp))
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.SpaceBetween,
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .offset(x = (-5).dp)
+                            .padding(top = 4.dp),
+                        text = startText,
+                        color = Color.White,
+                        fontSize = startTextSize,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        modifier = Modifier
+                            .offset(x = (-5).dp)
+                            .padding(top = 4.dp),
+                        text = centerText,
+                        color = Color.White,
+                        fontSize = centerTextSize,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        modifier = Modifier
+                            .offset(x = (-10).dp)
+                            .padding(top = 4.dp),
+                        text = endText,
+                        color = Color.White,
+                        fontSize = endTextSize,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 24.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-5).dp)
-                        .padding(top = 4.dp),
-                    text = startText,
-                    color = Color.White,
-                    fontSize = startTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (5).dp)
-                        .padding(top = 4.dp),
-                    text = centerText,
-                    color = Color.White,
-                    fontSize = centerTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-10).dp)
-                        .padding(top = 4.dp),
-                    text = endText,
-                    color = Color.White,
-                    fontSize = endTextSize,
-                    fontWeight = FontWeight.Bold
-                )
+            if ((type ?: 0) == 0) {
+                LottieLoading(modifier = Modifier
+                    .size(150.dp)
+                    .offset(x = ((width / 2) + 10.dp) , y =  20.dp)
+                    .clickable {
+                        viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
+                    })
             }
         }
     }
+
 
     @Composable
     private fun HeaderTitleView(title: String, detailText: String? = null) {

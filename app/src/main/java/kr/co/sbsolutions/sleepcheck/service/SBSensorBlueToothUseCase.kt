@@ -140,7 +140,7 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun uploadingFinish() {
+    private fun uploadingFinish() {
         lifecycleScope.launch(IO) {
             fireBaseRealRepository.remove(getSensorName(), bluetoothNetworkRepository.sbSensorInfo.value.dataId.toString())
         }
@@ -166,10 +166,19 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.reConnectDevice { isMaxCount ->
                 if (isMaxCount) {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 객체는 있으나 $MAX_RETRY 로인하여 디바이스 검색")
-                    forceSbScanDevice(context, bluetoothAdapter , bluetoothState = BluetoothState.DisconnectedNotIntent)
+                    forceSbScanDevice(
+                        context,
+                        bluetoothAdapter,
+                        bluetoothState = BluetoothState.DisconnectedNotIntent
+                    )
                 } else {
                     logHelper.insertLog("강제 연결 시도 하였으나 gatt 연결 부재 로 다시 connect 호출")
-                    connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
+                    connectDevice(
+                        context,
+                        bluetoothAdapter,
+                        isForceBleDeviceConnect = false,
+                        bluetoothState = BluetoothState.DisconnectedNotIntent
+                    )
                 }
                 count++
             }
@@ -178,10 +187,17 @@ class SBSensorBlueToothUseCase(
         connectJob = lifecycleScope.launch {
             if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
                 lifecycleScope.launch {
-                    val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
+                    val address =
+                        dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString())
+                            .first()
                     address?.let {
                         bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
-                        connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect, callback = callback)
+                        connectDevice(
+                            context,
+                            bluetoothAdapter,
+                            isForceBleDeviceConnect,
+                            callback = callback
+                        )
                         Log.e(TAG, "connectDevice: call2")
                     } ?: run {
                         disconnectDevice(context, bluetoothAdapter)
@@ -195,8 +211,10 @@ class SBSensorBlueToothUseCase(
                 count++
                 //연결 시도가 중복되는 경우가 있어 gatt 연결이 다중으로 접속이되는경우가 있음
                 // 디바이스 주소로 디바이스 객체를 가져와서 각트 에서 연결 상태 확인후 연결을 시도 한다.
-                val device = bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
-                val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+                val device =
+                    bluetoothAdapter?.getRemoteDevice(bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress)
+                val bluetoothManager =
+                    context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 //                        disconnectDevice()
 //                        val address = bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
                 /*Log.d(TAG, "주소주소: $address ")
@@ -219,7 +237,14 @@ class SBSensorBlueToothUseCase(
                 if (getDeviceName.isEmpty()) {
                     logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
                     resetBleGattList()
-                    val gatt = device?.connectGatt(context, true, bluetoothNetworkRepository.getGattCallback(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice, bluetoothState))
+                    val gatt = device?.connectGatt(
+                        context,
+                        true,
+                        bluetoothNetworkRepository.getGattCallback(
+                            bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice,
+                            bluetoothState
+                        )
+                    )
                     gatt?.let { bleGattList.add(it) }
                     count = 0
                     getOneDataIdReadData()
@@ -238,9 +263,10 @@ class SBSensorBlueToothUseCase(
 
     private fun getOneDataIdReadData() {
         lifecycleScope.launch(IO) {
-            fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString()).collectLatest {
-                bluetoothNetworkRepository.setRealData(it)
-            }
+            fireBaseRealRepository.oneDataIdReadData(getSensorName(), getDataId().toString())
+                .collectLatest {
+                    bluetoothNetworkRepository.setRealData(it)
+                }
         }
     }
 
@@ -258,7 +284,8 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.disconnectedDevice(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice)
         bluetoothNetworkRepository.releaseResource()
 
-        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager =
+            context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
         for (device in gattDevices) {
             // BluetoothAdapter 객체를 가져옵니다.
@@ -299,7 +326,12 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true, callback: () -> Unit) {
+    fun startSBSensor(
+        dataId: Int,
+        sleepType: SleepType,
+        hasSensor: Boolean = true,
+        callback: () -> Unit
+    ) {
         isStartAndStopCancel = false
         if (hasSensor) {
             sleepDataCreate(dataId, sleepType)
@@ -309,17 +341,17 @@ class SBSensorBlueToothUseCase(
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
             dataManager.setHasSensor(hasSensor)
             sbSensorDBRepository.deleteAll()
+            bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType, hasSensor).run {
+                logHelper.insertLog("startNetworkSBSensor")
+            }
             if (hasSensor) {
-                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType).run {
-                    logHelper.insertLog("startNetworkSBSensor")
-                }
                 startJob = lifecycleScope.launch {
                     timerOfStartMeasure?.cancel()
                     while (retryCount <= MAX_RETRY && isStartAndStopCancel.not()) {
                         delay(1500)
                         timerOfStartMeasure = Timer().apply {
                             schedule(timerTask {
-                                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType)
+                                bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType, hasSensor = true)
                                 logHelper.insertLog("timerOfStartMeasure - startNetworkSBSensor")
                             }, 0L)
                         }
@@ -367,20 +399,29 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.setDataFlowForceFinish {
             logHelper.registerJob("setDataFlowFinish", lifecycleScope.launch(IO) {
                 DataFlowHelper(
-                    sensorName = getSensorName(), logHelper = logHelper, coroutineScope = this,
-                    settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
+                    sensorName = getSensorName(),
+                    logHelper = logHelper,
+                    coroutineScope = this,
+                    settingDataRepository = settingDataRepository,
+                    sbSensorDBRepository = sbSensorDBRepository,
                     bluetoothNetworkRepository = bluetoothNetworkRepository,
                     fireBaseRealRepository = fireBaseRealRepository
                 ) { chainData ->
                     launch {
                         when (chainData.isSuccess) {
                             true -> {
-                                val sensorName = dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
+                                val sensorName =
+                                    dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name)
+                                        .first() ?: ""
                                 chainData.dataId?.let { id ->
                                     logHelper.insertLog("uploading:${bluetoothNetworkRepository.sbSensorInfo.value.sleepType} dataFlow 좀비 업로드")
-                                    sbDataUploadingUseCase.uploading(packageName, sensorName, id, uploadSucceededCallback = {
-                                        uploadingFinish()
-                                    })
+                                    sbDataUploadingUseCase.uploading(
+                                        packageName,
+                                        sensorName,
+                                        id,
+                                        uploadSucceededCallback = {
+                                            uploadingFinish()
+                                        })
                                 }
                                 bluetoothNetworkRepository.setDataFlow(false)
                             }
@@ -427,15 +468,22 @@ class SBSensorBlueToothUseCase(
                     }
                     logHelper.insertLog("12 시간 강제 종료")
                     stopSBSensor()
-                    val forceClose = BLEService.getInstance()?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
+                    val forceClose = BLEService.getInstance()
+                        ?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
                     bluetoothNetworkRepository.sbSensorInfo.value.let {
                         it.dataId?.let { dataId ->
                             lifecycleScope.launch(IO) {
-                                sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isForced = true, uploadSucceededCallback = {
-                                    uploadingFinish()
-                                })
+                                sbDataUploadingUseCase.uploading(
+                                    packageName,
+                                    getSensorName(),
+                                    dataId,
+                                    isForced = true,
+                                    uploadSucceededCallback = {
+                                        uploadingFinish()
+                                    })
                             }
-                        } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
+                        } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()
+                            ?.invoke(forceClose)
                     }
                 }, TIME_OUT_MEASURE)
             }
@@ -476,7 +524,9 @@ class SBSensorBlueToothUseCase(
         } else {
             bluetoothNetworkRepository.setSBSensorCancel(isCancel)
             if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
-                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0) {
+                bluetoothNetworkRepository.stopNetworkSBSensor(
+                    noseRingUseCase?.getSnoreTime() ?: 0
+                ) {
                     if (::stopJob.isInitialized) {
                         stopJob.cancel()
                     }
@@ -490,7 +540,9 @@ class SBSensorBlueToothUseCase(
                         delay(10000)
                         timerOfStopMeasure = Timer().apply {
                             schedule(timerTask {
-                                bluetoothNetworkRepository.stopNetworkSBSensor(noseRingUseCase?.getSnoreTime() ?: 0) {
+                                bluetoothNetworkRepository.stopNetworkSBSensor(
+                                    noseRingUseCase?.getSnoreTime() ?: 0
+                                ) {
                                     if (::stopJob.isInitialized) {
                                         stopJob.cancel()
                                     }
@@ -525,9 +577,14 @@ class SBSensorBlueToothUseCase(
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
                         logHelper.insertLog("isCancel.not: ${dataId} hasSensor: ${hasSensor} isCancel: ${isCancel}")
-                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, isFilePass = if (hasSensor) checkDataSize().first() else true, uploadSucceededCallback = {
-                            uploadingFinish()
-                        })
+                        sbDataUploadingUseCase.uploading(
+                            packageName,
+                            getSensorName(),
+                            dataId,
+                            isFilePass = if (hasSensor) checkDataSize().first() else true,
+                            uploadSucceededCallback = {
+                                uploadingFinish()
+                            })
                     }
                 }
             }
@@ -585,7 +642,8 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.dataId?.let { dataId ->
                 val min = sbSensorDBRepository.getMinIndex(dataId)
                 val max = sbSensorDBRepository.getMaxIndex(dataId)
-                val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
+                val size =
+                    sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
                 send(size < MINIMUM_UPLOAD_NUMBER)
                 Log.d(TAG, "send(size < MINIMUM_UPLOAD_NUMBER):  ${size < MINIMUM_UPLOAD_NUMBER}")
                 close()
@@ -605,13 +663,21 @@ class SBSensorBlueToothUseCase(
                     lifecycleScope.launch(IO) {
                         val max = sbSensorDBRepository.getMaxIndex(dataId)
                         val min = sbSensorDBRepository.getMinIndex(dataId)
-                        val size = sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max).first()
+                        val size =
+                            sbSensorDBRepository.getSelectedSensorDataListCount(dataId, min, max)
+                                .first()
                         logHelper.insertLog("forcedFlow - Index From $min~$max = ${max - min + 1} / Data Size : $size")
                         if ((max - min + 1) == size) {
                             logHelper.insertLog("(max - min + 1) == size)")
-                            sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, false, isForced = true, uploadSucceededCallback = {
-                                uploadingFinish()
-                            })
+                            sbDataUploadingUseCase.uploading(
+                                packageName,
+                                getSensorName(),
+                                dataId,
+                                false,
+                                isForced = true,
+                                uploadSucceededCallback = {
+                                    uploadingFinish()
+                                })
                         } else {
                             logHelper.insertLog("(max - min + 1) != size)")
                             sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(true)
@@ -634,9 +700,14 @@ class SBSensorBlueToothUseCase(
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 it.dataId?.let { dataId ->
                     lifecycleScope.launch(IO) {
-                        sbDataUploadingUseCase.uploading(packageName, getSensorName(), dataId, forceClose, uploadSucceededCallback = {
-                            uploadingFinish()
-                        })
+                        sbDataUploadingUseCase.uploading(
+                            packageName,
+                            getSensorName(),
+                            dataId,
+                            forceClose,
+                            uploadSucceededCallback = {
+                                uploadingFinish()
+                            })
                         logHelper.insertLog("uploading: register")
                     }
                 } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()?.invoke(forceClose)
@@ -664,20 +735,28 @@ class SBSensorBlueToothUseCase(
             sbDataUploadingUseCase.dataFlowPopUpDismiss()
             DataFlowHelper(
                 sensorName = getSensorName(),
-                logHelper = logHelper, coroutineScope = this,
-                settingDataRepository = settingDataRepository, sbSensorDBRepository = sbSensorDBRepository,
+                logHelper = logHelper,
+                coroutineScope = this,
+                settingDataRepository = settingDataRepository,
+                sbSensorDBRepository = sbSensorDBRepository,
                 bluetoothNetworkRepository = bluetoothNetworkRepository,
                 fireBaseRealRepository = fireBaseRealRepository
             ) { chainData ->
                 launch {
                     when (chainData.isSuccess) {
                         true -> {
-                            val sensorName = dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
+                            val sensorName =
+                                dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name)
+                                    .first() ?: ""
                             chainData.dataId?.let { id ->
                                 logHelper.insertLog("uploading:${bluetoothNetworkRepository.sbSensorInfo.value.sleepType} dataFlow 좀비 업로드")
-                                sbDataUploadingUseCase.uploading(packageName, sensorName, id, uploadSucceededCallback = {
-                                    uploadingFinish()
-                                })
+                                sbDataUploadingUseCase.uploading(
+                                    packageName,
+                                    sensorName,
+                                    id,
+                                    uploadSucceededCallback = {
+                                        uploadingFinish()
+                                    })
                             }
                             bluetoothNetworkRepository.setDataFlow(false)
                         }
@@ -696,12 +775,17 @@ class SBSensorBlueToothUseCase(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: () -> Unit) {
+    suspend fun startSBService(
+        context: Context,
+        bluetoothAdapter: BluetoothAdapter?,
+        callback: () -> Unit
+    ) {
         val sleepType = settingDataRepository.getSleepType()
         settingDataRepository.getDataId()?.let {
             bluetoothNetworkRepository.sbSensorInfo.value.dataId = it
         }
-        bluetoothNetworkRepository.sbSensorInfo.value.sleepType = if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
+        bluetoothNetworkRepository.sbSensorInfo.value.sleepType =
+            if (sleepType == SleepType.Breathing.name) SleepType.Breathing else SleepType.NoSering
         logHelper.insertLog("${if (bluetoothNetworkRepository.sbSensorInfo.value.sleepType == SleepType.Breathing) "호흡" else "코골이"} 측정 시작")
         logHelper.insertLog("서비스 상태: ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothState}")
         val hasSensor = dataManager.getHasSensor().first()
@@ -738,12 +822,17 @@ class SBSensorBlueToothUseCase(
 
     fun deletePastList() {
         lifecycleScope.launch(IO) {
-            bluetoothNetworkRepository.sbSensorInfo.value.dataId?.let { sbSensorDBRepository.deletePastList(it) }
+            bluetoothNetworkRepository.sbSensorInfo.value.dataId?.let {
+                sbSensorDBRepository.deletePastList(
+                    it
+                )
+            }
         }
     }
 
     suspend fun getSensorName(): String {
-        return dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name).first() ?: ""
+        return dataManager.getBluetoothDeviceName(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice.type.name)
+            .first() ?: ""
     }
 
     fun unregisterDownloadCallback() {
@@ -779,10 +868,16 @@ class SBSensorBlueToothUseCase(
                 launch {
                     blueToothScanHelper.isScanning.collectLatest { isScanning ->
                         if (isScanning.not()) {
-                            val device = blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
+                            val device =
+                                blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
                             device?.let {
                                 logHelper.insertLog("디바이스 찾기 완료")
-                                connectDevice(context, bluetoothAdapter, bluetoothState = bluetoothState, callback = callback)
+                                connectDevice(
+                                    context,
+                                    bluetoothAdapter,
+                                    bluetoothState = bluetoothState,
+                                    callback = callback
+                                )
                                 job?.cancel()
                             } ?: run {
                                 logHelper.insertLog("디바이스 찾기 실패")
@@ -790,7 +885,13 @@ class SBSensorBlueToothUseCase(
                                     logHelper.insertLog("디바이스 연결됨")
                                     callback?.invoke(ForceConnectDeviceMessage.SUCCESS)
                                 } else {
-                                    callback?.invoke(ForceConnectDeviceMessage.FAIL(context.getString(R.string.sensor_disconnect_error2)))
+                                    callback?.invoke(
+                                        ForceConnectDeviceMessage.FAIL(
+                                            context.getString(
+                                                R.string.sensor_disconnect_error2
+                                            )
+                                        )
+                                    )
                                 }
                                 job?.cancel()
                             }

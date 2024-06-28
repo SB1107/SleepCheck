@@ -68,12 +68,12 @@ object Components {
 
     @Composable
     fun LottieLoading(modifier: Modifier) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.question_ani))
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.question_new))
         Box(
             modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
-            LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever)
+            LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever,  contentScale = ContentScale.FillBounds)
         }
     }
 
