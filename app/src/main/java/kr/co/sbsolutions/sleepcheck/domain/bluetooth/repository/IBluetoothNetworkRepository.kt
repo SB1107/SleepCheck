@@ -45,7 +45,7 @@ interface IBluetoothNetworkRepository {
     fun getFirmwareVersion(): Flow<FirmwareData?>
     fun operateRealtimeSBSensor()
     fun operateDelayedSBSensor()
-    fun operateDownloadSbSensor(isContinue: Boolean)
+    fun operateDownloadSbSensor(isCancel: Boolean, isContinue: Boolean)
     fun operateDeleteSbSensor(isAllDelete: Boolean)
     fun startNetworkSpO2Sensor()
     fun stopNetworkSpO2Sensor()

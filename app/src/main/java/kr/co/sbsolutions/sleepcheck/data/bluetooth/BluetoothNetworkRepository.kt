@@ -515,13 +515,13 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun operateDownloadSbSensor(isContinue: Boolean) {
-        if (isContinue.not()) {
+    override fun operateDownloadSbSensor(isCancel : Boolean, isContinue: Boolean) {
+        if (isContinue.not() and isCancel.not()) {
             timerOfSendDownloadTimer?.cancel()
             timerOfSendDownloadTimer = Timer().apply {
                 schedule(timerTask {
                     logHelper.insertLog("operateDownloadSbSensor 다시 콜 메모리 10초 응답 없음")
-                    operateDownloadSbSensor(isContinue)
+                    operateDownloadSbSensor(isCancel, isContinue)
                 }, 10000L)
             }
         }

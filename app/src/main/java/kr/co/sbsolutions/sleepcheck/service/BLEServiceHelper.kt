@@ -310,7 +310,7 @@ class BLEServiceHelper(
         blueToothUseCase?.stopScheduler()
         blueToothUseCase?.deletePastList()
         if (!forceCancel) {
-            blueToothUseCase?.stopOperateDownloadSbSensor()
+            blueToothUseCase?.stopOperateDownloadSbSensor(isCancel = true)
         }
     }
 

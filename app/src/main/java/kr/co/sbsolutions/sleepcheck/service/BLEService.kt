@@ -291,7 +291,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.OperateDownloadSBSensor -> {
-                bluetoothNetworkRepository.operateDownloadSbSensor(false)
+                bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = false, isContinue = false)
             }
 
             ActionMessage.OperateDeleteSectorSBSensor -> {

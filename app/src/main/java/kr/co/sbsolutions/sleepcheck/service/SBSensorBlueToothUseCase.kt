@@ -74,6 +74,7 @@ class SBSensorBlueToothUseCase(
     private var isStartAndStopCancel = false
     private var removedRealData: MutableStateFlow<RealData?> = MutableStateFlow(null)
     private var count: Int = 0
+    private var connectCount = 0
 
     companion object {
         val bleGattList: MutableList<BluetoothGatt> = mutableListOf()
@@ -444,15 +445,15 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.releaseResource()
     }
 
-    fun stopOperateDownloadSbSensor() {
-        bluetoothNetworkRepository.operateDownloadSbSensor(false)
+    fun stopOperateDownloadSbSensor(isCancel: Boolean = false) {
+        bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = isCancel , isContinue = false)
     }
 
     fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
-                    bluetoothNetworkRepository.operateDownloadSbSensor(true)
+                    bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = false, isContinue = true)
                 }
             }
         }
@@ -868,8 +869,18 @@ class SBSensorBlueToothUseCase(
                 launch {
                     blueToothScanHelper.isScanning.collectLatest { isScanning ->
                         if (isScanning.not()) {
-                            val device =
-                                blueToothScanHelper.scanList.value.firstOrNull { device -> device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress }
+                            if (bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress == null) {
+                                val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.toString()).first()
+                                address?.let {
+                                    bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress = address
+                                    logHelper.insertLog("bluetoothAddress 객체 없음 = $address 주입")
+                                }
+                            }
+                            val device = blueToothScanHelper.scanList.value.firstOrNull { device ->
+                                logHelper.insertLog("검색 ${device.name} = ${device.address}")
+                                logHelper.insertLog("등록된 주소 = ${bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress}")
+                                device.address == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothAddress
+                            }
                             device?.let {
                                 logHelper.insertLog("디바이스 찾기 완료")
                                 connectDevice(
@@ -881,6 +892,14 @@ class SBSensorBlueToothUseCase(
                                 job?.cancel()
                             } ?: run {
                                 logHelper.insertLog("디바이스 찾기 실패")
+                                if (connectCount == 0) {
+                                    connectCount += 1
+                                }else{
+                                    logHelper.insertLog("디바이스 연결 실패 카운트 초과 강제 세션 맺기 호출")
+                                    connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect = false, bluetoothState = BluetoothState.DisconnectedNotIntent)
+                                    job?.cancel()
+                                    return@run
+                                }
                                 if (bluetoothNetworkRepository.isSBSensorConnect().first) {
                                     logHelper.insertLog("디바이스 연결됨")
                                     callback?.invoke(ForceConnectDeviceMessage.SUCCESS)
