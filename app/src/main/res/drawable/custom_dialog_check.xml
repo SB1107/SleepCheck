@@ -7,7 +7,7 @@
                 android:bottomRightRadius="20dp"
                 android:topLeftRadius="20dp"
                 android:topRightRadius="20dp" />
-            <solid android:color="#FFDB1C" />
+            <solid android:color="#2F9781" />
         </shape>
     </item>
 </ripple>

@@ -208,5 +208,5 @@ dependencies {
     //Android-DFU-Library
     implementation("no.nordicsemi.android:dfu:2.4.2")
 
-
+    implementation("dev.shreyaspatil:capturable:2.1.0")
 }

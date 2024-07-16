@@ -217,9 +217,9 @@ class HistoryFragment : Fragment() {
                     Modifier
                         .size(74.dp, 45.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(color = colorResource(id = R.color.color_yellow))
+                        .background(color = colorResource(id = R.color.color_main))
                 ) {
-                    Text(text = stringResource(R.string.detail), fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
+                    Text(text = stringResource(R.string.detail), fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.White)
                 }
             }
         }

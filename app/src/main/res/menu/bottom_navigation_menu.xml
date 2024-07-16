@@ -7,11 +7,11 @@
         android:enabled="true"
         />
 
-    <item
-        android:id="@+id/navigation_no_sering"
-        android:icon="@drawable/selector_menu_2"
-        android:title="@string/menu_nosering_noti"
-        android:enabled="true" />
+<!--    <item-->
+<!--        android:id="@+id/navigation_no_sering"-->
+<!--        android:icon="@drawable/selector_menu_2"-->
+<!--        android:title="@string/menu_nosering_noti"-->
+<!--        android:enabled="true" />-->
 
     <item
         android:id="@+id/navigation_history"

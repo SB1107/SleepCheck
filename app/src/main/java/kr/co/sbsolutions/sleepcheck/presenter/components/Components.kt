@@ -4,13 +4,18 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,8 +46,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -73,7 +82,11 @@ object Components {
             modifier = modifier,
             contentAlignment = Alignment.Center
         ) {
-            LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever,  contentScale = ContentScale.FillBounds)
+            LottieAnimation(
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+                contentScale = ContentScale.FillBounds
+            )
         }
     }
 
@@ -175,8 +188,14 @@ object Components {
             }
         }
     }
+
     @Composable
-    fun SoomDetailText(text: String, textSize: Int, color: Color = Color.White, fontWeight: FontWeight) {
+    fun SoomDetailText(
+        text: String,
+        textSize: Int,
+        color: Color = Color.White,
+        fontWeight: FontWeight
+    ) {
         Text(
             text = text,
             style = TextStyle(color = color),
@@ -184,9 +203,9 @@ object Components {
             fontWeight = fontWeight,
         )
     }
-    
+
     @Composable
-    fun SoomQuestionImage(sheet: Boolean = false){
+    fun SoomQuestionImage(sheet: Boolean = false) {
         var showBottomSheet by remember { mutableStateOf(sheet) }
         Log.d(TAG, "SoomQuestionImage: $sheet")
         var ssheet: Boolean = sheet
@@ -196,18 +215,22 @@ object Components {
             contentDescription = ""
         )
     }
-    
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun SoomShowBottomSheet(showBottomSheet: Boolean = false, title: String, explanation: String? = null){
+    fun SoomShowBottomSheet(
+        showBottomSheet: Boolean = false,
+        title: String,
+        explanation: String? = null
+    ) {
         val sheetState = rememberModalBottomSheetState()
         val scope = rememberCoroutineScope()
-        
+
         var soomShowBottomSheet by remember { mutableStateOf(showBottomSheet) }
-        
+
         Log.d(TAG, "SoomShowBottomSheet: $soomShowBottomSheet")
         explanation?.let { explanation ->
-            
+
             if (soomShowBottomSheet) {
                 ModalBottomSheet(
                     containerColor = colorResource(id = R.color.color_1A447D),
@@ -239,7 +262,7 @@ object Components {
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                             )
-                            
+
                             Text(
                                 modifier = Modifier
                                     .padding(top = 10.dp, bottom = 25.dp),
@@ -260,7 +283,7 @@ object Components {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(50.dp),
-                                
+
                                 onClick = {
                                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                                         if (!sheetState.isVisible) {
@@ -286,17 +309,28 @@ object Components {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun SoomScaffold(
-        bgImage: Int = R.drawable.back1, topText: String = "결과",
+        bgImage: Int = R.drawable.back1, bgColor: Color? = null, topText: String = "결과",
         topAction: () -> Unit, row: @Composable RowScope.() -> Unit = {},
         childView: @Composable () -> Unit
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = colorResource(id = R.color.color_134895))
+        ) {
             Image(
                 painter = painterResource(id = bgImage),
                 contentDescription = "배경",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.FillBounds
             )
+            bgColor?.let {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = it)
+                )
+            }
             Column(
                 Modifier
                     .fillMaxSize()
@@ -329,9 +363,9 @@ object Components {
             }
         }
     }
-    
+
     @Composable
-    fun SoomImage(viewModel: HistoryDetailViewModel){
+    fun SoomImage(viewModel: HistoryDetailViewModel) {
         Image(
             modifier = Modifier.clickable { viewModel },
             painter = painterResource(id = R.drawable.question),
@@ -343,11 +377,11 @@ object Components {
     @Composable
     fun SoomBottomSheet(
         modifier: Modifier = Modifier,
-        closeSheet: ( () -> Unit),
+        closeSheet: (() -> Unit),
         message: String? = null
-    ){
+    ) {
         val sheetState = rememberModalBottomSheetState()
-        
+
         ModalBottomSheet(
             onDismissRequest = closeSheet,
             sheetState = sheetState,
@@ -364,10 +398,10 @@ object Components {
                     )
                 }
             }
-            
+
         }
     }
-    
+
     @Composable
     fun SoomDetailText(text: String, textSize: Int, color: Color = Color.White) {
         Text(
@@ -376,7 +410,7 @@ object Components {
             fontSize = textSize.sp
         )
     }
-    
+
     @Composable
     fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
         val eventHandler = rememberUpdatedState(onEvent)
@@ -391,6 +425,64 @@ object Components {
             lifecycle.addObserver(observer)
             onDispose {
                 lifecycle.removeObserver(observer)
+            }
+        }
+    }
+
+    @Composable
+    fun GraphsView(
+        listData: List<String> = emptyList(),
+        drawColors: List<Color> = listOf(
+            Color.Transparent,
+            Color.Green,
+            Color.Yellow,
+            Color.Red,
+            Color.Blue
+        ),
+        startText: String = "", endText: String = ""
+    ) {
+        var width by remember { mutableStateOf(0.dp) }
+        var height by remember { mutableStateOf(0.dp) }
+        val density = LocalDensity.current
+        Column {
+            Box( // 캔버스를 감싸는 Box 추가
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(8.dp)) // Box에 라운딩 적용
+                    .background(color = colorResource(id = R.color.color_9D9D9D))
+            ) {
+                Canvas(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .onGloballyPositioned { coordinates ->
+                        width = with(density) {
+                            coordinates.size.width.toDp()
+                        }
+                        height = with(density) {
+                            coordinates.size.height.toDp()
+                        }
+                    }) {
+                    val oneSize = width.toPx() / listData.size
+                    listData.mapIndexed { index, value ->
+                        value.toIntOrNull()?.let {
+                            drawRect(
+                                color = drawColors[it],
+                                topLeft = Offset(oneSize * index, 0f),
+                                size = Size(oneSize, height.toPx())
+                            )
+
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = startText, color = Color.White)
+                Text(text = endText, color = Color.White)
             }
         }
     }

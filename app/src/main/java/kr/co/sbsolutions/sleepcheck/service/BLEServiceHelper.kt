@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.BlueToothScanHelper
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.common.DataManager
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.NoseRingHelper
 import kr.co.sbsolutions.sleepcheck.common.TimeHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
@@ -31,6 +30,7 @@ import kr.co.sbsolutions.sleepcheck.data.firebasedb.RealData
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
@@ -50,6 +50,7 @@ class BLEServiceHelper(
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val blueToothScanHelper: BlueToothScanHelper,
+    private val noseRingDataRepository: NoseRingDataRepository,
     private var lifecycleScope: LifecycleCoroutineScope? = null,
     private var sbSensorUseCase: SBSensorUseCase? = null,
     private var timeCountUseCase: TimeCountUseCase? = null,
@@ -95,7 +96,8 @@ class BLEServiceHelper(
             lifecycleScope,
             noseRingHelper,
             settingDataRepository,
-            dataManager
+            dataManager,
+            noseRingDataRepository
         )
         this.sbDataUploadingUseCase = SBDataUploadingUseCase(
             settingDataRepository,
@@ -117,7 +119,8 @@ class BLEServiceHelper(
             logHelper,
             blueToothScanHelper,
             packageName,
-            noseRingUseCase
+            noseRingUseCase,
+            noseRingDataRepository
         )
         this.sbSensorUseCase = SBSensorUseCase(
             sbSensorDBRepository,
@@ -310,7 +313,7 @@ class BLEServiceHelper(
         blueToothUseCase?.stopScheduler()
         blueToothUseCase?.deletePastList()
         if (!forceCancel) {
-            blueToothUseCase?.stopOperateDownloadSbSensor(isCancel = true)
+            blueToothUseCase?.stopOperateDownloadSbSensor()
         }
     }
 

@@ -515,16 +515,16 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    override fun operateDownloadSbSensor(isCancel : Boolean, isContinue: Boolean) {
-        if (isContinue.not() and isCancel.not()) {
-            timerOfSendDownloadTimer?.cancel()
-            timerOfSendDownloadTimer = Timer().apply {
-                schedule(timerTask {
-                    logHelper.insertLog("operateDownloadSbSensor 다시 콜 메모리 10초 응답 없음")
-                    operateDownloadSbSensor(isCancel, isContinue)
-                }, 10000L)
-            }
-        }
+    override fun operateDownloadSbSensor(isContinue: Boolean) {
+//        if (isContinue.not() and isCancel.not()) {
+//            timerOfSendDownloadTimer?.cancel()
+//            timerOfSendDownloadTimer = Timer().apply {
+//                schedule(timerTask {
+//                    logHelper.insertLog("operateDownloadSbSensor 다시 콜 메모리 10초 응답 없음")
+//                    operateDownloadSbSensor(isCancel, isContinue)
+//                }, 10000L)
+//            }
+//        }
 
         writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }

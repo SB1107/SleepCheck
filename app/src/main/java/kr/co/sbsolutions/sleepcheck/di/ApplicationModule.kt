@@ -31,6 +31,7 @@ import kr.co.sbsolutions.sleepcheck.common.UploadWorkerHelper
 import kr.co.sbsolutions.sleepcheck.data.db.SBSensorDataBase
 import kr.co.sbsolutions.sleepcheck.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDataDao
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDao
@@ -56,6 +57,9 @@ object ApplicationModule {
 
     @Provides
     fun provideBluetoothAdapter(@ApplicationContext context: Context) = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+
+    @Provides
+    fun provideNoseRingDAO(db: SBSensorDataBase) = db.noseRingDAO()
 
     @Provides
     fun provideFirebaseFireStore() = FirebaseFirestore.getInstance()
@@ -110,10 +114,11 @@ object ApplicationModule {
         notificationManager: NotificationManager,
         fireBaseRealRepository: FireBaseRealRepository,
         blueToothScanHelper: BlueToothScanHelper,
+        noseRingDataRepository: NoseRingDataRepository
     ) = BLEServiceHelper(
         dataManager, tokenManager, bluetoothNetworkRepository, sbSensorDBRepository,
         settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper, fireBaseRealRepository,
-        notificationBuilder, notificationManager, blueToothScanHelper
+        notificationBuilder, notificationManager, blueToothScanHelper,noseRingDataRepository
     )
 
     @Provides

@@ -37,6 +37,7 @@ import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
@@ -59,7 +60,8 @@ class SBSensorBlueToothUseCase(
     private val logHelper: ILogHelper,
     private val blueToothScanHelper: BlueToothScanHelper,
     private val packageName: String,
-    private var noseRingUseCase: INoseRingHelper? = null
+    private var noseRingUseCase: INoseRingHelper? = null,
+  private  val noseRingDataRepository: NoseRingDataRepository
 ) {
     private var timerOfDisconnection: Timer? = null
     private var context: Context? = null
@@ -342,6 +344,7 @@ class SBSensorBlueToothUseCase(
             logHelper.insertLog("CREATE -> dataID: $dataId   sleepType: $sleepType hasSensor: $hasSensor")
             dataManager.setHasSensor(hasSensor)
             sbSensorDBRepository.deleteAll()
+            noseRingDataRepository.removeNoseRingData()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType, hasSensor).run {
                 logHelper.insertLog("startNetworkSBSensor")
             }
@@ -445,15 +448,15 @@ class SBSensorBlueToothUseCase(
         bluetoothNetworkRepository.releaseResource()
     }
 
-    fun stopOperateDownloadSbSensor(isCancel: Boolean = false) {
-        bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = isCancel , isContinue = false)
+    fun stopOperateDownloadSbSensor() {
+        bluetoothNetworkRepository.operateDownloadSbSensor( isContinue = false)
     }
 
     fun startScheduler() {
         bluetoothNetworkRepository.setOnUploadCallback {
             bluetoothNetworkRepository.sbSensorInfo.value.let {
                 if (it.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
-                    bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = false, isContinue = true)
+                    bluetoothNetworkRepository.operateDownloadSbSensor( isContinue = true)
                 }
             }
         }
@@ -727,6 +730,7 @@ class SBSensorBlueToothUseCase(
     fun forceDataFlowDataUploadCancel() {
         logHelper.registerJob("forceDataFlowDataUploadCancel", lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
+            noseRingDataRepository.removeNoseRingData()
             sbDataUploadingUseCase.dataFlowPopUpDismiss()
         })
     }

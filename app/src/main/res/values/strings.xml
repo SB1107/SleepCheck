@@ -85,7 +85,7 @@
     <string name="login_google">구글 로그인</string>
     <string name="login_kakao">카카오 로그인</string>
 
-    <string name="menu_breathing_nosering">호흡+코골이</string>
+    <string name="menu_breathing_nosering">호흡∙코골이</string>
     <string name="menu_nosering_noti">코골이+알림</string>
     <string name="menu_history">이력</string>
     <string name="menu_setting">설정</string>
@@ -256,6 +256,7 @@
     <string name="detail_average_b">평균 호흡수</string>
     <string name="detail_min">(분) %1$s 회</string>
     <string name="detail_a_b">비정상 호흡</string>
+    <string name="detail_snoring">코골이 / 기침</string>
     <string name="detail_no_signal">호흡신호없음</string>
     <string name="detail_no_signal_10_secs">10초이상 호흡곤란</string>
     <string name="detail_no_signal_30_secs">30초이상 호흡곤란</string>

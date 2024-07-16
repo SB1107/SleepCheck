@@ -2,17 +2,19 @@ package kr.co.sbsolutions.sleepcheck.service
 
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons.SNORING_VIBRATION_DELAYED_START_TIME
 import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.NoseRingHelper
-import kr.co.sbsolutions.sleepcheck.common.TimeHelper
+import kr.co.sbsolutions.sleepcheck.data.db.NoseRingEntity
 import kr.co.sbsolutions.sleepcheck.domain.audio.AudioClassificationHelper
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import org.tensorflow.lite.support.label.Category
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
@@ -22,6 +24,7 @@ class NoseRingUseCase(
     private val noseRingHelper: NoseRingHelper,
     private val settingDataRepository: SettingDataRepository,
     private val dataManager: DataManager,
+    private val noseRingDataRepository: NoseRingDataRepository
 ) : INoseRingHelper{
     private val audioClassificationHelper: AudioClassificationHelper by lazy {
         AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
@@ -42,6 +45,16 @@ class NoseRingUseCase(
                 val onOff = settingDataRepository.getSnoringOnOff()
                 if (onOff) {
                     callback.invoke(settingDataRepository.getSnoringVibrationIntensity())
+                }
+            }
+        }
+        noseRingHelper.setInferenceTimeCallback {  inferenceTime ->
+            lifecycleScope.launch(IO) {
+                settingDataRepository.getDataId()?.let { dataId ->
+                    val nowTime = System.currentTimeMillis()
+                    val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(nowTime)
+                    val data = NoseRingEntity(time, inferenceTime.toString(), dataId)
+                    noseRingDataRepository.insertNoseRingData(data)
                 }
             }
         }
@@ -70,12 +83,12 @@ class NoseRingUseCase(
 
     fun startAudioClassification() {
         timerOfStartAudio?.cancel()
-        timerOfStartAudio = Timer().apply {
-            schedule(timerTask {
-                audioClassificationHelper.startAudioClassification()
-            }, SNORING_VIBRATION_DELAYED_START_TIME)
-        }
-//        audioClassificationHelper.startAudioClassification()
+//        timerOfStartAudio = Timer().apply {
+//            schedule(timerTask {
+//                audioClassificationHelper.startAudioClassification()
+//            }, SNORING_VIBRATION_DELAYED_START_TIME)
+//        }
+        audioClassificationHelper.startAudioClassification()
     }
 
     fun clearData() {

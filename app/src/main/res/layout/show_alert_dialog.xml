@@ -44,7 +44,7 @@
         android:background="@drawable/custom_dialog_full_check"
         android:padding="20dp"
         android:text="@string/dialog_btn_confirm"
-        android:textColor="@color/color_000000"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold" />
 

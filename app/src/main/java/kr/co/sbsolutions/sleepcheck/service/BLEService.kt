@@ -291,7 +291,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.OperateDownloadSBSensor -> {
-                bluetoothNetworkRepository.operateDownloadSbSensor(isCancel = false, isContinue = false)
+                bluetoothNetworkRepository.operateDownloadSbSensor( isContinue = false)
             }
 
             ActionMessage.OperateDeleteSectorSBSensor -> {
@@ -437,7 +437,7 @@ class BLEService : LifecycleService() {
         bleServiceHelper.finishService(isForcedClose)
         serviceLiveCheckWorkerHelper.cancelWork()
         stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+//        stopSelf()
     }
 
     inner class LocalBinder : Binder() {

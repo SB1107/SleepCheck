@@ -263,6 +263,8 @@ class SensorActivity : BluetoothActivity() {
                                         || it.name.uppercase().startsWith("AB")
                                         || it.name.uppercase().startsWith("AC")
                                         || it.name.uppercase().startsWith("AP")
+                                        || it.name.uppercase().startsWith("BR")
+                                        || it.name.uppercase().startsWith("BS")
                             }.sortedBy { it.name }
                         }.collectLatest { list ->
                             if (list.size == 1) {

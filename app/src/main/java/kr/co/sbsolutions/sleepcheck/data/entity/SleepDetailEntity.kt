@@ -68,7 +68,7 @@ data class SleepDetailResult(
     @SerializedName("state")
     var state: Int? = null,
     @SerializedName("deep_sleep_time")
-    var deepSleepTime: Int? =  null,
+    var deepSleepTime: Int? = null,
     @SerializedName("move_count")
     var moveCount: Int? = null,
     @SerializedName("rem_sleep_time")
@@ -86,7 +86,7 @@ data class SleepDetailResult(
     @SerializedName("normal_breath_time")
     var normalBreathTime: Int? = null,
     @SerializedName("description")
-    val description : String? = "",
+    val description: String? = "",
     @SerializedName("avg_fast_breath")
     val avgFastBreath: Int? = null,
     @SerializedName("avg_slow_breath")
@@ -100,5 +100,11 @@ data class SleepDetailResult(
     @SerializedName("snore_score")
     val snoreScore: Int? = null,
     @SerializedName("ment")
-    val ment : String? =null
-    )
+    val ment: String? = null,
+    @SerializedName("unstable_idx")
+    val unstableIdx:  String? = null,
+    @SerializedName("nobreath_idx")
+    val nobreath_idx:  String? = null,
+    @SerializedName("snoring_idx")
+    val snoring_idx:  String? = null
+)

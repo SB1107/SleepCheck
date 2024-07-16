@@ -34,6 +34,7 @@ import kr.co.sbsolutions.sleepcheck.R
 import kr.co.sbsolutions.sleepcheck.common.Cons
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.common.guideAlertDialog
+import kr.co.sbsolutions.sleepcheck.common.setOnSingleClickListener
 import kr.co.sbsolutions.sleepcheck.common.showAlertDialog
 import kr.co.sbsolutions.sleepcheck.common.showAlertDialogWithCancel
 import kr.co.sbsolutions.sleepcheck.databinding.ActivityMainBinding
@@ -87,7 +88,12 @@ class MainActivity : BaseServiceActivity() {
         image.layoutParams.height = rootHeight
         BottomSheetDialog(this@MainActivity).apply {
             setContentView(resultBinding.root)
-            (resultBinding.root.parent as View).setBackgroundColor(ContextCompat.getColor(this@MainActivity, android.R.color.transparent))
+            (resultBinding.root.parent as View).setBackgroundColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    android.R.color.transparent
+                )
+            )
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
             behavior.isDraggable = false
             behavior.isFitToContents = false
@@ -110,18 +116,24 @@ class MainActivity : BaseServiceActivity() {
 
 
     private fun gotoFragment(intent: Intent?) {
-        val value = intent?.getIntExtra("data", -1)
-        if (value == 1) {
-            binding.navBottomView.selectedItemId = R.id.navigation_no_sering
-        }
+//        val value = intent?.getIntExtra("data", -1)
+//        if (value == 1) {
+//            binding.navBottomView.selectedItemId = R.id.navigation_no_sering
+//        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.root.viewTreeObserver.addOnGlobalLayoutListener { rootHeight = binding.root.height }
-        ContextCompat.registerReceiver(this, receiver, IntentFilter(Cons.NOTIFICATION_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
-        val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            IntentFilter(Cons.NOTIFICATION_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        val fragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         binding.navBottomView.apply {
             setupWithNavController(fragment.navController)
             itemIconTintList = null
@@ -159,9 +171,13 @@ class MainActivity : BaseServiceActivity() {
                             if (it.isShow) show() else dismiss()
                         }
                         if (it.dataId != -1 && it.state == 2) {
-                            startActivity(Intent(this@MainActivity, HistoryDetailActivity::class.java).apply {
-                                putExtra("id", it.dataId.toString())
-                            })
+                            startActivity(
+                                Intent(
+                                    this@MainActivity,
+                                    HistoryDetailActivity::class.java
+                                ).apply {
+                                    putExtra("id", it.dataId.toString())
+                                })
                             viewModel.stopResultProgressBar()
                         }
                     }
@@ -179,12 +195,16 @@ class MainActivity : BaseServiceActivity() {
                             root.visibility = if (it.isDataFlow) View.VISIBLE else View.GONE
                             lpProgress.visibility = View.VISIBLE
                             if (it.totalCount != 0) {
-                                Log.e(TAG, "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}")
+                                Log.e(
+                                    TAG,
+                                    "currentCount = ${it.currentCount} " + "totalCount = ${it.totalCount}"
+                                )
                                 var tempCurrent: Int = it.currentCount
                                 if (it.currentCount > it.totalCount) {
                                     tempCurrent = it.totalCount
                                 }
-                                val tempPer = (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
+                                val tempPer =
+                                    (tempCurrent.toFloat() / it.totalCount.toFloat() * 100).toInt()
                                 lpProgress.setProgressCompat(tempPer, true)
                             }
                         }
@@ -227,18 +247,24 @@ class MainActivity : BaseServiceActivity() {
             if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                 && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
             ) {
-                showAlertDialogWithCancel(message = getString(R.string.app_update), confirmAction = {
-                    appUpdateManager.startUpdateFlowForResult(
-                        info,
-                        appUpdateLauncher,
-                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                    )
+                showAlertDialogWithCancel(
+                    message = getString(R.string.app_update),
+                    confirmAction = {
+                        appUpdateManager.startUpdateFlowForResult(
+                            info,
+                            appUpdateLauncher,
+                            AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                        )
 //                    val url = "https://play.google.com/store/apps/details?id=kr.co.sbsolutions.newsoomirang&pcampaignid=web_share"
 //                    val intent = Intent(Intent.ACTION_VIEW)
 //                    intent.data = Uri.parse(url)
 //                    startActivity(intent)
 //                    finish()
-                }, confirmButtonText = R.string.common_update, cancelButtonText = R.string.common_next_update, cancelable = false)
+                    },
+                    confirmButtonText = R.string.common_update,
+                    cancelButtonText = R.string.common_next_update,
+                    cancelable = false
+                )
 
             } else if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                 appUpdateManager.startUpdateFlowForResult(

@@ -124,7 +124,7 @@ class SignUpActivity : AppCompatActivity() {
         var birthdayText by remember { mutableStateOf("") }
         var isBirthdayShow by remember { mutableStateOf(false) }
 
-        SoomScaffold(R.drawable.back1, stringResource(R.string.signup), topAction = { finish() }, childView = {
+        SoomScaffold(R.drawable.back1, null,stringResource(R.string.signup), topAction = { finish() }, childView = {
             Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center) {
                     Spacer(modifier = Modifier.height(50.dp))
