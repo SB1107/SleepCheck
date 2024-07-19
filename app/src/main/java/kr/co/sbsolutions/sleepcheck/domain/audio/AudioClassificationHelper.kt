@@ -88,7 +88,6 @@ class AudioClassificationHelper(var context: Context, var listener: AudioClassif
         val startTime = SystemClock.uptimeMillis()
         val output: List<Classifications> = classifier.classify(tensorAudio)
         val inferenceTime = SystemClock.uptimeMillis() - startTime
-
         listener.onResult(output[0].categories, inferenceTime)
     }
 

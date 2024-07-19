@@ -29,7 +29,7 @@
         android:lineSpacingExtra="2sp"
         android:paddingHorizontal="30dp"
         android:textAlignment="center"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="@color/color_000000"
         android:textSize="21sp"
         tools:text="Contents Message" />
 

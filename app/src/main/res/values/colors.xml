@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <color name="white">#FFFFFF</color>
 
     <!--  메인 컬러  -->
@@ -31,6 +31,8 @@
     <color name="color_192C53">#192C53</color>
     <color name="color_0B5E86">#0B5E86</color>
     <color name="color_797979">#797979</color>
+
+    <color name="color_0064F5">#0064F5</color>
 
 
     <color name="color_FFFFFF">#FFFFFF</color>
@@ -72,7 +74,13 @@
     <color name="color_D6D6D6">#D6D6D6</color>
     <color name="color_FFFE00">#FFFE00</color>
     <color name="color_0EB44C">#0EB44C</color>
+    <color name="color_99DFDFDF">#99DFDFDF</color>
+    <color name="color_F2F2F4">#F2F2F4</color>
+    <color name="color_DFDFDF">#DFDFDF</color>
 
+
+    <color name="color_back_gradient_start">#012B6D</color>
+    <color name="color_back_gradient_end">#114893</color>
 
     <color name="color_CA0000">#CA0000</color>
     <color name="color_FFDB1C">#FFDB1C</color>
@@ -83,6 +91,8 @@
     <color name="color_FF4F37">#FF4F37</color>
 
     <color name="color_9D9D9D">#9D9D9D</color>
+    <color name="color_E6F6FF">#E6F6FF</color>
+    <color name="color_D9D9D9">#D9D9D9</color>
 
 
 
@@ -383,4 +393,9 @@
     <color name="md_blue_grey_800">#37474F</color>
     <color name="md_blue_grey_900">#263238</color>
 
+
+    <color name="my_custom_track_color">#D9D9D9</color> <!-- 사용자 지정 트랙 색상 -->
+
+    <color name="track_color_checked">#2F9781</color> <!-- 활성화 상태 트랙 색상 -->
+    <color name="track_color_unchecked">#808080</color> <!-- 비활성화 상태 트랙 색상 -->
 </resources>

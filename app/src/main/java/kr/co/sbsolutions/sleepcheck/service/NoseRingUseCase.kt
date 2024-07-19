@@ -8,8 +8,12 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons.SNORING_VIBRATION_DELAYED_START_TIME
 import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.NoseRingHelper
+import kr.co.sbsolutions.sleepcheck.data.db.BreathingEntity
+import kr.co.sbsolutions.sleepcheck.data.db.CoughEntity
 import kr.co.sbsolutions.sleepcheck.data.db.NoseRingEntity
 import kr.co.sbsolutions.sleepcheck.domain.audio.AudioClassificationHelper
+import kr.co.sbsolutions.sleepcheck.domain.db.BreathingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.CoughDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import org.tensorflow.lite.support.label.Category
@@ -24,7 +28,9 @@ class NoseRingUseCase(
     private val noseRingHelper: NoseRingHelper,
     private val settingDataRepository: SettingDataRepository,
     private val dataManager: DataManager,
-    private val noseRingDataRepository: NoseRingDataRepository
+    private val noseRingDataRepository: NoseRingDataRepository,
+    private  val coughDataRepository : CoughDataRepository,
+    private  val breathingDataRepository: BreathingDataRepository
 ) : INoseRingHelper{
     private val audioClassificationHelper: AudioClassificationHelper by lazy {
         AudioClassificationHelper(context, object : AudioClassificationHelper.AudioClassificationListener {
@@ -55,6 +61,26 @@ class NoseRingUseCase(
                     val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(nowTime)
                     val data = NoseRingEntity(time, inferenceTime.toString(), dataId)
                     noseRingDataRepository.insertNoseRingData(data)
+                }
+            }
+        }
+        noseRingHelper.setCoughCallback {
+            lifecycleScope.launch(IO) {
+                settingDataRepository.getDataId()?.let { dataId ->
+                    val nowTime = System.currentTimeMillis()
+                    val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(nowTime)
+                    val data = CoughEntity(time, dataId)
+                    coughDataRepository.insertCoughData(data)
+                }
+            }
+        }
+        noseRingHelper.setBreathingCallback {
+            lifecycleScope.launch(IO) {
+                settingDataRepository.getDataId()?.let { dataId ->
+                    val nowTime = System.currentTimeMillis()
+                    val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(nowTime)
+                    val data = BreathingEntity(time, dataId)
+                    breathingDataRepository.insertBreathingData(data)
                 }
             }
         }

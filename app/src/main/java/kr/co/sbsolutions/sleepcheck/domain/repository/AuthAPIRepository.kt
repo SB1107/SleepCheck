@@ -128,4 +128,8 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
     override fun getRentalCompany(): Flow<ApiResponse<RentalCompanyEntity>>  = apiRequestFlow {
         api.getRentalCompany()
     }
+
+    override fun postRentalAlarm(isAlarm: Boolean): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
+        api.postAlarmSet(alarm = if (isAlarm) "Y" else "N")
+    }
 }

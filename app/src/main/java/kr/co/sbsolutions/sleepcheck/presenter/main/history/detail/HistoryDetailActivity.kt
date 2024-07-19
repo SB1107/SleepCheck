@@ -212,13 +212,13 @@ class HistoryDetailActivity : BaseActivity() {
             Column(
                 modifier = modifier
             ) {
-                Box(modifier = Modifier.background(color = colorResource(id = R.color.color_134895))) {
-                    Image(
-                        painter = painterResource(id = R.drawable.back1),
-                        contentDescription = "배경",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.FillBounds
-                    )
+                Box(modifier = Modifier.background(brush = Brush.verticalGradient(
+                    colors = listOf(
+                        colorResource(id = R.color.color_back_gradient_start),
+                        colorResource(id = R.color.color_back_gradient_end)
+                    ),
+                ))) {
+
                     TopDateView(data = data, scrollState)
                 }
             }
@@ -241,9 +241,8 @@ class HistoryDetailActivity : BaseActivity() {
         }
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" [")
-                .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
-                .plus("]")
+            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm")))
+
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(
             LocalConfiguration.current.locales[0]
@@ -278,44 +277,48 @@ class HistoryDetailActivity : BaseActivity() {
                     color = Color.White,
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             if (durationString.contains("null").not()) {
                 Text(
                     text = durationString,
-                    fontSize = 21.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                 )
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = colorResource(id = R.color.color_99DFDFDF))
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                RowTexts(startText = stringResource(R.string.detil_time), endText = min)
+                data.sleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detil_sleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
+                }
+                data.asleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_asleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
+                }
+                data.deepSleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_deep_sleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
+                }
+                data.moveCount?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_turns),
+                        stringResource(R.string.detail_times, it)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(thickness = 1.dp, color = Color.White)
-
-            RowTexts(startText = stringResource(R.string.detil_time), endText = min)
-            data.sleepTime?.let {
-                RowTexts(
-                    stringResource(R.string.detil_sleep_time),
-                    it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
-                )
-            }
-            data.asleepTime?.let {
-                RowTexts(
-                    stringResource(R.string.detail_asleep_time),
-                    it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
-                )
-            }
-            data.deepSleepTime?.let {
-                RowTexts(
-                    stringResource(R.string.detail_deep_sleep_time),
-                    it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
-                )
-            }
-            data.moveCount?.let {
-                RowTexts(
-                    stringResource(R.string.detail_turns),
-                    stringResource(R.string.detail_times, it)
-                )
-            }
 
 //            if (data.type == 1) {
 //                data.snoreCount?.let {
@@ -329,52 +332,70 @@ class HistoryDetailActivity : BaseActivity() {
 
             data.normalBreathTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
+//                HorizontalDivider(thickness = 1.dp, color = Color.White)
 
                 HeaderTitleView(
-                    stringResource(R.string.detial_normal_b),
-                    stringResource(R.string.detail_normal_breathing_text)
-                )
-                RowTexts(
-                    stringResource(R.string.detial_normal_b_t),
-                    it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
-                )
-            }
-            data.avgNormalBreath?.let {
-                RowTexts(
-                    stringResource(R.string.detail_average_b),
-                    if (it == 0) "-" else stringResource(R.string.detail_min, it)
+                    title = stringResource( R.string.detial_normal_b),
+                   detailText =  stringResource(R.string.detail_normal_breathing_text)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
+
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_99DFDFDF))
+                    .padding(start = 16.dp, end = 16.dp)){
+                    RowTexts(
+                        stringResource(R.string.detial_normal_b_t,),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
+                    )
+                    data.avgNormalBreath?.let {
+                        RowTexts(
+                            stringResource(R.string.detail_average_b),
+                            if (it == 0) "-" else stringResource(R.string.detail_min, it),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
 
             data.apneaCount?.let {
                 //todo 비정상 호흡 시간으로 변경 필요
-                HeaderTitleView(stringResource(R.string.detail_a_b))
+                HeaderTitleView(title = stringResource(R.string.detail_a_b))
                 /*data.unstableBreath?.let {
                     RowTexts("비정상 호흡 시간", it.InpuMintoHourMinute())
                 }*/
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "호흡 없음구간", color = Color.White,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                GraphsView(
-                    listData = data.nobreath_idx,
-                    drawColors = listOf(
-                        Color.Transparent,
-                        colorResource(id = R.color.color_1DAEFF),
-                        colorResource(id = R.color.color_FDABFF),
-                        colorResource(id = R.color.color_FF4F37)
-                    ),
-                    startText = startAt?.toDayString("HH:mm") ?: "",
-                    endText = endedAt?.toDayString("HH:mm") ?: ""
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "호흡 없음 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    GraphsView(
+                        listData = data.nobreath_idx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
                 BreathingGraphView(
                     stringResource(R.string.detail_no_signal),
                     stringResource(R.string.detail_total_score2, it),
@@ -443,23 +464,34 @@ class HistoryDetailActivity : BaseActivity() {
                 val totalCount =
                     (data.fastBreath ?: 0) + (data.slowBreath ?: 0) + (data.unstableBreath ?: 0)
 
-                Text(
-                    text = "호흡불안정 구간", color = Color.White,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                GraphsView(
-                    listData = data.unstableIdx,
-                    drawColors = listOf(
-                        Color.Transparent,
-                        colorResource(id = R.color.color_FDABFF),
-                        colorResource(id = R.color.color_1DAEFF),
-                        colorResource(id = R.color.color_FF4F37)
-                    ),
-                    startText = startAt?.toDayString("HH:mm") ?: "",
-                    endText = endedAt?.toDayString("HH:mm") ?: ""
-                )
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+
+                    ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "호흡불안정 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GraphsView(
+                        listData = data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 RespiratoryInstabilityGraphView(
                     title = stringResource(R.string.detail_unstable_breathing),
@@ -469,26 +501,35 @@ class HistoryDetailActivity : BaseActivity() {
             }
             data.snoreTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView(stringResource(R.string.detail_snoring))
+                HeaderTitleView(title = stringResource(R.string.detail_snoring))
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "코골이 / 기침 구간", color = Color.White,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                GraphsView(
-                    listData = data.snoring_idx,
-                    drawColors = listOf(
-                        Color.Transparent,
-                        colorResource(id = R.color.color_FDABFF),
-                        colorResource(id = R.color.color_1DAEFF),
-                        colorResource(id = R.color.color_FF4F37)
-                    ),
-                    startText = startAt?.toDayString("HH:mm") ?: "",
-                    endText = endedAt?.toDayString("HH:mm") ?: ""
-                )
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+                    ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = "코골이 / 기침 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GraphsView(
+                        listData = data.snoring_idx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
+
                 IconRowTexts(
                     color = colorResource(id = R.color.color_FDABFF),
                     stringResource(R.string.detail_snoring_time),
@@ -507,10 +548,9 @@ class HistoryDetailActivity : BaseActivity() {
 
             data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
                 HeaderTitleView(
-                    stringResource(R.string.detail_sleep_position),
-                    stringResource(R.string.detail_sleep_position_text)
+                    title = stringResource(R.string.detail_sleep_position),
+                    detailText = stringResource(R.string.detail_sleep_position_text)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -570,10 +610,10 @@ class HistoryDetailActivity : BaseActivity() {
             Spacer(modifier = Modifier.height(16.dp))
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
+//                HorizontalDivider(thickness = 1.dp, color = Color.White)
                 HeaderTitleView(
-                    stringResource(R.string.detail_sleep_stage),
-                    getString(R.string.detail_sleep_stages_text)
+                    title = stringResource(R.string.detail_sleep_stage),
+                    detailText = getString(R.string.detail_sleep_stages_text)
                 )
             }
 
@@ -643,12 +683,12 @@ class HistoryDetailActivity : BaseActivity() {
                     .background(color)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            RowTexts(startText = startText, endText = endText)
+            RowTexts(startText = startText, endText = endText, textColor = Color.White)
         }
     }
 
     @Composable
-    private fun RowTexts(startText: String, endText: String) {
+    private fun RowTexts(startText: String, endText: String, textColor: Color = Color.Black) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -657,206 +697,27 @@ class HistoryDetailActivity : BaseActivity() {
         ) {
 
             Text(
-                text = startText, color = Color.White,
+                text = startText, color = textColor,
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Normal
             )
             Text(
-                text = endText, color = Color.White,
+                text = endText, color = textColor,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
         }
     }
 
-    @Composable
-    private fun MainScoreGraphView(
-        type: Int? = null,
-        percentValue: Int,
-        isPercentText: Boolean = false,
-        startText: String = stringResource(R.string.detail_bad),
-        startTextSize: TextUnit = 14.sp,
-        centerText: String = stringResource(R.string.detail_medium),
-        centerTextSize: TextUnit = 14.sp,
-        endText: String = stringResource(R.string.detail_good),
-        endTextSize: TextUnit = 14.sp
-    ) {
-        var width by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current
-        Box {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 24.dp, start = 20.dp, end = 20.dp)
-                        .fillMaxWidth()
-                        .padding(16.dp, 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                modifier = Modifier.offset(x = 20.dp),
-                                text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(
-                                    R.string.detail_your_snoring_score_during_sleep
-                                ),
-                                color = Color.White,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Image(
-                                modifier = Modifier
-                                    .padding(start = 5.dp)
-                                    .offset(x = 20.dp)
-                                    .clickable {
-                                        if (type == 0) {
-                                            viewModel.sendInfoMessage(
-                                                getString(R.string.detail_respiratory_score),
-                                                getString(R.string.detail_breathing_score_text)
-                                            )
-                                        } else {
-                                            viewModel.sendInfoMessage(
-                                                getString(R.string.detail_snoring_score),
-                                                getString(R.string.detail_breathing_score_text)
-                                            )
-                                        }
-                                    },
-                                painter = painterResource(id = R.drawable.question),
-                                contentDescription = ""
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-//                        Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(R.string.detail_score, percentValue),
-                            color = Color.White,
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-//                        }
-                    }
-                }
-
-                Box(contentAlignment = Alignment.Center) {
-                    val percent: Dp =
-                        if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
-                    Image(
-                        modifier = Modifier.padding(start = percent),
-                        painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
-                        contentDescription = ""
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .padding(start = percent)
-                            .offset(y = (-5).dp),
-                        text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
-                        color = colorResource(id = R.color.md_grey_800),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .padding(18.dp, 0.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(40.dp))
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    colorResource(id = R.color.color_EB361B),
-                                    colorResource(id = R.color.color_FFF33A),
-                                    colorResource(id = R.color.color_44A64B)
-                                ),
-                                startX = 0f,
-                                endX = Float.POSITIVE_INFINITY
-                            )
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = colorResource(id = R.color.color_FFFFFF),
-                            shape = RoundedCornerShape(40.dp)
-                        )
-                        .onGloballyPositioned { coordinates ->
-                            width = with(density) {
-                                coordinates.size.width.toDp()
-                            }
-                        }
-                ) {
-                    Spacer(modifier = Modifier.height(25.dp))
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .offset(x = (-5).dp)
-                            .padding(top = 4.dp),
-                        text = startText,
-                        color = Color.White,
-                        fontSize = startTextSize,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        modifier = Modifier
-                            .offset(x = (-5).dp)
-                            .padding(top = 4.dp),
-                        text = centerText,
-                        color = Color.White,
-                        fontSize = centerTextSize,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        modifier = Modifier
-                            .offset(x = (-10).dp)
-                            .padding(top = 4.dp),
-                        text = endText,
-                        color = Color.White,
-                        fontSize = endTextSize,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            if ((type ?: 0) == 0) {
-                LottieLoading(modifier = Modifier
-                    .size(150.dp)
-                    .offset(x = ((width / 2) + 10.dp), y = 20.dp)
-                    .clickable {
-                        viewModel.getInfoMessage(
-                            percentValue.toString(),
-                            type ?: 0,
-                            getLanguage()
-                        )
-                    })
-            }
-        }
-    }
-
 
     @Composable
-    private fun HeaderTitleView(title: String, detailText: String? = null) {
+    private fun HeaderTitleView(backColor: Color = Color.Transparent,title: String, detailText: String? = null) {
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 50.dp, end = 50.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(colorResource(id = R.color.color_main))
+                .background(backColor)
                 .padding(16.dp, 3.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -870,8 +731,8 @@ class HistoryDetailActivity : BaseActivity() {
                         .padding(start = 5.dp)
                         .align(Alignment.CenterVertically),
                     text = title,
-                    color = Color.Black,
-                    fontSize = 19.sp,
+                    color = Color.White,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 detailText?.let {
@@ -917,8 +778,7 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        modifier = Modifier
-                            .weight(8f),
+
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -926,7 +786,7 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                     Image(
                         modifier = Modifier
-                            .weight(2f)
+
                             .padding(start = 5.dp)
                             .clickable {
                                 viewModel.sendInfoMessage(
@@ -954,6 +814,13 @@ class HistoryDetailActivity : BaseActivity() {
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
+                    LottieLoading(modifier =
+                    Modifier
+                        .size(108.dp)
+                        .offset(y = 15.dp)
+                        .clickable {
+
+                        })
                 }
             }
             Column(

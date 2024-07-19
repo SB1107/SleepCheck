@@ -37,6 +37,8 @@ import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.SBBluetoothDevice
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.BreathingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.CoughDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
@@ -61,7 +63,9 @@ class SBSensorBlueToothUseCase(
     private val blueToothScanHelper: BlueToothScanHelper,
     private val packageName: String,
     private var noseRingUseCase: INoseRingHelper? = null,
-  private  val noseRingDataRepository: NoseRingDataRepository
+    private  val noseRingDataRepository: NoseRingDataRepository,
+    private val coughDataRepository: CoughDataRepository,
+    private  val breathingDataRepository : BreathingDataRepository
 ) {
     private var timerOfDisconnection: Timer? = null
     private var context: Context? = null
@@ -345,6 +349,8 @@ class SBSensorBlueToothUseCase(
             dataManager.setHasSensor(hasSensor)
             sbSensorDBRepository.deleteAll()
             noseRingDataRepository.removeNoseRingData()
+            coughDataRepository.removeCoughData()
+            breathingDataRepository.removeBreathingData()
             bluetoothNetworkRepository.startNetworkSBSensor(dataId, sleepType, hasSensor).run {
                 logHelper.insertLog("startNetworkSBSensor")
             }
@@ -731,6 +737,8 @@ class SBSensorBlueToothUseCase(
         logHelper.registerJob("forceDataFlowDataUploadCancel", lifecycleScope.launch(IO) {
             sbSensorDBRepository.deleteAll()
             noseRingDataRepository.removeNoseRingData()
+            coughDataRepository.removeCoughData()
+            breathingDataRepository.removeBreathingData()
             sbDataUploadingUseCase.dataFlowPopUpDismiss()
         })
     }

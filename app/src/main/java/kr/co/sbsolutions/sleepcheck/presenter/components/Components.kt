@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -328,7 +329,12 @@ object Components {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(color = it)
+                        .background( Brush.verticalGradient(
+                            colors = listOf(
+                                colorResource(id = R.color.color_back_gradient_start),
+                                colorResource(id = R.color.color_back_gradient_end)
+                            ),
+                        ))
                 )
             }
             Column(
@@ -450,7 +456,7 @@ object Components {
                     .fillMaxWidth()
                     .height(44.dp)
                     .clip(RoundedCornerShape(8.dp)) // Box에 라운딩 적용
-                    .background(color = colorResource(id = R.color.color_9D9D9D))
+                    .background(color = Color.White)
             ) {
                 Canvas(modifier = Modifier
                     .fillMaxWidth()

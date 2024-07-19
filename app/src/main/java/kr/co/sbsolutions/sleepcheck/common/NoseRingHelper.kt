@@ -12,6 +12,9 @@ class NoseRingHelper {
     private var mSnoreCount: Int = 0
     private lateinit var callback: () -> Unit
     private lateinit var inferenceTimeCallback: (Long) -> Unit
+    private  lateinit var coughCallback: () -> Unit
+    private  lateinit var breathingCallback : () -> Unit
+
     fun noSeringResult(results: List<Category?>?, inferenceTime: Long?) {
         results?.forEach { value ->
             if (value?.index == 38) { // 코골이만 측정
@@ -51,7 +54,16 @@ class NoseRingHelper {
             }
             if (value?.index == 42) {
                 mCoughCount++
+                if (::coughCallback.isInitialized) {
+                    coughCallback.invoke()
+                }
                 Log.d(TAG, "mCoughCount: $mCoughCount ")
+            }
+            if(value?.index == 36){
+                if (::breathingCallback.isInitialized) {
+                    breathingCallback.invoke()
+                }
+                Log.e(TAG, "Breathing call ")
             }
         }
     }
@@ -86,6 +98,14 @@ class NoseRingHelper {
 
     fun setInferenceTimeCallback(callback: (Long) -> Unit) {
         this.inferenceTimeCallback = callback
+    }
+
+    fun setCoughCallback(callback: () -> Unit) {
+        this.coughCallback = callback
+    }
+
+    fun setBreathingCallback(callback: () -> Unit){
+        this.breathingCallback = callback
     }
 
     fun setCoughCount(count: Int) {

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +33,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -211,7 +216,7 @@ class QuestionActivity : BaseActivity() {
                             .fillMaxHeight()
                             .background(
                                 color = if (data.answer == "Y") colorResource(id = R.color.color_0086FF) else colorResource(
-                                    id = R.color.color_gradient_center
+                                    id = R.color.color_DFDFDF
                                 ),
                                 shape = RoundedCornerShape(20.dp)
                             )
@@ -219,7 +224,7 @@ class QuestionActivity : BaseActivity() {
                         text = if (data.answer == "Y") stringResource(R.string.qna_answer_complete) else stringResource(R.string.qna_before_answering),
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color =  if (data.answer == "Y") Color.White else Color.Black,
                             textAlign = TextAlign.Center,
                             fontSize = 12.sp,
                         ),
@@ -253,10 +258,9 @@ class QuestionActivity : BaseActivity() {
                         },
                         Modifier
                             .size(33.dp, 33.dp)
-                            .clip(RoundedCornerShape(10.dp)),
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.new_arrow_right),
+                            painter = painterResource(id = R.drawable.new_arrow__qa_right),
                             contentDescription = ""
                         )
                     }

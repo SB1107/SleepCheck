@@ -16,21 +16,12 @@
         android:layout_height="0dp"
         android:background="@color/white"
         app:defaultNavHost="true"
-        app:layout_constraintBottom_toTopOf="@id/v_line1"
+        app:layout_constraintBottom_toTopOf="@id/nav_bottom_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/navigation" />
 
-    <View
-        android:id="@+id/v_line1"
-        android:layout_width="match_parent"
-        android:layout_height="0.1dp"
-        app:layout_constraintBottom_toTopOf="@id/nav_bottom_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/color_FFFFFF"
-        />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_bottom_view"

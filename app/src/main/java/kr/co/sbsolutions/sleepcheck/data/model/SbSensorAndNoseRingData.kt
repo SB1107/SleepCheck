@@ -8,10 +8,12 @@ data class SbSensorAndNoseRingData(
     val calcAccY: String,
     val calcAccZ: String,
     val dataId: Int,
-    var noseRingTime: String,
-    var noseRingInferenceTime: String
+    val noseRingTime: String,
+    val noseRingInferenceTime: String,
+    val coughTime : String,
+    val breathingTime : String
 ) {
     fun toArray(): Array<String> {
-        return arrayOf(index.toString(), time, capacitance.toString(), calcAccX, calcAccY, calcAccZ, dataId.toString(), noseRingTime, noseRingInferenceTime)
+        return arrayOf(index.toString(), time, capacitance.toString(), calcAccX, calcAccY, calcAccZ, dataId.toString(), noseRingTime, noseRingInferenceTime, coughTime, breathingTime)
     }
 }

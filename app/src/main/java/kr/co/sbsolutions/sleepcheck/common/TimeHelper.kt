@@ -14,7 +14,7 @@ class TimeHelper(private val logHelper: ILogHelper) {
     private var time: Int = 0
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
-    fun startTimer(scope: CoroutineScope) {
+    fun startTimer(scope: CoroutineScope, startTime: Long) {
         logHelper.insertLog("TimeHelper = startTimer")
         if (::timerJob.isInitialized) {
             timerJob.cancel()
@@ -27,10 +27,16 @@ class TimeHelper(private val logHelper: ILogHelper) {
             while (true) {
                 delay(1000)
                 time += 1
-                val hour = time / 3600
-                val minute = time % 3600 / 60
-                val second = time % 60
-                _measuringTimer.emit(Triple(hour, minute, second))
+//                val hour = time / 3600
+//                val minute = time % 3600 / 60
+//                val second = time % 60
+//                _measuringTimer.emit(Triple(hour, minute, second))
+                val currentTimeMillis = System.currentTimeMillis()
+                val diffTime = currentTimeMillis - startTime
+                val seconds = (diffTime / 1000) % 60
+                val minutes = (diffTime / (1000 * 60)) % 60
+                val hours = (diffTime / (1000 * 60 * 60))
+                _measuringTimer.emit(Triple(hours.toInt(), minutes.toInt(), seconds.toInt()))
             }
         }
     }

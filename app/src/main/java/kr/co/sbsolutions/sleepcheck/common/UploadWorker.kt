@@ -27,6 +27,8 @@ import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.sleepcheck.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.data.model.SbSensorAndNoseRingData
+import kr.co.sbsolutions.sleepcheck.domain.db.BreathingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.CoughDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
@@ -47,6 +49,8 @@ class UploadWorker @AssistedInject constructor(
     private val tokenManager: TokenManager,
     private val sbSensorDBRepository: SBSensorDBRepository,
     private val noseRingDataRepository: NoseRingDataRepository,
+    private val coughDataRepository: CoughDataRepository,
+    private  val breathDataRepository: BreathingDataRepository,
     private val logHelper: ILogHelper,
     private val remoteAuthDataSource: RemoteAuthDataSource
 ) : CoroutineWorker(context, params) {
@@ -87,20 +91,24 @@ class UploadWorker @AssistedInject constructor(
                     return@withContext Result.failure(Data.Builder().apply { putString("reason", "데이터 부족 ($MINIMUM_UPLOAD_NUMBER 미만)") }.build())
                 }
                 val firstData = sbSensorDBRepository.getSensorDataIdByFirst(dataId).first()
-
                 val noseRingData = noseRingDataRepository.getNoseRingData(dataId)
+                val coughData = coughDataRepository.getCoughData(dataId)
+                val breathData = breathDataRepository.getBreathingData(dataId)
                 val sbList = sbSensorDBRepository.getSelectedSensorDataListByIndex(dataId, min, max).first()
                     .mapIndexed {index , value ->
                         val isNoseRingData =  (index <= noseRingData.size -1)
+                        val isCoughData = (index <= coughData.size -1)
+                        val isBreathingData = (index <= breathData.size -1)
                             val data = SbSensorAndNoseRingData(
                                 index = value.index,time = value.time, capacitance = value.capacitance, calcAccX = value.calcAccX, calcAccY = value.calcAccY,
-                                calcAccZ =  value.calcAccZ,dataId = value.dataId, if(isNoseRingData) noseRingData[index].time else "", if(isNoseRingData) noseRingData[index].inferenceTime else "")
+                                calcAccZ =  value.calcAccZ,dataId = value.dataId, if(isNoseRingData) noseRingData[index].time else "", if(isNoseRingData) noseRingData[index].inferenceTime else "",
+                                if(isCoughData) coughData[index].time else "",if(isBreathingData) breathData[index].time else "")
 
                         if (value.time.contains("1970")) {
                             val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
                             val newTime = firstData?.time?.let { format.parse(it) }
                             val time1 = format.format((newTime?.time ?: 0) + (200 * value.index))
-                            data.time =time1
+                            data.time = time1
                             return@mapIndexed data
                         }
 
@@ -114,7 +122,7 @@ class UploadWorker @AssistedInject constructor(
                     CSVWriter(fw).use { cw ->
 //                    cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ", "accelerationX", "accelerationY", "accelerationZ", "moduleName", "deviceName"))
                         cw.writeNext(arrayOf("Index", "Time", "Capacitance", "calcAccX", "calcAccY", "calcAccZ",
-                            "dataId", "snore_time","snore_dur"))
+                            "dataId", "snore_time","snore_dur","cough_time","breathing_time"))
                         sbList.forEach { data ->
                             cw.writeNext(data.toArray())
                         }

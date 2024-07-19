@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -136,7 +138,16 @@ class LeaveActivity : AppCompatActivity() {
                         TextHeader(stringResource(R.string.leave_unsubscribing_info))
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        LeaveDesText(text = stringResource(R.string.leave_unsubscribing_info_delete_data))
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(color = colorResource(id = R.color.color_99DFDFDF))
+
+                        ) {
+                            LeaveDesText(text = stringResource(R.string.leave_unsubscribing_info_delete_data))
+                        }
+
                         Spacer(modifier = Modifier.height(10.dp))
 //                        LeaveDesText(text = "같은 아이디로 재가입이 불가합니다.")
 
@@ -158,13 +169,11 @@ class LeaveActivity : AppCompatActivity() {
                                 style = TextStyle(color = colorResource(id = R.color.color_FFFFFF)),
                                 text = stringResource(R.string.leave_character_limits, etcText.length, maxChars),
                             )
-                            TextField(
+
+                            OutlinedTextField(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(189.dp)
-                                    .padding(horizontal = 30.dp)
-                                    .background(color = colorResource(id = R.color.white)),
-                                shape = RoundedCornerShape(10.dp),
+                                    .padding(horizontal = 30.dp),
                                 value = etcText,
                                 onValueChange = {
                                     if (it.length <= maxChars) {
@@ -176,17 +185,45 @@ class LeaveActivity : AppCompatActivity() {
                                         text = stringResource(R.string.leave_farewell_messages),
                                         style = TextStyle(
                                             fontSize = 16.sp,
-                                            color = colorResource(id = R.color.color_282828)
+                                            color = colorResource(id = R.color.color_FFFFFF)
                                         )
                                     )
                                 },
-                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                                textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                                textStyle = TextStyle(color = Color.White),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = colorResource(id = R.color.color_0F63C8),
-                                    unfocusedBorderColor = colorResource(id = R.color.color_0F63C8)
+                                    focusedBorderColor = colorResource(id = R.color.color_FFFFFF),
+                                    unfocusedBorderColor = colorResource(id = R.color.color_FFFFFF),
                                 )
                             )
+//                            TextField(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .height(189.dp)
+//                                    .padding(horizontal = 30.dp)
+//                                    .background(color = colorResource(id = R.color.white)),
+//                                shape = RoundedCornerShape(10.dp),
+//                                value = etcText,
+//                                onValueChange = {
+//                                    if (it.length <= maxChars) {
+//                                        etcText = it
+//                                    }
+//                                },
+//                                placeholder = {
+//                                    Text(
+//                                        text = stringResource(R.string.leave_farewell_messages),
+//                                        style = TextStyle(
+//                                            fontSize = 16.sp,
+//                                            color = colorResource(id = R.color.color_282828)
+//                                        )
+//                                    )
+//                                },
+//                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+//                                textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+//                                colors = OutlinedTextFieldDefaults.colors(
+//                                    focusedBorderColor = colorResource(id = R.color.color_0F63C8),
+//                                    unfocusedBorderColor = colorResource(id = R.color.color_0F63C8)
+//                                )
+//                            )
                             Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
@@ -311,9 +348,9 @@ class LeaveActivity : AppCompatActivity() {
 
     @Composable
     fun LeaveDesText(text: String) {
-        Row(modifier = Modifier.padding(horizontal = 30.dp)) {
-            Text(text = "·", style = TextStyle(color = colorResource(id = R.color.color_78899F)))
-            Text(text = text, style = TextStyle(color = colorResource(id = R.color.color_78899F)))
+        Row(modifier = Modifier.padding( 16.dp)) {
+//            Text(text = "·", style = TextStyle(color = colorResource(id = R.color.color_78899F)))
+            Text(text = text, style = TextStyle(color = colorResource(id = R.color.color_000000), fontSize = 20.sp))
         }
     }
 

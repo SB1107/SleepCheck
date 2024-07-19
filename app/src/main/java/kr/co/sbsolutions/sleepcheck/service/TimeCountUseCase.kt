@@ -27,15 +27,26 @@ class TimeCountUseCase(
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val noseRingHelper: NoseRingHelper,
-    private  val logHelper: ILogHelper
+    private val logHelper: ILogHelper
 ) {
 
     fun listenTimer() {
         lifecycleScope.launch(IO) {
             timeHelper.measuringTimer.collectLatest {
-                notificationBuilder.setContentText(String.format(Locale.KOREA, "%02d:%02d:%02d", it.first, it.second, it.third))
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O){
-                    notificationManager.notify(FOREGROUND_SERVICE_NOTIFICATION_ID, notificationBuilder.build())
+                notificationBuilder.setContentText(
+                    String.format(
+                        Locale.KOREA,
+                        "%02d:%02d:%02d",
+                        it.first,
+                        it.second,
+                        it.third
+                    )
+                )
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+                    notificationManager.notify(
+                        FOREGROUND_SERVICE_NOTIFICATION_ID,
+                        notificationBuilder.build()
+                    )
                 }
                 dataManager.setTimer(timeHelper.getTime())
                 dataManager.setNoseRingTimer(noseRingHelper.getSnoreTime())
@@ -44,20 +55,22 @@ class TimeCountUseCase(
             }
         }
     }
-    private fun setTimer(){
+
+    private fun setTimer() {
         lifecycleScope.launch {
             dataManager.getTimer().first()?.let {
                 logHelper.insertLog("setTime = $it")
                 val starTime = dataManager.getStartTime().first()
-                val nowTime =  System.currentTimeMillis()
-                val tempResultTime =  nowTime  - starTime
+                val nowTime = System.currentTimeMillis()
+                val tempResultTime = nowTime - starTime
                 val resultSecond = tempResultTime / 1000
                 logHelper.insertLog("resultSecond = $resultSecond")
                 timeHelper.setTime(resultSecond.toInt())
             }
         }
     }
-    fun setTimeAndStart(){
+
+    fun setTimeAndStart() {
         logHelper.insertLog("setTimeAndStart")
         setTimer()
         startTimer()
@@ -66,7 +79,10 @@ class TimeCountUseCase(
     fun startTimer() {
         logHelper.insertLog("startTimer")
         notVibrationNotifyChannelCreate()
-        lifecycleScope.launch { timeHelper.startTimer(this) }
+        lifecycleScope.launch {
+            val startTime = dataManager.getStartTime().first()
+            timeHelper.startTimer(this, startTime)
+        }
     }
 
     fun stopTimer() {
@@ -83,7 +99,9 @@ class TimeCountUseCase(
 
     private fun notVibrationNotifyChannelCreate() {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID, Cons.NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
+            NOTIFICATION_CHANNEL_ID,
+            Cons.NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_LOW
         ).apply {
             enableVibration(false)
         }
@@ -95,12 +113,14 @@ class TimeCountUseCase(
     }
 
     fun getTime(): Int {
-    return  timeHelper.getTime()
+        return timeHelper.getTime()
     }
-    fun getNotificationBuilder() : NotificationCompat.Builder{
-        return  notificationBuilder
+
+    fun getNotificationBuilder(): NotificationCompat.Builder {
+        return notificationBuilder
     }
-    fun getNotificationManager() : NotificationManager{
-        return  notificationManager
+
+    fun getNotificationManager(): NotificationManager {
+        return notificationManager
     }
 }
