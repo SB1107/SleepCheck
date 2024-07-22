@@ -29,6 +29,7 @@ import kr.co.sbsolutions.sleepcheck.common.Cons.MINIMUM_UPLOAD_NUMBER
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.LogHelper
+import kr.co.sbsolutions.sleepcheck.common.isElevenHoursPassed
 import kr.co.sbsolutions.sleepcheck.common.pattern.DataFlowHelper
 import kr.co.sbsolutions.sleepcheck.data.bluetooth.FirmwareData
 import kr.co.sbsolutions.sleepcheck.data.firebasedb.FireBaseRealRepository
@@ -231,16 +232,6 @@ class SBSensorBlueToothUseCase(
                     BluetoothProfile.GATT,
                     intArrayOf(BluetoothProfile.STATE_CONNECTED, BluetoothProfile.STATE_CONNECTING)
                 ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
-
-                timerOfDisconnection = Timer().apply {
-                    schedule(timerTask {
-                        logHelper.insertLog("!!재연결중 disconnectDevice")
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            disconnectDevice(context, bluetoothAdapter)
-                        }
-                    }, 10000L)
-                }
-
                 if (getDeviceName.isEmpty()) {
                     logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
                     resetBleGattList()
@@ -261,8 +252,19 @@ class SBSensorBlueToothUseCase(
                     logHelper.insertLog("PASS 연결된 디바이스 있다.")
                     timerOfDisconnection?.cancel()
                 }
+                timerOfDisconnection = Timer().apply {
+                    schedule(timerTask {
+                        if (isBleDeviceConnect().first.not()) {
+                            logHelper.insertLog("!!재연결중 disconnectDevice")
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                disconnectDevice(context, bluetoothAdapter)
+                            }
+                        }
+                    }, 10000L)
+                }
                 Log.d(TAG, "connectDevice: $getDeviceName")
                 Log.e(TAG, "connectDevice: call")
+                bluetoothNetworkRepository.isSBSensorConnect()
             }
 
         }
@@ -476,24 +478,28 @@ class SBSensorBlueToothUseCase(
                     if (BLEService.getInstance()?.isForegroundServiceRunning() != true) {
                         return@timerTask
                     }
-                    logHelper.insertLog("12 시간 강제 종료")
-                    stopSBSensor()
-                    val forceClose = BLEService.getInstance()
-                        ?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
-                    bluetoothNetworkRepository.sbSensorInfo.value.let {
-                        it.dataId?.let { dataId ->
-                            lifecycleScope.launch(IO) {
-                                sbDataUploadingUseCase.uploading(
-                                    packageName,
-                                    getSensorName(),
-                                    dataId,
-                                    isForced = true,
-                                    uploadSucceededCallback = {
-                                        uploadingFinish()
-                                    })
+                    lifecycleScope.launch(IO) {
+                        if (dataManager.getStartTime().first().isElevenHoursPassed()) {
+                            logHelper.insertLog("12 시간 강제 종료")
+                            stopSBSensor()
+                            val forceClose = BLEService.getInstance()
+                                ?.notifyPowerOff(BLEService.FinishState.FinishTimeOut) ?: false
+                            bluetoothNetworkRepository.sbSensorInfo.value.let {
+                                it.dataId?.let { dataId ->
+                                    lifecycleScope.launch(IO) {
+                                        sbDataUploadingUseCase.uploading(
+                                            packageName,
+                                            getSensorName(),
+                                            dataId,
+                                            isForced = true,
+                                            uploadSucceededCallback = {
+                                                uploadingFinish()
+                                            })
+                                    }
+                                } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()
+                                    ?.invoke(forceClose)
                             }
-                        } ?: sbDataUploadingUseCase.getFinishForceCloseCallback()
-                            ?.invoke(forceClose)
+                        }
                     }
                 }, TIME_OUT_MEASURE)
             }

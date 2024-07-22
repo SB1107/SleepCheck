@@ -104,7 +104,10 @@ class MainActivity : BaseServiceActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Cons.NOTIFICATION_ACTION) {
-                getBroadcastData()
+                val pushType  =  intent.getStringExtra("pushType") ?: "1"
+                if (pushType == "1") {
+                    getBroadcastData()
+                }
             }
         }
     }

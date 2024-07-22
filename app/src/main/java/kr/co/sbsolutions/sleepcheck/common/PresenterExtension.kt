@@ -404,6 +404,10 @@ fun Long.isTwelveHoursPassed(): Boolean {
     return this.diffTime() >= BLEService.TIME_OUT_MEASURE
 }
 
+fun Long.isElevenHoursPassed() : Boolean {
+    return this.diffTime() >=  11 * 60 * 60 * 1000L
+}
+
 fun Long.diffTime(): Long {
     val currentTime = System.currentTimeMillis()
     val diff = currentTime - this

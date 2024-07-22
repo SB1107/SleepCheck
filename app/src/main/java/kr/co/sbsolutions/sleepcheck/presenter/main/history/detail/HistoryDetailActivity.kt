@@ -31,6 +31,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -57,6 +59,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -165,7 +168,7 @@ class HistoryDetailActivity : BaseActivity() {
         val captureController = rememberCaptureController()
         val scope = rememberCoroutineScope()
         val columnModifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(scrollState)
             .capturable(captureController)
 
@@ -210,7 +213,8 @@ class HistoryDetailActivity : BaseActivity() {
 
         Box {
             Column(
-                modifier = modifier
+                modifier = modifier,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(modifier = Modifier.background(brush = Brush.verticalGradient(
                     colors = listOf(
@@ -218,8 +222,29 @@ class HistoryDetailActivity : BaseActivity() {
                         colorResource(id = R.color.color_back_gradient_end)
                     ),
                 ))) {
-
                     TopDateView(data = data, scrollState)
+                }
+
+                Button(modifier = Modifier
+                    .height(62.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .background(
+                        color = colorResource(id = R.color.color_main), shape = RoundedCornerShape(
+                            topStart = 60.dp, // 왼쪽 위 코너
+                            topEnd = 60.dp,   // 오른쪽 위 코너
+                            bottomStart = 0.dp, // 왼쪽 아래 코너
+                            bottomEnd = 0.dp    // 오른쪽 아래 코너
+                        )
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White,
+                        disabledContainerColor = colorResource(id = R.color.color_777777),
+                        disabledContentColor = Color.Black
+                    )
+                    , onClick = { /*TODO*/ }) {
+                    Text(text = "수면 정보 상세 보기", fontSize = 19.sp)
                 }
             }
             ScrollToView(scrollState.value >= 200, scrollState)
@@ -469,7 +494,6 @@ class HistoryDetailActivity : BaseActivity() {
                     .clip(RoundedCornerShape(20.dp))
                     .background(color = colorResource(id = R.color.color_0064F5))
                     .padding(16.dp),
-
                     ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -814,13 +838,13 @@ class HistoryDetailActivity : BaseActivity() {
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
-                    LottieLoading(modifier =
-                    Modifier
-                        .size(108.dp)
-                        .offset(y = 15.dp)
-                        .clickable {
-
-                        })
+//                    LottieLoading(modifier =
+//                    Modifier
+//                        .size(108.dp)
+//                        .offset(y = 15.dp)
+//                        .clickable {
+//
+//                        })
                 }
             }
             Column(

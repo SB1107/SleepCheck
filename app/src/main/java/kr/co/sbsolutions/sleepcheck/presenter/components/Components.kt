@@ -317,7 +317,6 @@ object Components {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = colorResource(id = R.color.color_134895))
         ) {
             Image(
                 painter = painterResource(id = bgImage),

@@ -109,12 +109,12 @@ class NoseRingUseCase(
 
     fun startAudioClassification() {
         timerOfStartAudio?.cancel()
-//        timerOfStartAudio = Timer().apply {
-//            schedule(timerTask {
-//                audioClassificationHelper.startAudioClassification()
-//            }, SNORING_VIBRATION_DELAYED_START_TIME)
-//        }
-        audioClassificationHelper.startAudioClassification()
+        timerOfStartAudio = Timer().apply {
+            schedule(timerTask {
+                audioClassificationHelper.startAudioClassification()
+            }, SNORING_VIBRATION_DELAYED_START_TIME)
+        }
+//        audioClassificationHelper.startAudioClassification()
     }
 
     fun clearData() {
