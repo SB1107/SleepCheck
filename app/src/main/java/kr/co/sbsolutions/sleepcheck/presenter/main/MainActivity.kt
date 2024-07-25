@@ -112,18 +112,6 @@ class MainActivity : BaseServiceActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        gotoFragment(intent)
-    }
-
-
-    private fun gotoFragment(intent: Intent?) {
-//        val value = intent?.getIntExtra("data", -1)
-//        if (value == 1) {
-//            binding.navBottomView.selectedItemId = R.id.navigation_no_sering
-//        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +129,6 @@ class MainActivity : BaseServiceActivity() {
             setupWithNavController(fragment.navController)
             itemIconTintList = null
         }
-        gotoFragment(intent)
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {

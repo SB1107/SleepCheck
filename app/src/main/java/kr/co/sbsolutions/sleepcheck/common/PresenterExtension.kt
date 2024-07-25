@@ -329,13 +329,13 @@ fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
     return if (hours > 0) {
         if (locale == Locale.KOREA) {
-            String.format("약\n%d시간", hours)
+            String.format("약%d시간 %d 분", hours, minutes)
         } else {
-            String.format("%dhr", hours)
+            String.format("%dhr%d min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
-            String.format("약\n%d 분", minutes)
+            String.format("약%d 분", minutes)
         } else {
             String.format("%d min", minutes)
         }

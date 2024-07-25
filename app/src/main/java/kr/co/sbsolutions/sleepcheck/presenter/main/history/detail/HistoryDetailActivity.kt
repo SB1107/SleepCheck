@@ -33,8 +33,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -52,14 +50,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -92,7 +88,6 @@ import kr.co.sbsolutions.sleepcheck.common.toDate
 import kr.co.sbsolutions.sleepcheck.common.toDayString
 import kr.co.sbsolutions.sleepcheck.common.toHourMinute
 import kr.co.sbsolutions.sleepcheck.common.toHourOrMinute
-import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailResult
 import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
 import kr.co.sbsolutions.sleepcheck.databinding.ActivityHistoryDetailBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogInfoMassageBinding
@@ -100,10 +95,16 @@ import kr.co.sbsolutions.sleepcheck.databinding.DialogSocreInfoMassageBinding
 import kr.co.sbsolutions.sleepcheck.databinding.RowScoreBinding
 import kr.co.sbsolutions.sleepcheck.presenter.BaseActivity
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.BottomText
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.GraphsView
-import kr.co.sbsolutions.sleepcheck.presenter.components.Components.LottieLoading
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.IconRowTexts
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.LineView
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.PositionComposable
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.RowTexts
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.ScrollToView
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SleepState
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SoomScaffold
+import kr.co.sbsolutions.sleepcheck.presenter.components.GradientBarChart
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -410,7 +411,7 @@ class HistoryDetailActivity : BaseActivity() {
                     GraphsView(
                         listData = data.nobreath_idx,
                         drawColors = listOf(
-                            Color.Transparent,
+                            colorResource(id = R.color.color_E6F6FF),
                             colorResource(id = R.color.color_1DAEFF),
                             colorResource(id = R.color.color_FDABFF),
                             colorResource(id = R.color.color_FF4F37)
@@ -506,7 +507,7 @@ class HistoryDetailActivity : BaseActivity() {
                     GraphsView(
                         listData = data.unstableIdx,
                         drawColors = listOf(
-                            Color.Transparent,
+                            colorResource(id = R.color.color_E6F6FF),
                             colorResource(id = R.color.color_FDABFF),
                             colorResource(id = R.color.color_1DAEFF),
                             colorResource(id = R.color.color_FF4F37)
@@ -544,7 +545,7 @@ class HistoryDetailActivity : BaseActivity() {
                     GraphsView(
                         listData = data.snoring_idx,
                         drawColors = listOf(
-                            Color.Transparent,
+                            colorResource(id = R.color.color_E6F6FF),
                             colorResource(id = R.color.color_FDABFF),
                             colorResource(id = R.color.color_1DAEFF),
                             colorResource(id = R.color.color_FF4F37)
@@ -569,69 +570,15 @@ class HistoryDetailActivity : BaseActivity() {
 
             }
             Spacer(modifier = Modifier.height(16.dp))
-
-            data.straightPositionTime?.let {
+            data.straightPer?.let {
                 Spacer(modifier = Modifier.height(16.dp))
                 HeaderTitleView(
                     title = stringResource(R.string.detail_sleep_position),
                     detailText = stringResource(R.string.detail_sleep_position_text)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-
-                VerticalGraphView(
-                    percentValue = (data.straightPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_supine),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
             }
-            data.leftPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.leftPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_left),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            data.rightPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.rightPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_right),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            data.downPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.downPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_prone),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            data.wakeTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.wakePer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_standup),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
+            PositionComposable(data)
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
 //                HorizontalDivider(thickness = 1.dp, color = Color.White)
@@ -641,40 +588,73 @@ class HistoryDetailActivity : BaseActivity() {
                 )
             }
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-
+                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-
                 data.remSleepTime?.let {
-                    BarChartView(
+                    SleepState(label =  stringResource(R.string.detail_rem_sleep), sleepTime = it,data.sleepTime ?: 0)
+                }
+                data.lightSleepTime?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SleepState(label =  stringResource(R.string.detail_light_sleep), sleepTime = it,data.sleepTime ?: 0)
+                }
+                data.deepSleepTime?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SleepState(label =  stringResource(R.string.detail_deep_sleep), sleepTime = it,data.sleepTime ?: 0)
+                }
+            }
+
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                data.remSleepTime?.let {
+                    LineView(
                         stringResource(R.string.detail_rem_sleep),
-                        data.sleepTime ?: 0,
-                        it,
-                        scrollState
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_1DAEFF)
+                        )
                     )
                 }
                 data.lightSleepTime?.let {
-                    BarChartView(
+                    LineView(
                         stringResource(R.string.detail_light_sleep),
-                        data.sleepTime ?: 0,
-                        it,
-                        scrollState
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_9ACF40),
+                            colorResource(id = R.color.color_9ACF40)
+                        )
                     )
                 }
                 data.deepSleepTime?.let {
-                    BarChartView(
+                    LineView(
                         stringResource(R.string.detail_deep_sleep),
-                        data.sleepTime ?: 0,
-                        it,
-                        scrollState
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_FF6008),
+                            colorResource(id = R.color.color_FF6008)
+                        ), isLast = true
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    BottomText(startAt?.toDayString("HH:mm") ?: "", endedAt?.toDayString("HH:mm") ?: "")
                 }
+
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HeaderTitleView(title = "수면 중 움직임")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GradientBarChart(gradientColor = listOf(colorResource(id = R.color.color_F44E4E), colorResource(
+                id = R.color.color_main
+            )), defaultColor = colorResource(id = R.color.color_main), threshold = 5)
+
             Text(
                 text = data.ment ?: "",
                 color = Color.White,
@@ -692,54 +672,14 @@ class HistoryDetailActivity : BaseActivity() {
         }
     }
 
-    @Composable
-    private fun IconRowTexts(color: Color, startText: String, endText: String) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .size(18.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            RowTexts(startText = startText, endText = endText, textColor = Color.White)
-        }
-    }
 
     @Composable
-    private fun RowTexts(startText: String, endText: String, textColor: Color = Color.Black) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-
-            Text(
-                text = startText, color = textColor,
-                fontSize = 19.sp,
-                fontWeight = FontWeight.Normal
-            )
-            Text(
-                text = endText, color = textColor,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-
-
-    @Composable
-    private fun HeaderTitleView(backColor: Color = Color.Transparent,title: String, detailText: String? = null) {
+    fun HeaderTitleView(backColor: Color = colorResource(id = R.color.color_gray3),title: String, detailText: String? = null) {
         Box(
             modifier = Modifier
-                .padding(top = 24.dp, start = 50.dp, end = 50.dp)
+                .padding(top = 24.dp, start = 0.dp, end = 0.dp)
                 .fillMaxWidth()
+                .height(53.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(backColor)
                 .padding(16.dp, 3.dp),

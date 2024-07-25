@@ -58,9 +58,8 @@ class SplashActivity : AppCompatActivity() {
                 }
                 viewModel.whereActivity.collectLatest {
                     when (it) {
-                        WHERE.None, WHERE.Policy, WHERE.SignUp -> {}
+                        WHERE.None, WHERE.Policy -> {}
                         WHERE.Login -> {
-
                             startActivity(Intent(this@SplashActivity, LoginActivity::class.java).addFlag())
                         }
 

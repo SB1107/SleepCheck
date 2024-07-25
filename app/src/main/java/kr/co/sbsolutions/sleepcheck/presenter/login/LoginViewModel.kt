@@ -73,6 +73,6 @@ class LoginViewModel @Inject constructor(
             }
         }
         this.accessToken = accessToken
-        return if (isMember) WHERE.Main else WHERE.SignUp
+        return if (isMember) WHERE.Main else WHERE.Policy
     }
 }

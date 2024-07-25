@@ -98,9 +98,6 @@ class LoginActivity : AppCompatActivity() {
                             WHERE.Policy -> {
                                 startActivity(Intent(this@LoginActivity, PolicyActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
                             }
-                            WHERE.SignUp -> {
-                                startActivity(Intent(this@LoginActivity, SignUpActivity::class.java).putExtra("accessToken", viewModel.accessToken).addFlag())
-                            }
                         }
                     }
                 }

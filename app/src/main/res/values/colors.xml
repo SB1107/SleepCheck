@@ -77,6 +77,7 @@
     <color name="color_99DFDFDF">#99DFDFDF</color>
     <color name="color_F2F2F4">#F2F2F4</color>
     <color name="color_DFDFDF">#DFDFDF</color>
+    <color name="color_909294">#909294</color>
 
 
     <color name="color_back_gradient_start">#012B6D</color>
@@ -89,10 +90,13 @@
     <color name="color_1DAEFF">#1DAEFF</color>
     <color name="color_FDABFF">#FDABFF</color>
     <color name="color_FF4F37">#FF4F37</color>
+    <color name="color_9ACF40">#9ACF40</color>
+    <color name="color_FF6008">#FF6008</color>
 
     <color name="color_9D9D9D">#9D9D9D</color>
     <color name="color_E6F6FF">#E6F6FF</color>
     <color name="color_D9D9D9">#D9D9D9</color>
+    <color name="color_F44E4E">#F44E4E</color>
 
 
 
