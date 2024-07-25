@@ -4,7 +4,7 @@
     android:id="@+id/cl_progress"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:visibility="gone"
+    android:visibility="visible"
     android:background="@color/color_80000000">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,10 +26,10 @@
             android:layout_marginTop="20dp"
             android:gravity="start"
             android:text="@string/firm_update_info_message1"
-            android:textColor="@color/white"
+            android:textColor="@color/color_000000"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_info_2" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_info_2"
@@ -38,11 +38,11 @@
             android:layout_marginTop="20dp"
             android:gravity="start"
             android:text="@string/firm_update_info_message2"
-            android:textColor="@color/white"
+            android:textColor="@color/color_000000"
             android:textSize="21sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_info_1" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/lp_progress"
@@ -50,12 +50,12 @@
             android:layout_height="50dp"
             android:layout_marginTop="30dp"
             android:progress="0"
-            app:indicatorColor="@color/color_yellow"
+            app:indicatorColor="@color/color_0064F5"
             app:layout_constraintBottom_toTopOf="@id/tv_current_version_1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_info_2"
-            app:trackColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/tv_info_1"
+            app:trackColor="@color/color_99DFDFDF"
             app:trackThickness="18dp" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -65,7 +65,7 @@
             android:layout_marginTop="50dp"
             android:gravity="start"
             android:text="@string/firm_update_current_version"
-            android:textColor="@color/white"
+            android:textColor="@color/color_000000"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/lp_progress" />
@@ -77,7 +77,7 @@
             android:layout_marginTop="10dp"
             android:gravity="start"
             android:text="@string/firm_update_update_version"
-            android:textColor="@color/white"
+            android:textColor="@color/color_000000"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_current_version_1" />

@@ -133,7 +133,6 @@ class BreathingViewModel @Inject constructor(
                     getService()?.stopSBSensor(callback = {
                         setMeasuringState(MeasuringState.InIt)
                     }) ?: insertLog("호흡 측중중 서비스가 없습니다.")
-
                 }
             }
         )
@@ -199,11 +198,12 @@ class BreathingViewModel @Inject constructor(
                         }
                         .collectLatest {
                             it.result?.id?.let { id ->
-                                getService()?.startSBSensor(id, SleepType.Breathing)
-                                setMeasuringState(MeasuringState.FiveRecode)
+                                getService()?.startSBSensor(id, SleepType.Breathing){
+                                    setMeasuringState(MeasuringState.FiveRecode)
 
-                                trySend(true)
-                                close()
+                                    trySend(true)
+                                    close()
+                                }
                             }
                         }
                 }

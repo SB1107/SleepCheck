@@ -116,8 +116,8 @@ class ContactDetailActivity : BaseServiceActivity() {
                 modifier = Modifier
                     .width(80.dp)
                     .background(
-                        color = if (answer == "Y") colorResource(id = R.color.color_0086FF) else colorResource(
-                            id = R.color.color_gradient_center
+                        color = if (answer == "Y") colorResource(id = R.color.color_0064F5) else colorResource(
+                            id = R.color.color_DFDFDF
                         ),
                         shape = RoundedCornerShape(20.dp)
                     )
@@ -125,7 +125,7 @@ class ContactDetailActivity : BaseServiceActivity() {
                 text = if (answer == "Y") stringResource(R.string.qna_answer_complete) else stringResource(R.string.qna_before_answering),
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color =  if (answer == "Y") Color.White else Color.Black,
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                 ),

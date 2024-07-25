@@ -2,8 +2,8 @@
       
     <path android:fillColor="#FFF3BB50" android:pathData="M15.083,3.312H1.716C1.541,3.312 1.399,3.5 1.399,3.732V15.277C1.399,15.509 1.541,15.697 1.716,15.697H15.083C15.258,15.697 15.399,15.509 15.399,15.277V3.732C15.399,3.5 15.258,3.312 15.083,3.312Z"/>
       
-    <path android:fillColor="#00000000" android:pathData="M28.699,5.721V12.823" android:strokeColor="#000000" android:strokeLineCap="round" android:strokeWidth="1.2"/>
+    <path android:fillColor="#00000000" android:pathData="M28.699,5.721V12.823" android:strokeColor="#ffffff" android:strokeLineCap="round" android:strokeWidth="1.2"/>
       
-    <path android:fillColor="#00000000" android:pathData="M26.327,1H2.481C1.663,1 1,1.632 1,2.411V16.213C1,16.992 1.663,17.624 2.481,17.624H26.327C27.145,17.624 27.808,16.992 27.808,16.213V2.411C27.808,1.632 27.145,1 26.327,1Z" android:strokeColor="#000000" android:strokeWidth="1.2"/>
+    <path android:fillColor="#00000000" android:pathData="M26.327,1H2.481C1.663,1 1,1.632 1,2.411V16.213C1,16.992 1.663,17.624 2.481,17.624H26.327C27.145,17.624 27.808,16.992 27.808,16.213V2.411C27.808,1.632 27.145,1 26.327,1Z" android:strokeColor="#ffffff" android:strokeWidth="1.2"/>
     
 </vector>

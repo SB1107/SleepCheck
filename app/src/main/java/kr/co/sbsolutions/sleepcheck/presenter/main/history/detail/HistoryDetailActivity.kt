@@ -3,6 +3,7 @@ package kr.co.sbsolutions.sleepcheck.presenter.main.history.detail
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateIntAsState
@@ -27,25 +28,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -69,9 +73,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
+import dev.shreyaspatil.capturable.capturable
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.R
+import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
+import kr.co.sbsolutions.sleepcheck.common.Fourth
 import kr.co.sbsolutions.sleepcheck.common.InpuMintoHourMinute
 import kr.co.sbsolutions.sleepcheck.common.getLanguage
 import kr.co.sbsolutions.sleepcheck.common.setOnSingleClickListener
@@ -80,19 +88,23 @@ import kr.co.sbsolutions.sleepcheck.common.toDate
 import kr.co.sbsolutions.sleepcheck.common.toDayString
 import kr.co.sbsolutions.sleepcheck.common.toHourMinute
 import kr.co.sbsolutions.sleepcheck.common.toHourOrMinute
-import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailResult
+import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
 import kr.co.sbsolutions.sleepcheck.databinding.ActivityHistoryDetailBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogInfoMassageBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogSocreInfoMassageBinding
 import kr.co.sbsolutions.sleepcheck.databinding.RowScoreBinding
 import kr.co.sbsolutions.sleepcheck.presenter.BaseActivity
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
-import kr.co.sbsolutions.sleepcheck.presenter.components.Components.LottieLoading
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.BottomText
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.GraphsView
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.IconRowTexts
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.LineView
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.PositionComposable
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.RowTexts
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.ScrollToView
+import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SleepState
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SoomScaffold
-import kr.co.sbsolutions.sleepcheck.presenter.components.capture.ScreenCapture
-import kr.co.sbsolutions.sleepcheck.presenter.components.capture.ScreenCaptureOptions
-import kr.co.sbsolutions.sleepcheck.presenter.components.capture.rememberScreenCaptureState
+import kr.co.sbsolutions.sleepcheck.presenter.components.GradientBarChart
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -138,7 +150,7 @@ class HistoryDetailActivity : BaseActivity() {
         setContentView(binding.root)
         binding.composeView.apply {
             setContent {
-                RootView(SleepDetailResult())
+                RootView(SleepDetailDTO())
             }
         }
         intent?.let {
@@ -149,61 +161,91 @@ class HistoryDetailActivity : BaseActivity() {
         setObservers()
     }
 
+    @OptIn(ExperimentalComposeApi::class, ExperimentalComposeUiApi::class)
     @Preview
     @Composable
-    fun RootView(data: SleepDetailResult = SleepDetailResult()) {
-        val state = rememberScreenCaptureState()
+    fun RootView(data: SleepDetailDTO = SleepDetailDTO()) {
         val scrollState = rememberScrollState()
-        var contentHeightPx by remember { mutableStateOf(0) }
+        val captureController = rememberCaptureController()
+        val scope = rememberCoroutineScope()
         val columnModifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(scrollState)
-            .onGloballyPositioned { coordinates ->
-                contentHeightPx = coordinates.size.height
-            }
-        ScreenCapture(screenCaptureState = state) {
-            ContentView(data, true, columnModifier, scrollState = scrollState)
-        }
+            .capturable(captureController)
 
-        SoomScaffold(R.drawable.bg2, stringResource(R.string.detail_result), topAction = {
-            finish()
-        }, row = {
-            IconButton(onClick = {
-                state.capture(options = ScreenCaptureOptions(height = contentHeightPx))
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_share),
-                    contentDescription = stringResource(R.string.detail_share),
-                    tint = Color.White
-                )
-            }
-        }, childView = {
-            state.bitmap?.let {
-                viewModel.sharingImage(this@HistoryDetailActivity, it)
-            }
-            ContentView(data, modifier = columnModifier, scrollState = scrollState)
-        })
+        SoomScaffold(
+            R.drawable.back1,
+            bgColor = colorResource(id = R.color.color_00296B),
+            stringResource(R.string.detail_result),
+            topAction = {
+                finish()
+            },
+            row = {
+                IconButton(onClick = {
+                    scope.launch {
+                        val bitmapAsync = captureController.captureAsync()
+                        try {
+                            val bitmap = bitmapAsync.await()
+                            // Do something with `bitmap`.
+                            viewModel.sharingImage(this@HistoryDetailActivity, bitmap)
+                        } catch (error: Throwable) {
+                            Log.e(TAG, "RootView: error")
+                        }
+                    }
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = stringResource(R.string.detail_share),
+                        tint = Color.White
+                    )
+                }
+            },
+            childView = {
+                ContentView(data, modifier = columnModifier, scrollState = scrollState)
+            })
     }
 
     @Composable
-    private fun ContentView(data: SleepDetailResult, isBack: Boolean = false, modifier: Modifier, scrollState: ScrollState = rememberScrollState()) {
+    private fun ContentView(
+        data: SleepDetailDTO,
+        modifier: Modifier,
+        scrollState: ScrollState = rememberScrollState()
+    ) {
 
         Box {
             Column(
-                modifier = modifier
+                modifier = modifier,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                if (isBack) {
-                    Box(modifier = Modifier.background(color = colorResource(id = R.color.color_purple))) {
-                        Image(
-                            painter = painterResource(id = R.drawable.bg2),
-                            contentDescription = "배경",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
-                        )
-                        TopDateView(data = data, scrollState)
-                    }
-                } else {
+                Box(modifier = Modifier.background(brush = Brush.verticalGradient(
+                    colors = listOf(
+                        colorResource(id = R.color.color_back_gradient_start),
+                        colorResource(id = R.color.color_back_gradient_end)
+                    ),
+                ))) {
                     TopDateView(data = data, scrollState)
+                }
+
+                Button(modifier = Modifier
+                    .height(62.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .background(
+                        color = colorResource(id = R.color.color_main), shape = RoundedCornerShape(
+                            topStart = 60.dp, // 왼쪽 위 코너
+                            topEnd = 60.dp,   // 오른쪽 위 코너
+                            bottomStart = 0.dp, // 왼쪽 아래 코너
+                            bottomEnd = 0.dp    // 오른쪽 아래 코너
+                        )
+                    ),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.White,
+                        disabledContainerColor = colorResource(id = R.color.color_777777),
+                        disabledContentColor = Color.Black
+                    )
+                    , onClick = { /*TODO*/ }) {
+                    Text(text = "수면 정보 상세 보기", fontSize = 19.sp)
                 }
             }
             ScrollToView(scrollState.value >= 200, scrollState)
@@ -212,10 +254,9 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TopDateView(
-        data: SleepDetailResult = SleepDetailResult(),
+        data: SleepDetailDTO = SleepDetailDTO(),
         scrollState: ScrollState
     ) {
         val endedAt = data.endedAt?.toDate("yyyy-MM-dd HH:mm:ss")
@@ -226,10 +267,12 @@ class HistoryDetailActivity : BaseActivity() {
         }
         val startAt = data.startedAt?.toDate("yyyy-MM-dd HH:mm:ss")
         val durationString =
-            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm"))).plus(" [")
-                .plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering)).plus("]")
+            (startAt?.toDayString("HH:mm") + " ~ " + (endedAt?.toDayString("HH:mm")))
+
         val milliseconds: Long = (endedAt?.time ?: 0) - (startAt?.time ?: 0)
-        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(LocalConfiguration.current.locales[0])
+        val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(
+            LocalConfiguration.current.locales[0]
+        )
 
         Column(
             Modifier
@@ -260,99 +303,156 @@ class HistoryDetailActivity : BaseActivity() {
                     color = Color.White,
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             if (durationString.contains("null").not()) {
                 Text(
                     text = durationString,
-                    fontSize = 21.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(thickness = 1.dp, color = Color.White)
-
-            RowTexts(startText = stringResource(R.string.detil_time), endText = min)
-            data.sleepTime?.let {
-                RowTexts(stringResource(R.string.detil_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
-            }
-            data.asleepTime?.let {
-                RowTexts(stringResource(R.string.detail_asleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
-            }
-            data.snoreTime?.let {
-                RowTexts(stringResource(R.string.detail_snoring_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
-            }
-            data.deepSleepTime?.let {
-                RowTexts(stringResource(R.string.detail_deep_sleep_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
-            }
-            data.moveCount?.let {
-                RowTexts(stringResource(R.string.detail_turns), stringResource(R.string.detail_times, it))
-            }
-
-            if (data.type == 1) {
-                data.snoreCount?.let {
-                    RowTexts(stringResource(R.string.detail_vibration), stringResource(R.string.detail_times, it))
+            Spacer(modifier = Modifier.height(24.dp))
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = colorResource(id = R.color.color_99DFDFDF))
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                RowTexts(startText = stringResource(R.string.detil_time), endText = min)
+                data.sleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detil_sleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
                 }
-                data.coughCount?.let {
-                    RowTexts(stringResource(R.string.detil_cough), stringResource(R.string.detail_times, it))
+                data.asleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_asleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
+                }
+                data.deepSleepTime?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_deep_sleep_time),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
+                    )
+                }
+                data.moveCount?.let {
+                    RowTexts(
+                        stringResource(R.string.detail_turns),
+                        stringResource(R.string.detail_times, it)
+                    )
                 }
             }
 
 
-            (if (data.type == 0) data.breathScore else data.snoreScore)?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-
-                MainScoreGraphView(percentValue = it, type = data.type)
-            }
+//            if (data.type == 1) {
+//                data.snoreCount?.let {
+//                    RowTexts(
+//                        stringResource(R.string.detail_vibration),
+//                        stringResource(R.string.detail_times, it)
+//                    )
+//                }
+//            }
 
 
             data.normalBreathTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
+//                HorizontalDivider(thickness = 1.dp, color = Color.White)
 
-                HeaderTitleView(stringResource(R.string.detial_normal_b), stringResource(R.string.detail_normal_breathing_text))
-                RowTexts(stringResource(R.string.detial_normal_b_t), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
-            }
-            data.avgNormalBreath?.let {
-                RowTexts(stringResource(R.string.detail_average_b), if (it == 0) "-" else stringResource(R.string.detail_min, it))
+                HeaderTitleView(
+                    title = stringResource( R.string.detial_normal_b),
+                   detailText =  stringResource(R.string.detail_normal_breathing_text)
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
+
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_99DFDFDF))
+                    .padding(start = 16.dp, end = 16.dp)){
+                    RowTexts(
+                        stringResource(R.string.detial_normal_b_t,),
+                        it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
+                    )
+                    data.avgNormalBreath?.let {
+                        RowTexts(
+                            stringResource(R.string.detail_average_b),
+                            if (it == 0) "-" else stringResource(R.string.detail_min, it),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
 
             data.apneaCount?.let {
                 //todo 비정상 호흡 시간으로 변경 필요
-                HeaderTitleView(stringResource(R.string.detail_a_b))
+                HeaderTitleView(title = stringResource(R.string.detail_a_b))
                 /*data.unstableBreath?.let {
                     RowTexts("비정상 호흡 시간", it.InpuMintoHourMinute())
                 }*/
+
                 Spacer(modifier = Modifier.height(16.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "호흡 없음 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    GraphsView(
+                        listData = data.nobreath_idx,
+                        drawColors = listOf(
+                            colorResource(id = R.color.color_E6F6FF),
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
                 BreathingGraphView(
-                    stringResource(R.string.detail_no_signal), stringResource(R.string.detail_total_score2, it), listOf(
-                        Triple(
+                    stringResource(R.string.detail_no_signal),
+                    stringResource(R.string.detail_total_score2, it),
+                    listOf(
+                        Fourth(
                             stringResource(R.string.detail_no_signal_10_secs),
                             stringResource(R.string.detail_count, data.apnea10 ?: 0),
-                            colorResource(id = R.color.color_gray1)
+                            colorResource(id = R.color.color_gray1),
+                            colorResource(id = R.color.color_1DAEFF)
                         ),
-                        Triple(
+                        Fourth(
                             stringResource(R.string.detail_no_signal_30_secs),
                             stringResource(R.string.detail_count, data.apnea30 ?: 0),
-                            colorResource(id = R.color.color_gray2)
+                            colorResource(id = R.color.color_gray2),
+                            colorResource(id = R.color.color_FDABFF)
                         ),
-                        Triple(
+                        Fourth(
                             stringResource(R.string.detail_no_signal_60_secs),
                             stringResource(R.string.detail_count, data.apnea60 ?: 0),
-                            colorResource(id = R.color.color_gray3)
+                            colorResource(id = R.color.color_gray3),
+                            colorResource(id = R.color.color_FF4F37)
                         )
                     )
                 )
             }
-            val lists: ArrayList<Triple<Pair<String, String>, Pair<String, String>, Color>> = ArrayList()
+            val lists: ArrayList<Fourth<Pair<String, String>, Pair<String, String>, Color,Color>> =
+                ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
                     lists.add(
-                        Triple(
+                        Fourth(
                             Pair(
                                 stringResource(R.string.detail_fast_breathing),
                                 stringResource(R.string.detail_average_respiratory_rate)
@@ -361,7 +461,8 @@ class HistoryDetailActivity : BaseActivity() {
                                 stringResource(R.string.detail_minutes, fastBreath),
                                 stringResource(R.string.detail_count, avgFastBreath)
                             ),
-                            colorResource(id = R.color.color_gray1)
+                            colorResource(id = R.color.color_gray1),
+                            colorResource(id = R.color.color_FDABFF)
                         )
                     )
                 }
@@ -369,7 +470,7 @@ class HistoryDetailActivity : BaseActivity() {
             data.slowBreath?.let { slowBreath ->
                 data.avgSlowBreath?.let { avgSlowBreath ->
                     lists.add(
-                        Triple(
+                        Fourth(
                             Pair(
                                 stringResource(R.string.detail_slow_breathing),
                                 stringResource(R.string.detail_average_respiratory_rate)
@@ -378,7 +479,8 @@ class HistoryDetailActivity : BaseActivity() {
                                 stringResource(R.string.detail_minutes, slowBreath),
                                 stringResource(R.string.detail_count, avgSlowBreath)
                             ),
-                            colorResource(id = R.color.color_gray2)
+                            colorResource(id = R.color.color_gray2),
+                            colorResource(id = R.color.color_1DAEFF)
                         )
                     )
                 }
@@ -387,96 +489,172 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(32.dp))
                 val totalCount =
                     (data.fastBreath ?: 0) + (data.slowBreath ?: 0) + (data.unstableBreath ?: 0)
-                RespiratoryInstabilityGraphView(title = stringResource(R.string.detail_unstable_breathing), stringResource(R.string.detail_total_min, totalCount), lists)
-            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+                    ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "호흡불안정 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GraphsView(
+                        listData = data.unstableIdx,
+                        drawColors = listOf(
+                            colorResource(id = R.color.color_E6F6FF),
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
 
-            data.straightPositionTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView(stringResource(R.string.detail_sleep_position), stringResource(R.string.detail_sleep_position_text))
+                RespiratoryInstabilityGraphView(
+                    title = stringResource(R.string.detail_unstable_breathing),
+                    stringResource(R.string.detail_total_min, totalCount),
+                    lists
+                )
+            }
+            data.snoreTime?.let {
                 Spacer(modifier = Modifier.height(16.dp))
+                HeaderTitleView(title = stringResource(R.string.detail_snoring))
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_0064F5))
+                    .padding(16.dp),
+                    ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = "코골이 / 기침 구간", color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    GraphsView(
+                        listData = data.snoring_idx,
+                        drawColors = listOf(
+                            colorResource(id = R.color.color_E6F6FF),
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_FF4F37)
+                        ),
+                        startText = startAt?.toDayString("HH:mm") ?: "",
+                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
 
-                VerticalGraphView(
-                    percentValue = (data.straightPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_supine),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
+                IconRowTexts(
+                    color = colorResource(id = R.color.color_FDABFF),
+                    stringResource(R.string.detail_snoring_time),
+                    it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
                 )
             }
-            data.leftPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.leftPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_left),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
+            data.coughCount?.let {
+                IconRowTexts(
+                    color = colorResource(id = R.color.color_1DAEFF),
+                    stringResource(R.string.detil_cough),
+                    stringResource(R.string.detail_times, it)
                 )
-            }
-            data.rightPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.rightPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_right),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            data.downPositionTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.downPer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_prone),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
-            }
-            data.wakeTime?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                VerticalGraphView(
-                    percentValue = (data.wakePer ?: 0).toFloat(),
-                    isPercentText = true,
-                    startText = stringResource(R.string.detail_standup),
-                    startTextSize = 19.sp,
-                    endText = it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
-                    endTextSize = 19.sp
-                )
+
             }
             Spacer(modifier = Modifier.height(16.dp))
+            data.straightPer?.let {
+                Spacer(modifier = Modifier.height(16.dp))
+                HeaderTitleView(
+                    title = stringResource(R.string.detail_sleep_position),
+                    detailText = stringResource(R.string.detail_sleep_position_text)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            PositionComposable(data)
 
             if (data.remSleepTime != null || data.lightSleepTime != null || data.deepSleepTime != null) {
-                HorizontalDivider(thickness = 1.dp, color = Color.White)
-                HeaderTitleView(stringResource(R.string.detail_sleep_stage), getString(R.string.detail_sleep_stages_text))
+//                HorizontalDivider(thickness = 1.dp, color = Color.White)
+                HeaderTitleView(
+                    title = stringResource(R.string.detail_sleep_stage),
+                    detailText = getString(R.string.detail_sleep_stages_text)
+                )
             }
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-
+                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-
                 data.remSleepTime?.let {
-                    BarChartView(stringResource(R.string.detail_rem_sleep), data.sleepTime ?: 0, it, scrollState)
+                    SleepState(label =  stringResource(R.string.detail_rem_sleep), sleepTime = it,data.sleepTime ?: 0)
                 }
                 data.lightSleepTime?.let {
-                    BarChartView(stringResource(R.string.detail_light_sleep), data.sleepTime ?: 0, it, scrollState)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SleepState(label =  stringResource(R.string.detail_light_sleep), sleepTime = it,data.sleepTime ?: 0)
                 }
                 data.deepSleepTime?.let {
-                    BarChartView(stringResource(R.string.detail_deep_sleep), data.sleepTime ?: 0, it, scrollState)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SleepState(label =  stringResource(R.string.detail_deep_sleep), sleepTime = it,data.sleepTime ?: 0)
                 }
             }
+
+            Column {
+                Spacer(modifier = Modifier.height(16.dp))
+                data.remSleepTime?.let {
+                    LineView(
+                        stringResource(R.string.detail_rem_sleep),
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_1DAEFF),
+                            colorResource(id = R.color.color_1DAEFF)
+                        )
+                    )
+                }
+                data.lightSleepTime?.let {
+                    LineView(
+                        stringResource(R.string.detail_light_sleep),
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_9ACF40),
+                            colorResource(id = R.color.color_9ACF40)
+                        )
+                    )
+                }
+                data.deepSleepTime?.let {
+                    LineView(
+                        stringResource(R.string.detail_deep_sleep),
+                        data.unstableIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_FF6008),
+                            colorResource(id = R.color.color_FF6008)
+                        ), isLast = true
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    BottomText(startAt?.toDayString("HH:mm") ?: "", endedAt?.toDayString("HH:mm") ?: "")
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HeaderTitleView(title = "수면 중 움직임")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GradientBarChart(gradientColor = listOf(colorResource(id = R.color.color_F44E4E), colorResource(
+                id = R.color.color_main
+            )), defaultColor = colorResource(id = R.color.color_main), threshold = 5)
+
             Text(
                 text = data.ment ?: "",
                 color = Color.White,
@@ -494,196 +672,16 @@ class HistoryDetailActivity : BaseActivity() {
         }
     }
 
-    @Composable
-    private fun RowTexts(startText: String, endText: String) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-
-            Text(
-                text = startText, color = Color.White,
-                fontSize = 19.sp,
-                fontWeight = FontWeight.Normal
-            )
-            Text(
-                text = endText, color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
 
     @Composable
-    private fun MainScoreGraphView(
-        type: Int? = null,
-        percentValue: Int,
-        isPercentText: Boolean = false,
-        startText: String = stringResource(R.string.detail_bad),
-        startTextSize: TextUnit = 14.sp,
-        centerText: String = stringResource(R.string.detail_medium),
-        centerTextSize: TextUnit = 14.sp,
-        endText: String = stringResource(R.string.detail_good),
-        endTextSize: TextUnit = 14.sp
-    ) {
-        var width by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 24.dp, start = 20.dp, end = 20.dp)
-                    .fillMaxWidth()
-                    .padding(16.dp, 3.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            modifier = Modifier
-                                .weight(9f),
-                            text = if (type == 0) stringResource(R.string.detail_your_sleep_respiration_score) else stringResource(R.string.detail_your_snoring_score_during_sleep),
-                            color = Color.White,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Image(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 5.dp)
-                                .clickable {
-                                    if (type == 0) {
-                                        viewModel.sendInfoMessage(getString(R.string.detail_respiratory_score), getString(R.string.detail_breathing_score_text))
-                                    } else {
-                                        viewModel.sendInfoMessage(getString(R.string.detail_snoring_score), getString(R.string.detail_breathing_score_text))
-                                    }
-                                },
-                            painter = painterResource(id = R.drawable.question),
-                            contentDescription = ""
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.detail_score, percentValue),
-                            color = Color.White,
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if ((type ?: 0) == 0) {
-                            LottieLoading(modifier = Modifier
-                                .padding(start = 8.dp)
-                                .size(40.dp)
-                                .clickable {
-                                    viewModel.getInfoMessage(percentValue.toString(), type ?: 0, getLanguage())
-                                })
-                        }
-                    }
-                }
-            }
-
-            Box(contentAlignment = Alignment.Center) {
-                val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
-                Image(
-                    modifier = Modifier.padding(start = percent),
-                    painter = painterResource(id = getReversPercentImage(percentValue.toFloat())),
-                    contentDescription = ""
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(start = percent)
-                        .offset(y = (-5).dp),
-                    text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
-                    color = colorResource(id = R.color.md_grey_800),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .padding(18.dp, 0.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(40.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                colorResource(id = R.color.color_EB361B),
-                                colorResource(id = R.color.color_FFF33A),
-                                colorResource(id = R.color.color_44A64B)
-                            ),
-                            startX = 0f,
-                            endX = Float.POSITIVE_INFINITY
-                        )
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.color_FFFFFF),
-                        shape = RoundedCornerShape(40.dp)
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        width = with(density) {
-                            coordinates.size.width.toDp()
-                        }
-                    }
-            ) {
-                Spacer(modifier = Modifier.height(25.dp))
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 24.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-5).dp)
-                        .padding(top = 4.dp),
-                    text = startText,
-                    color = Color.White,
-                    fontSize = startTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (5).dp)
-                        .padding(top = 4.dp),
-                    text = centerText,
-                    color = Color.White,
-                    fontSize = centerTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-10).dp)
-                        .padding(top = 4.dp),
-                    text = endText,
-                    color = Color.White,
-                    fontSize = endTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-
-    @Composable
-    private fun HeaderTitleView(title: String, detailText: String? = null) {
+    fun HeaderTitleView(backColor: Color = colorResource(id = R.color.color_gray3),title: String, detailText: String? = null) {
         Box(
             modifier = Modifier
-                .padding(top = 24.dp, start = 50.dp, end = 50.dp)
+                .padding(top = 24.dp, start = 0.dp, end = 0.dp)
                 .fillMaxWidth()
+                .height(53.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(colorResource(id = R.color.color_dark_yellow))
+                .background(backColor)
                 .padding(16.dp, 3.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -697,8 +695,8 @@ class HistoryDetailActivity : BaseActivity() {
                         .padding(start = 5.dp)
                         .align(Alignment.CenterVertically),
                     text = title,
-                    color = Color.Black,
-                    fontSize = 19.sp,
+                    color = Color.White,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 detailText?.let {
@@ -729,7 +727,7 @@ class HistoryDetailActivity : BaseActivity() {
     private fun BreathingGraphView(
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
-        rightBoxValue: List<Triple<String, String, Color>> = emptyList()
+        rightBoxValue: List<Fourth<String, String, Color, Color>> = emptyList()
 
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
@@ -744,8 +742,7 @@ class HistoryDetailActivity : BaseActivity() {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        modifier = Modifier
-                            .weight(8f),
+
                         text = title, color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -753,9 +750,14 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                     Image(
                         modifier = Modifier
-                            .weight(2f)
+
                             .padding(start = 5.dp)
-                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_no_signal_breathing_text)) },
+                            .clickable {
+                                viewModel.sendInfoMessage(
+                                    title,
+                                    getString(R.string.detail_no_signal_breathing_text)
+                                )
+                            },
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -776,6 +778,13 @@ class HistoryDetailActivity : BaseActivity() {
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
+//                    LottieLoading(modifier =
+//                    Modifier
+//                        .size(108.dp)
+//                        .offset(y = 15.dp)
+//                        .clickable {
+//
+//                        })
                 }
             }
             Column(
@@ -804,14 +813,27 @@ class HistoryDetailActivity : BaseActivity() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = value.first,
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Normal,
-                            maxLines = 2,
-                            modifier = Modifier.weight(7f)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier =   Modifier.weight(7f)) {
+                            Text(
+                                text = value.first,
+                                color = Color.White,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Normal,
+                                maxLines = 2,
+                                modifier = Modifier.weight(8f)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(18.dp)
+                                    .clip(CircleShape)
+                                    .background(value.fourth)
+                            )
+                        }
+
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
@@ -968,7 +990,7 @@ class HistoryDetailActivity : BaseActivity() {
     private fun RespiratoryInstabilityGraphView(
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
-        rightBoxValue: List<Triple<Pair<String, String>, Pair<String, String>, Color>> = emptyList()
+        rightBoxValue: List<Fourth<Pair<String, String>, Pair<String, String>, Color,Color>> = emptyList()
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
@@ -993,7 +1015,12 @@ class HistoryDetailActivity : BaseActivity() {
                         modifier = Modifier
                             .weight(2f)
                             .padding(start = 5.dp)
-                            .clickable { viewModel.sendInfoMessage(title, getString(R.string.detail_instability_breathing_text)) },
+                            .clickable {
+                                viewModel.sendInfoMessage(
+                                    title,
+                                    getString(R.string.detail_instability_breathing_text)
+                                )
+                            },
                         painter = painterResource(id = R.drawable.question),
                         contentDescription = ""
                     )
@@ -1041,14 +1068,26 @@ class HistoryDetailActivity : BaseActivity() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = value.first.first,
-                            color = Color.White,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Normal,
-                            maxLines = 2,
-                            modifier = Modifier.weight(7f)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier =   Modifier.weight(7f)) {
+                            Text(
+                                text = value.first.first,
+                                color = Color.White,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Normal,
+                                maxLines = 2,
+                                modifier = Modifier.weight(8f)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(18.dp)
+                                    .clip(CircleShape)
+                                    .background(value.fourth)
+                            )
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
@@ -1299,7 +1338,7 @@ class HistoryDetailActivity : BaseActivity() {
                             }
                             scoreDialogBinding.llContent.addView(scoreInfoBinding.root)
                         }
-                        scoreDialogBinding.btConnect.setOnSingleClickListener {  scoreInfoDialog.dismiss()}
+                        scoreDialogBinding.btConnect.setOnSingleClickListener { scoreInfoDialog.dismiss() }
                         scoreInfoDialog.show()
                     }
                 }

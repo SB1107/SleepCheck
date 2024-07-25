@@ -21,8 +21,8 @@ android {
         applicationId = "kr.co.sbsolutions.sleepcheck"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 7
+        versionName = "1.0.2"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
         buildConfigField ("String", "KAKAO",getProperties("kakao"))
         buildConfigField ("String", "ivData",getProperties("ivData"))
@@ -208,5 +208,5 @@ dependencies {
     //Android-DFU-Library
     implementation("no.nordicsemi.android:dfu:2.4.2")
 
-
+    implementation("dev.shreyaspatil:capturable:2.1.0")
 }

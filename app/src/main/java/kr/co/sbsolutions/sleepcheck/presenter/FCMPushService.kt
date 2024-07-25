@@ -9,7 +9,10 @@ import android.os.Build
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ServiceLifecycleDispatcher
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -18,8 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,12 +35,15 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
     @Inject
     lateinit var notificationManager: NotificationManager
     @Inject
-    lateinit var logHelper: LogHelper
+    lateinit var logHelper: ILogHelper
 
 
     companion object {
         const val DATA_KEY = "dataId"
         const val TOKEN_ID = "tokenId"
+        const val PUSH_TYPE = "push_type"
+        const val TITLE = "title"
+        const val BODY = "body"
     }
 
     // 등록 토큰이 앱 데이터 삭제, 재설치, 복원 등의 상황에서 변경 가능.
@@ -60,13 +66,18 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
 
         //받은 remoteMessage의 값 출력해보기.   데이터메세지 / 알림 메세지
 
-        logHelper.insertLog("[FMS] Data  ${remoteMessage.data[DATA_KEY]}")
-        logHelper.insertLog("[FMS] Noti  title: ${remoteMessage.notification?.title} + body: ${remoteMessage.notification?.body}")
+//        remoteMessage.data.map {
+//            logHelper.insertLog("[FMS] Data  key = ${it.key}  value = ${it.value}")
+//        }
+        val title = remoteMessage.data[TITLE] ?: "측정이 완료되었어요"
+        val body = remoteMessage.data[BODY] ?: "측정이 완료되었어요"
+        val pushType = remoteMessage.data[PUSH_TYPE] ?: "1"
+        logHelper.insertLog("[FMS] Noti  title: $title + body: $body pushType + $pushType")
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         @SuppressLint("InvalidWakeLockTag") val wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG")
         wakeLock.acquire(3000)
-        sendDataMessage("측정이 완료되었어요.", "측정이 완료되었어요", "0")
+        sendDataMessage(title, body, pushType)
     }
 
     // 등록된 토큰 확인
@@ -100,6 +111,7 @@ class FCMPushService : FirebaseMessagingService(), LifecycleOwner {
         Intent().also { intent ->
             intent.setAction(Cons.NOTIFICATION_ACTION)
             intent.setPackage(baseContext.packageName)
+            intent.putExtra("pushType",data,)
             sendBroadcast(intent)
         }
         val channel = NotificationChannel(

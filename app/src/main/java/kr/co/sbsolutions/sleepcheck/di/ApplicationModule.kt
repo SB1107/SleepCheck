@@ -31,10 +31,15 @@ import kr.co.sbsolutions.sleepcheck.common.UploadWorkerHelper
 import kr.co.sbsolutions.sleepcheck.data.db.SBSensorDataBase
 import kr.co.sbsolutions.sleepcheck.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.BreathingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.CoughDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDataDao
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDao
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
+import kr.co.sbsolutions.sleepcheck.presenter.firmware.FirmwareHelper
 import kr.co.sbsolutions.sleepcheck.service.BLEServiceHelper
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -56,6 +61,15 @@ object ApplicationModule {
 
     @Provides
     fun provideBluetoothAdapter(@ApplicationContext context: Context) = (context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+
+    @Provides
+    fun provideNoseRingDAO(db: SBSensorDataBase) = db.noseRingDAO()
+
+    @Provides
+    fun provideCoughDAO(db: SBSensorDataBase) = db.coughDAO()
+
+    @Provides
+    fun provideBreathingDAO(db: SBSensorDataBase) = db.breathingDAO()
 
     @Provides
     fun provideFirebaseFireStore() = FirebaseFirestore.getInstance()
@@ -97,6 +111,9 @@ object ApplicationModule {
     fun provideBlueToothScanHelper(@ApplicationContext context: Context) = BlueToothScanHelper(context)
 
     @Provides
+    fun provideFirmwareHelper(remoteAuthDataSource: RemoteAuthDataSource, dataManager: DataManager, tokenManager: TokenManager) = FirmwareHelper(remoteAuthDataSource, dataManager, tokenManager)
+
+    @Provides
     fun provideBLEServiceHelper(
         dataManager: DataManager, tokenManager: TokenManager,
         bluetoothNetworkRepository: IBluetoothNetworkRepository,
@@ -110,10 +127,14 @@ object ApplicationModule {
         notificationManager: NotificationManager,
         fireBaseRealRepository: FireBaseRealRepository,
         blueToothScanHelper: BlueToothScanHelper,
+        noseRingDataRepository: NoseRingDataRepository,
+        coughDataRepository: CoughDataRepository,
+        breathingDataRepository: BreathingDataRepository
     ) = BLEServiceHelper(
         dataManager, tokenManager, bluetoothNetworkRepository, sbSensorDBRepository,
         settingDataRepository, timeHelper, noseRingHelper, logHelper, uploadWorkerHelper, fireBaseRealRepository,
-        notificationBuilder, notificationManager, blueToothScanHelper
+        notificationBuilder, notificationManager, blueToothScanHelper,noseRingDataRepository,coughDataRepository,
+        breathingDataRepository
     )
 
     @Provides

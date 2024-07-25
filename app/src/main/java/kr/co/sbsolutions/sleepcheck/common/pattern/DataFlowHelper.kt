@@ -9,18 +9,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.data.firebasedb.FireBaseRealRepository
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class DataFlowHelper(
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val sensorName: String,
     private val coroutineScope: CoroutineScope,
     private val settingDataRepository: SettingDataRepository,
@@ -65,7 +65,7 @@ class DataFlowHelper(
 
 interface Chain {
     fun setNext(nextInChain: Chain)
-    fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit)
+    fun process(logHelper: ILogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit)
 
 }
 
@@ -80,7 +80,7 @@ class DataIdProcessor(private val settingDataRepository: SettingDataRepository) 
         this.nextInChain = nextInChain
     }
 
-    override fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
+    override fun process(logHelper: ILogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
         scope.launch {
             chainData.dataId = settingDataRepository.getDataId()
             nextInChain.process(logHelper, scope, chainData, callback)
@@ -94,7 +94,7 @@ class ItemCheckProcessor(private val networkRepository: IBluetoothNetworkReposit
         this.nextInChain = nextInChain
     }
 
-    override fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
+    override fun process(logHelper: ILogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
         chainData.bluetoothInfo = networkRepository.sbSensorInfo.value
 
         chainData.dataId?.let {
@@ -144,7 +144,7 @@ class NoDataItemCheckProcessor(private val info: BluetoothInfo, private val sbSe
         this.nextInChain = nextInChain
     }
 
-    override fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
+    override fun process(logHelper: ILogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
         chainData.bluetoothInfo = info
         chainData.dataId?.let {
             scope.launch {
@@ -187,7 +187,7 @@ class NoDataIdItemInsertProcessor(private val sbSensorDBRepository: SBSensorDBRe
         this.nextInChain = nextInChain
     }
 
-    override fun process(logHelper: LogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
+    override fun process(logHelper: ILogHelper, scope: CoroutineScope, chainData: ChainData, callback: (ChainData) -> Unit) {
         scope.launch {
             chainData.dataId?.let { id ->
                 sbSensorDBRepository.getSensorDataIdByFirst(id).first()?.let { noDataIdItemInsert(it, id) }

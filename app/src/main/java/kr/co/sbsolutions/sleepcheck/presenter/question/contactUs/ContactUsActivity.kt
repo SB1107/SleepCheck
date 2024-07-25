@@ -54,6 +54,7 @@ import kr.co.sbsolutions.sleepcheck.databinding.ActivityQuestionBinding
 import kr.co.sbsolutions.sleepcheck.presenter.BaseServiceActivity
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SoomScaffold
+import okhttp3.internal.wait
 
 @AndroidEntryPoint
 class ContactUsActivity : BaseServiceActivity() {
@@ -202,7 +203,7 @@ class ContactUsActivity : BaseServiceActivity() {
         }
         Button(
             colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(id = R.color.color_yellow),
+                containerColor = colorResource(id = R.color.color_main),
                 contentColor = Color.Black,
                 disabledContainerColor = Color.Gray,
                 disabledContentColor = Color.Black
@@ -225,7 +226,7 @@ class ContactUsActivity : BaseServiceActivity() {
                 }
             },
         ) {
-            DetailText(text = stringResource(R.string.contact_register), textSize = 16, color = Color.Black)
+            DetailText(text = stringResource(R.string.contact_register), textSize = 16, color = Color.White)
         }
         SpacerHeight(size = 15)
 

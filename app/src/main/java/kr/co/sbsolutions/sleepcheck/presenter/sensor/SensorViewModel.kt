@@ -28,6 +28,7 @@ import kr.co.sbsolutions.sleepcheck.domain.bluetooth.usecase.BluetoothManageUseC
 import kr.co.sbsolutions.sleepcheck.domain.model.CheckSensor
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.sleepcheck.presenter.BaseServiceViewModel
+import kr.co.sbsolutions.sleepcheck.presenter.firmware.FirmwareHelper
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,7 +38,8 @@ class SensorViewModel @Inject constructor(
     private val dataManager: DataManager,
     tokenManager: TokenManager,
     private val authAPIRepository: RemoteAuthDataSource,
-    private val logHelper: LogHelper
+    private val logHelper: LogHelper,
+    private  val firmwareHelper: FirmwareHelper
 
 ) : BaseServiceViewModel(dataManager, tokenManager) {
 
@@ -56,6 +58,9 @@ class SensorViewModel @Inject constructor(
 
     private val _isBleProgressBar: MutableSharedFlow<Boolean> = MutableSharedFlow()
     val isBleProgressBar: SharedFlow<Boolean> = _isBleProgressBar
+
+    private val _updateCheckResult: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val updateCheckResult: SharedFlow<Boolean> = _updateCheckResult
 
     //    private val _disconnected: MutableSharedFlow<Boolean> = MutableSharedFlow(extraBufferCapacity = 1)
     init {
@@ -84,11 +89,30 @@ class SensorViewModel @Inject constructor(
                 }?.filter { it.batteryInfo != null }?.collectLatest {
                     Log.e(TAG, "배터리1: ${it.batteryInfo}")
                     Log.e(TAG, "배터리2: ${it.batteryInfo.isNullOrEmpty().not()}")
-                    _isBleProgressBar.emit(it.batteryInfo.isNullOrEmpty().not())
+                    if (it.batteryInfo.isNullOrEmpty().not()) {
+                        getFirmwareVersion()
+                    }else{
+                        _isBleProgressBar.emit(false)
+                    }
                 }
             }
         }
     }
+
+    fun getFirmwareVersion() {
+        viewModelScope.launch {
+            firmwareHelper.getFirmwareVersion(viewModelScope,
+                getService()?.getSbSensorInfo()?.value?.bluetoothState,
+                ApplicationManager.getService().value.get()?.getFirmwareVersion())
+                .collectLatest { result ->
+                    _updateCheckResult.emit(result)
+                    if (result.not()) {
+                        _isBleProgressBar.emit(true)
+                    }
+                }
+        }
+    }
+
 
     fun bleDisconnect() {
         when (getService()?.getSbSensorInfo()?.value?.bluetoothState) {

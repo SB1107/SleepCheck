@@ -3,6 +3,7 @@ package kr.co.sbsolutions.sleepcheck.presenter.sensor
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
@@ -36,6 +37,7 @@ import kr.co.sbsolutions.sleepcheck.databinding.ActivitySensorBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogConnectDeviceBinding
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
 import kr.co.sbsolutions.sleepcheck.presenter.BluetoothActivity
+import kr.co.sbsolutions.sleepcheck.presenter.firmware.FirmwareUpdateActivity
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
@@ -43,7 +45,6 @@ import kotlin.concurrent.timerTask
 @SuppressLint("MissingPermission")
 @AndroidEntryPoint
 class SensorActivity : BluetoothActivity() {
-    private lateinit var tooltip: Balloon
     private var timer: Timer? = null
     private val connectDeviceBinding: DialogConnectDeviceBinding by lazy {
         DialogConnectDeviceBinding.inflate(layoutInflater)
@@ -111,38 +112,6 @@ class SensorActivity : BluetoothActivity() {
         viewModel.checkDeviceScan()
     }
 
-    @Deprecated("안씀")
-    private fun setToolTip(message: String) {
-        if (::tooltip.isInitialized) {
-            tooltip.dismiss()
-        }
-
-        tooltip = Balloon.Builder(this)
-            .setTextIsHtml(true)
-            .setAutoDismissDuration(2000)
-            .setHeight(BalloonSizeSpec.WRAP)
-            .setText(message)
-            .setTextColor(Color.BLACK)
-            .setTextSize(24f)
-            .setTextLineSpacing(7f)
-            .setTextGravity(Gravity.START)
-            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-            .setArrowSize(10)
-            .setArrowPosition(0.5f)
-            .setPadding(30)
-            .setMargin(16)
-            .setCornerRadius(8f)
-            .setBackgroundColor(Color.parseColor("#FFDB1C"))
-            .setBalloonAnimation(BalloonAnimation.OVERSHOOT)
-            .setIsVisibleOverlay(true)
-            .setOverlayShape(BalloonOverlayRoundRect(16f, 16f))
-            .setOverlayColor(Color.parseColor("#CC000000"))
-            .setOverlayPadding(4f)
-            .setBalloonOverlayAnimation(BalloonOverlayAnimation.FADE)
-            .setLifecycleOwner(this)
-            .build()
-
-    }
 
     @SuppressLint("SetTextI18n")
     private fun setConnectDeviceDialog(device: BluetoothDevice) {
@@ -217,25 +186,6 @@ class SensorActivity : BluetoothActivity() {
                         }
                     }
 
-                    /*launch {
-                        isScanning.collectLatest { isScanning ->
-                            animator.also {
-                                if (isScanning) it.start() else it.cancel()
-                            }
-                        }
-                    }*/
-
-                    /*launch {
-                        isRegistered.collectLatest {
-                            if (it) {
-//                                delay(1000)
-                                newBackPressed()
-
-                            } else {
-                                Toast.makeText(this@SensorActivity, "재연결이 필요합니다. ", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }*/
                     launch {
                         viewModel.isBleProgressBar.collectLatest {
                             binding.icBleProgress.clProgress.visibility = if (it) View.GONE else View.VISIBLE
@@ -246,7 +196,21 @@ class SensorActivity : BluetoothActivity() {
 
                         }
                     }
-
+                    launch {
+                        viewModel.updateCheckResult.collectLatest {
+                            when (it) {
+                                true -> {
+                                    binding.icBleProgress.clProgress.visibility = View.GONE
+                                    showAlertDialog(message = "숨이랑 펌웨어\n업데이트가 필요합니다.\n\n업데이트 화면으로\n 이동합니다.", confirmAction = {
+                                        startActivity(Intent(this@SensorActivity, FirmwareUpdateActivity::class.java))
+                                        connectDeviceDialog.dismiss()
+                                        newBackPressed()
+                                    })
+                                }
+                                false -> {}
+                            }
+                        }
+                    }
                     launch {
                         viewModel.bleStateResultText.collectLatest {
                             it?.let { resultText ->
@@ -263,6 +227,8 @@ class SensorActivity : BluetoothActivity() {
                                         || it.name.uppercase().startsWith("AB")
                                         || it.name.uppercase().startsWith("AC")
                                         || it.name.uppercase().startsWith("AP")
+                                        || it.name.uppercase().startsWith("BR")
+                                        || it.name.uppercase().startsWith("BS")
                             }.sortedBy { it.name }
                         }.collectLatest { list ->
                             if (list.size == 1) {
@@ -296,10 +262,4 @@ class SensorActivity : BluetoothActivity() {
         }
     }
 
-    private fun showToolTip() {
-        setToolTip("<b>아래 센서를 선택하여<br>센서를 등록해 주세요</b>")
-        lifecycleScope.launch(Dispatchers.Main) {
-            tooltip.showAlignBottom(binding.deviceRecyclerView)
-        }
-    }
 }

@@ -110,4 +110,8 @@ interface AuthServiceAPI {
 
     @GET("rentalcompany")
     suspend fun getRentalCompany(): Response<RentalCompanyEntity>
+
+    @FormUrlEncoded
+    @POST("alarmset")
+    suspend fun postAlarmSet(@Field("app_kind") appKind: String = "R", @Field("alarm") alarm : String): Response<BaseEntity>
 }

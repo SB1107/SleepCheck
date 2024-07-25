@@ -45,19 +45,22 @@ import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetwor
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
 import kr.co.sbsolutions.sleepcheck.service.BLEService
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 import kr.co.sbsolutions.soomirang.db.SBSensorData
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.Timer
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.concurrent.timerTask
 
 @SuppressLint("MissingPermission")
 class BluetoothNetworkRepository @Inject constructor(
     private val dataManager: DataManager,
     private val settingDataRepository: SettingDataRepository,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val aesHelper: AESHelper
 ) : IBluetoothNetworkRepository {
     private val logCoroutine = CoroutineScope(Dispatchers.IO)
@@ -73,6 +76,7 @@ class BluetoothNetworkRepository @Inject constructor(
     private val defaultPrefix = "FE9B8003"
     private var isEncrypt = false
     private lateinit var sendDownloadContinueJob: Job
+    private var timerOfSendDownloadTimer: Timer? = null
 
 
     companion object {
@@ -414,13 +418,13 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType) {
-        val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
-        if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered) {
+    override fun startNetworkSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean) {
+        if (_sbSensorInfo.value.bluetoothState == BluetoothState.Unregistered || !hasSensor) {
             _sbSensorInfo.update { it.copy(dataId = dataId, sleepType = sleepType, snoreTime = 0) }
             return
         }
 
+        val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
         if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
             writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
                 _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
@@ -512,6 +516,16 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDownloadSbSensor(isContinue: Boolean) {
+//        if (isContinue.not() and isCancel.not()) {
+//            timerOfSendDownloadTimer?.cancel()
+//            timerOfSendDownloadTimer = Timer().apply {
+//                schedule(timerTask {
+//                    logHelper.insertLog("operateDownloadSbSensor 다시 콜 메모리 10초 응답 없음")
+//                    operateDownloadSbSensor(isCancel, isContinue)
+//                }, 10000L)
+//            }
+//        }
+
         writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
@@ -977,7 +991,7 @@ class BluetoothNetworkRepository @Inject constructor(
             logCoroutine.launch {
 //                Log.d("---> Device To App", readValue.hexToString())
                 val value = decryptByteArray(readValue)
-                Log.d("---> Device To App1", value.hexToString())
+                Log.d("---> Device To App", value.hexToString())
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
                 when ((String.format("%02X", value[4])).getCommand()) {
@@ -1134,36 +1148,11 @@ class BluetoothNetworkRepository @Inject constructor(
                             if (check) {
                                 if (value.verifyCheckSum()) {
                                     coroutine.launch {
+                                        val length = String.format("%02X", value[5]).toUInt(16).toInt()
                                         val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
-                                        val capacitance1 = String.format("%02X%02X%02X", value[9], value[10], value[11]).toUInt(16).toInt()
-
-                                        val accelerationX1 = String.format("%02X", value[12]).toUInt(16).toInt()
-                                        val accelerationY1 = String.format("%02X", value[13]).toUInt(16).toInt()
-                                        val accelerationZ1 = String.format("%02X", value[14]).toUInt(16).toInt()
-
-                                        val calcAccX1 = accFormatter.format((accelerationX1.toByte() * 0.0156F))
-                                        val calcAccY1 = accFormatter.format((accelerationY1.toByte() * 0.0156F))
-                                        val calcAccZ1 = accFormatter.format((accelerationZ1.toByte() * 0.0156F))
-
-                                        val time1 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index1)))
-                                        info.currentData.emit(capacitance1)
-                                        //                                info.currentData?.postValue(capacitance1)
-
-                                        val index2 = String.format("%02X%02X%02X", value[15], value[16], value[17]).toUInt(16).toInt()
-                                        val capacitance2 = String.format("%02X%02X%02X", value[18], value[19], value[20]).toUInt(16).toInt()
-
-                                        val accelerationX2 = String.format("%02X", value[21]).toUInt(16).toInt()
-                                        val accelerationY2 = String.format("%02X", value[22]).toUInt(16).toInt()
-                                        val accelerationZ2 = String.format("%02X", value[23]).toUInt(16).toInt()
-
-                                        val calcAccX2 = accFormatter.format((accelerationX2.toByte() * 0.0156F))
-                                        val calcAccY2 = accFormatter.format((accelerationY2.toByte() * 0.0156F))
-                                        val calcAccZ2 = accFormatter.format((accelerationZ2.toByte() * 0.0156F))
-
-                                        val time2 = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index2)))
-
-                                        //                                info.currentData?.postValue(capacitance2)
-                                        info.currentData.emit(capacitance2)
+                                        for (i in 0 until length / 9) {
+                                            realtimeProcessData(startIndex = 6 + i * 9, info = info, value = value)
+                                        }
                                         val quotient = index1 / UPLOAD_COUNT_INTERVAL
                                         if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
                                             uploadCallback?.let { cb ->
@@ -1171,11 +1160,6 @@ class BluetoothNetworkRepository @Inject constructor(
                                                 uploadCallbackQuotient = quotient
                                                 cb.invoke()
                                             }
-                                        }
-
-                                        info.channel.apply {
-                                            emit(SBSensorData(index1, time1, capacitance1, calcAccX1, calcAccY1, calcAccZ1, info.dataId ?: -1))
-                                            emit(SBSensorData(index2, time2, capacitance2, calcAccX2, calcAccY2, calcAccZ2, info.dataId ?: -1))
                                         }
                                     }
                                     writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
@@ -1325,6 +1309,7 @@ class BluetoothNetworkRepository @Inject constructor(
                                 BluetoothState.Connected.SendDownload -> {
                                     downloadContinueCount = 0
                                     lastDownloadCompleteCallback?.invoke(BLEService.FinishState.FinishNormal)
+                                    timerOfSendDownloadTimer?.cancel()
                                     innerData.update { it.copy(bluetoothState = BluetoothState.Connected.FinishDownload) }
                                     Log.d(TAG, "readData: finish 먼저!!")
 //                                it.bluetoothState = BluetoothState.Connected.FinishDownload
@@ -1480,6 +1465,33 @@ class BluetoothNetworkRepository @Inject constructor(
 
                     else -> {}
                 }
+            }
+        }
+        private suspend fun realtimeProcessData(startIndex: Int, info: BluetoothInfo, value: ByteArray) {
+            val index = String.format(
+                "%02X%02X%02X",
+                value[startIndex], value[startIndex + 1], value[startIndex + 2]
+            ).toUInt(16).toInt()
+            val capacitance = String.format(
+                "%02X%02X%02X",
+                value[startIndex + 3], value[startIndex + 4], value[startIndex + 5]
+            ).toUInt(16).toInt()
+
+            val accelerationX = String.format("%02X", value[startIndex + 6]).toUInt(16).toInt()
+            val accelerationY = String.format("%02X", value[startIndex + 7]).toUInt(16).toInt()
+            val accelerationZ = String.format("%02X", value[startIndex + 8]).toUInt(16).toInt()
+
+            val calcAccX = accFormatter.format((accelerationX.toByte() * 0.0156F))
+            val calcAccY = accFormatter.format((accelerationY.toByte() * 0.0156F))
+            val calcAccZ = accFormatter.format((accelerationZ.toByte() * 0.0156F))
+
+            val time = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss.SSS",
+                Locale.getDefault()
+            ).format((startTime + (200 * index)))
+            info.currentData.emit(capacitance) // 필요에 따라 추가
+            info.channel.apply {
+                emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, info.dataId ?: -1))
             }
         }
     }

@@ -33,11 +33,13 @@ import kr.co.sbsolutions.sleepcheck.R
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.presenter.main.ImageViewPagerAdapter
 import kr.co.sbsolutions.sleepcheck.service.BLEService
+import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
+import kotlin.Triple
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "data_store")
 val Context.tokenStore: DataStore<Preferences> by preferencesDataStore(name = "token_store")
@@ -79,7 +81,11 @@ fun ContextWrapper.getPermissionResult(): ArrayList<String> {
     return deniedPermissions
 }
 
-fun Context.showYearDialog(currentYear: Int, cancelAction: (() -> Unit)? = null, confirmAction: ((Int) -> Unit)) {
+fun Context.showYearDialog(
+    currentYear: Int,
+    cancelAction: (() -> Unit)? = null,
+    confirmAction: ((Int) -> Unit)
+) {
     val maxYear: Int = LocalDate.now().year
     val minYear = 2020
     val dialogView = LayoutInflater.from(this).inflate(R.layout.show_alert_year_dialog, null)
@@ -109,7 +115,13 @@ fun Context.showYearDialog(currentYear: Int, cancelAction: (() -> Unit)? = null,
     dialog.show()
 }
 
-fun Context.showAlertDialog(title: Int? = null, message: String, buttonText: Int = R.string.app_confirm, cancelable: Boolean = true, confirmAction: (() -> Unit)? = null) {
+fun Context.showAlertDialog(
+    title: Int? = null,
+    message: String,
+    buttonText: Int = R.string.app_confirm,
+    cancelable: Boolean = true,
+    confirmAction: (() -> Unit)? = null
+) {
     val dialogView = LayoutInflater.from(this).inflate(R.layout.show_alert_dialog, null)
     val dialog = AlertDialog.Builder(this, R.style.CustomAlertDialog)
         .setView(dialogView)
@@ -317,13 +329,13 @@ fun Int.toHourOrMinute(locale: Locale = Locale.KOREA): String {
     val minutes = (time.toMinutes() % 60) // 전체 시간에서 시간 단위를 제외한 나머지 분 단위 추출
     return if (hours > 0) {
         if (locale == Locale.KOREA) {
-            String.format("약\n%d시간", hours)
+            String.format("약%d시간 %d 분", hours, minutes)
         } else {
-            String.format("%dhr", hours)
+            String.format("%dhr%d min", hours, minutes)
         }
     } else {
         if (locale == Locale.KOREA) {
-            String.format("약\n%d 분", minutes)
+            String.format("약%d 분", minutes)
         } else {
             String.format("%d min", minutes)
         }
@@ -338,8 +350,11 @@ fun Context.toPx2Dp(px: Float): Float {
     return px / (this.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT)
 }
 
-fun Intent.addFlag() = this.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
-fun ContextWrapper.isIgnoringBatteryOptimizations() = (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)
+fun Intent.addFlag() =
+    this.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
+
+fun ContextWrapper.isIgnoringBatteryOptimizations() =
+    (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)
 // 배터리 최적화 이슈로 인해 현재 처리하지 않음
 //fun ContextWrapper.isIgnoringBatteryOptimizations() = true
 
@@ -379,13 +394,18 @@ fun View.setOnSingleClickListener(onClickListener: (view: View) -> Unit) {
 }
 
 fun Any.timeStamp(dateFormat: String = "yyyy년 MM월 dd일 HH시 mm분 SS.sss초"): String {
-    val timeStamp = SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(System.currentTimeMillis()))
+    val timeStamp =
+        SimpleDateFormat(dateFormat, Locale.getDefault()).format(Date(System.currentTimeMillis()))
     Log.d(TAG, "시간: $timeStamp ")
     return timeStamp
 }
 
 fun Long.isTwelveHoursPassed(): Boolean {
     return this.diffTime() >= BLEService.TIME_OUT_MEASURE
+}
+
+fun Long.isElevenHoursPassed() : Boolean {
+    return this.diffTime() >=  11 * 60 * 60 * 1000L
 }
 
 fun Long.diffTime(): Long {
@@ -422,5 +442,17 @@ fun hasUpdate(currentVer: String, compareVer: String): Boolean {
     // 버전이 같음
     return false
 }
+
+public data class Fourth<out A, out B, out C, out D>(
+    public val first: A,
+    public val second: B,
+    public val third: C,
+    public val fourth: D
+) : Serializable {
+    public override fun toString(): String = "($first, $second, $third, $fourth)"
+}
+
+public fun <T> Fourth<T, T, T, T>.toList(): List<T> = listOf(first, second, third, fourth)
+
 
 

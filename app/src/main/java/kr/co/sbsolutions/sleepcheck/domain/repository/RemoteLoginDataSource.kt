@@ -60,6 +60,8 @@ interface RemoteAuthDataSource {
      fun getScoreMsg(score : String, type: String, language : String): Flow<ApiResponse<ScoreEntity>>
 
      fun getRentalCompany() : Flow<ApiResponse<RentalCompanyEntity>>
+
+     fun postRentalAlarm(isAlarm : Boolean) : Flow<ApiResponse<BaseEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>

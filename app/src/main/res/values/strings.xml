@@ -85,7 +85,7 @@
     <string name="login_google">구글 로그인</string>
     <string name="login_kakao">카카오 로그인</string>
 
-    <string name="menu_breathing_nosering">호흡+코골이</string>
+    <string name="menu_breathing_nosering">호흡∙코골이</string>
     <string name="menu_nosering_noti">코골이+알림</string>
     <string name="menu_history">이력</string>
     <string name="menu_setting">설정</string>
@@ -126,6 +126,7 @@
     <string name="setting_qna">질의응답</string>
     <string name="setting_privacy_policy">개인정보 보호 정책</string>
     <string name="setting_logout">로그아웃</string>
+    <string name="setting_alarm">제품 회수 알리미</string>
     <string name="setting_unsubscribing">회원탈퇴</string>
     <string name="setting_version">버전</string>
 
@@ -183,7 +184,7 @@
     <string name="detail">보기</string>
     <string name="sensor_info_wait">센서정보를\n 받아오는 중입니다.</string>
     <string name="sensor_conneting">기기와 연결중 입니다.</string>
-    <string name="Illustration_Charging">그림과 같이 휴대전화를 놓고\n충전기를 계속 연결해주세요.</string>
+    <string name="Illustration_Charging">휴대전화를 놓고\n충전기를 계속 연결해주세요.</string>
 
     <string name="leave_title_unsubscribing">회원탈퇴</string>
     <string name="leave_unsubscribing_info">회원탈퇴 전 아래 내용을 확인해주세요.</string>
@@ -256,10 +257,11 @@
     <string name="detail_average_b">평균 호흡수</string>
     <string name="detail_min">(분) %1$s 회</string>
     <string name="detail_a_b">비정상 호흡</string>
-    <string name="detail_no_signal">호흡신호없음</string>
-    <string name="detail_no_signal_10_secs">10초이상 호흡곤란</string>
-    <string name="detail_no_signal_30_secs">30초이상 호흡곤란</string>
-    <string name="detail_no_signal_60_secs">60초이상 호흡곤란</string>
+    <string name="detail_snoring">코골이 / 기침</string>
+    <string name="detail_no_signal">호흡 없음</string>
+    <string name="detail_no_signal_10_secs">10초이상 호흡없음</string>
+    <string name="detail_no_signal_30_secs">30초이상 호흡없음</string>
+    <string name="detail_no_signal_60_secs">60초이상 호흡없음</string>
     <string name="detail_count">%1$s회</string>
     <string name="detail_fast_breathing">빠른호흡</string>
     <string name="detail_average_respiratory_rate">평균 호흡수 (분)</string>

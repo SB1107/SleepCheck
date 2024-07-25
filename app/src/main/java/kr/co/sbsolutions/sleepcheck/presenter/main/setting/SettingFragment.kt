@@ -87,7 +87,9 @@ class SettingFragment : Fragment() {
         binding.clFirmware.setOnSingleClickListener {
             startActivity(Intent(requireContext(), FirmwareUpdateActivity::class.java))
         }
-
+        binding.swRental.setOnCheckedChangeListener{_, isChecked -> run {
+            viewModel.sendRental(isChecked)
+        }}
 
         //회원 탈퇴
         binding.clLeave.setOnSingleClickListener {

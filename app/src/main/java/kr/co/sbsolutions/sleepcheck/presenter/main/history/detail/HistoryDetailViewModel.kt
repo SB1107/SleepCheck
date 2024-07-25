@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +20,7 @@ import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
 import kr.co.sbsolutions.sleepcheck.data.entity.ScoreResultData
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailResult
+import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
 import java.io.File
@@ -30,8 +33,8 @@ class HistoryDetailViewModel @Inject constructor(
     tokenManager: TokenManager,
     private val authDataSource: RemoteAuthDataSource
 ) : BaseViewModel(dataManager, tokenManager) {
-    private val _sleepDataDetailData: MutableSharedFlow<SleepDetailResult> = MutableSharedFlow()
-    val sleepDataDetailData: SharedFlow<SleepDetailResult> = _sleepDataDetailData.asSharedFlow()
+    private val _sleepDataDetailData: MutableSharedFlow<SleepDetailDTO> = MutableSharedFlow()
+    val sleepDataDetailData: SharedFlow<SleepDetailDTO> = _sleepDataDetailData.asSharedFlow()
 
     private val _infoMessage: MutableSharedFlow<Pair<String, String>> = MutableSharedFlow()
     val infoMessage: SharedFlow<Pair<String, String>> = _infoMessage.asSharedFlow()
@@ -46,7 +49,22 @@ class HistoryDetailViewModel @Inject constructor(
             request { authDataSource.getSleepDataDetail(id, language) }
                 .collectLatest {
                     it.result?.let { result ->
-                        _sleepDataDetailData.emit(result)
+                        val newData = SleepDetailDTO(id  = result.id, userId = result.userId, number = result.number , dirName = result.dirName,
+                            fileName = result.fileName, asleepTime = result.asleepTime, type = result.type, snoreTime = result.snoreTime,
+                            apneaState = result.apneaState, apneaCount = result.apneaCount, apnea10 = result.apnea10, apnea30 = result.apnea30,
+                            apnea60 = result.apnea60, straightPositionTime = result.straightPositionTime, leftPositionTime = result.leftPositionTime,
+                            rightPositionTime = result.rightPositionTime, downPositionTime = result.downPositionTime, wakeTime = result.wakeTime,
+                            straightPer = result.straightPer, leftPer = result.leftPer, rightPer = result.rightPer, downPer = result.downPer,
+                            wakePer = result.wakePer, sleepPattern = result.sleepPattern, startedAt = result.startedAt,
+                            endedAt = result.endedAt, sleepTime = result.sleepTime, state = result.state, deepSleepTime = result.deepSleepTime,
+                            moveCount = result.moveCount, remSleepTime = result.remSleepTime, lightSleepTime = result.lightSleepTime,
+                            fastBreath = result.fastBreath, slowBreath = result.slowBreath, unstableBreath = result.unstableBreath,
+                            avgNormalBreath = result.avgNormalBreath, normalBreathTime = result.normalBreathTime, description = result.description,
+                            avgFastBreath = result.avgFastBreath, avgSlowBreath = result.avgSlowBreath, snoreCount = result.snoreCount,
+                            coughCount = result.coughCount, breathScore = result.breathScore, snoreScore = result.snoreScore,
+                            ment = result.ment, unstableIdx = result.unstableIdx?.split(",") ?: emptyList(), nobreath_idx = result.nobreath_idx?.split(",") ?: emptyList(), snoring_idx = result.snoring_idx?.split(",") ?: emptyList()
+                        )
+                        _sleepDataDetailData.emit(newData)
                     }
                 }
         }
@@ -79,21 +97,21 @@ class HistoryDetailViewModel @Inject constructor(
         }
     }
 
-    fun sharingImage(context: Context, image: Bitmap?) {
+    fun sharingImage(context: Context, image: ImageBitmap) {
 //        if (ShareClient.instance.isKakaoTalkSharingAvailable(context)) {
         if (!isSharing) {
             viewModelScope.launch(Dispatchers.IO) {
                 isSharing = true
-                val file = File(context.cacheDir, "temp.png")
-                val stream = FileOutputStream(file)
-                image?.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                stream.close()
+//                val file = File(context.cacheDir, "temp.png")
+//                val stream = FileOutputStream(file)
+//                image?.compress(Bitmap.CompressFormat.PNG, 100, stream)
+//                stream.close()
 
 //                val bytes = ByteArrayOutputStream()
 //                image?.compress(Bitmap.CompressFormat.PNG, 100, bytes)
                 val path: String = MediaStore.Images.Media.insertImage(
                     context.contentResolver,
-                    image,
+                    image.asAndroidBitmap(),
                     "수면 기록 공유",
                     "수면 기록을 공유합니다."
                 )

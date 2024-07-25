@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.common.DataManager
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.RequestHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
 import kr.co.sbsolutions.sleepcheck.data.entity.BaseEntity
 import kr.co.sbsolutions.sleepcheck.data.server.ApiResponse
+import kr.co.sbsolutions.sleepcheck.service.ILogHelper
 
 
 open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) : ViewModel() {
@@ -25,7 +25,7 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
     val isProgressBar: SharedFlow<Boolean> = _isProgressBar
 
     private lateinit var reAuthorizeCallBack: RequestHelper.ReAuthorizeCallBack
-    private lateinit var logHelper: LogHelper
+    private lateinit var logHelper: ILogHelper
 
     private val requestHelper: RequestHelper = RequestHelper(
         scope = viewModelScope,
@@ -70,7 +70,7 @@ open class BaseViewModel(dataManager: DataManager, tokenManager: TokenManager) :
         }
     }
 
-    fun setLogHelper(logHelper: LogHelper) {
+    fun setLogHelper(logHelper: ILogHelper) {
         this.logHelper = logHelper
     }
 

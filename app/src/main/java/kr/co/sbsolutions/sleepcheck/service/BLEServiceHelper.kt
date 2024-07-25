@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import kr.co.sbsolutions.sleepcheck.common.BlueToothScanHelper
 import kr.co.sbsolutions.sleepcheck.common.Cons.TAG
 import kr.co.sbsolutions.sleepcheck.common.DataManager
-import kr.co.sbsolutions.sleepcheck.common.LogHelper
 import kr.co.sbsolutions.sleepcheck.common.NoseRingHelper
 import kr.co.sbsolutions.sleepcheck.common.TimeHelper
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
@@ -31,6 +30,9 @@ import kr.co.sbsolutions.sleepcheck.data.firebasedb.RealData
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothInfo
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.entity.BluetoothState
 import kr.co.sbsolutions.sleepcheck.domain.bluetooth.repository.IBluetoothNetworkRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.BreathingDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.CoughDataRepository
+import kr.co.sbsolutions.sleepcheck.domain.db.NoseRingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SBSensorDBRepository
 import kr.co.sbsolutions.sleepcheck.domain.db.SettingDataRepository
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
@@ -44,12 +46,15 @@ class BLEServiceHelper(
     private val settingDataRepository: SettingDataRepository,
     private val timeHelper: TimeHelper,
     private val noseRingHelper: NoseRingHelper,
-    private val logHelper: LogHelper,
+    private val logHelper: ILogHelper,
     private val uploadWorkerHelper: UploadWorkerHelper,
     private val fireBaseRealRepository: FireBaseRealRepository,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManager,
     private val blueToothScanHelper: BlueToothScanHelper,
+    private val noseRingDataRepository: NoseRingDataRepository,
+    private val coughDataRepository: CoughDataRepository,
+    private  val breathingDataRepository: BreathingDataRepository,
     private var lifecycleScope: LifecycleCoroutineScope? = null,
     private var sbSensorUseCase: SBSensorUseCase? = null,
     private var timeCountUseCase: TimeCountUseCase? = null,
@@ -67,7 +72,9 @@ class BLEServiceHelper(
     }
 
     private fun setCallVibrationNotifications() {
-        noseRingUseCase?.setCallVibrationNotifications()
+        noseRingUseCase?.setCallVibrationNotifications {
+            blueToothUseCase?.callVibrationNotifications(it)
+        }
     }
 
     private fun listenRegisterSBSensor() {
@@ -79,11 +86,34 @@ class BLEServiceHelper(
     }
 
 
-    fun setLifecycleScope(context: Context, lifecycleScope: LifecycleCoroutineScope, lifecycleOwner: LifecycleOwner, packageName: String) {
+    fun setLifecycleScope(
+        context: Context,
+        lifecycleScope: LifecycleCoroutineScope,
+        lifecycleOwner: LifecycleOwner,
+        packageName: String
+    ) {
         this.lifecycleScope = lifecycleScope
         fireBaseRealRepository.setLifecycleScope(lifecycleScope)
 
-        this.sbDataUploadingUseCase = SBDataUploadingUseCase(settingDataRepository, lifecycleScope, logHelper, lifecycleOwner, uploadWorkerHelper)
+        this.noseRingUseCase = NoseRingUseCase(
+            context,
+            lifecycleScope,
+            noseRingHelper,
+            settingDataRepository,
+            dataManager,
+            noseRingDataRepository,
+            coughDataRepository,
+            breathingDataRepository
+        )
+        this.sbDataUploadingUseCase = SBDataUploadingUseCase(
+            settingDataRepository,
+            lifecycleScope,
+            logHelper,
+            lifecycleOwner,
+            uploadWorkerHelper,
+            INoseRingHelper = noseRingUseCase!!
+        )
+
         this.blueToothUseCase = SBSensorBlueToothUseCase(
             lifecycleScope,
             bluetoothNetworkRepository,
@@ -94,20 +124,32 @@ class BLEServiceHelper(
             fireBaseRealRepository,
             logHelper,
             blueToothScanHelper,
-            packageName
+            packageName,
+            noseRingUseCase,
+            noseRingDataRepository,
+            coughDataRepository,
+            breathingDataRepository
         )
-
-        this.noseRingUseCase = NoseRingUseCase(context, lifecycleScope, noseRingHelper, timeHelper, settingDataRepository, dataManager, blueToothUseCase)
-        this.sbSensorUseCase = SBSensorUseCase(sbSensorDBRepository, settingDataRepository, blueToothUseCase, lifecycleScope)
-        this.timeCountUseCase = TimeCountUseCase(lifecycleScope, timeHelper, dataManager, notificationBuilder, notificationManager, noseRingHelper, logHelper)
+        this.sbSensorUseCase = SBSensorUseCase(
+            sbSensorDBRepository,
+            settingDataRepository,
+            blueToothUseCase,
+            lifecycleScope
+        )
+        this.timeCountUseCase = TimeCountUseCase(
+            lifecycleScope,
+            timeHelper,
+            dataManager,
+            notificationBuilder,
+            notificationManager,
+            noseRingHelper,
+            logHelper
+        )
         listenChannelMessage()
         listenTimer()
         setCallVibrationNotifications()
         listenRegisterSBSensor()
         listenDataFlowForceFinish()
-        this.blueToothUseCase?.setNoseRingUseCase(noseRingUseCase!!)
-        this.sbDataUploadingUseCase?.setNoseRingUseCase(noseRingUseCase!!)
-        this.sbDataUploadingUseCase?.setDataUploadingUseCase(blueToothUseCase!!)
         this.blueToothUseCase?.setDataId()
 
     }
@@ -125,15 +167,28 @@ class BLEServiceHelper(
         listenDataFlowForceFinish()
     }
 
-    fun sbConnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, isForceBleDeviceConnect: Boolean = false) {
+    fun sbConnectDevice(
+        context: Context,
+        bluetoothAdapter: BluetoothAdapter?,
+        isForceBleDeviceConnect: Boolean = false
+    ) {
         Log.e(TAG, "sbConnectDevice: call11")
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 
-    fun forceSbScanDevice(context: Context, bluetoothAdapter: BluetoothAdapter?, callback: (ForceConnectDeviceMessage) -> Unit) {
+    fun forceSbScanDevice(
+        context: Context,
+        bluetoothAdapter: BluetoothAdapter?,
+        callback: (ForceConnectDeviceMessage) -> Unit
+    ) {
         //혹시나 내가 연결 중인데 검색이 안될수 있으니 일단 끊어 버리고 스캔 시작
         blueToothUseCase?.resetBleGattList()
-        blueToothUseCase?.forceSbScanDevice(context, bluetoothAdapter, callback = callback , bluetoothState = BluetoothState.Connecting)
+        blueToothUseCase?.forceSbScanDevice(
+            context,
+            bluetoothAdapter,
+            callback = callback,
+            bluetoothState = BluetoothState.Connecting
+        )
     }
 
     fun sbDisconnectDevice() {
@@ -192,17 +247,24 @@ class BLEServiceHelper(
         noseRingUseCase?.stopAudioClassification()
     }
 
-    fun noSensorSeringMeasurement(isForce: Boolean, isCancel: Boolean = false, callback: () -> Unit) {
+    fun noSensorSeringMeasurement(
+        isForce: Boolean,
+        isCancel: Boolean = false,
+        callback: () -> Unit
+    ) {
         blueToothUseCase?.noSensorSeringMeasurement(isForce, isCancel)
+        callback.invoke()
 
     }
-    fun timStopCallback( callback: () -> Unit){
+
+    fun timStopCallback(callback: () -> Unit) {
         timeCountUseCase?.stopTimer()
         callback.invoke()
     }
 
     suspend fun startSBService(context: Context, bluetoothAdapter: BluetoothAdapter?) {
-        val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
+        val message =
+            "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 중"
         timeCountUseCase?.setContentTitle(message)
         blueToothUseCase?.startSBService(context, bluetoothAdapter) {
             logHelper.insertLog("서비스  callback")
@@ -217,7 +279,10 @@ class BLEServiceHelper(
         // TODO: 리얼  베이스 실시간 감시 처리
         lifecycleScope?.launch(IO) {
 //            Log.e(TAG, "firebase name: ${blueToothUseCase!!.getSensorName()} getDataId = ${blueToothUseCase!!.getDataId().toString()}")
-            fireBaseRealRepository.listenerData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()) { onDataChange ->
+            fireBaseRealRepository.listenerData(
+                blueToothUseCase!!.getSensorName(),
+                blueToothUseCase!!.getDataId().toString()
+            ) { onDataChange ->
                 Log.e(TAG, "listenerData: $onDataChange")
                 blueToothUseCase?.setRemovedRealDataChange(onDataChange)
             }
@@ -226,7 +291,10 @@ class BLEServiceHelper(
                 Log.e(TAG, "oneReadData:11 $it")
             }
             // TODO: 한번 데이터 아이디로 조회 용
-            fireBaseRealRepository.oneDataIdReadData(blueToothUseCase!!.getSensorName(), blueToothUseCase!!.getDataId().toString()).collectLatest {
+            fireBaseRealRepository.oneDataIdReadData(
+                blueToothUseCase!!.getSensorName(),
+                blueToothUseCase!!.getDataId().toString()
+            ).collectLatest {
                 Log.e(TAG, "oneReadData:11 ${it}")
             }
         }
@@ -237,7 +305,8 @@ class BLEServiceHelper(
     }
 
     fun stopSBService() {
-        val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
+        val message =
+            "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 종료"
         timeCountUseCase?.setContentTitle(message)
         logHelper.insertLog(message)
         blueToothUseCase?.stopScheduler()
@@ -245,7 +314,8 @@ class BLEServiceHelper(
     }
 
     fun cancelSbService(forceCancel: Boolean = false) {
-        val message = "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
+        val message =
+            "${if (blueToothUseCase?.getSleepType() == SleepType.Breathing) "호흡" else "코골이"} 측정 취소"
         logHelper.insertLog(message)
         blueToothUseCase?.firebaseRemoveListener()
         blueToothUseCase?.stopScheduler()
@@ -268,8 +338,14 @@ class BLEServiceHelper(
         timeCountUseCase?.setContentIntent(pendingIntent)
     }
 
-    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
-        blueToothUseCase?.startSBSensor(dataId, sleepType, hasSensor)
+    fun startSBSensor(
+        dataId: Int,
+        sleepType: SleepType,
+        hasSensor: Boolean = true,
+        callback: () -> Unit
+    ) {
+        timeHelper.clearTime()
+        blueToothUseCase?.startSBSensor(dataId, sleepType, hasSensor, callback)
         if (hasSensor.not()) {
             waitStart()
         }

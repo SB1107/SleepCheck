@@ -17,7 +17,7 @@ import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 fun <T : BaseEntity> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
     emit(ApiResponse.Loading)
 
-    withTimeoutOrNull(20000L) {
+    withTimeoutOrNull(60000L) {
         val response = call()
 
         try {

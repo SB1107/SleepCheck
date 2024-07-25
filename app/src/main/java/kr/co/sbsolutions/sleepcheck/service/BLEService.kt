@@ -92,7 +92,7 @@ class BLEService : LifecycleService() {
     lateinit var bluetoothNetworkRepository: IBluetoothNetworkRepository
 
     @Inject
-    lateinit var logHelper: LogHelper
+    lateinit var logHelper: ILogHelper
 
     @Inject
     lateinit var serviceLiveCheckWorkerHelper: ServiceLiveCheckWorkerHelper
@@ -291,7 +291,7 @@ class BLEService : LifecycleService() {
             }
 
             ActionMessage.OperateDownloadSBSensor -> {
-                bluetoothNetworkRepository.operateDownloadSbSensor(false)
+                bluetoothNetworkRepository.operateDownloadSbSensor( isContinue = false)
             }
 
             ActionMessage.OperateDeleteSectorSBSensor -> {
@@ -392,8 +392,8 @@ class BLEService : LifecycleService() {
         bleServiceHelper.removeDataId()
     }
 
-    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true) {
-        bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor)
+    fun startSBSensor(dataId: Int, sleepType: SleepType, hasSensor: Boolean = true, callback: () -> Unit) {
+        bleServiceHelper.startSBSensor(dataId, sleepType, hasSensor, callback)
     }
 
     fun noSensorSeringMeasurement(isForce: Boolean = false, isCancel: Boolean = false , callback: () -> Unit) {
@@ -437,7 +437,7 @@ class BLEService : LifecycleService() {
         bleServiceHelper.finishService(isForcedClose)
         serviceLiveCheckWorkerHelper.cancelWork()
         stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+//        stopSelf()
     }
 
     inner class LocalBinder : Binder() {

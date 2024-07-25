@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back1"
+    android:background="@drawable/back_gradient"
     tools:context=".presenter.sensor.SensorActivity">
 
     <include
@@ -52,6 +52,7 @@
         app:layout_constraintTop_toTopOf="@id/device_name_text_view"
         app:layout_constraintBottom_toBottomOf="@id/device_name_text_view"
         android:src="@drawable/device"
+        android:visibility="visible"
         android:layout_width="0dp"
         android:layout_height="0dp"/>
 
@@ -82,9 +83,9 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/sensor_find_sensor"
-        android:textColor="@color/color_000000"
+        android:textColor="@color/white"
         android:textSize="16sp"
-        android:backgroundTint="@color/color_yellow"
+        android:backgroundTint="@color/color_main"
         app:cornerRadius="10dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -101,10 +102,10 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/sensor_disconnected_device"
-        android:textColor="@color/color_000000"
+        android:textColor="@color/white"
         android:textSize="16sp"
         android:visibility="gone"
-        android:backgroundTint="@color/color_yellow"
+        android:backgroundTint="@color/color_0064F5"
         app:cornerRadius="10dp"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintEnd_toEndOf="@id/btSearch"

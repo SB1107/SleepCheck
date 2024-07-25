@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/sm_logo"
+        android:src="@drawable/new_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/sp_center"
         app:layout_constraintStart_toStartOf="parent" />

@@ -67,5 +67,5 @@ class SplashViewModel @Inject constructor(
 }
 
 enum class WHERE {
-    None, Login, Main, SignUp, Policy
+    None, Login, Main, Policy
 }

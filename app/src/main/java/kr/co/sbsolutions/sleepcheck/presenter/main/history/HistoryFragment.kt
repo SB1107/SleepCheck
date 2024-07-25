@@ -2,12 +2,15 @@ package kr.co.sbsolutions.sleepcheck.presenter.main.history
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Paint.Style
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +27,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +43,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
@@ -63,6 +73,7 @@ import kr.co.sbsolutions.sleepcheck.common.toDate
 import kr.co.sbsolutions.sleepcheck.common.toDayString
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDateEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.SleepDateResult
+import kr.co.sbsolutions.sleepcheck.data.entity.SleepDateResultData
 import kr.co.sbsolutions.sleepcheck.databinding.FragmentHistoryBinding
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.sleepcheck.presenter.main.history.detail.HistoryDetailActivity
@@ -117,12 +128,16 @@ class HistoryFragment : Fragment() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                colorResource(id = R.color.color_back_gradient_start),
+                                colorResource(id = R.color.color_back_gradient_end)
+                            ),
+                        )
+                    )
             ) {
-                Image(
-                    modifier = Modifier.fillMaxSize(),
-                    painter = painterResource(id = R.drawable.back1), contentDescription = "배경",
-                    contentScale = ContentScale.FillBounds
-                )
+
                 Column {
                     Row(
                         modifier = Modifier
@@ -133,7 +148,7 @@ class HistoryFragment : Fragment() {
                     ) {
                         TopYearView()
                     }
-                    HorizontalDivider(thickness = 1.dp, color = Color.White)
+//                    HorizontalDivider(thickness = 1.dp, color = Color.White)
                     Box {
 //                        if (showProgressBar) {
 //                            Components.LottieLoading()
@@ -157,9 +172,9 @@ class HistoryFragment : Fragment() {
                                 ) {
                                     itemsIndexed(yearData.result?.data ?: emptyList()) { index, item ->
                                         SleepItemRow(item)
-                                        if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
-                                            HorizontalDivider(thickness = 1.dp, color = Color.White)
-                                        }
+//                                        if (index < (yearData.result?.data ?: emptyList()).lastIndex) {
+//                                            HorizontalDivider(thickness = 1.dp, color = Color.White)
+//                                        }
                                     }
                                 }
                                 ScrollToView(showButton.value, scrollState)
@@ -186,7 +201,10 @@ class HistoryFragment : Fragment() {
         val durationString =
             (startAt?.toDayString("HH:mm") + "~" + (endedAt?.toDayString("HH:mm"))).plus(" ").plus(if (data.type == 0) stringResource(R.string.breating) else stringResource(R.string.nosering))
         Row(modifier = Modifier
-            .padding(16.dp)
+            .padding(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(color = colorResource(id = R.color.color_99DFDFDF))
+            .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 24.dp)
             .clickable {
                 clickItem.invoke(data.id)
             }) {
@@ -201,25 +219,24 @@ class HistoryFragment : Fragment() {
                         alignment = Alignment.Center
                     )
                     Text(
-                        text = titleDate ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.White,
+                        text = titleDate ?: "", fontSize = 18.sp, fontWeight = FontWeight.Normal, color = Color.Black,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = durationString, fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.White,
+                    text = durationString, fontSize = 21.sp, fontWeight = FontWeight.Bold, color = Color.Black,
                 )
             }
 
             Column {
-                Spacer(modifier = Modifier.height(16.dp))
                 IconButton(
                     onClick = { clickItem.invoke(data.id) },
                     Modifier
-                        .size(74.dp, 45.dp)
+                        .size(84.dp, 56.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(color = colorResource(id = R.color.color_yellow))
+                        .background(color = colorResource(id = R.color.color_main))
                 ) {
-                    Text(text = stringResource(R.string.detail), fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.Black)
+                    Text(text = stringResource(R.string.detail), fontSize = 19.sp, fontWeight = FontWeight.Normal, color = Color.White)
                 }
             }
         }
@@ -271,13 +288,31 @@ class HistoryFragment : Fragment() {
 
     @Composable
     fun YearButton(imageResource: Int, click: () -> Unit) {
+//        OutlinedButton(onClick = click, modifier = Modifier
+//            .width(41.dp)
+//            .height(41.dp),
+//            shape = RoundedCornerShape(10.dp),
+//            border = BorderStroke(1.dp , colorResource(id = R.color.colorPrimaryDark)),
+//            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+//        ) {
+//            Icon(
+//                painter = painterResource(id = imageResource),
+//                contentDescription = "",
+//                tint = Color.White
+//            )
+//        }
         IconButton(
             modifier = Modifier
                 .width(41.dp)
                 .height(41.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(color = colorResource(id = R.color.color_4DFFFFFF)),
-            onClick = click
+                .clip(RoundedCornerShape(15.dp))
+                .drawBehind {
+                    drawRoundRect(
+                        color = Color.White,
+                        style = Stroke(width = 2.dp.toPx()),
+                        cornerRadius = CornerRadius(15.dp.toPx())
+                    )
+                }, onClick = click
         ) {
             Icon(
                 painter = painterResource(id = imageResource),

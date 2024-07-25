@@ -218,10 +218,11 @@ class NoSeringViewModel @Inject constructor(
                     .collectLatest {
                         it.result?.id?.let { id ->
                             Log.d(TAG, "hasSensor: $hasSensor")
-                            getService()?.startSBSensor(dataId = id, sleepType = SleepType.NoSering, hasSensor = dataManager.getHasSensor().first())
-                            setMeasuringState(MeasuringState.Record)
-                            trySend(true)
-                            close()
+                            getService()?.startSBSensor(dataId = id, sleepType = SleepType.NoSering, hasSensor = dataManager.getHasSensor().first()){
+                                setMeasuringState(MeasuringState.Record)
+                                trySend(true)
+                                close()
+                            }
                         }
                     }
             }

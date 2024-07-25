@@ -132,7 +132,9 @@ class FirmwareUpdateViewModel
         viewModelScope.launch(Dispatchers.IO) {
             val address = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
             val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-            if (address == null || deviceName == null) {
+            if (address == null || deviceName == null || getService()?.getSbSensorInfo()?.value?.bluetoothState == BluetoothState.DisconnectedByUser
+                || getService()?.getSbSensorInfo()?.value?.bluetoothState == BluetoothState.DisconnectedNotIntent
+                || getService()?.getSbSensorInfo()?.value?.bluetoothState == BluetoothState.Connecting) {
                 _checkFirmwareVersion.tryEmit(FirmwareDataModel())
                 dismissProgressBar()
                 sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.firmupdate_error_message))

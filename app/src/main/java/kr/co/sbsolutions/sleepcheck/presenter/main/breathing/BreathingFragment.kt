@@ -214,7 +214,10 @@ class BreathingFragment : BluetoothFragment() {
                                 binding.actionMeasurer.timerTextView.text =
                                     String.format(Locale.KOREA, "%02d:%02d:%02d", 0, 0, 0)
                                 graphCount = 0f
-                                queueList.clear()
+                                if (queueList.isNotEmpty()) {
+                                    queueList.clear()
+                                    dataSetList.clear()
+                                }
                                 lineDataList.notifyDataChanged()
 
                                 viewModel.cancelClick()
