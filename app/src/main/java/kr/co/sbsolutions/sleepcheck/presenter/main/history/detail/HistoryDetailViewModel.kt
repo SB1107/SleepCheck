@@ -42,9 +42,13 @@ class HistoryDetailViewModel @Inject constructor(
     private val _scoreInfoMessage: MutableSharedFlow<ScoreResultData> = MutableSharedFlow()
     val scoreInfoMessage: SharedFlow<ScoreResultData> = _scoreInfoMessage.asSharedFlow()
 
-    private var isSharing = false
+    private val _connectLink: MutableSharedFlow<String> = MutableSharedFlow()
+    val connectLink: SharedFlow<String> = _connectLink.asSharedFlow()
 
+    private var isSharing = false
+    private  var dataId : String = ""
     fun getSleepData(id: String, language: String) {
+        this.dataId = id
         viewModelScope.launch(Dispatchers.IO) {
             request { authDataSource.getSleepDataDetail(id, language) }
                 .collectLatest {
@@ -62,7 +66,17 @@ class HistoryDetailViewModel @Inject constructor(
                             avgNormalBreath = result.avgNormalBreath, normalBreathTime = result.normalBreathTime, description = result.description,
                             avgFastBreath = result.avgFastBreath, avgSlowBreath = result.avgSlowBreath, snoreCount = result.snoreCount,
                             coughCount = result.coughCount, breathScore = result.breathScore, snoreScore = result.snoreScore,
-                            ment = result.ment, unstableIdx = result.unstableIdx?.split(",") ?: emptyList(), nobreath_idx = result.nobreath_idx?.split(",") ?: emptyList(), snoring_idx = result.snoring_idx?.split(",") ?: emptyList()
+                            ment = result.ment, unstableIdx = result.unstableIdx?.split(",") ?: emptyList(),
+                            nobreath_idx = result.nobreath_idx?.split(",") ?: emptyList(),
+                            snoring_idx = result.snoring_idx?.split(",") ?: emptyList(),
+                            supineIdx = result.supineIdx?.split(",") ?: emptyList(),
+                            leftIdx = result.leftIdx?.split(",") ?: emptyList(),
+                            rightIdx = result.rightIdx?.split(",") ?: emptyList(),
+                            proneIdx = result.proneIdx?.split(",") ?: emptyList(),
+                            remIdx = result.remIdx?.split(",") ?: emptyList(),
+                            lightIdx = result.lightIdx?.split(",") ?: emptyList(),
+                            deepIdx = result.deepIdx?.split(",") ?: emptyList(),
+                            movement = result.movement?.split(",") ?: emptyList(),
                         )
                         _sleepDataDetailData.emit(newData)
                     }
@@ -70,6 +84,17 @@ class HistoryDetailViewModel @Inject constructor(
         }
     }
 
+     fun getLink(){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            request { authDataSource.getConnectLink(dataId = dataId.toInt()) }
+                .collectLatest { data ->
+                    data.result?.let {
+                        _connectLink.emit(it.url)
+                    }
+                }
+        }
+    }
     fun sendInfoMessage(title: String, message: String) {
         viewModelScope.launch {
             _infoMessage.emit(Pair(title, message))

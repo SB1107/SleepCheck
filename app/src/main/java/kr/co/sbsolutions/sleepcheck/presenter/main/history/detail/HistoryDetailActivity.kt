@@ -169,7 +169,7 @@ class HistoryDetailActivity : BaseActivity() {
         val captureController = rememberCaptureController()
         val scope = rememberCoroutineScope()
         val columnModifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(scrollState)
             .capturable(captureController)
 
@@ -211,46 +211,47 @@ class HistoryDetailActivity : BaseActivity() {
         modifier: Modifier,
         scrollState: ScrollState = rememberScrollState()
     ) {
-
-        Box {
+        Column {
             Column(
-                modifier = modifier,
+                modifier = modifier.weight(9f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(modifier = Modifier.background(brush = Brush.verticalGradient(
-                    colors = listOf(
-                        colorResource(id = R.color.color_back_gradient_start),
-                        colorResource(id = R.color.color_back_gradient_end)
-                    ),
-                ))) {
+                Box(
+                    modifier = Modifier.background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                colorResource(id = R.color.color_back_gradient_start),
+                                colorResource(id = R.color.color_back_gradient_end)
+                            ),
+                        )
+                    )
+                ) {
                     TopDateView(data = data, scrollState)
                 }
-
-                Button(modifier = Modifier
-                    .height(62.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .background(
-                        color = colorResource(id = R.color.color_main), shape = RoundedCornerShape(
-                            topStart = 60.dp, // 왼쪽 위 코너
-                            topEnd = 60.dp,   // 오른쪽 위 코너
-                            bottomStart = 0.dp, // 왼쪽 아래 코너
-                            bottomEnd = 0.dp    // 오른쪽 아래 코너
-                        )
-                    ),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.White,
-                        disabledContainerColor = colorResource(id = R.color.color_777777),
-                        disabledContentColor = Color.Black
-                    )
-                    , onClick = { /*TODO*/ }) {
-                    Text(text = "수면 정보 상세 보기", fontSize = 19.sp)
-                }
             }
-            ScrollToView(scrollState.value >= 200, scrollState)
+            Button(modifier = Modifier
+                .height(62.dp)
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 24.dp)
+                .background(
+                    color = colorResource(id = R.color.color_main),
+                    shape = RoundedCornerShape(
+                        topStart = 60.dp, // 왼쪽 위 코너
+                        topEnd = 60.dp,   // 오른쪽 위 코너
+                        bottomStart = 0.dp, // 왼쪽 아래 코너
+                        bottomEnd = 0.dp    // 오른쪽 아래 코너
+                    )
+                ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White,
+                    disabledContainerColor = colorResource(id = R.color.color_777777),
+                    disabledContentColor = Color.Black
+                ), onClick = { viewModel.getLink()}) {
+                Text(text = "수면 정보 상세 보기", fontSize = 19.sp)
+            }
         }
-
     }
 
 
@@ -313,11 +314,13 @@ class HistoryDetailActivity : BaseActivity() {
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(color = colorResource(id = R.color.color_99DFDFDF))
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = colorResource(id = R.color.color_99DFDFDF))
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
                 RowTexts(startText = stringResource(R.string.detil_time), endText = min)
                 data.sleepTime?.let {
                     RowTexts(
@@ -361,18 +364,20 @@ class HistoryDetailActivity : BaseActivity() {
 //                HorizontalDivider(thickness = 1.dp, color = Color.White)
 
                 HeaderTitleView(
-                    title = stringResource( R.string.detial_normal_b),
-                   detailText =  stringResource(R.string.detail_normal_breathing_text)
+                    title = stringResource(R.string.detial_normal_b),
+                    detailText = stringResource(R.string.detail_normal_breathing_text)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(color = colorResource(id = R.color.color_99DFDFDF))
-                    .padding(start = 16.dp, end = 16.dp)){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(color = colorResource(id = R.color.color_99DFDFDF))
+                        .padding(start = 16.dp, end = 16.dp)
+                ) {
                     RowTexts(
-                        stringResource(R.string.detial_normal_b_t,),
+                        stringResource(R.string.detial_normal_b_t),
                         it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]),
                     )
                     data.avgNormalBreath?.let {
@@ -393,13 +398,14 @@ class HistoryDetailActivity : BaseActivity() {
                 }*/
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(color = colorResource(id = R.color.color_0064F5))
-                    .padding(16.dp),
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(color = colorResource(id = R.color.color_0064F5))
+                        .padding(16.dp),
 
-                ) {
+                    ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "호흡 없음 구간", color = Color.White,
@@ -447,7 +453,7 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                 )
             }
-            val lists: ArrayList<Fourth<Pair<String, String>, Pair<String, String>, Color,Color>> =
+            val lists: ArrayList<Fourth<Pair<String, String>, Pair<String, String>, Color, Color>> =
                 ArrayList()
             data.fastBreath?.let { fastBreath ->
                 data.avgFastBreath?.let { avgFastBreath ->
@@ -490,12 +496,13 @@ class HistoryDetailActivity : BaseActivity() {
                 val totalCount =
                     (data.fastBreath ?: 0) + (data.slowBreath ?: 0) + (data.unstableBreath ?: 0)
 
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(color = colorResource(id = R.color.color_0064F5))
-                    .padding(16.dp),
-                    ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(color = colorResource(id = R.color.color_0064F5))
+                        .padding(16.dp),
+                ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "호흡불안정 구간", color = Color.White,
@@ -528,12 +535,13 @@ class HistoryDetailActivity : BaseActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
                 HeaderTitleView(title = stringResource(R.string.detail_snoring))
                 Spacer(modifier = Modifier.height(16.dp))
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(color = colorResource(id = R.color.color_0064F5))
-                    .padding(16.dp),
-                    ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(color = colorResource(id = R.color.color_0064F5))
+                        .padding(16.dp),
+                ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
@@ -595,24 +603,36 @@ class HistoryDetailActivity : BaseActivity() {
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 data.remSleepTime?.let {
-                    SleepState(label =  stringResource(R.string.detail_rem_sleep), sleepTime = it,data.sleepTime ?: 0)
+                    SleepState(
+                        label = stringResource(R.string.detail_rem_sleep),
+                        sleepTime = it,
+                        data.sleepTime ?: 0
+                    )
                 }
                 data.lightSleepTime?.let {
                     Spacer(modifier = Modifier.height(16.dp))
-                    SleepState(label =  stringResource(R.string.detail_light_sleep), sleepTime = it,data.sleepTime ?: 0)
+                    SleepState(
+                        label = stringResource(R.string.detail_light_sleep),
+                        sleepTime = it,
+                        data.sleepTime ?: 0
+                    )
                 }
                 data.deepSleepTime?.let {
                     Spacer(modifier = Modifier.height(16.dp))
-                    SleepState(label =  stringResource(R.string.detail_deep_sleep), sleepTime = it,data.sleepTime ?: 0)
+                    SleepState(
+                        label = stringResource(R.string.detail_deep_sleep),
+                        sleepTime = it,
+                        data.sleepTime ?: 0
+                    )
                 }
             }
 
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
-                data.remSleepTime?.let {
+                if(data.remIdx.isNotEmpty()) {
                     LineView(
                         stringResource(R.string.detail_rem_sleep),
-                        data.unstableIdx,
+                        data.remIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_1DAEFF),
@@ -620,10 +640,10 @@ class HistoryDetailActivity : BaseActivity() {
                         )
                     )
                 }
-                data.lightSleepTime?.let {
+                if(data.lightIdx.isNotEmpty()) {
                     LineView(
                         stringResource(R.string.detail_light_sleep),
-                        data.unstableIdx,
+                        data.lightIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_9ACF40),
@@ -631,10 +651,10 @@ class HistoryDetailActivity : BaseActivity() {
                         )
                     )
                 }
-                data.deepSleepTime?.let {
+                if(data.deepIdx.isNotEmpty()){
                     LineView(
                         stringResource(R.string.detail_deep_sleep),
-                        data.unstableIdx,
+                        data.deepIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_FF6008),
@@ -642,18 +662,35 @@ class HistoryDetailActivity : BaseActivity() {
                         ), isLast = true
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    BottomText(startAt?.toDayString("HH:mm") ?: "", endedAt?.toDayString("HH:mm") ?: "")
+                    BottomText(
+                        Modifier
+                            .padding(start = 50.dp)
+                            .fillMaxWidth(),
+                        startAt?.toDayString("HH:mm") ?: "",
+                        endedAt?.toDayString("HH:mm") ?: ""
+                    )
                 }
 
             }
+            if (data.movement.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                HeaderTitleView(title = "수면 중 움직임")
+                Spacer(modifier = Modifier.height(16.dp))
+                GradientBarChart(
+                    data = data.movement,
+                    gradientColor = listOf(
+                        colorResource(id = R.color.color_F44E4E), colorResource(
+                            id = R.color.color_main
+                        )
+                    ), defaultColor = colorResource(id = R.color.color_main), threshold = 5
+                )
+                BottomText(modifier =  Modifier
+                    .fillMaxWidth(),
+                    startAt?.toDayString("HH:mm") ?: "",
+                    endedAt?.toDayString("HH:mm") ?: ""
+                )
+            }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HeaderTitleView(title = "수면 중 움직임")
-            Spacer(modifier = Modifier.height(16.dp))
-
-            GradientBarChart(gradientColor = listOf(colorResource(id = R.color.color_F44E4E), colorResource(
-                id = R.color.color_main
-            )), defaultColor = colorResource(id = R.color.color_main), threshold = 5)
 
             Text(
                 text = data.ment ?: "",
@@ -674,7 +711,11 @@ class HistoryDetailActivity : BaseActivity() {
 
 
     @Composable
-    fun HeaderTitleView(backColor: Color = colorResource(id = R.color.color_gray3),title: String, detailText: String? = null) {
+    fun HeaderTitleView(
+        backColor: Color = colorResource(id = R.color.color_gray3),
+        title: String,
+        detailText: String? = null
+    ) {
         Box(
             modifier = Modifier
                 .padding(top = 24.dp, start = 0.dp, end = 0.dp)
@@ -816,7 +857,8 @@ class HistoryDetailActivity : BaseActivity() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier =   Modifier.weight(7f)) {
+                            modifier = Modifier.weight(7f)
+                        ) {
                             Text(
                                 text = value.first,
                                 color = Color.White,
@@ -990,7 +1032,7 @@ class HistoryDetailActivity : BaseActivity() {
     private fun RespiratoryInstabilityGraphView(
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
-        rightBoxValue: List<Fourth<Pair<String, String>, Pair<String, String>, Color,Color>> = emptyList()
+        rightBoxValue: List<Fourth<Pair<String, String>, Pair<String, String>, Color, Color>> = emptyList()
     ) {
         var size by remember { mutableStateOf(IntSize(0, 0)) }
         Row(
@@ -1071,7 +1113,8 @@ class HistoryDetailActivity : BaseActivity() {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier =   Modifier.weight(7f)) {
+                            modifier = Modifier.weight(7f)
+                        ) {
                             Text(
                                 text = value.first.first,
                                 color = Color.White,
@@ -1342,7 +1385,15 @@ class HistoryDetailActivity : BaseActivity() {
                         scoreInfoDialog.show()
                     }
                 }
-
+                launch {
+                    viewModel.connectLink.collectLatest {
+                        if (it.isNotEmpty()) {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.data = Uri.parse(it)
+                            startActivity(intent)
+                        }
+                    }
+                }
             }
         }
     }
@@ -1365,10 +1416,10 @@ class HistoryDetailActivity : BaseActivity() {
             else -> logHelper.insertLog("점수 오류 $resultScore")
         }
         println("${resultScore.toInt()}")
-        
+
         return resultScore.toInt()
     }
-    
+
     fun noseRingScore(noSeringTime: Int = 0, sleepTime: Int = 0,): Int {
         var resultScore = (100 - ((noSeringTime.toFloat() / sleepTime.toFloat()) * 100))
         when {

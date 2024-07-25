@@ -584,10 +584,10 @@ object Components {
             var isBottomView = false
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
-                if (data.unstableIdx.isNotEmpty()) {
+                if (data.supineIdx.isNotEmpty()) {
                     LineView(
                         stringResource(R.string.detail_supine),
-                        data.unstableIdx,
+                        data.supineIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_1DAEFF),
@@ -596,10 +596,10 @@ object Components {
                     )
                     isBottomView = true
                 }
-                if (data.unstableIdx.isNotEmpty()) {
+                if (data.leftIdx.isNotEmpty()) {
                     LineView(
                         "왼쪽 자세",
-                        data.unstableIdx,
+                        data.leftIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_9ACF40),
@@ -608,10 +608,10 @@ object Components {
                     )
                     isBottomView = true
                 }
-                if (data.unstableIdx.isNotEmpty()) {
+                if (data.rightIdx.isNotEmpty()) {
                     LineView(
                         "오른쪽 자세",
-                        data.unstableIdx,
+                        data.rightIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_FF6008),
@@ -620,10 +620,10 @@ object Components {
                     )
                     isBottomView = true
                 }
-                if (data.unstableIdx.isNotEmpty()) {
+                if (data.proneIdx.isNotEmpty()) {
                     LineView(
                         stringResource(R.string.detail_prone),
-                        data.unstableIdx,
+                        data.proneIdx,
                         drawColors = listOf(
                             Color.Transparent,
                             colorResource(id = R.color.color_FDABFF),
@@ -648,7 +648,9 @@ object Components {
                 }
                 if (isBottomView) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    BottomText(startAt, endedAt)
+                    BottomText(modifier =Modifier
+                        .padding(start = 50.dp)
+                        .fillMaxWidth() ,startAt, endedAt)
                 }
             }
         }
@@ -774,11 +776,9 @@ object Components {
     }
 
     @Composable
-    fun BottomText(startText: String = "12:00", endText: String = "30:00") {
+    fun BottomText(modifier : Modifier = Modifier, startText: String = "12:00", endText: String = "30:00") {
         Row(
-            modifier = Modifier
-                .padding(start = 50.dp)
-                .fillMaxWidth(),
+            modifier = modifier,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = startText, color = Color.White)
@@ -840,15 +840,50 @@ object Components {
                         .height(44.dp)
                 ) {
                     val oneSize = width / listData.size
-                    listData.mapIndexed { index, value ->
-                        value.toIntOrNull()?.let {
+                    var currentSize = oneSize
+                    var currentIndex = 0
+                    var previousColorIndex: Int? = null
+                    while (currentIndex < listData.size) {
+                        val value = listData[currentIndex].toIntOrNull()
+                        if (value != null && value != 0) { // 값이 0이 아닌 경우
+                            previousColorIndex = value
+                            currentSize += oneSize
+                        } else if (previousColorIndex != null) { // 값이 0이고 이전에 저장된 값이 있는 경우
+                            val color = drawColors.getOrElse(previousColorIndex) { Color.Transparent }
                             drawRect(
-                                color = drawColors[it],
-                                topLeft = Offset(oneSize.toPx() * index, 0f),
-                                size = Size(oneSize.toPx(), (height.toPx()))
+                                color = color,
+                                topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
+                                size = Size(currentSize.toPx(), height.toPx())
                             )
+                            currentSize = 0.dp
+                            previousColorIndex = null
                         }
+                        currentIndex++
                     }
+                    // 마지막 값까지 처리
+                    if (previousColorIndex != null) {
+                        val color = drawColors.getOrElse(previousColorIndex) { Color.Transparent }
+                        drawRect(
+                            color = color,
+                            topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
+                            size = Size(currentSize.toPx(), height.toPx())
+                        )
+                    }
+//                    listData.mapIndexed { index, value ->value.toIntOrNull()?.let { colorIndex ->
+//                        val color = drawColors.getOrElse(colorIndex) { Color.Gray }
+//                        val nextValue = listData.getOrNull(index + 1)?.toIntOrNull()
+//                        val size = if (nextValue == 1) { // 다음 값이 1인 경우
+//                            Size(oneSize.toPx() * 2, height.toPx()) // 너비를 두 배로 설정
+//                        } else {
+//                            Size(oneSize.toPx(), height.toPx())
+//                        }
+//                        drawRect(
+//                            color = color,
+//                            topLeft = Offset(oneSize * index, 0f),
+//                            size = size
+//                        )
+//                    }
+//                    }
                 }
                 if (isLast) {
                     HorizontalDivider(thickness = 1.dp, color = Color.White)
@@ -929,41 +964,27 @@ object Components {
 @Preview
 @Composable
 fun GradientBarChart(
-    data: List<Int> = listOf(
-        1,
-        4,
-        6,
-        8,
-        3,
-        9,
-        10,
-        20,
-        4,
-        6,
-        8,
-        3,
-        9,
-        10,
-    ), threshold: Int = 5,
+    data: List<String> = emptyList(), threshold: Int = 5,
     gradientColor: List<Color> = listOf(Color.Red, Color.Yellow), defaultColor: Color = Color.Blue
 ) {
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 16.dp)
             .height(100.dp)
     ) {
         val barWidth = size.width / (data.size + 1) // 바 너비 계산
         val barSpacing = barWidth / data.size // 바 간격 계산
-        val maxValue = data.maxOf { it }
+        val maxValue = 20 //최대값
         data.forEachIndexed { index, value ->
-            val barHeight = (value / maxValue) * size.height
+            val barHeight = (value.toFloat() / maxValue) * size.height
             val topLeft = Offset(
                 x = barWidth * (index) + barSpacing * index,
                 y = size.height - barHeight
             )
             val barSize = Size(width = barWidth - barSpacing, height = barHeight)
             // 그라데이션 브러시 생성
-            val brush = if (value >= threshold) {
+            val brush = if (value.toInt() >= threshold) {
                 Brush.verticalGradient(
                     colors = gradientColor, // 그라데이션 색상 설정
                     startY = size.height - barHeight, // 그라데이션 시작 위치

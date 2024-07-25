@@ -3,6 +3,7 @@ package kr.co.sbsolutions.sleepcheck.domain.repository
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.sleepcheck.data.api.AuthServiceAPI
 import kr.co.sbsolutions.sleepcheck.data.entity.BaseEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.ConnectLinkEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.ContactEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FAQEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FirmwareEntity
@@ -131,5 +132,9 @@ class AuthAPIRepository @Inject constructor(private val api: AuthServiceAPI) : R
 
     override fun postRentalAlarm(isAlarm: Boolean): Flow<ApiResponse<BaseEntity>> = apiRequestFlow {
         api.postAlarmSet(alarm = if (isAlarm) "Y" else "N")
+    }
+
+    override fun getConnectLink(dataId: Int): Flow<ApiResponse<ConnectLinkEntity>> = apiRequestFlow {
+        api.getConnectLink(dataId = dataId)
     }
 }

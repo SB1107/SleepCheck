@@ -1,6 +1,7 @@
 package kr.co.sbsolutions.sleepcheck.data.api
 
 import kr.co.sbsolutions.sleepcheck.data.entity.BaseEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.ConnectLinkEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.ContactEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FAQEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FirmwareEntity
@@ -114,4 +115,7 @@ interface AuthServiceAPI {
     @FormUrlEncoded
     @POST("alarmset")
     suspend fun postAlarmSet(@Field("app_kind") appKind: String = "R", @Field("alarm") alarm : String): Response<BaseEntity>
+
+    @GET("sleepdata/connectlink")
+    suspend fun getConnectLink(@Query("data_id") dataId: Int): Response<ConnectLinkEntity>
 }

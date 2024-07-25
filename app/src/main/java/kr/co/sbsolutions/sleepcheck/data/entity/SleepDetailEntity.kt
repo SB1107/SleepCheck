@@ -106,5 +106,22 @@ data class SleepDetailResult(
     @SerializedName("nobreath_idx")
     val nobreath_idx:  String? = null,
     @SerializedName("snoring_idx")
-    val snoring_idx:  String? = null
+    val snoring_idx:  String? = null,
+    @SerializedName("supine_idx")
+    val supineIdx:  String? = null,
+    @SerializedName("left_idx")
+    val leftIdx:  String? = null,
+    @SerializedName("right_idx")
+    val rightIdx:  String? = null,
+    @SerializedName("prone_idx")
+    val proneIdx:  String? = null,
+    @SerializedName("rem_idx")
+    val remIdx:  String? = null,
+    @SerializedName("light_idx")
+    val lightIdx:  String? = null,
+    @SerializedName("deep_idx")
+    val deepIdx:  String? = null,
+    @SerializedName("movement_idx")
+    val movement:  String? = null,
+
 )

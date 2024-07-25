@@ -1,5 +1,7 @@
 package kr.co.sbsolutions.sleepcheck.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class SleepDetailDTO(
     var id: Int? = 0,
     var userId: Int? = 0,
@@ -49,4 +51,12 @@ data class SleepDetailDTO(
     val unstableIdx:  List<String> = emptyList(),
     val nobreath_idx:  List<String> = emptyList(),
     val snoring_idx:  List<String> = emptyList(),
+    val supineIdx : List<String> = emptyList(),
+    val leftIdx : List<String> = emptyList(),
+    val rightIdx : List<String> = emptyList(),
+    val proneIdx : List<String> = emptyList(),
+    val remIdx : List<String> = emptyList(),
+    val lightIdx : List<String> = emptyList(),
+    val deepIdx : List<String> = emptyList(),
+    val movement : List<String> = emptyList(),
 )

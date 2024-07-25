@@ -2,6 +2,7 @@ package kr.co.sbsolutions.sleepcheck.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import kr.co.sbsolutions.sleepcheck.data.entity.BaseEntity
+import kr.co.sbsolutions.sleepcheck.data.entity.ConnectLinkEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.ContactEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FAQEntity
 import kr.co.sbsolutions.sleepcheck.data.entity.FirmwareEntity
@@ -26,6 +27,7 @@ import kr.co.sbsolutions.sleepcheck.domain.model.SleepDataRemoveModel
 import kr.co.sbsolutions.sleepcheck.domain.model.SleepType
 import kr.co.sbsolutions.sleepcheck.domain.model.SnsLoginModel
 import okhttp3.ResponseBody
+import retrofit2.Response
 import java.io.File
 
 interface RemoteLoginDataSource {
@@ -60,8 +62,8 @@ interface RemoteAuthDataSource {
      fun getScoreMsg(score : String, type: String, language : String): Flow<ApiResponse<ScoreEntity>>
 
      fun getRentalCompany() : Flow<ApiResponse<RentalCompanyEntity>>
-
      fun postRentalAlarm(isAlarm : Boolean) : Flow<ApiResponse<BaseEntity>>
+     fun getConnectLink(dataId: Int): Flow<ApiResponse<ConnectLinkEntity>>
 }
 interface RemoteDownload {
      fun getDownloadZipFile(path: String , fileName : String): Flow<ResponseBody>
