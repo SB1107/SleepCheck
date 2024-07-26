@@ -52,6 +52,23 @@ fun AppToModule.getState(): BluetoothState.Connected {
         AppToModule.OperateMotorTestWeak, AppToModule.OperateMotorTestNormal, AppToModule.OperateMotorTestStrong -> BluetoothState.Connected.MotTestACK
     }
 }
+
+fun AppToModuleResponse.getName() : String {
+    return  when(this){
+        AppToModuleResponse.DelayedDataResponseACK -> "DelayedDataResponseACK"
+        AppToModuleResponse.DelayedDataResponseNAK -> "DelayedDataResponseNAK"
+        AppToModuleResponse.FirmwareOperate -> "FirmwareOperate"
+        AppToModuleResponse.MOTCDataSetACK -> "MOTCDataSetACK"
+        AppToModuleResponse.MOTCtrlSetACK -> "MOTCtrlSetACK"
+        AppToModuleResponse.MemoryDataResponseACK -> "MemoryDataResponseACK"
+        AppToModuleResponse.MemoryDataResponseNAK -> "MemoryDataResponseNAK"
+        AppToModuleResponse.OperateDownloadJob -> "OperateDownloadJob"
+        AppToModuleResponse.PowerOffACK -> "PowerOffACK"
+        AppToModuleResponse.RealtimeDataResponseACK -> "RealtimeDataResponseACK"
+        AppToModuleResponse.RealtimeDataResponseNAK -> "RealtimeDataResponseNAK"
+    }
+}
+
 fun AppToModule.getName() : String{
     return  when (this) {
         AppToModule.BreathingOperateStart -> "BreathingOperateStart"

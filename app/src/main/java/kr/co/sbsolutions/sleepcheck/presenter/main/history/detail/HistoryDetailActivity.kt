@@ -682,7 +682,7 @@ class HistoryDetailActivity : BaseActivity() {
                         colorResource(id = R.color.color_F44E4E), colorResource(
                             id = R.color.color_main
                         )
-                    ), defaultColor = colorResource(id = R.color.color_main), threshold = 5
+                    ), defaultColor = colorResource(id = R.color.color_main), threshold = 3
                 )
                 BottomText(modifier =  Modifier
                     .fillMaxWidth(),
@@ -925,110 +925,6 @@ class HistoryDetailActivity : BaseActivity() {
     }
 
     @Composable
-    private fun VerticalGraphView(
-        percentValue: Float,
-        isPercentText: Boolean = false,
-        startText: String,
-        startTextSize: TextUnit = 14.sp,
-        centerText: String = "",
-        centerTextSize: TextUnit = 14.sp,
-        endText: String,
-        endTextSize: TextUnit = 14.sp
-    ) {
-        var width by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-
-            Box(contentAlignment = Alignment.Center) {
-                val percent: Dp = if (percentValue < 0) 0.dp else width * ((percentValue / 100f))
-                Image(
-                    modifier = Modifier.padding(start = percent),
-                    painter = painterResource(id = getPercentImage(percentValue)),
-                    contentDescription = ""
-                )
-
-                Text(
-                    modifier = Modifier
-                        .padding(start = percent)
-                        .offset(y = (-5).dp),
-                    text = "${percentValue.toInt()}${if (isPercentText) "%" else ""}",
-                    color = colorResource(id = R.color.md_grey_800),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .padding(18.dp, 0.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(40.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                colorResource(id = R.color.white),
-                                colorResource(id = R.color.color_gradient_center),
-                                colorResource(id = R.color.color_gradient_end)
-                            ),
-                            startX = 0f,
-                            endX = Float.POSITIVE_INFINITY
-                        )
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.color_FFFFFF),
-                        shape = RoundedCornerShape(40.dp)
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        width = with(density) {
-                            coordinates.size.width.toDp()
-                        }
-                    }
-            ) {
-                Spacer(modifier = Modifier.height(25.dp))
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 24.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-5).dp)
-                        .padding(top = 4.dp),
-                    text = startText,
-                    color = Color.White,
-                    fontSize = startTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (5).dp)
-                        .padding(top = 4.dp),
-                    text = centerText,
-                    color = Color.White,
-                    fontSize = centerTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    modifier = Modifier
-                        .offset(x = (-10).dp)
-                        .padding(top = 4.dp),
-                    text = endText,
-                    color = Color.White,
-                    fontSize = endTextSize,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-
-
-    @Composable
     private fun RespiratoryInstabilityGraphView(
         title: String,
         totalValue: String = stringResource(R.string.detail_total_score),
@@ -1204,87 +1100,6 @@ class HistoryDetailActivity : BaseActivity() {
         }
     }
 
-    @Composable
-    private fun BarChartView(
-        titleText: String,
-        totalTime: Int,
-        time: Int,
-        scrollState: ScrollState
-    ) {
-        var height by remember { mutableStateOf(0.dp) }
-        var animationPlayed by remember { //애니메이션 트리거를 위한 boolean 값
-            mutableStateOf(false)
-        }
-        when {
-            scrollState.canScrollBackward -> {
-                animationPlayed = true
-            }
-        }
-
-        val density = LocalDensity.current
-        val percentValue = (time / totalTime.toFloat()) * 100f
-        val percent = if (percentValue.isNaN()) 0.dp else height * ((percentValue / 100f))
-        val curValue = animateIntAsState(
-            targetValue = if (animationPlayed) percent.value.toInt()
-            else 0, animationSpec = tween(durationMillis = 1000, delayMillis = 500), label = "애니"
-        )
-
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(61.dp, 136.dp)
-                    .border(
-                        width = 1.dp,
-                        color = colorResource(id = R.color.color_stroke_line),
-                        shape = RoundedCornerShape(15.dp)
-                    )
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(color = colorResource(id = R.color.color_gray0))
-                    .onGloballyPositioned { coordinates ->
-                        height = with(density) {
-                            coordinates.size.height.toDp()
-                        }
-                    }, contentAlignment = Alignment.BottomCenter
-
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(curValue.value.dp)
-                        .border(
-                            width = 1.dp,
-                            color = colorResource(id = R.color.color_stroke_line),
-                            shape = RoundedCornerShape(15.dp)
-                        )
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(color = colorResource(id = R.color.color_gray3)),
-                    contentAlignment = Alignment.Center
-                ) {
-                }
-                Text(
-                    text = time.toHourOrMinute(LocalConfiguration.current.locales[0]),
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
-            Text(
-                modifier = Modifier.padding(top = 4.dp),
-                text = titleText,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-
-        }
-
-    }
-
     private fun getPercentImage(percent: Float): Int {
         return when {
             percent < 31 -> {
@@ -1301,26 +1116,6 @@ class HistoryDetailActivity : BaseActivity() {
 
             else -> {
                 R.drawable.ic_red_value
-            }
-        }
-    }
-
-    private fun getReversPercentImage(percent: Float): Int {
-        return when {
-            percent < 31 -> {
-                R.drawable.ic_red_value
-            }
-
-            percent < 51 -> {
-                R.drawable.ic_orange_value
-            }
-
-            percent < 71 -> {
-                R.drawable.ic_yallow_value
-            }
-
-            else -> {
-                R.drawable.ic_green_value
             }
         }
     }
@@ -1405,29 +1200,6 @@ class HistoryDetailActivity : BaseActivity() {
         infoDialog.show()
     }
 
-    /*private fun breathingScore(apneaCount: Int = 0, noSeringTime: Int = 0, apneaTime: Int = 0, sleepTime: Int = 0): Int{
-        var resultScore =
-            (60 - ((apneaCount.toFloat() / apneaTime.toFloat()) * 2)) +
-                    (30 - ((noSeringTime.toFloat() / apneaTime.toFloat()) * 15)) +
-                    (10 - ((apneaTime.toFloat() / apneaTime.toFloat()) * 10))
-        when {
-            resultScore <= 10 -> resultScore = 10F
-            resultScore >= 90 -> resultScore = 90F
-            else -> logHelper.insertLog("점수 오류 $resultScore")
-        }
-        println("${resultScore.toInt()}")
-
-        return resultScore.toInt()
-    }
-
-    fun noseRingScore(noSeringTime: Int = 0, sleepTime: Int = 0,): Int {
-        var resultScore = (100 - ((noSeringTime.toFloat() / sleepTime.toFloat()) * 100))
-        when {
-            resultScore < 10 -> resultScore = 10f
-            else -> logHelper.insertLog("점수 오류 $resultScore")
-        }
-        return resultScore.toInt()
-    }*/
 
     private fun getScoreColor(score: Int): Int {
         return when (score) {

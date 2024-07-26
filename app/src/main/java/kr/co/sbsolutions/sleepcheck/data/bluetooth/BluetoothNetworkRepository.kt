@@ -80,10 +80,14 @@ class BluetoothNetworkRepository @Inject constructor(
 
 
     companion object {
-        private var isSBSensorConnect: MutableStateFlow<Pair<Boolean, String>> = MutableStateFlow(Pair(false, ""))
-        private val _sbSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
-        private val _spo2SensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
-        private val _eegSensorInfo = MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
+        private var isSBSensorConnect: MutableStateFlow<Pair<Boolean, String>> =
+            MutableStateFlow(Pair(false, ""))
+        private val _sbSensorInfo =
+            MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SOOM_SENSOR))
+        private val _spo2SensorInfo =
+            MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_SPO2_SENSOR))
+        private val _eegSensorInfo =
+            MutableStateFlow(BluetoothInfo(SBBluetoothDevice.SB_EEG_SENSOR))
         private var reConnectCount = 0
     }
 
@@ -98,7 +102,8 @@ class BluetoothNetworkRepository @Inject constructor(
             }.collect { registered ->
                 //등록이 안되어 있는 상태 에서 같은 이벤트가 들어오면 무시
 
-                val result = _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
+                val result =
+                    _sbSensorInfo.updateAndGet { it.copy(bluetoothState = if (registered) BluetoothState.Registered else BluetoothState.Unregistered) }
                 logHelper.insertLog("listenRegisterSBSensor -> ${result.bluetoothState}")
                 Log.e(TAG, "listenRegisterSBSensor: 2")
 
@@ -133,16 +138,16 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    override fun reConnectDevice(callback: ((isMaxCount : Boolean) -> Unit)) {
+    override fun reConnectDevice(callback: ((isMaxCount: Boolean) -> Unit)) {
         logCoroutine.launch {
             _sbSensorInfo.value.bluetoothGatt?.let {
                 logHelper.insertLog("reconnectDevice gatt 재접속 실행")
                 reConnectCount += 1
-                if (reConnectCount >= BLEService.MAX_RETRY ) {
+                if (reConnectCount >= BLEService.MAX_RETRY) {
                     logHelper.insertLog("reconnectDevice gatt 재접속 ${BLEService.MAX_RETRY} 도달로 인하여 다시 connect callback")
                     callback.invoke(true)
-                    reConnectCount  = 0
-                  return@launch
+                    reConnectCount = 0
+                    return@launch
                 }
                 isConnect(it, _sbSensorInfo) { isSuccessfully ->
                     logHelper.insertLog("reconnectDevice isSuccessfully = $isSuccessfully")
@@ -163,7 +168,13 @@ class BluetoothNetworkRepository @Inject constructor(
 
     override fun setDataFlow(isDataFlow: Boolean, currentCount: Int, totalCount: Int) {
         dataFlowMaxCount = totalCount
-        _sbSensorInfo.value.isDataFlow.update { it.copy(isDataFlow = isDataFlow, currentCount = currentCount, totalCount = totalCount) }
+        _sbSensorInfo.value.isDataFlow.update {
+            it.copy(
+                isDataFlow = isDataFlow,
+                currentCount = currentCount,
+                totalCount = totalCount
+            )
+        }
     }
 
     override fun isSBSensorConnect(): Pair<Boolean, String> {
@@ -291,7 +302,12 @@ class BluetoothNetworkRepository @Inject constructor(
 
                     else -> {
                         Log.d(TAG, "disconnect = disconnect")
-                        this.update { it.copy(bluetoothGatt = null, bluetoothState = BluetoothState.DisconnectedByUser) }
+                        this.update {
+                            it.copy(
+                                bluetoothGatt = null,
+                                bluetoothState = BluetoothState.DisconnectedByUser
+                            )
+                        }
                         logHelper.insertLog("disconnectedDevice -> DisconnectedByUser")
                         logCoroutine.launch {
                             logHelper.insertLog("isResetGatt call")
@@ -325,7 +341,12 @@ class BluetoothNetworkRepository @Inject constructor(
         }.apply {
             value.let { info ->
                 if (info.bluetoothState != BluetoothState.Unregistered) {
-                    val result = updateAndGet { it.copy(bluetoothState = BluetoothState.DisconnectedByUser, batteryInfo = null) }
+                    val result = updateAndGet {
+                        it.copy(
+                            bluetoothState = BluetoothState.DisconnectedByUser,
+                            batteryInfo = null
+                        )
+                    }
                     logHelper.insertLog(result.bluetoothState)
                 }
             }
@@ -341,7 +362,10 @@ class BluetoothNetworkRepository @Inject constructor(
 //                }
 
                 bluetoothGatt?.let {
-                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.setCharacteristicNotification(
+                        BluetoothUtils.findResponseCharacteristic(it),
+                        false
+                    )
                     it.disconnect()
                     it.close()
                     Log.e(TAG, "releaseResource: ")
@@ -362,7 +386,10 @@ class BluetoothNetworkRepository @Inject constructor(
                     //                Log.d(TAG, "disconnectedDevice: 3")
                 }
                 bluetoothGatt?.let {
-                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.setCharacteristicNotification(
+                        BluetoothUtils.findResponseCharacteristic(it),
+                        false
+                    )
                     it.disconnect()
                     it.close()
                 }
@@ -380,7 +407,10 @@ class BluetoothNetworkRepository @Inject constructor(
                     //                Log.d(TAG, "disconnectedDevice: 4")
                 }
                 bluetoothGatt?.let {
-                    it.setCharacteristicNotification(BluetoothUtils.findResponseCharacteristic(it), false)
+                    it.setCharacteristicNotification(
+                        BluetoothUtils.findResponseCharacteristic(it),
+                        false
+                    )
                     it.disconnect()
                     it.close()
                 }
@@ -424,10 +454,18 @@ class BluetoothNetworkRepository @Inject constructor(
             return
         }
 
-        val module = if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
+        val module =
+            if (sleepType == SleepType.Breathing) AppToModule.BreathingOperateStart else AppToModule.NoSeringOperateStart
         if (_sbSensorInfo.value.bluetoothState != BluetoothState.Unregistered) {
             writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
-                _sbSensorInfo.update { it.copy(dataId = dataId, bluetoothState = state, sleepType = sleepType, snoreTime = 0) }
+                _sbSensorInfo.update {
+                    it.copy(
+                        dataId = dataId,
+                        bluetoothState = state,
+                        sleepType = sleepType,
+                        snoreTime = 0
+                    )
+                }
                 logHelper.insertLog(state)
             }
             return
@@ -436,7 +474,8 @@ class BluetoothNetworkRepository @Inject constructor(
 
     private var stopCallBack: (() -> Unit)? = null
     override fun stopNetworkSBSensor(snoreTime: Long, callback: (() -> Unit)) {
-        val module = if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
+        val module =
+            if (_sbSensorInfo.value.sleepType == SleepType.Breathing) AppToModule.BreathingOperateStop else AppToModule.NoSeringOperateStop
         stopCallBack = callback
         writeData(_sbSensorInfo.value.bluetoothGatt, module) { state ->
             logHelper.insertLog("stopNetworkSBSensor: $state   ${module.getName()}  snoreTime: $snoreTime")
@@ -497,7 +536,10 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateRealtimeSBSensor() {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessRealtime) { state ->
+        writeData(
+            _sbSensorInfo.value.bluetoothGatt,
+            AppToModule.OperateChangeProcessRealtime
+        ) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
 //            _sbSensorInfo.value?.let {
@@ -509,7 +551,10 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDelayedSBSensor() {
-        writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateChangeProcessDelayed) { state ->
+        writeData(
+            _sbSensorInfo.value.bluetoothGatt,
+            AppToModule.OperateChangeProcessDelayed
+        ) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
         }
@@ -526,7 +571,10 @@ class BluetoothNetworkRepository @Inject constructor(
 //            }
 //        }
 
-        writeData(_sbSensorInfo.value.bluetoothGatt, if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload) { state ->
+        writeData(
+            _sbSensorInfo.value.bluetoothGatt,
+            if (isContinue) AppToModule.OperateDownloadContinue else AppToModule.OperateDownload
+        ) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
         }
@@ -564,7 +612,12 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun getFirmwareVersion() = callbackFlow {
-        _sbSensorInfo.value.bluetoothGatt?.let { writeResponse(it, AppToModuleResponse.FirmwareOperate) }
+        _sbSensorInfo.value.bluetoothGatt?.let {
+            writeResponse(
+                it,
+                AppToModuleResponse.FirmwareOperate
+            )
+        }
         withTimeoutOrNull(3000L) {
             _sbSensorFirmwareInfo.collectLatest {
                 trySend(it)
@@ -590,7 +643,10 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
     override fun operateDeleteSbSensor(isAllDelete: Boolean) {
-        writeData(_sbSensorInfo.value.bluetoothGatt, if (isAllDelete) AppToModule.OperateDeleteAll else AppToModule.OperateDeleteSector) { state ->
+        writeData(
+            _sbSensorInfo.value.bluetoothGatt,
+            if (isAllDelete) AppToModule.OperateDeleteAll else AppToModule.OperateDeleteSector
+        ) { state ->
             _sbSensorInfo.update { it.copy(bluetoothState = state) }
             logHelper.insertLog(state)
         }
@@ -605,7 +661,10 @@ class BluetoothNetworkRepository @Inject constructor(
         // TODO write command
     }
 
-    private fun sendDownloadContinue(gatt: BluetoothGatt, innerData: MutableStateFlow<BluetoothInfo>) {
+    private fun sendDownloadContinue(
+        gatt: BluetoothGatt,
+        innerData: MutableStateFlow<BluetoothInfo>
+    ) {
         if (::sendDownloadContinueJob.isInitialized) {
             sendDownloadContinueJob.cancel()
         }
@@ -626,7 +685,11 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
-    private suspend fun isConnect(gatt: BluetoothGatt, innerData: MutableStateFlow<BluetoothInfo>, callback: ((Boolean) -> Unit)) {
+    private suspend fun isConnect(
+        gatt: BluetoothGatt,
+        innerData: MutableStateFlow<BluetoothInfo>,
+        callback: ((Boolean) -> Unit)
+    ) {
         if (isSBSensorConnect.value.first) {
             callback.invoke(true)
             return
@@ -663,7 +726,20 @@ class BluetoothNetworkRepository @Inject constructor(
         logCoroutine.launch {
             val byteArr = encryptByteArray(isEncrypt, command.getCommandByteArr())
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
+                val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
+                when (writeResult) {
+                    BluetoothStatusCodes.SUCCESS -> {
+                        logHelper.insertLog("${command.getName()} =  SUCCESS ")
+                    }
+
+                    BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
+                        logHelper.insertLog("ERROR_PROFILE_SERVICE_NOT_BOUND")
+                    }
+
+                    else -> {
+                        logHelper.insertLog("${command.getName()} = writeError: $writeResult")
+                    }
+                }
             } else {
                 cmd.value = byteArr
                 gatt.writeCharacteristic(cmd)
@@ -674,7 +750,11 @@ class BluetoothNetworkRepository @Inject constructor(
 
     }
 
-    private fun writeData(gatt: BluetoothGatt?, command: AppToModule, stateCallback: ((BluetoothState) -> Unit)?) {
+    private fun writeData(
+        gatt: BluetoothGatt?,
+        command: AppToModule,
+        stateCallback: ((BluetoothState) -> Unit)?
+    ) {
         gatt?.let {
             stateCallback?.invoke(command.getState())
 
@@ -828,7 +908,10 @@ class BluetoothNetworkRepository @Inject constructor(
     }
 
 
-    override fun getGattCallback(sbBluetoothDevice: SBBluetoothDevice, bluetoothState: BluetoothState): BluetoothGattCallback = getCallback(sbBluetoothDevice, bluetoothState)
+    override fun getGattCallback(
+        sbBluetoothDevice: SBBluetoothDevice,
+        bluetoothState: BluetoothState
+    ): BluetoothGattCallback = getCallback(sbBluetoothDevice, bluetoothState)
 
 
     //////////////////////////////////////////////////////
@@ -836,84 +919,86 @@ class BluetoothNetworkRepository @Inject constructor(
     /////           BluetoothGattCallback            /////
     /////                                            /////
     //////////////////////////////////////////////////////
-    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice, bluetoothState: BluetoothState) = object : BluetoothGattCallback() {
-        private val UPLOAD_COUNT_INTERVAL = 300 * 3
-        private val DATA_INTERVAL = 9
+    private fun getCallback(sbBluetoothDevice: SBBluetoothDevice, bluetoothState: BluetoothState) =
+        object : BluetoothGattCallback() {
+            private val UPLOAD_COUNT_INTERVAL = 300 * 3
+            private val DATA_INTERVAL = 9
 
-        private var uploadCallbackQuotient = -1
+            private var uploadCallbackQuotient = -1
 
-        private var safetyMode = 0
-        private val SAFETY_STANDARD = 50
+            private var safetyMode = 0
+            private val SAFETY_STANDARD = 50
 
-        private val DOWNLOAD_RETRY_INTERVAL = 5
-        private val DOWNLOAD_RETRY_COUNT = 3
-        private var downloadContinueCount = 0
-        private var dataFlowCurrentCount = 0
+            private val DOWNLOAD_RETRY_INTERVAL = 5
+            private val DOWNLOAD_RETRY_COUNT = 3
+            private var downloadContinueCount = 0
+            private var dataFlowCurrentCount = 0
 
 
-        private val innerData = when (sbBluetoothDevice) {
-            SBBluetoothDevice.SB_SOOM_SENSOR -> _sbSensorInfo
-            SBBluetoothDevice.SB_SPO2_SENSOR -> _spo2SensorInfo
-            SBBluetoothDevice.SB_EEG_SENSOR -> _eegSensorInfo
-        }
-
-        private val accFormatter = DecimalFormat("#.####").apply { roundingMode = RoundingMode.HALF_UP }
-
-        //        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
-        private var startTime: Long = 0L
-        private val coroutine = CoroutineScope(Dispatchers.IO)
-
-        init {
-            Log.d(TAG, "getCallback: Connecting ")
-            val result = innerData.updateAndGet {
-                it.copy(bluetoothState = bluetoothState)
+            private val innerData = when (sbBluetoothDevice) {
+                SBBluetoothDevice.SB_SOOM_SENSOR -> _sbSensorInfo
+                SBBluetoothDevice.SB_SPO2_SENSOR -> _spo2SensorInfo
+                SBBluetoothDevice.SB_EEG_SENSOR -> _eegSensorInfo
             }
-            logHelper.insertLog("BluetoothNetwork = ${result.bluetoothState}")
-        }
 
-        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            super.onConnectionStateChange(gatt, status, newState)
+            private val accFormatter =
+                DecimalFormat("#.####").apply { roundingMode = RoundingMode.HALF_UP }
 
-            if (status == BluetoothGatt.GATT_FAILURE) {
-                logHelper.insertLog("onConnectionStateChange: GATT_FAILURE ${gatt.device.name} - ${gatt.device.address}")
-                logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
+            //        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+            private var startTime: Long = 0L
+            private val coroutine = CoroutineScope(Dispatchers.IO)
+
+            init {
+                Log.d(TAG, "getCallback: Connecting ")
+                val result = innerData.updateAndGet {
+                    it.copy(bluetoothState = bluetoothState)
                 }
-                disconnectedDevice(gatt)
-                return
-            } else if (status != BluetoothGatt.GATT_SUCCESS) {
-                logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
-                logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
-                }
-                if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION) {
-                    innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
-                    val isSuccessfully = gatt.connect()
-                    logHelper.insertLog("onConnectionStateChange: NOT GATT AUTHORIZATION connect = $isSuccessfully ")
+                logHelper.insertLog("BluetoothNetwork = ${result.bluetoothState}")
+            }
+
+            override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+                super.onConnectionStateChange(gatt, status, newState)
+
+                if (status == BluetoothGatt.GATT_FAILURE) {
+                    logHelper.insertLog("onConnectionStateChange: GATT_FAILURE ${gatt.device.name} - ${gatt.device.address}")
+                    logCoroutine.launch {
+                        isSBSensorConnect.emit(Pair(false, gatt.device.name))
+                    }
+                    disconnectedDevice(gatt)
+                    return
+                } else if (status != BluetoothGatt.GATT_SUCCESS) {
+                    logHelper.insertLog("onConnectionStateChange: NOT GATT_SUCCESS status = $status -${gatt.device.name} - ${gatt.device.address}")
+                    logCoroutine.launch {
+                        isSBSensorConnect.emit(Pair(false, gatt.device.name))
+                    }
+                    if (status == BluetoothGatt.GATT_INSUFFICIENT_AUTHORIZATION) {
+                        innerData.update { it.copy(bluetoothState = BluetoothState.DisconnectedNotIntent) }
+                        val isSuccessfully = gatt.connect()
+                        logHelper.insertLog("onConnectionStateChange: NOT GATT AUTHORIZATION connect = $isSuccessfully ")
+                        return
+                    }
+                    disconnectedDevice(gatt)
                     return
                 }
-                disconnectedDevice(gatt)
-                return
-            }
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
 //                BluetoothNetworkRepository.gatt = gatt
-                // FIXME: 살려줘
-                /*coroutine.launch {
-                    val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-                    val deviceAddress = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-                    Log.d(TAG, "onConnectionStateChange: ${deviceName}")
-                    Log.d(TAG, "onConnectionStateChange: ${deviceAddress}")
-                    if (deviceName.isNullOrEmpty() &&
-                        deviceAddress.isNullOrEmpty()) {
-                        Log.d(TAG, "onConnectionStateChange: 탄다탄다 33333333")
-                        //연결 끊기
-                        gatt.close()
-                        delay(1500)
-                        _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
+                    // FIXME: 살려줘
+                    /*coroutine.launch {
+                        val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+                        val deviceAddress = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
+                        Log.d(TAG, "onConnectionStateChange: ${deviceName}")
+                        Log.d(TAG, "onConnectionStateChange: ${deviceAddress}")
+                        if (deviceName.isNullOrEmpty() &&
+                            deviceAddress.isNullOrEmpty()) {
+                            Log.d(TAG, "onConnectionStateChange: 탄다탄다 33333333")
+                            //연결 끊기
+                            gatt.close()
+                            delay(1500)
+                            _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
 
-                        // 복구
-                        *//*_sbSensorInfo.value.bluetoothGatt = gatt
+                            // 복구
+                            *//*_sbSensorInfo.value.bluetoothGatt = gatt
                         _sbSensorInfo.value.bluetoothName = gatt.device.name
                         _sbSensorInfo.value.bluetoothAddress = gatt.device.address
                         coroutine.launch {
@@ -921,430 +1006,184 @@ class BluetoothNetworkRepository @Inject constructor(
                         }*//*
                     }
                 }*/
-                reConnectCount = 0
-                gatt.discoverServices()
-                innerData.update { it.copy(bluetoothGatt = gatt) }
-                logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(true, gatt.device.name))
+                    reConnectCount = 0
+                    gatt.discoverServices()
+                    innerData.update { it.copy(bluetoothGatt = gatt) }
+                    logCoroutine.launch {
+                        isSBSensorConnect.emit(Pair(true, gatt.device.name))
+                    }
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
+                    logCoroutine.launch {
+                        isSBSensorConnect.emit(Pair(false, gatt.device.name))
+                    }
+                    disconnectedDevice(gatt)
+                    return
                 }
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                logHelper.insertLog("onConnectionStateChange: DISCONNECTED ${gatt.device.name} - ${gatt.device.address}")
-                logCoroutine.launch {
-                    isSBSensorConnect.emit(Pair(false, gatt.device.name))
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+                super.onServicesDiscovered(gatt, status)
+
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    Log.d(
+                        TAG,
+                        "[NR] onServicesDiscovered: NOT GATT_SUCCESS  status = $status - ${gatt.device.name} / ${gatt.device.address}"
+                    )
+                    disconnectedDevice(gatt)
+                    return
                 }
-                disconnectedDevice(gatt)
-                return
-            }
-        }
 
-        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            super.onServicesDiscovered(gatt, status)
-
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "[NR] onServicesDiscovered: NOT GATT_SUCCESS  status = $status - ${gatt.device.name} / ${gatt.device.address}")
-                disconnectedDevice(gatt)
-                return
+                Log.d(
+                    TAG,
+                    "[NR] onServicesDiscovered: SUCCESS ${gatt.device.name} / ${gatt.device.address}"
+                )
+                startNotification(gatt)
             }
 
-            Log.d(TAG, "[NR] onServicesDiscovered: SUCCESS ${gatt.device.name} / ${gatt.device.address}")
-            startNotification(gatt)
-        }
+            private fun startNotification(bleGatt: BluetoothGatt) {
+                // find command characteristics from the GATT server
+                val respCharacteristic = BluetoothUtils.findResponseCharacteristic(bleGatt)
 
-        private fun startNotification(bleGatt: BluetoothGatt) {
-            // find command characteristics from the GATT server
-            val respCharacteristic = BluetoothUtils.findResponseCharacteristic(bleGatt)
+                if (respCharacteristic == null) {
+                    Log.d(TAG, "[NR] orespCharacteristic")
+                    disconnectedDevice(bleGatt)
+                    return
+                }
 
-            if (respCharacteristic == null) {
-                Log.d(TAG, "[NR] orespCharacteristic")
-                disconnectedDevice(bleGatt)
-                return
+                // READ
+                bleGatt.setCharacteristicNotification(respCharacteristic, true)
+                // UUID for notification
+                val descriptor: BluetoothGattDescriptor =
+                    respCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG))
+
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                innerData.value.bluetoothGatt?.writeDescriptor(descriptor)
             }
 
-            // READ
-            bleGatt.setCharacteristicNotification(respCharacteristic, true)
-            // UUID for notification
-            val descriptor: BluetoothGattDescriptor = respCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIG))
-
-            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            innerData.value.bluetoothGatt?.writeDescriptor(descriptor)
-        }
-
-        private fun stopNotification(bleGatt: BluetoothGatt) {
-            val respCharacteristic = bleGatt.let { BluetoothUtils.findResponseCharacteristic(it) }
-            bleGatt.setCharacteristicNotification(respCharacteristic, false)
-        }
-
-        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                return
+            private fun stopNotification(bleGatt: BluetoothGatt) {
+                val respCharacteristic =
+                    bleGatt.let { BluetoothUtils.findResponseCharacteristic(it) }
+                bleGatt.setCharacteristicNotification(respCharacteristic, false)
             }
-            super.onCharacteristicChanged(gatt, characteristic)
-            readData(gatt, characteristic.value)
-        }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, value: ByteArray) {
-            super.onCharacteristicChanged(gatt, characteristic, value)
-            readData(gatt, value)
-        }
+            override fun onCharacteristicChanged(
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic
+            ) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    return
+                }
+                super.onCharacteristicChanged(gatt, characteristic)
+                readData(gatt, characteristic.value)
+            }
 
-        private fun readData(gatt: BluetoothGatt, readValue: ByteArray) {
-            logCoroutine.launch {
+            override fun onCharacteristicChanged(
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic,
+                value: ByteArray
+            ) {
+                super.onCharacteristicChanged(gatt, characteristic, value)
+                readData(gatt, value)
+            }
+
+            private fun readData(gatt: BluetoothGatt, readValue: ByteArray) {
+                logCoroutine.launch {
 //                Log.d("---> Device To App", readValue.hexToString())
-                val value = decryptByteArray(readValue)
-                Log.d("---> Device To App", value.hexToString())
+                    val value = decryptByteArray(readValue)
+                    Log.d("---> Device To App", value.hexToString())
 
 //            Log.d("--- Current State", "${(String.format("%02X", value[4])).getCommand()}")
-                when ((String.format("%02X", value[4])).getCommand()) {
-                    ModuleToApp.StartStopACK, ModuleToApp.NoSeringStopACK -> {
-                        innerData.value.let { info ->
-                            when (info.bluetoothState) {
-                                BluetoothState.Connected.SendStart -> {
-                                    uploadCallbackQuotient = 0
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.WaitStart) }
-//                                it.bluetoothState = BluetoothState.Connected.WaitStart
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> WaitStart")
-                                }
-
-                                BluetoothState.Connected.SendStop -> {
-                                    uploadCallbackQuotient = -1
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Finish) }
-//                                it.bluetoothState = BluetoothState.Connected.Finish
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> Finish")
-                                    sendDownloadContinueCancel()
-                                    stopCallBack?.invoke()
-                                }
-
-                                BluetoothState.Connected.DataFlow -> {
-//                                writeData(gatt, AppToModule.OperateDeleteSector, null)
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
-//                                it.bluetoothState = BluetoothState.Connected.SendDelete
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> Ready")
-                                }
-
-                                else -> {
-
-                                }
-                            }
-                        }
-                    }
-
-                    ModuleToApp.RealtimeData -> {
-                        innerData.value.let { info ->
-                            when (info.bluetoothState) {
-                                BluetoothState.Connected.WaitStart -> {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-//                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
-
-                                    startTime = System.currentTimeMillis()
-                                    sendDownloadContinue(gatt, innerData)
-                                }
-
-                                BluetoothState.Connected.ReceivingDelayed, BluetoothState.Connected.Reconnected -> {
-                                    safetyMode = 0
-                                    uploadCallbackQuotient = 0
-                                    sendDownloadContinue(gatt, innerData)
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
-                                }
-
-                                BluetoothState.Connected.Init,
-                                BluetoothState.Connected.Ready -> {
-                                    Log.d(TAG, "DATAID1111111: ${innerData.value.realData.value?.dataId}")
-                                    innerData.value.realData.value?.let {
-                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
-                                        setDataFlow(false)
-                                        //                                it.bluetoothState = BluetoothState.Connected.DataFlow
-                                        //                                innerData.tryEmit(it)
-                                        logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
-
-                                    }
-                                }
-
-                                BluetoothState.Connected.DataFlow -> {
-                                    writeData(_sbSensorInfo.value.bluetoothGatt, AppToModule.OperateDataFlowDownload) { state ->
-                                        _sbSensorInfo.update { it.copy(bluetoothState = state) }
-                                        setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
-                                        logHelper.insertLog(state)
-                                    }
-                                }
-
-                                /*BluetoothState.Connected.DataFlowUploadFinish -> {
-                                    dataFlowCallback?.invoke()
-                                    setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
-                                    coroutine.launch {
-                                        launch {
-                                            settingDataRepository.getSleepType().let {
-                                                when (it) {
-                                                    SleepType.NoSering.name -> {
-                                                        writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                                        Log.d(TAG, "DataFlow: 코골이 종료 ")
-                                                    }
-
-                                                    else -> {
-                                                        writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
-                                                        Log.d(TAG, "DataFlow: 호흡 종료 ")
-                                                    }
-                                                }
-                                            }
-                                            *//*?: launch {
-                                            // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
-                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
-                                            delay(1000)
-                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                        }*//*
-
-                                        }
-                                    }
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
-//                                it.bluetoothState = BluetoothState.Connected.DataFlow
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
-                                }*/
-
-                                BluetoothState.Connected.SendDownloadContinue -> {
-                                    downloadContinueCount++
-                                    if (downloadContinueCount % DOWNLOAD_RETRY_INTERVAL == 0) {
-                                        if (downloadContinueCount >= DOWNLOAD_RETRY_COUNT * DOWNLOAD_RETRY_INTERVAL) {
-                                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-//                                        it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
-//                                        innerData.tryEmit(it)
-                                            logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
-                                            downloadContinueCount = 0
-                                        } else {
-                                            writeData(gatt, AppToModule.OperateDownloadContinue) { state ->
-                                                _sbSensorInfo.value.let { info ->
-                                                    innerData.update { it.copy(bluetoothState = state) }
-//                                                info.bluetoothState = state
-//                                                _sbSensorInfo.tryEmit(info)
-                                                    logHelper.insertLog(state)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                BluetoothState.Connected.ReceivingRealtime -> {
-                                    safetyMode++
-                                    // Do Nothing
-                                }
-
-                                else -> {
-                                    // 상태 이상
-                                    // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
-                                }
-                            }
-//                            Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
-//                            Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
-//                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
-//                            Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
-                            val check = (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
-                                    (innerData.value.realData.value == null ||
-                                            (innerData.value.realData.value?.dataId?.toInt() ?: -1) == innerData.value.dataId)
-                            if (check) {
-                                if (value.verifyCheckSum()) {
-                                    coroutine.launch {
-                                        val length = String.format("%02X", value[5]).toUInt(16).toInt()
-                                        val index1 = String.format("%02X%02X%02X", value[6], value[7], value[8]).toUInt(16).toInt()
-                                        for (i in 0 until length / 9) {
-                                            realtimeProcessData(startIndex = 6 + i * 9, info = info, value = value)
-                                        }
-                                        val quotient = index1 / UPLOAD_COUNT_INTERVAL
-                                        if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
-                                            uploadCallback?.let { cb ->
-                                                safetyMode = 0
-                                                uploadCallbackQuotient = quotient
-                                                cb.invoke()
-                                            }
-                                        }
-                                    }
-                                    writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseACK)
-                                } else {
-                                    writeResponse(gatt, AppToModuleResponse.RealtimeDataResponseNAK)
-                                }
-                            }
-                        }
-                    }
-
-                    ModuleToApp.DelayedData -> {
-                        innerData.value.let { info ->
-                            when (info.bluetoothState) {
-                                BluetoothState.Connected.WaitStart -> {
-                                    val minusLength = String.format("%02X", value[5]).toUInt(16).toInt() / DATA_INTERVAL
-                                    startTime = System.currentTimeMillis() - (minusLength * 200)
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
-//                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
-                                }
-
-                                BluetoothState.Connected.ReceivingRealtime -> {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
-//                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
-                                }
-
-                                BluetoothState.Connected.ReceivingDelayed -> {
-                                    // Do Nothing
-                                }
-
-                                else -> {
-                                    // 상태 이상
-                                    //Log.e("---> Device To App", "DelayedData Receive State Error : ${it.bluetoothState}")
-                                }
-                            }
-
-                            if (value.verifyCheckSum()) {
-                                coroutine.launch {
-                                    val length = String.format("%02X", value[5]).toUInt(16).toInt() / DATA_INTERVAL
-                                    for (i in 0 until length) {
-                                        // Index O
-                                        val index = String.format("%02X%02X%02X", value[i * DATA_INTERVAL + 6], value[i * DATA_INTERVAL + 7], value[i * DATA_INTERVAL + 8]).toUInt(16).toInt()
-                                        val capacitance = String.format("%02X%02X%02X", value[i * DATA_INTERVAL + 9], value[i * DATA_INTERVAL + 10], value[i * DATA_INTERVAL + 11]).toUInt(16).toInt()
-
-                                        val accelerationX = String.format("%02X", value[i * DATA_INTERVAL + 12]).toUInt(16).toInt()
-                                        val accelerationY = String.format("%02X", value[i * DATA_INTERVAL + 13]).toUInt(16).toInt()
-                                        val accelerationZ = String.format("%02X", value[i * DATA_INTERVAL + 14]).toUInt(16).toInt()
-
-                                        val calcAccX = accFormatter.format((accelerationX.toByte() * 0.0156F))
-                                        val calcAccY = accFormatter.format((accelerationY.toByte() * 0.0156F))
-                                        val calcAccZ = accFormatter.format((accelerationZ.toByte() * 0.0156F))
-
-                                        val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
-
-                                        info.channel.emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, info.dataId ?: -1))
-                                    }
-                                }
-                                writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)
-                            } else {
-                                writeResponse(gatt, AppToModuleResponse.DelayedDataResponseNAK)
-                            }
-                        }
-                    }
-
-                    ModuleToApp.MOTCtrlSetACK -> {
-                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-                        logHelper.insertLog("코골이 동작 피드백")
-                    }
-
-                    ModuleToApp.MotorTestACK -> {
-                        logHelper.insertLog("테스트 코골이 동작 피드백")
-                    }
-
-                    ModuleToApp.OperateACK -> {
-                        if (value.verifyCheckSum()) {
+                    when ((String.format("%02X", value[4])).getCommand()) {
+                        ModuleToApp.StartStopACK, ModuleToApp.NoSeringStopACK -> {
                             innerData.value.let { info ->
                                 when (info.bluetoothState) {
-                                    BluetoothState.Connected.SendRealtime -> {
-                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
-//                                    it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
-//                                    innerData.tryEmit(it)
-                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                    BluetoothState.Connected.SendStart -> {
+                                        uploadCallbackQuotient = 0
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.WaitStart) }
+//                                it.bluetoothState = BluetoothState.Connected.WaitStart
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> WaitStart")
                                     }
 
-                                    BluetoothState.Connected.SendDelayed -> {
-                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
-//                                    it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
-//                                    innerData.tryEmit(it)
-                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
+                                    BluetoothState.Connected.SendStop -> {
+                                        uploadCallbackQuotient = -1
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Finish) }
+//                                it.bluetoothState = BluetoothState.Connected.Finish
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> Finish")
+                                        sendDownloadContinueCancel()
+                                        stopCallBack?.invoke()
+                                    }
+
+                                    BluetoothState.Connected.DataFlow -> {
+//                                writeData(gatt, AppToModule.OperateDeleteSector, null)
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+//                                it.bluetoothState = BluetoothState.Connected.SendDelete
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> Ready")
                                     }
 
                                     else -> {
-                                        //Log.e("---> Device To App", "OperateACK Receive State Error : ${it.bluetoothState}")
+
                                     }
                                 }
                             }
                         }
-                    }
 
-                    ModuleToApp.MemoryData -> {
-                        innerData.value.let {
-                            when (it.bluetoothState) {
-                                BluetoothState.Connected.SendDownload, BluetoothState.Connected.SendDownloadContinue -> {
-                                    downloadContinueCount = 0
-                                }
-
-                                else -> {
-                                    //Log.e("---> Device To App", "MemoryData Receive State Error : ${it.bluetoothState}")
-                                }
-                            }
-
-                            if (value.verifyCheckSum()) {
-                                coroutine.launch {
-                                    val length = String.format("%02X", value[5]).toUInt(16).toInt() / DATA_INTERVAL
-                                    for (i in 0 until length) {
-                                        // Index O
-                                        val index = String.format("%02X%02X%02X", value[i * DATA_INTERVAL + 6], value[i * DATA_INTERVAL + 7], value[i * DATA_INTERVAL + 8]).toUInt(16).toInt()
-                                        val capacitance = String.format("%02X%02X%02X", value[i * DATA_INTERVAL + 9], value[i * DATA_INTERVAL + 10], value[i * DATA_INTERVAL + 11]).toUInt(16).toInt()
-
-                                        val accelerationX = String.format("%02X", value[i * DATA_INTERVAL + 12]).toUInt(16).toInt()
-                                        val accelerationY = String.format("%02X", value[i * DATA_INTERVAL + 13]).toUInt(16).toInt()
-                                        val accelerationZ = String.format("%02X", value[i * DATA_INTERVAL + 14]).toUInt(16).toInt()
-
-                                        val calcAccX = accFormatter.format((accelerationX.toByte() * 0.0156F))
-                                        val calcAccY = accFormatter.format((accelerationY.toByte() * 0.0156F))
-                                        val calcAccZ = accFormatter.format((accelerationZ.toByte() * 0.0156F))
-
-                                        val time = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format((startTime + (200 * index)))
-
-//                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
-                                        it.channel.emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, it.dataId ?: -1))
-                                    }
-                                }
-                                //writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)
-                            } else {
-                                //writeResponse(gatt, AppToModuleResponse.DelayedDataResponseNAK)
-                            }
-                        }
-                    }
-
-                    ModuleToApp.MemoryDataACK -> {
-                        innerData.value.let { info ->
-                            when (info.bluetoothState) {
-                                BluetoothState.Connected.SendDownload -> {
-                                    downloadContinueCount = 0
-                                    lastDownloadCompleteCallback?.invoke(BLEService.FinishState.FinishNormal)
-                                    timerOfSendDownloadTimer?.cancel()
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.FinishDownload) }
-                                    Log.d(TAG, "readData: finish 먼저!!")
-//                                it.bluetoothState = BluetoothState.Connected.FinishDownload
-//                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> FinishDownload")
-                                }
-
-                                BluetoothState.Connected.SendDownloadContinue -> {
-                                    downloadContinueCount = 0
-                                    //                                downloadCompleteCallback?.invoke()
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+                        ModuleToApp.RealtimeData -> {
+                            innerData.value.let { info ->
+                                when (info.bluetoothState) {
+                                    BluetoothState.Connected.WaitStart -> {
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
 //                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
 //                                innerData.tryEmit(it)
-                                    logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
-                                }
+                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
 
-                                BluetoothState.Connected.DataFlow -> {
-                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
-                                }
+                                        startTime = System.currentTimeMillis()
+                                        sendDownloadContinue(gatt, innerData)
+                                    }
 
+                                    BluetoothState.Connected.ReceivingDelayed, BluetoothState.Connected.Reconnected -> {
+                                        safetyMode = 0
+                                        uploadCallbackQuotient = 0
+                                        sendDownloadContinue(gatt, innerData)
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                    }
 
-                                else -> {
-                                    // 상태 이상
-                                    //Log.e("---> Device To App", "MemoryDataACK Receive State Error : ${it.bluetoothState}")
-                                }
-                            }
-                            if (value.verifyCheckSum()) {
-                                val memoryTotalIndex = String.format("%02X%02X", value[6], value[7]).toUInt(16).toInt()
-                                logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
-                                dataFlowMaxCount = memoryTotalIndex * 20
-                                writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
+                                    BluetoothState.Connected.Init,
+                                    BluetoothState.Connected.Ready -> {
+                                        Log.d(
+                                            TAG,
+                                            "DATAID1111111: ${innerData.value.realData.value?.dataId}"
+                                        )
+                                        innerData.value.realData.value?.let {
+                                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlow) }
+                                            setDataFlow(false)
+                                            //                                it.bluetoothState = BluetoothState.Connected.DataFlow
+                                            //                                innerData.tryEmit(it)
+                                            logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
 
-                                delay(2000)
-                                when (innerData.value.bluetoothState) {
-                                    BluetoothState.Connected.DataFlowUploadFinish -> {
+                                        }
+                                    }
+
+                                    BluetoothState.Connected.DataFlow -> {
+                                        writeData(
+                                            _sbSensorInfo.value.bluetoothGatt,
+                                            AppToModule.OperateDataFlowDownload
+                                        ) { state ->
+                                            _sbSensorInfo.update { it.copy(bluetoothState = state) }
+                                            setDataFlow(
+                                                true,
+                                                dataFlowCurrentCount,
+                                                dataFlowMaxCount
+                                            )
+                                            logHelper.insertLog(state)
+                                        }
+                                    }
+
+                                    /*BluetoothState.Connected.DataFlowUploadFinish -> {
                                         dataFlowCallback?.invoke()
                                         setDataFlow(true, dataFlowCurrentCount, dataFlowMaxCount)
                                         coroutine.launch {
@@ -1362,139 +1201,542 @@ class BluetoothNetworkRepository @Inject constructor(
                                                         }
                                                     }
                                                 }
-                                                /*?: launch {
-                                                // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
-                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
-                                                delay(1000)
-                                                writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
-                                            }*/
+                                                *//*?: launch {
+                                            // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
+                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                            delay(1000)
+                                            writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                        }*//*
 
-                                            }
                                         }
-                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+                                    }
+                                    innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
 //                                it.bluetoothState = BluetoothState.Connected.DataFlow
 //                                innerData.tryEmit(it)
-                                        logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                    logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                }*/
+
+                                    BluetoothState.Connected.SendDownloadContinue -> {
+                                        downloadContinueCount++
+                                        if (downloadContinueCount % DOWNLOAD_RETRY_INTERVAL == 0) {
+                                            if (downloadContinueCount >= DOWNLOAD_RETRY_COUNT * DOWNLOAD_RETRY_INTERVAL) {
+                                                innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+//                                        it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
+//                                        innerData.tryEmit(it)
+                                                logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                                downloadContinueCount = 0
+                                            } else {
+                                                writeData(
+                                                    gatt,
+                                                    AppToModule.OperateDownloadContinue
+                                                ) { state ->
+                                                    _sbSensorInfo.value.let { info ->
+                                                        innerData.update { it.copy(bluetoothState = state) }
+//                                                info.bluetoothState = state
+//                                                _sbSensorInfo.tryEmit(info)
+                                                        logHelper.insertLog(state)
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
 
-                                    else -> {}
+                                    BluetoothState.Connected.ReceivingRealtime -> {
+                                        safetyMode++
+                                        // Do Nothing
+                                    }
+
+                                    else -> {
+                                        // 상태 이상
+                                        // Log.e("---> Device To App", "RealtimeData Receive State Error : ${it.bluetoothState}")
+                                    }
                                 }
-                            } else {
-                                writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)
+//                            Log.e(TAG, "readData: isRealDataRemoved = ${innerData.value.realData.value}")
+//                            Log.e(TAG, "id1 = ${(innerData.value.realData.value?.dataId ?: -1)}")
+//                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
+//                            Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
+                                val check =
+                                    (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
+                                            (innerData.value.realData.value == null ||
+                                                    (innerData.value.realData.value?.dataId?.toInt()
+                                                        ?: -1) == innerData.value.dataId)
+                                if (check) {
+                                    if (value.verifyCheckSum()) {
+                                        coroutine.launch {
+                                            val length =
+                                                String.format("%02X", value[5]).toUInt(16).toInt()
+                                            val index1 = String.format(
+                                                "%02X%02X%02X",
+                                                value[6],
+                                                value[7],
+                                                value[8]
+                                            ).toUInt(16).toInt()
+                                            for (i in 0 until length / 9) {
+                                                realtimeProcessData(
+                                                    startIndex = 6 + i * 9,
+                                                    info = info,
+                                                    value = value
+                                                )
+                                            }
+                                            val quotient = index1 / UPLOAD_COUNT_INTERVAL
+                                            if (safetyMode >= SAFETY_STANDARD && uploadCallbackQuotient > -1 && quotient > uploadCallbackQuotient) {
+                                                uploadCallback?.let { cb ->
+                                                    safetyMode = 0
+                                                    uploadCallbackQuotient = quotient
+                                                    cb.invoke()
+                                                }
+                                            }
+                                        }
+                                        writeResponse(
+                                            gatt,
+                                            AppToModuleResponse.RealtimeDataResponseACK
+                                        )
+                                    } else {
+                                        writeResponse(
+                                            gatt,
+                                            AppToModuleResponse.RealtimeDataResponseNAK
+                                        )
+                                    }
+                                }else{
+                                    logHelper.insertLog("real read  bluetoothState  =${innerData.value.bluetoothState}")
+                                }
                             }
                         }
-                    }
 
-                    ModuleToApp.MemoryDataDeleteACK -> {
-                        val result = innerData.updateAndGet { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
-                        logHelper.insertLog(result.bluetoothState)
+                        ModuleToApp.DelayedData -> {
+                            innerData.value.let { info ->
+                                when (info.bluetoothState) {
+                                    BluetoothState.Connected.WaitStart -> {
+                                        val minusLength = String.format("%02X", value[5]).toUInt(16)
+                                            .toInt() / DATA_INTERVAL
+                                        startTime = System.currentTimeMillis() - (minusLength * 200)
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
+//                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
+                                    }
+
+                                    BluetoothState.Connected.ReceivingRealtime -> {
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
+//                                it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
+                                    }
+
+                                    BluetoothState.Connected.ReceivingDelayed -> {
+                                        // Do Nothing
+                                    }
+
+                                    else -> {
+                                        // 상태 이상
+                                        //Log.e("---> Device To App", "DelayedData Receive State Error : ${it.bluetoothState}")
+                                    }
+                                }
+
+                                if (value.verifyCheckSum()) {
+                                    coroutine.launch {
+                                        val length = String.format("%02X", value[5]).toUInt(16)
+                                            .toInt() / DATA_INTERVAL
+                                        for (i in 0 until length) {
+                                            // Index O
+                                            val index = String.format(
+                                                "%02X%02X%02X",
+                                                value[i * DATA_INTERVAL + 6],
+                                                value[i * DATA_INTERVAL + 7],
+                                                value[i * DATA_INTERVAL + 8]
+                                            ).toUInt(16).toInt()
+                                            val capacitance = String.format(
+                                                "%02X%02X%02X",
+                                                value[i * DATA_INTERVAL + 9],
+                                                value[i * DATA_INTERVAL + 10],
+                                                value[i * DATA_INTERVAL + 11]
+                                            ).toUInt(16).toInt()
+
+                                            val accelerationX =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 12])
+                                                    .toUInt(16).toInt()
+                                            val accelerationY =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 13])
+                                                    .toUInt(16).toInt()
+                                            val accelerationZ =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 14])
+                                                    .toUInt(16).toInt()
+
+                                            val calcAccX =
+                                                accFormatter.format((accelerationX.toByte() * 0.0156F))
+                                            val calcAccY =
+                                                accFormatter.format((accelerationY.toByte() * 0.0156F))
+                                            val calcAccZ =
+                                                accFormatter.format((accelerationZ.toByte() * 0.0156F))
+
+                                            val time = SimpleDateFormat(
+                                                "yyyy-MM-dd HH:mm:ss.SSS",
+                                                Locale.getDefault()
+                                            ).format((startTime + (200 * index)))
+
+                                            info.channel.emit(
+                                                SBSensorData(
+                                                    index,
+                                                    time,
+                                                    capacitance,
+                                                    calcAccX,
+                                                    calcAccY,
+                                                    calcAccZ,
+                                                    info.dataId ?: -1
+                                                )
+                                            )
+                                        }
+                                    }
+                                    writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)
+                                } else {
+                                    writeResponse(gatt, AppToModuleResponse.DelayedDataResponseNAK)
+                                }
+                            }
+                        }
+
+                        ModuleToApp.MOTCtrlSetACK -> {
+                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+                            logHelper.insertLog("코골이 동작 피드백")
+                        }
+
+                        ModuleToApp.MotorTestACK -> {
+                            logHelper.insertLog("테스트 코골이 동작 피드백")
+                        }
+
+                        ModuleToApp.OperateACK -> {
+                            if (value.verifyCheckSum()) {
+                                innerData.value.let { info ->
+                                    when (info.bluetoothState) {
+                                        BluetoothState.Connected.SendRealtime -> {
+                                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+//                                    it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
+//                                    innerData.tryEmit(it)
+                                            logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                        }
+
+                                        BluetoothState.Connected.SendDelayed -> {
+                                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingDelayed) }
+//                                    it.bluetoothState = BluetoothState.Connected.ReceivingDelayed
+//                                    innerData.tryEmit(it)
+                                            logHelper.insertLog("${info.bluetoothState} -> ReceivingDelayed")
+                                        }
+
+                                        else -> {
+                                            //Log.e("---> Device To App", "OperateACK Receive State Error : ${it.bluetoothState}")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        ModuleToApp.MemoryData -> {
+                            innerData.value.let {
+                                when (it.bluetoothState) {
+                                    BluetoothState.Connected.SendDownload, BluetoothState.Connected.SendDownloadContinue -> {
+                                        downloadContinueCount = 0
+                                    }
+
+                                    else -> {
+                                        //Log.e("---> Device To App", "MemoryData Receive State Error : ${it.bluetoothState}")
+                                    }
+                                }
+
+                                if (value.verifyCheckSum()) {
+                                    coroutine.launch {
+                                        val length = String.format("%02X", value[5]).toUInt(16)
+                                            .toInt() / DATA_INTERVAL
+                                        for (i in 0 until length) {
+                                            // Index O
+                                            val index = String.format(
+                                                "%02X%02X%02X",
+                                                value[i * DATA_INTERVAL + 6],
+                                                value[i * DATA_INTERVAL + 7],
+                                                value[i * DATA_INTERVAL + 8]
+                                            ).toUInt(16).toInt()
+                                            val capacitance = String.format(
+                                                "%02X%02X%02X",
+                                                value[i * DATA_INTERVAL + 9],
+                                                value[i * DATA_INTERVAL + 10],
+                                                value[i * DATA_INTERVAL + 11]
+                                            ).toUInt(16).toInt()
+
+                                            val accelerationX =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 12])
+                                                    .toUInt(16).toInt()
+                                            val accelerationY =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 13])
+                                                    .toUInt(16).toInt()
+                                            val accelerationZ =
+                                                String.format("%02X", value[i * DATA_INTERVAL + 14])
+                                                    .toUInt(16).toInt()
+
+                                            val calcAccX =
+                                                accFormatter.format((accelerationX.toByte() * 0.0156F))
+                                            val calcAccY =
+                                                accFormatter.format((accelerationY.toByte() * 0.0156F))
+                                            val calcAccZ =
+                                                accFormatter.format((accelerationZ.toByte() * 0.0156F))
+
+                                            val time = SimpleDateFormat(
+                                                "yyyy-MM-dd HH:mm:ss.SSS",
+                                                Locale.getDefault()
+                                            ).format((startTime + (200 * index)))
+
+//                                        Log.d(TAG, "onCreate: SEND ${it.dataId} ")
+                                            it.channel.emit(
+                                                SBSensorData(
+                                                    index,
+                                                    time,
+                                                    capacitance,
+                                                    calcAccX,
+                                                    calcAccY,
+                                                    calcAccZ,
+                                                    it.dataId ?: -1
+                                                )
+                                            )
+                                        }
+                                    }
+                                    //writeResponse(gatt, AppToModuleResponse.DelayedDataResponseACK)
+                                } else {
+                                    //writeResponse(gatt, AppToModuleResponse.DelayedDataResponseNAK)
+                                }
+                            }
+                        }
+
+                        ModuleToApp.MemoryDataACK -> {
+                            innerData.value.let { info ->
+                                when (info.bluetoothState) {
+                                    BluetoothState.Connected.SendDownload -> {
+                                        downloadContinueCount = 0
+                                        lastDownloadCompleteCallback?.invoke(BLEService.FinishState.FinishNormal)
+                                        timerOfSendDownloadTimer?.cancel()
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.FinishDownload) }
+                                        Log.d(TAG, "readData: finish 먼저!!")
+//                                it.bluetoothState = BluetoothState.Connected.FinishDownload
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> FinishDownload")
+                                    }
+
+                                    BluetoothState.Connected.SendDownloadContinue -> {
+                                        downloadContinueCount = 0
+                                        //                                downloadCompleteCallback?.invoke()
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.ReceivingRealtime) }
+//                                it.bluetoothState = BluetoothState.Connected.ReceivingRealtime
+//                                innerData.tryEmit(it)
+                                        logHelper.insertLog("${info.bluetoothState} -> ReceivingRealtime")
+                                    }
+
+                                    BluetoothState.Connected.DataFlow -> {
+                                        innerData.update { it.copy(bluetoothState = BluetoothState.Connected.DataFlowUploadFinish) }
+                                    }
+
+
+                                    else -> {
+                                        // 상태 이상
+                                        //Log.e("---> Device To App", "MemoryDataACK Receive State Error : ${it.bluetoothState}")
+                                    }
+                                }
+                                if (value.verifyCheckSum()) {
+                                    val memoryTotalIndex =
+                                        String.format("%02X%02X", value[6], value[7]).toUInt(16)
+                                            .toInt()
+                                    logHelper.insertLog("총 받 갯수 ${memoryTotalIndex * 20}")
+                                    dataFlowMaxCount = memoryTotalIndex * 20
+                                    writeResponse(gatt, AppToModuleResponse.MemoryDataResponseACK)
+
+                                    delay(2000)
+                                    when (innerData.value.bluetoothState) {
+                                        BluetoothState.Connected.DataFlowUploadFinish -> {
+                                            dataFlowCallback?.invoke()
+                                            setDataFlow(
+                                                true,
+                                                dataFlowCurrentCount,
+                                                dataFlowMaxCount
+                                            )
+                                            coroutine.launch {
+                                                launch {
+                                                    settingDataRepository.getSleepType().let {
+                                                        when (it) {
+                                                            SleepType.NoSering.name -> {
+                                                                writeData(
+                                                                    gatt = _sbSensorInfo.value.bluetoothGatt,
+                                                                    command = AppToModule.NoSeringOperateStop,
+                                                                    stateCallback = null
+                                                                )
+                                                                Log.d(TAG, "DataFlow: 코골이 종료 ")
+                                                            }
+
+                                                            else -> {
+                                                                writeData(
+                                                                    gatt = _sbSensorInfo.value.bluetoothGatt,
+                                                                    command = AppToModule.BreathingOperateStop,
+                                                                    stateCallback = null
+                                                                )
+                                                                Log.d(TAG, "DataFlow: 호흡 종료 ")
+                                                            }
+                                                        }
+                                                    }
+                                                    /*?: launch {
+                                                    // FIXME: 하드웨어와 DataFlow 상황에서 강제종료에 대해 논의해야함.!! 중요!!
+                                                    writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.BreathingOperateStop, stateCallback = null)
+                                                    delay(1000)
+                                                    writeData(gatt = _sbSensorInfo.value.bluetoothGatt, command = AppToModule.NoSeringOperateStop, stateCallback = null)
+                                                }*/
+
+                                                }
+                                            }
+                                            innerData.update { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+//                                it.bluetoothState = BluetoothState.Connected.DataFlow
+//                                innerData.tryEmit(it)
+                                            logHelper.insertLog("${info.bluetoothState} -> BluetoothState.Connected.DataFlow")
+                                        }
+
+                                        else -> {}
+                                    }
+                                } else {
+                                    writeResponse(gatt, AppToModuleResponse.MemoryDataResponseNAK)
+                                }
+                            }
+                        }
+
+                        ModuleToApp.MemoryDataDeleteACK -> {
+                            val result =
+                                innerData.updateAndGet { it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+                            logHelper.insertLog(result.bluetoothState)
 //                    innerData.value?.let {
 //                        it.bluetoothState = BluetoothState.Connected.Ready
 //                        innerData.tryEmit(it)
 //                        insertLog(it.bluetoothState)
 //                    }
-                    }
+                        }
 
-                    ModuleToApp.PowerOff -> {
-                        val data = String.format("%02X", value[6])
-                        lastDownloadCompleteCallback?.invoke(
-                            if (data == "01") BLEService.FinishState.FinishPowerOff
-                            else BLEService.FinishState.FinishBatteryLow
-                        )
-                        logHelper.insertLog(
-                            if (data == "01") "FinishPowerOff"
-                            else "FinishBatteryLow"
-                        )
-                        downloadContinueCount = 0
-                        writeResponse(gatt, AppToModuleResponse.PowerOffACK)
-                        innerData.update { it.copy(canMeasurement = false) }
-                    }
+                        ModuleToApp.PowerOff -> {
+                            val data = String.format("%02X", value[6])
+                            lastDownloadCompleteCallback?.invoke(
+                                if (data == "01") BLEService.FinishState.FinishPowerOff
+                                else BLEService.FinishState.FinishBatteryLow
+                            )
+                            logHelper.insertLog(
+                                if (data == "01") "FinishPowerOff"
+                                else "FinishBatteryLow"
+                            )
+                            downloadContinueCount = 0
+                            writeResponse(gatt, AppToModuleResponse.PowerOffACK)
+                            innerData.update { it.copy(canMeasurement = false) }
+                        }
 
-                    ModuleToApp.Error -> {
-                        // Do Nothing ???
-                    }
+                        ModuleToApp.Error -> {
+                            // Do Nothing ???
+                        }
 
-                    ModuleToApp.BatteryState -> {
-                        val data = String.format("%02X", value[6])
-                        val result = Integer.parseInt(data, 16)
-                        Log.e(TAG, "BatteryState: ${result}")
-                        innerData.value.let { info ->
-                            when (info.bluetoothState) {
-                                BluetoothState.Connecting -> {
-                                    innerData.update {
-                                        it.copy(
-                                            batteryInfo = result.toString(), canMeasurement = result > 20,
-                                            bluetoothState = BluetoothState.Connected.Reconnected
-                                        )
-                                    }
-                                }
-
-                                else -> {
-                                    innerData.update {
-                                        it.copy(
-                                            batteryInfo = result.toString(), canMeasurement = result > 20,
-                                            bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init
-                                                || it.bluetoothState == BluetoothState.DisconnectedByUser
-                                            ) BluetoothState.Connected.Ready
-                                            else it.bluetoothState
-                                        )
+                        ModuleToApp.BatteryState -> {
+                            val data = String.format("%02X", value[6])
+                            val result = Integer.parseInt(data, 16)
+                            Log.e(TAG, "BatteryState: ${result}")
+                            innerData.value.let { info ->
+                                when (info.bluetoothState) {
+                                    BluetoothState.Connecting -> {
+                                        innerData.update {
+                                            it.copy(
+                                                batteryInfo = result.toString(),
+                                                canMeasurement = result > 20,
+                                                bluetoothState = BluetoothState.Connected.Reconnected
+                                            )
+                                        }
                                     }
 
+                                    else -> {
+                                        innerData.update {
+                                            it.copy(
+                                                batteryInfo = result.toString(),
+                                                canMeasurement = result > 20,
+                                                bluetoothState = if (it.bluetoothState == BluetoothState.Connected.Init
+                                                    || it.bluetoothState == BluetoothState.DisconnectedByUser
+                                                ) BluetoothState.Connected.Ready
+                                                else it.bluetoothState
+                                            )
+                                        }
+
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    ModuleToApp.MOTCData -> {
-                        snoreCountIncreaseCallBack?.invoke()
-                        writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
-                    }
+                        ModuleToApp.MOTCData -> {
+                            snoreCountIncreaseCallBack?.invoke()
+                            writeResponse(gatt, AppToModuleResponse.MOTCDataSetACK)
+                        }
 
-                    ModuleToApp.FirmwareVersion -> {
-                        if (value.verifyCheckSum()) {
-                            coroutine.launch {
-                                val major = String.format("%02X", value[6]).toUInt(16).toInt()
-                                val minor = String.format("%02X", value[7]).toUInt(16).toInt()
-                                val patch = String.format("%02X", value[8]).toUInt(16).toInt()
-                                val firmware = major.toString().plus(".").plus(minor.toString().plus(".").plus(patch.toString()))
-                                _sbSensorFirmwareInfo.emit(FirmwareData(firmware, innerData.value.bluetoothName ?: "", innerData.value.bluetoothAddress ?: ""))
-                                Log.e(TAG, "version: major =$major minor = $minor patch = $patch")
+                        ModuleToApp.FirmwareVersion -> {
+                            if (value.verifyCheckSum()) {
+                                coroutine.launch {
+                                    val major = String.format("%02X", value[6]).toUInt(16).toInt()
+                                    val minor = String.format("%02X", value[7]).toUInt(16).toInt()
+                                    val patch = String.format("%02X", value[8]).toUInt(16).toInt()
+                                    val firmware = major.toString().plus(".")
+                                        .plus(minor.toString().plus(".").plus(patch.toString()))
+                                    _sbSensorFirmwareInfo.emit(
+                                        FirmwareData(
+                                            firmware,
+                                            innerData.value.bluetoothName ?: "",
+                                            innerData.value.bluetoothAddress ?: ""
+                                        )
+                                    )
+                                    Log.e(
+                                        TAG,
+                                        "version: major =$major minor = $minor patch = $patch"
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
+                }
+            }
+
+            private suspend fun realtimeProcessData(
+                startIndex: Int,
+                info: BluetoothInfo,
+                value: ByteArray
+            ) {
+                val index = String.format(
+                    "%02X%02X%02X",
+                    value[startIndex], value[startIndex + 1], value[startIndex + 2]
+                ).toUInt(16).toInt()
+                val capacitance = String.format(
+                    "%02X%02X%02X",
+                    value[startIndex + 3], value[startIndex + 4], value[startIndex + 5]
+                ).toUInt(16).toInt()
+
+                val accelerationX = String.format("%02X", value[startIndex + 6]).toUInt(16).toInt()
+                val accelerationY = String.format("%02X", value[startIndex + 7]).toUInt(16).toInt()
+                val accelerationZ = String.format("%02X", value[startIndex + 8]).toUInt(16).toInt()
+
+                val calcAccX = accFormatter.format((accelerationX.toByte() * 0.0156F))
+                val calcAccY = accFormatter.format((accelerationY.toByte() * 0.0156F))
+                val calcAccZ = accFormatter.format((accelerationZ.toByte() * 0.0156F))
+
+                val time = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss.SSS",
+                    Locale.getDefault()
+                ).format((startTime + (200 * index)))
+                info.currentData.emit(capacitance) // 필요에 따라 추가
+                info.channel.apply {
+                    emit(
+                        SBSensorData(
+                            index,
+                            time,
+                            capacitance,
+                            calcAccX,
+                            calcAccY,
+                            calcAccZ,
+                            info.dataId ?: -1
+                        )
+                    )
                 }
             }
         }
-        private suspend fun realtimeProcessData(startIndex: Int, info: BluetoothInfo, value: ByteArray) {
-            val index = String.format(
-                "%02X%02X%02X",
-                value[startIndex], value[startIndex + 1], value[startIndex + 2]
-            ).toUInt(16).toInt()
-            val capacitance = String.format(
-                "%02X%02X%02X",
-                value[startIndex + 3], value[startIndex + 4], value[startIndex + 5]
-            ).toUInt(16).toInt()
-
-            val accelerationX = String.format("%02X", value[startIndex + 6]).toUInt(16).toInt()
-            val accelerationY = String.format("%02X", value[startIndex + 7]).toUInt(16).toInt()
-            val accelerationZ = String.format("%02X", value[startIndex + 8]).toUInt(16).toInt()
-
-            val calcAccX = accFormatter.format((accelerationX.toByte() * 0.0156F))
-            val calcAccY = accFormatter.format((accelerationY.toByte() * 0.0156F))
-            val calcAccZ = accFormatter.format((accelerationZ.toByte() * 0.0156F))
-
-            val time = SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss.SSS",
-                Locale.getDefault()
-            ).format((startTime + (200 * index)))
-            info.currentData.emit(capacitance) // 필요에 따라 추가
-            info.channel.apply {
-                emit(SBSensorData(index, time, capacitance, calcAccX, calcAccY, calcAccZ, info.dataId ?: -1))
-            }
-        }
-    }
 }
 
 

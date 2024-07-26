@@ -648,7 +648,7 @@ object Components {
                 }
                 if (isBottomView) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    BottomText(modifier =Modifier
+                    BottomText(modifier = Modifier
                         .padding(start = 50.dp)
                         .fillMaxWidth() ,startAt, endedAt)
                 }
@@ -853,7 +853,7 @@ object Components {
                             drawRect(
                                 color = color,
                                 topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
-                                size = Size(currentSize.toPx(), height.toPx())
+                                size = Size(currentSize.toPx(), (height.toPx() -1))
                             )
                             currentSize = 0.dp
                             previousColorIndex = null
@@ -866,7 +866,7 @@ object Components {
                         drawRect(
                             color = color,
                             topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
-                            size = Size(currentSize.toPx(), height.toPx())
+                            size = Size(currentSize.toPx(), (height.toPx() -1))
                         )
                     }
 //                    listData.mapIndexed { index, value ->value.toIntOrNull()?.let { colorIndex ->
@@ -925,7 +925,8 @@ object Components {
                     .width(percent)
                     .height(43.dp)
                     .clip(RoundedCornerShape(20.dp)) // Box에 라운딩 적용
-                    .background(Color(0xff535353))
+                    .background(Color(0xff535353)),
+                contentAlignment = Alignment.CenterStart
             ) {
                 Box(
                     modifier = Modifier
@@ -935,24 +936,22 @@ object Components {
                         .clip(RoundedCornerShape(20.dp)) // Box에 라운딩 적용
                         .background(colorResource(id = R.color.color_main)),
                     contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = "${percentValue.toInt()}%",
-                        color = Color.Black,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
+                ) {}
+                Text(
+                    text = "${percentValue.toInt()}%",
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 18.dp)
+                )
             }
             Column(modifier = Modifier.onGloballyPositioned { coordinates ->
                 textWidth = with(density) {
                     coordinates.size.width.toDp()
                 }
-            }) {
+            }, horizontalAlignment = Alignment.End) {
                 Text(text = label, color = Color.White, fontSize = 15.sp)
 //                                    text = sleepTime.toHourOrMinute(LocalConfiguration.current.locales[0]),
                 Text(
                     text = sleepTime.toHourOrMinute(LocalConfiguration.current.locales[0]),
-
                     color = Color.White,
                     fontSize = 21.sp,
                 )
