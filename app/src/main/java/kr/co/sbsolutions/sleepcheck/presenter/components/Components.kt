@@ -974,7 +974,7 @@ fun GradientBarChart(
     ) {
         val barWidth = size.width / (data.size + 1) // 바 너비 계산
         val barSpacing = barWidth / data.size // 바 간격 계산
-        val maxValue = 20 //최대값
+        val maxValue = 10 //최대값
         data.forEachIndexed { index, value ->
             val barHeight = (value.toFloat() / maxValue) * size.height
             val topLeft = Offset(

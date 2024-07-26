@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -213,7 +214,7 @@ class HistoryDetailActivity : BaseActivity() {
     ) {
         Column {
             Column(
-                modifier = modifier.weight(9f),
+                modifier = modifier.weight(9.4f),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Box(
@@ -232,7 +233,7 @@ class HistoryDetailActivity : BaseActivity() {
             Button(modifier = Modifier
                 .height(62.dp)
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(0.6f)
                 .padding(horizontal = 24.dp)
                 .background(
                     color = colorResource(id = R.color.color_main),
@@ -249,7 +250,7 @@ class HistoryDetailActivity : BaseActivity() {
                     disabledContainerColor = colorResource(id = R.color.color_777777),
                     disabledContentColor = Color.Black
                 ), onClick = { viewModel.getLink()}) {
-                Text(text = "수면 정보 상세 보기", fontSize = 19.sp)
+                Text(text = "수면 정보 상세 보기", fontSize = 19.sp, style = TextStyle(fontWeight = FontWeight.Bold))
             }
         }
     }

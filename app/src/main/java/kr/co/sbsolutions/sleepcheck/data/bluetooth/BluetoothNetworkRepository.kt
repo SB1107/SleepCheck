@@ -729,7 +729,8 @@ class BluetoothNetworkRepository @Inject constructor(
                 val writeResult = gatt.writeCharacteristic(cmd, byteArr, WRITE_TYPE_DEFAULT)
                 when (writeResult) {
                     BluetoothStatusCodes.SUCCESS -> {
-                        logHelper.insertLog("${command.getName()} =  SUCCESS ")
+                        Log.d(TAG, "${command.getName()} =  SUCCESS ")
+//                        logHelper.insertLog("${command.getName()} =  SUCCESS ")
                     }
 
                     BluetoothStatusCodes.ERROR_PROFILE_SERVICE_NOT_BOUND -> {
