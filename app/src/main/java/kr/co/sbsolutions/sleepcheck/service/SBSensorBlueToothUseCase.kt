@@ -99,7 +99,8 @@ class SBSensorBlueToothUseCase(
         }
     }
 
-    fun resetBleGattList() {
+    fun resetBleGattList(context: Context , bluetoothAdapter: BluetoothAdapter?) {
+        bondClear(context, bluetoothAdapter)
         logHelper.insertLog("resetBleGattList call")
         bleGattList.map {
             it.disconnect()
@@ -237,7 +238,7 @@ class SBSensorBlueToothUseCase(
                 ).filter { it.name == bluetoothNetworkRepository.sbSensorInfo.value.bluetoothName }
                 if (getDeviceName.isEmpty()) {
                     logHelper.insertLog("연결된 디바이스가 없어서 다시 연결")
-                    resetBleGattList()
+                    resetBleGattList(context, bluetoothAdapter)
                     val gatt = device?.connectGatt(
                         context,
                         true,
@@ -295,7 +296,7 @@ class SBSensorBlueToothUseCase(
         return dataManager.getHasSensor().first()
     }
 
-      fun bondClear(context: Context, bluetoothAdapter: BluetoothAdapter?){
+      private fun bondClear(context: Context, bluetoothAdapter: BluetoothAdapter?){
         val bluetoothManager =
             context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val gattDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
