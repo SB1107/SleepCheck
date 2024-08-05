@@ -2,7 +2,6 @@ package kr.co.sbsolutions.sleepcheck.presenter.main.history.detail
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.compose.ui.graphics.ImageBitmap
@@ -19,12 +18,9 @@ import kotlinx.coroutines.withContext
 import kr.co.sbsolutions.sleepcheck.common.DataManager
 import kr.co.sbsolutions.sleepcheck.common.TokenManager
 import kr.co.sbsolutions.sleepcheck.data.entity.ScoreResultData
-import kr.co.sbsolutions.sleepcheck.data.entity.SleepDetailResult
 import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
 import kr.co.sbsolutions.sleepcheck.domain.repository.RemoteAuthDataSource
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
-import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,16 +56,19 @@ class HistoryDetailViewModel @Inject constructor(
                             rightPositionTime = result.rightPositionTime, downPositionTime = result.downPositionTime, wakeTime = result.wakeTime,
                             straightPer = result.straightPer, leftPer = result.leftPer, rightPer = result.rightPer, downPer = result.downPer,
                             wakePer = result.wakePer, sleepPattern = result.sleepPattern, startedAt = result.startedAt,
-                            endedAt = result.endedAt, sleepTime = result.sleepTime, state = result.state, deepSleepTime = result.deepSleepTime,
+                            endedAt = result.endedAt, sleepTime = result.sleepTime, avgSnoreCount = result.avgSnoreCount, state = result.state, deepSleepTime = result.deepSleepTime,
                             moveCount = result.moveCount, remSleepTime = result.remSleepTime, lightSleepTime = result.lightSleepTime,
                             fastBreath = result.fastBreath, slowBreath = result.slowBreath, unstableBreath = result.unstableBreath,
                             avgNormalBreath = result.avgNormalBreath, normalBreathTime = result.normalBreathTime, description = result.description,
                             avgFastBreath = result.avgFastBreath, avgSlowBreath = result.avgSlowBreath, snoreCount = result.snoreCount,
                             coughCount = result.coughCount, breathScore = result.breathScore, snoreScore = result.snoreScore,
+                            wakeSleepTime = result.wakeSleepTime,
                             ment = result.ment, unstableIdx = result.unstableIdx?.split(",") ?: emptyList(),
-                            nobreath_idx = result.nobreath_idx?.split(",") ?: emptyList(),
-                            snoring_idx = result.snoring_idx?.split(",") ?: emptyList(),
+                            nobreathIdx = result.nobreath_idx?.split(",") ?: emptyList(),
+                            snoringIdx = result.snoring_idx?.split(",") ?: emptyList(),
+                            coughIdx = result.coughIdx?.split(",") ?: emptyList(),
                             supineIdx = result.supineIdx?.split(",") ?: emptyList(),
+                            wakeIdx  = result.wakeIdx?.split(",") ?: emptyList(),
                             leftIdx = result.leftIdx?.split(",") ?: emptyList(),
                             rightIdx = result.rightIdx?.split(",") ?: emptyList(),
                             proneIdx = result.proneIdx?.split(",") ?: emptyList(),

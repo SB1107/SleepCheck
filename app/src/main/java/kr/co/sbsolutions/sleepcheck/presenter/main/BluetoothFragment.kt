@@ -8,16 +8,21 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import kr.co.sbsolutions.sleepcheck.R
 import kr.co.sbsolutions.sleepcheck.common.setOnSingleClickListener
 import kr.co.sbsolutions.sleepcheck.databinding.DialogConnectInfoBinding
+import kr.co.sbsolutions.sleepcheck.databinding.DialogMeasurementWarningBinding
 import kr.co.sbsolutions.sleepcheck.presenter.BaseServiceViewModel
 import kr.co.sbsolutions.sleepcheck.presenter.BaseViewModel
 
 abstract class BluetoothFragment : Fragment() {
-    abstract val  viewModel: BaseServiceViewModel
+    abstract val viewModel: BaseServiceViewModel
 
     private val connectInfoBinding: DialogConnectInfoBinding by lazy {
         DialogConnectInfoBinding.inflate(layoutInflater)
     }
 
+    val warningDialogBinding: DialogMeasurementWarningBinding by lazy {
+        DialogMeasurementWarningBinding.inflate(layoutInflater)
+    }
+    var warningDialog: BottomSheetDialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -26,7 +31,7 @@ abstract class BluetoothFragment : Fragment() {
                 baseViewModel.setLogHelper(mainActivity.logHelper)
             }
         }
-        
+
     }
 
     private val connectInfoDialog by lazy {
@@ -35,21 +40,23 @@ abstract class BluetoothFragment : Fragment() {
             connectInfoBinding.btConnect.setOnSingleClickListener {
                 viewModel.connectClick()
                 this.dismiss()
-              
+
             }
             connectInfoBinding.btLater.setOnSingleClickListener {
                 this.dismiss()
             }
         }
     }
-     fun showConnectDialog() {
+
+    fun showConnectDialog() {
         if (connectInfoDialog.isShowing) {
             connectInfoDialog.dismiss()
         }
         connectInfoDialog.show()
     }
-      fun getBluetoothState(state: String) : BluetoothState {
-        return when(state){
+
+    fun getBluetoothState(state: String): BluetoothState {
+        return when (state) {
             "시작" -> BluetoothState.Connected
             "연결", "연결 끊김" -> BluetoothState.Disconnected
             else -> BluetoothState.Reconnected
@@ -57,31 +64,34 @@ abstract class BluetoothFragment : Fragment() {
     }
 
 
-    abstract  fun setBluetoothStateIcon(bluetoothState : BluetoothState)
+    abstract fun setBluetoothStateIcon(bluetoothState: BluetoothState)
     abstract fun setBatteryInfo(batteryInfo: String)
 }
+
 enum class BluetoothState {
     Connected, Reconnected, Disconnected;
-    fun getImage() : Int{
-        return when(this){
+
+    fun getImage(): Int {
+        return when (this) {
             Connected -> R.drawable.bluetooth_connected
             Reconnected -> R.drawable.bluetooth_searching
             Disconnected -> R.drawable.bluetooth_disabled
         }
     }
-    fun  getText(context : Context) : String {
-        return when(this) {
-            Connected ->  context.getString(R.string.connected)
+
+    fun getText(context: Context): String {
+        return when (this) {
+            Connected -> context.getString(R.string.connected)
             Reconnected -> context.getString(R.string.reconnected)
             Disconnected -> context.getString(R.string.disconnected)
         }
     }
 
-    fun getStartButtonText(context : Context) : String {
-        return when(this) {
+    fun getStartButtonText(context: Context): String {
+        return when (this) {
             Connected -> context.getString(R.string.start)
             Reconnected -> context.getString(R.string.start)
-            Disconnected ->  context.getString(R.string.connect)
+            Disconnected -> context.getString(R.string.connect)
         }
 
     }

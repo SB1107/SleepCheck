@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Soomirang</string>
     <string name="common_ok">OK</string>
+    <string name="common_next">Next</string>
     <string name="common_update">Update</string>
     <string name="common_title">Notification</string>
     <string name="common_select">Select</string>
@@ -22,6 +23,7 @@
     <string name="guide_device_info_message1">Remove th sensor frim the cradle and connect it to the Sommirang App.</string>
     <string name="guide_device_info_message2">Disconnect the charging cable from the sensor and connect the sensor to the Soomirang App.</string>
     <string name="dialog_info_sensor_connected_message">The app requires a sensor connection</string>
+    <string name="measurement_waring">For accurate measurement, please stop using video and music apps.</string>
 
     <string name="common_next_update">Next time</string>
     <string name="login"><b><u>login</u></b></string>
@@ -91,7 +93,7 @@
     <string name="nosering_no_info_message">There\'s no snoring information yet\nPlease press Start.</string>
     <string name="nosering_measuring">Measuring snoring</string>
     <string name="nosering_info_result_message">Check your snoring results.</string>
-
+    <string name="detail_snoring_time_count">Snoring hour</string>
     <string name="dialog_info_now_connect">Connect now</string>
     <string name="dialog_info_later_connect">Measure later</string>
     <string name="Illustration_Charging">Place your phone as shown and keep the charger plugged in.</string>

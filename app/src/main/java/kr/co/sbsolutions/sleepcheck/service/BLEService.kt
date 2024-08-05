@@ -180,6 +180,13 @@ class BLEService : LifecycleService() {
         bleServiceHelper.forceSbScanDevice(baseContext, bluetoothAdapter , callback)
     }
 
+    fun forceUpload(){
+        logHelper.insertLog("유저 강제 업로드 호출")
+        bleServiceHelper.forceUpload()
+    }
+
+
+
     fun disconnectDevice() {
         bleServiceHelper.sbDisconnectDevice()
     }

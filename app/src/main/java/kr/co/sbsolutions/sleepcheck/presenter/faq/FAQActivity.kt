@@ -88,7 +88,7 @@ class FAQActivity : BaseActivity() {
     fun RootView(data: FAQResultData? = FAQResultData()) {
         val scrollState = rememberLazyListState()
         val showButton = remember { derivedStateOf { scrollState.firstVisibleItemIndex > 0 } }
-        SoomScaffold(R.drawable.back1, null,stringResource(R.string.faq_title), topAction = {
+        SoomScaffold(R.drawable.back1, Color.Transparent  ,stringResource(R.string.faq_title), topAction = {
             finish()
         }, childView = {
             Box {

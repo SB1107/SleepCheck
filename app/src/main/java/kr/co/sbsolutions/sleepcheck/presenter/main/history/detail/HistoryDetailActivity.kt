@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -23,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,9 +30,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.getValue
@@ -52,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,7 +62,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -88,8 +87,8 @@ import kr.co.sbsolutions.sleepcheck.common.showAlertDialog
 import kr.co.sbsolutions.sleepcheck.common.toDate
 import kr.co.sbsolutions.sleepcheck.common.toDayString
 import kr.co.sbsolutions.sleepcheck.common.toHourMinute
-import kr.co.sbsolutions.sleepcheck.common.toHourOrMinute
 import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
+import kr.co.sbsolutions.sleepcheck.data.model.SnoringAndCough
 import kr.co.sbsolutions.sleepcheck.databinding.ActivityHistoryDetailBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogInfoMassageBinding
 import kr.co.sbsolutions.sleepcheck.databinding.DialogSocreInfoMassageBinding
@@ -102,9 +101,7 @@ import kr.co.sbsolutions.sleepcheck.presenter.components.Components.IconRowTexts
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.LineView
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.PositionComposable
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.RowTexts
-import kr.co.sbsolutions.sleepcheck.presenter.components.Components.ScrollToView
 import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SleepState
-import kr.co.sbsolutions.sleepcheck.presenter.components.Components.SoomScaffold
 import kr.co.sbsolutions.sleepcheck.presenter.components.GradientBarChart
 import java.util.concurrent.TimeUnit
 
@@ -162,7 +159,9 @@ class HistoryDetailActivity : BaseActivity() {
         setObservers()
     }
 
-    @OptIn(ExperimentalComposeApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalComposeApi::class, ExperimentalComposeUiApi::class,
+        ExperimentalMaterial3Api::class
+    )
     @Preview
     @Composable
     fun RootView(data: SleepDetailDTO = SleepDetailDTO()) {
@@ -174,36 +173,60 @@ class HistoryDetailActivity : BaseActivity() {
             .verticalScroll(scrollState)
             .capturable(captureController)
 
-        SoomScaffold(
-            R.drawable.back1,
-            bgColor = colorResource(id = R.color.color_00296B),
-            stringResource(R.string.detail_result),
-            topAction = {
-                finish()
-            },
-            row = {
-                IconButton(onClick = {
-                    scope.launch {
-                        val bitmapAsync = captureController.captureAsync()
-                        try {
-                            val bitmap = bitmapAsync.await()
-                            // Do something with `bitmap`.
-                            viewModel.sharingImage(this@HistoryDetailActivity, bitmap)
-                        } catch (error: Throwable) {
-                            Log.e(TAG, "RootView: error")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+            ) {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorResource(id = R.color.color_back_gradient_start),
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    title = {
+                        Text(
+                            text =  stringResource(R.string.detail_result),
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {    finish() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_left),
+                                contentDescription = "뒤로가기",
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                val bitmapAsync = captureController.captureAsync()
+                                try {
+                                    val bitmap = bitmapAsync.await()
+                                    // Do something with `bitmap`.
+                                    viewModel.sharingImage(this@HistoryDetailActivity, bitmap)
+                                } catch (error: Throwable) {
+                                    Log.e(TAG, "RootView: error")
+                                }
+                            }
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_share),
+                                contentDescription = stringResource(R.string.detail_share),
+                                tint = Color.White
+                            )
                         }
                     }
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_share),
-                        contentDescription = stringResource(R.string.detail_share),
-                        tint = Color.White
-                    )
-                }
-            },
-            childView = {
+                )
                 ContentView(data, modifier = columnModifier, scrollState = scrollState)
-            })
+            }
+        }
     }
 
     @Composable
@@ -212,13 +235,20 @@ class HistoryDetailActivity : BaseActivity() {
         modifier: Modifier,
         scrollState: ScrollState = rememberScrollState()
     ) {
-        Column {
-            Column(
-                modifier = modifier.weight(9.4f),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        colorResource(id = R.color.color_back_gradient_start),
+                        colorResource(id = R.color.color_back_gradient_end)
+                    ),
+                )
+            )
+            , contentAlignment = Alignment.BottomCenter) {
+            Column {
                 Box(
-                    modifier = Modifier.background(
+                    modifier = modifier.background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
                                 colorResource(id = R.color.color_back_gradient_start),
@@ -229,11 +259,13 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                     TopDateView(data = data, scrollState)
                 }
+                Spacer(modifier = Modifier
+                    .fillMaxSize()
+                    .weight(0.6f))
             }
             Button(modifier = Modifier
-                .height(62.dp)
+                .height(48.dp)
                 .fillMaxWidth()
-                .weight(0.6f)
                 .padding(horizontal = 24.dp)
                 .background(
                     color = colorResource(id = R.color.color_main),
@@ -249,8 +281,12 @@ class HistoryDetailActivity : BaseActivity() {
                     contentColor = Color.White,
                     disabledContainerColor = colorResource(id = R.color.color_777777),
                     disabledContentColor = Color.Black
-                ), onClick = { viewModel.getLink()}) {
-                Text(text = "수면 정보 상세 보기", fontSize = 19.sp, style = TextStyle(fontWeight = FontWeight.Bold))
+                ), onClick = { viewModel.getLink() }) {
+                Text(
+                    text = "수면 정보 상세 보기",
+                    fontSize = 19.sp,
+                    style = TextStyle(fontWeight = FontWeight.Bold)
+                )
             }
         }
     }
@@ -279,7 +315,7 @@ class HistoryDetailActivity : BaseActivity() {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(16.dp, 0.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 48.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
 
@@ -334,6 +370,9 @@ class HistoryDetailActivity : BaseActivity() {
                         stringResource(R.string.detail_asleep_time),
                         it.InpuMintoHourMinute(LocalConfiguration.current.locales[0])
                     )
+                }
+                data.snoreTime?.let {
+                    RowTexts(stringResource(R.string.detail_snoring_time), it.InpuMintoHourMinute(LocalConfiguration.current.locales[0]))
                 }
                 data.deepSleepTime?.let {
                     RowTexts(
@@ -416,7 +455,7 @@ class HistoryDetailActivity : BaseActivity() {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     GraphsView(
-                        listData = data.nobreath_idx,
+                        listData = data.nobreathIdx,
                         drawColors = listOf(
                             colorResource(id = R.color.color_E6F6FF),
                             colorResource(id = R.color.color_1DAEFF),
@@ -545,22 +584,32 @@ class HistoryDetailActivity : BaseActivity() {
                 ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        text = "코골이 / 기침 구간", color = Color.White,
-                        fontSize = 19.sp,
+                        textAlign = TextAlign.Start,
+                        text = "빈도", color = Color.White,
                         fontWeight = FontWeight.Normal
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    GraphsView(
-                        listData = data.snoring_idx,
-                        drawColors = listOf(
-                            colorResource(id = R.color.color_E6F6FF),
-                            colorResource(id = R.color.color_FDABFF),
-                            colorResource(id = R.color.color_1DAEFF),
-                            colorResource(id = R.color.color_FF4F37)
-                        ),
-                        startText = startAt?.toDayString("HH:mm") ?: "",
-                        endText = endedAt?.toDayString("HH:mm") ?: ""
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(modifier = Modifier.background(color = colorResource(id = R.color.color_08387D))){
+                        val a = SnoringAndCough(snoringIdx = data.snoringIdx, snoringColor = colorResource(id = R.color.color_FDABFF),
+                            coughIdx = data.coughIdx, coughColor = colorResource(id = R.color.color_1DAEFF),
+                        )
+                        GradientBarChart(
+                            data = a, threshold = 20
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    BottomText(modifier =  Modifier
+                        .fillMaxWidth(),
+                        startAt?.toDayString("HH:mm") ?: "",
+                        endedAt?.toDayString("HH:mm") ?: ""
+                    )
+                }
+                data.avgSnoreCount?.let {
+                    IconRowTexts(
+                        color = colorResource(id = R.color.color_FDABFF),
+                        stringResource(R.string.detail_snoring_time_count),
+                        it.plus("회")
                     )
                 }
 
@@ -603,7 +652,16 @@ class HistoryDetailActivity : BaseActivity() {
                     .padding(top = 24.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
+                data.wakeSleepTime?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SleepState(
+                        label = stringResource(R.string.detail_weak_sleep),
+                        sleepTime = it,
+                        data.sleepTime ?: 0
+                    )
+                }
                 data.remSleepTime?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
                     SleepState(
                         label = stringResource(R.string.detail_rem_sleep),
                         sleepTime = it,
@@ -626,10 +684,22 @@ class HistoryDetailActivity : BaseActivity() {
                         data.sleepTime ?: 0
                     )
                 }
+
             }
 
             Column {
                 Spacer(modifier = Modifier.height(16.dp))
+                if(data.wakeIdx.isNotEmpty()){
+                    LineView(
+                        stringResource(R.string.detail_weak_sleep),
+                        data.wakeIdx,
+                        drawColors = listOf(
+                            Color.Transparent,
+                            colorResource(id = R.color.color_FDABFF),
+                            colorResource(id = R.color.color_FDABFF)
+                        ), isLast = false
+                    )
+                }
                 if(data.remIdx.isNotEmpty()) {
                     LineView(
                         stringResource(R.string.detail_rem_sleep),
@@ -662,15 +732,16 @@ class HistoryDetailActivity : BaseActivity() {
                             colorResource(id = R.color.color_FF6008)
                         ), isLast = true
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    BottomText(
-                        Modifier
-                            .padding(start = 50.dp)
-                            .fillMaxWidth(),
-                        startAt?.toDayString("HH:mm") ?: "",
-                        endedAt?.toDayString("HH:mm") ?: ""
-                    )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        BottomText(
+                            Modifier
+                                .padding(start = 50.dp)
+                                .fillMaxWidth(),
+                            startAt?.toDayString("HH:mm") ?: "",
+                            endedAt?.toDayString("HH:mm") ?: ""
+                        )
                 }
+
 
             }
             if (data.movement.isNotEmpty()) {
@@ -683,7 +754,7 @@ class HistoryDetailActivity : BaseActivity() {
                         colorResource(id = R.color.color_F44E4E), colorResource(
                             id = R.color.color_main
                         )
-                    ), defaultColor = colorResource(id = R.color.color_main), threshold = 3
+                    ), defaultColor = colorResource(id = R.color.color_main), threshold = 7
                 )
                 BottomText(modifier =  Modifier
                     .fillMaxWidth(),

@@ -158,6 +158,18 @@ class NoSeringFragment : BluetoothFragment() {
                         )
                     }
                 }
+                launch {
+                    viewModel.blueToothForceUpload.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,
+                            it,
+                            confirmAction = {
+                                viewModel.forceUpload {
+                                    viewModel.forceUploadResetUIAndTimer()
+                                }
+                            }
+                        )
+                    }
+                }
 
                 //기기 연결 안되었을시 기기 등록 페이지 이동
                 launch {

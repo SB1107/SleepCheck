@@ -685,6 +685,12 @@ class BluetoothNetworkRepository @Inject constructor(
         }
     }
 
+    override fun forceUploadCallback() {
+        dataFlowCallback?.invoke()
+        _sbSensorInfo.update {  it.copy(bluetoothState = BluetoothState.Connected.Ready) }
+        logHelper.insertLog("${_sbSensorInfo.value.bluetoothState} -> 강제 업로드 복원 실행")
+    }
+
     private suspend fun isConnect(
         gatt: BluetoothGatt,
         innerData: MutableStateFlow<BluetoothInfo>,

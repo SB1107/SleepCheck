@@ -32,6 +32,7 @@ class UploadWorkerHelper @Inject constructor(
                     "snoreCount" to uploadData.snoreCount,
                     "coughCount" to uploadData.coughCount,
                     "isFilePass" to uploadData.isFilePass,
+                    "isForced" to uploadData.isForced,
                     "sensorName" to uploadData.sensorName
                 )
             )
@@ -58,5 +59,6 @@ data class UploadData(
     val snoreCount: Int = 0,
     val coughCount: Int = 0,
     var sensorName: String = "",
-    val isFilePass: Boolean = false
+    val isFilePass: Boolean = false,
+    var isForced :Boolean = false
 )

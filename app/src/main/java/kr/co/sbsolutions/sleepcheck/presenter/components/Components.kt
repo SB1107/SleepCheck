@@ -91,6 +91,7 @@ import kr.co.sbsolutions.sleepcheck.common.toDate
 import kr.co.sbsolutions.sleepcheck.common.toDayString
 import kr.co.sbsolutions.sleepcheck.common.toHourOrMinute
 import kr.co.sbsolutions.sleepcheck.data.model.SleepDetailDTO
+import kr.co.sbsolutions.sleepcheck.data.model.SnoringAndCough
 import kr.co.sbsolutions.sleepcheck.presenter.main.history.detail.HistoryDetailViewModel
 import kotlin.math.cos
 import kotlin.math.sin
@@ -852,8 +853,8 @@ object Components {
                             val color = drawColors.getOrElse(previousColorIndex) { Color.Transparent }
                             drawRect(
                                 color = color,
-                                topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
-                                size = Size(currentSize.toPx(), (height.toPx() -1))
+                                topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize.toPx() / oneSize.toPx()), 0f),
+                                size = Size(currentSize.toPx(), (height.toPx() -1.5f))
                             )
                             currentSize = 0.dp
                             previousColorIndex = null
@@ -865,25 +866,10 @@ object Components {
                         val color = drawColors.getOrElse(previousColorIndex) { Color.Transparent }
                         drawRect(
                             color = color,
-                            topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize / oneSize), 0f),
-                            size = Size(currentSize.toPx(), (height.toPx() -1))
+                            topLeft = Offset(oneSize.toPx() * (currentIndex - currentSize.toPx() / oneSize.toPx()), 0f),
+                            size = Size(currentSize.toPx(), (height.toPx() - 1.5f))
                         )
                     }
-//                    listData.mapIndexed { index, value ->value.toIntOrNull()?.let { colorIndex ->
-//                        val color = drawColors.getOrElse(colorIndex) { Color.Gray }
-//                        val nextValue = listData.getOrNull(index + 1)?.toIntOrNull()
-//                        val size = if (nextValue == 1) { // 다음 값이 1인 경우
-//                            Size(oneSize.toPx() * 2, height.toPx()) // 너비를 두 배로 설정
-//                        } else {
-//                            Size(oneSize.toPx(), height.toPx())
-//                        }
-//                        drawRect(
-//                            color = color,
-//                            topLeft = Offset(oneSize * index, 0f),
-//                            size = size
-//                        )
-//                    }
-//                    }
                 }
                 if (isLast) {
                     HorizontalDivider(thickness = 1.dp, color = Color.White)
@@ -920,26 +906,28 @@ object Components {
                 },
             verticalAlignment = Alignment.Bottom
         ) {
-            Box(
-                modifier = Modifier
-                    .width(percent)
-                    .height(43.dp)
-                    .clip(RoundedCornerShape(20.dp)) // Box에 라운딩 적용
-                    .background(Color(0xff535353)),
-                contentAlignment = Alignment.CenterStart
-            ) {
+            Box( contentAlignment = Alignment.CenterStart) {
                 Box(
                     modifier = Modifier
                         .width(percent)
-                        .padding(10.dp)
                         .height(43.dp)
                         .clip(RoundedCornerShape(20.dp)) // Box에 라운딩 적용
-                        .background(colorResource(id = R.color.color_main)),
+                        .background(Color(0xff535353)),
                     contentAlignment = Alignment.CenterStart
-                ) {}
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(percent)
+                            .padding(10.dp)
+                            .height(43.dp)
+                            .clip(RoundedCornerShape(20.dp)) // Box에 라운딩 적용
+                            .background(colorResource(id = R.color.color_main)),
+                        contentAlignment = Alignment.CenterStart
+                    ) {}
+                }
                 Text(
                     text = "${percentValue.toInt()}%",
-                    color = Color.Black,
+                    color = if(percentValue.toInt() < 10) Color.White else Color.Black,
                     modifier = Modifier.padding(start = 18.dp)
                 )
             }
@@ -956,6 +944,74 @@ object Components {
                     fontSize = 21.sp,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun GradientBarChart(
+    data: SnoringAndCough , threshold: Int = 5,
+    gradientColor: List<Color> = listOf(Color.Red, Color.Yellow)
+) {
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(100.dp)
+    ) {
+        val barWidth = size.width / (data.snoringIdx.size + 1) // 바 너비 계산
+        val barSpacing = barWidth / data.snoringIdx.size // 바 간격 계산
+        val maxValue = data.snoringIdx.mapNotNull { it.toIntOrNull() }.maxOrNull()?.plus(1) ?: 1 //최대값
+        data.snoringIdx.forEachIndexed { index, value ->
+
+            val barHeight = (value.toFloat() / maxValue) * size.height
+            val topLeft = Offset(
+                x = barWidth * (index) + barSpacing * index,
+                y = size.height - barHeight
+            )
+            val barSize = Size(width = barWidth - barSpacing, height = barHeight)
+            // 그라데이션 브러시 생성
+            val brush = if (value.toInt() >= threshold) {
+                Brush.verticalGradient(
+                    colors = gradientColor, // 그라데이션 색상 설정
+                    startY = size.height - barHeight, // 그라데이션 시작 위치
+                    endY = size.height
+                )
+            } else {
+                SolidColor(data.snoringColor) // 기본 색상
+            }
+            drawRect(
+                brush = brush,
+                topLeft = topLeft,
+                size = barSize,
+                style = Fill
+            )
+        }
+
+        data.coughIdx.forEachIndexed { index, value ->
+
+            val barHeight = (value.toFloat() / maxValue) * size.height
+            val topLeft = Offset(
+                x = barWidth * (index) + barSpacing * index,
+                y = size.height - barHeight
+            )
+            val barSize = Size(width = barWidth - barSpacing, height = barHeight)
+            // 그라데이션 브러시 생성
+            val brush = if (value.toInt() >= threshold) {
+                Brush.verticalGradient(
+                    colors = gradientColor, // 그라데이션 색상 설정
+                    startY = size.height - barHeight, // 그라데이션 시작 위치
+                    endY = size.height
+                )
+            } else {
+                SolidColor(data.coughColor) // 기본 색상
+            }
+            drawRect(
+                brush = brush,
+                topLeft = topLeft,
+                size = barSize,
+                style = Fill
+            )
         }
     }
 }
@@ -999,23 +1055,6 @@ fun GradientBarChart(
                 style = Fill
             )
         }
-    }
-}
-
-fun getColor(value: Float): Color {
-    return when {
-        value < 0.5 -> Color.Green
-        value < 1.0 -> {
-            // 그라데이션 색상 적용
-            val fraction = (value - 0.5f) / 0.5f // 0.5와 1.0 사이의 비율 계산
-            Color(
-                red = (1.0f * fraction).coerceIn(0f, 1f), // 빨간색 조정
-                green = 1.0f, // 초록색은 항상 1
-                blue = 0f // 파란색은 0
-            )
-        }
-
-        else -> Color.Red
     }
 }
 

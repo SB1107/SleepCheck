@@ -69,6 +69,11 @@ abstract class BaseServiceViewModel(
     private val _blueToothErrorMessage: MutableSharedFlow<String> = MutableSharedFlow()
     val blueToothErrorMessage: SharedFlow<String> = _blueToothErrorMessage.asSharedFlow()
 
+    private val _blueToothForceUpload: MutableSharedFlow<String> = MutableSharedFlow()
+    val blueToothForceUpload: SharedFlow<String> = _blueToothForceUpload.asSharedFlow()
+
+    private var isReconnect : Boolean = false
+
     abstract fun whereTag(): String
 
     init {
@@ -178,6 +183,12 @@ abstract class BaseServiceViewModel(
         _isHomeBleProgressBar.emit(Pair(onOff, massage))
     }
 
+    fun forceUpload(uploadCallback : () -> Unit){
+        getService()?.forceUpload()
+        uploadCallback.invoke()
+        isReconnect = false
+    }
+
     fun reConnectBluetooth(uploadCallback : () -> Unit) {
         viewModelScope.launch {
             setIsHomeBleProgressBar(true, ApplicationManager.instance.getString(R.string.sensor_conneting))
@@ -188,11 +199,24 @@ abstract class BaseServiceViewModel(
                 setIsHomeBleProgressBar(false)
             }
             when (it){
-                ForceConnectDeviceMessage.SUCCESS ->    {}
-                ForceConnectDeviceMessage.SUCCESS_UPLOAD ->{
-                    uploadCallback.invoke()
+                ForceConnectDeviceMessage.SUCCESS ->    {
+                    isReconnect = false
                 }
-                is ForceConnectDeviceMessage.FAIL -> sendBlueToothErrorMessage(it.msg)
+                ForceConnectDeviceMessage.SUCCESS_UPLOAD ->{
+                    forceUpload(uploadCallback)
+                    isReconnect = false
+                }
+                is ForceConnectDeviceMessage.FAIL -> {
+                    if (isReconnect.not()) {
+                        sendBlueToothErrorMessage(it.msg)
+                        isReconnect = true
+                    }else{
+                        viewModelScope.launch {
+                            isReconnect = false
+                            _blueToothForceUpload.emit("숨이랑 센서를 찾지 못하였습니다.\n\n강제 업로드 하시겠습니까?")
+                        }
+                    }
+                }
             }
         }
     }

@@ -124,6 +124,7 @@ class LeaveActivity : AppCompatActivity() {
         }
 
         SoomScaffold(bgImage = R.drawable.back1,
+            bgColor = Color.Transparent,
             topText = stringResource(R.string.leave_title_unsubscribing), topAction = { finish() },
             childView =
             {

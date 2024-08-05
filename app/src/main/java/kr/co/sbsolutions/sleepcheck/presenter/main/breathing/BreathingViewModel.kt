@@ -51,6 +51,9 @@ class BreathingViewModel @Inject constructor(
     val capacitanceFlow: SharedFlow<Int> = _capacitanceFlow
     private val _measuringTimer: MutableSharedFlow<Triple<Int, Int, Int>> = MutableSharedFlow()
     val measuringTimer: SharedFlow<Triple<Int, Int, Int>> = _measuringTimer
+    private val _showWarningAlert: MutableSharedFlow<Boolean> = MutableSharedFlow()
+    val showWarningAlert: SharedFlow<Boolean> = _showWarningAlert
+
     private lateinit var dataRemovedJob: Job
 
     init {
@@ -94,6 +97,13 @@ class BreathingViewModel @Inject constructor(
             } else if (bluetoothInfo.bluetoothState == BluetoothState.Connected.ReceivingRealtime) {
                 sendErrorMessage(ApplicationManager.instance.baseContext.getString(R.string.snoring_measurable_finish))
             }
+        }
+    }
+
+    fun showWarningAlert(){
+        insertLog("showWarningAlert")
+        viewModelScope.launch {
+            _showWarningAlert.emit(true)
         }
     }
 
@@ -200,7 +210,7 @@ class BreathingViewModel @Inject constructor(
                             it.result?.id?.let { id ->
                                 getService()?.startSBSensor(id, SleepType.Breathing){
                                     setMeasuringState(MeasuringState.FiveRecode)
-
+                                    Log.e(TAG, "sleepDataCreate: tr", )
                                     trySend(true)
                                     close()
                                 }

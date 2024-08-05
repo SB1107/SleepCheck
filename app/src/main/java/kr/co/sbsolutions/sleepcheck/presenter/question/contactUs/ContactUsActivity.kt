@@ -102,6 +102,7 @@ class ContactUsActivity : BaseServiceActivity() {
         }
         SoomScaffold(topText = stringResource(R.string.setting_qna),
             topAction = { finish() },
+            bgColor = Color.Transparent,
             childView = {
                 Column(
                     modifier = Modifier

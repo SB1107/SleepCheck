@@ -19,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.normal.TedPermission
 import dagger.hilt.android.AndroidEntryPoint
@@ -112,6 +113,17 @@ class BreathingFragment : BluetoothFragment() {
             job.cancel()
         }
     }
+    private  fun sleepDataCreate(){
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.sleepDataCreate().collect {
+                if (it) {
+                    activityViewModel.setCommend(ServiceCommend.START)
+                    delay(2000)
+                    viewModel.dataRemovedObservers()
+                }
+            }
+        }
+    }
 
     private fun setObservers() {
         if (::job.isInitialized) {
@@ -138,13 +150,26 @@ class BreathingFragment : BluetoothFragment() {
                         requireActivity().showAlertDialogWithCancel(R.string.common_title,
                             it,
                             confirmAction = {
-                                viewModel.reConnectBluetooth{
+                                viewModel.reConnectBluetooth {
                                     viewModel.forceUploadResetUIAndTimer()
                                 }
                             }
                         )
                     }
                 }
+                launch {
+                    viewModel.blueToothForceUpload.collectLatest {
+                        requireActivity().showAlertDialogWithCancel(R.string.common_title,
+                            it,
+                            confirmAction = {
+                                viewModel.forceUpload {
+                                    viewModel.forceUploadResetUIAndTimer()
+                                }
+                            }
+                        )
+                    }
+                }
+
                 // 블루투스 연결 팝업
                 launch {
                     viewModel.connectAlert.collect {
@@ -226,17 +251,23 @@ class BreathingFragment : BluetoothFragment() {
                 }
                 launch {
                     viewModel.canMeasurementAndBluetoothButtonState.collect {
-                        Log.e(TAG, "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}")
+                        Log.e(
+                            TAG,
+                            "canMeasurementAndBluetoothButtonState: 1 = ${it.first} 2 = ${it.second}"
+                        )
 //                        binding.tvNameDes2.text = if (it) "시작버튼을 눌러\n호흡을 측정해 보세요" else "기기 배터리 부족으로 측정이 불가합니다.\n기기를 충전해 주세요"
                         binding.startButton.visibility = if (it.first) View.VISIBLE else View.GONE
                         if (!it.first) {
                             viewModel.setMeasuringState(MeasuringState.Charging)
                         }
-                        binding.startButton.text = getBluetoothState(it.second).getStartButtonText(context = requireContext())
+                        binding.startButton.text =
+                            getBluetoothState(it.second).getStartButtonText(context = requireContext())
                         val isDisconnect = it.second.contains(getString(R.string.start)).not()
                         binding.tvNameDes2.text = if (isDisconnect) {
                             if (it.first.not()) getString(R.string.not_measurable) else getString(R.string.connect_button)
-                        } else if (it.first.not()) getString(R.string.not_measurable) else getString(R.string.breathing_start_info_message)
+                        } else if (it.first.not()) getString(R.string.not_measurable) else getString(
+                            R.string.breathing_start_info_message
+                        )
                         setBluetoothStateIcon(getBluetoothState(it.second))
                     }
                 }
@@ -269,6 +300,27 @@ class BreathingFragment : BluetoothFragment() {
                         binding.icBleProgress.tvDeviceId.text = it.second
                         binding.icBleProgress.root.visibility =
                             if (it.first) View.VISIBLE else View.GONE
+                    }
+                }
+                launch {
+                    viewModel.showWarningAlert.collectLatest {
+                        if (warningDialog?.isShowing == true) {
+                            warningDialog?.dismiss()
+                        }
+
+                        if (warningDialog == null) {
+                            warningDialog = BottomSheetDialog(
+                                requireContext(),
+                                R.style.CustomBottomSheetDialogTheme
+                            ).apply {
+                                setContentView(warningDialogBinding.root, null)
+                                warningDialogBinding.btDone.setOnClickListener {
+                                    sleepDataCreate()
+                                    this.dismiss()
+                                }
+                            }
+                        }
+                        warningDialog?.show()
                     }
                 }
 
@@ -400,17 +452,10 @@ class BreathingFragment : BluetoothFragment() {
 
         ChargingInfoDialog(object : AlertListener {
             override fun onConfirm() {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    viewModel.sleepDataCreate().collect {
-                        if (it) {
-                            activityViewModel.setCommend(ServiceCommend.START)
-                            delay(2000)
-                            viewModel.dataRemovedObservers()
-                        }
-                    }
-                }
+                viewModel.showWarningAlert()
             }
         }).show(requireActivity().supportFragmentManager, "")
+
     }
 
     private fun isPermission(): Flow<Boolean> = callbackFlow {

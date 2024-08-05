@@ -115,6 +115,7 @@ class QuestionActivity : BaseActivity() {
     fun DefaultPreview(contactData: ContactEntity = ContactEntity()) {
         val scrollState = rememberLazyListState()
         SoomScaffold(
+            bgColor = Color.Transparent,
             topText = stringResource(R.string.qna_title),
             topAction = { finish() },
             childView =

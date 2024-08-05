@@ -176,19 +176,21 @@ class BLEServiceHelper(
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 
+    fun forceUpload(){
+        blueToothUseCase?.forceUpload()
+    }
+
+
     fun forceSbScanDevice(
         context: Context,
         bluetoothAdapter: BluetoothAdapter?,
         callback: (ForceConnectDeviceMessage) -> Unit
     ) {
         //혹시나 내가 연결 중인데 검색이 안될수 있으니 일단 끊어 버리고 스캔 시작
+        blueToothUseCase?.bondClear(context, bluetoothAdapter)
         blueToothUseCase?.resetBleGattList()
-        blueToothUseCase?.forceSbScanDevice(
-            context,
-            bluetoothAdapter,
-            callback = callback,
-            bluetoothState = BluetoothState.Connecting
-        )
+        blueToothUseCase?.forceSbScanDevice(context, bluetoothAdapter, callback = callback, bluetoothState = BluetoothState.Connecting, forceEventConnect = true)
+
     }
 
     fun sbDisconnectDevice() {

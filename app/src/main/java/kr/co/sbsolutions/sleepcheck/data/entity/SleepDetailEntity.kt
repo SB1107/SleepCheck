@@ -67,61 +67,99 @@ data class SleepDetailResult(
     var sleepTime: Int? = 0,
     @SerializedName("state")
     var state: Int? = null,
+    @SerializedName("avg_snore_count")
+    var avgSnoreCount: String? = null,
     @SerializedName("deep_sleep_time")
     var deepSleepTime: Int? = null,
+
     @SerializedName("move_count")
     var moveCount: Int? = null,
+
     @SerializedName("rem_sleep_time")
     var remSleepTime: Int? = null,
+
     @SerializedName("light_sleep_time")
     var lightSleepTime: Int? = null,
+
+    @SerializedName("wake_sleep_time")
+    var wakeSleepTime: Int? = null,
+
     @SerializedName("fast_breath")
     var fastBreath: Int? = null,
+
     @SerializedName("slow_breath")
     var slowBreath: Int? = null,
+
     @SerializedName("unstable_breath")
     var unstableBreath: Int? = null,
+
     @SerializedName("avg_normal_breath")
     var avgNormalBreath: Int? = null,
+
     @SerializedName("normal_breath_time")
     var normalBreathTime: Int? = null,
+
     @SerializedName("description")
     val description: String? = "",
+
     @SerializedName("avg_fast_breath")
     val avgFastBreath: Int? = null,
+
     @SerializedName("avg_slow_breath")
     val avgSlowBreath: Int? = null,
+
     @SerializedName("snore_count")
     val snoreCount: Int? = null,
+
     @SerializedName("cough_count")
     val coughCount: Int? = null,
+
     @SerializedName("breath_score")
     val breathScore: Int? = null,
+
     @SerializedName("snore_score")
     val snoreScore: Int? = null,
+
     @SerializedName("ment")
     val ment: String? = null,
-    @SerializedName("unstable_idx")
-    val unstableIdx:  String? = null,
-    @SerializedName("nobreath_idx")
-    val nobreath_idx:  String? = null,
-    @SerializedName("snoring_idx")
-    val snoring_idx:  String? = null,
-    @SerializedName("supine_idx")
-    val supineIdx:  String? = null,
-    @SerializedName("left_idx")
-    val leftIdx:  String? = null,
-    @SerializedName("right_idx")
-    val rightIdx:  String? = null,
-    @SerializedName("prone_idx")
-    val proneIdx:  String? = null,
-    @SerializedName("rem_idx")
-    val remIdx:  String? = null,
-    @SerializedName("light_idx")
-    val lightIdx:  String? = null,
-    @SerializedName("deep_idx")
-    val deepIdx:  String? = null,
-    @SerializedName("movement_idx")
-    val movement:  String? = null,
 
-)
+    @SerializedName("unstable_idx")
+    val unstableIdx: String? = null,
+
+    @SerializedName("nobreath_idx")
+    val nobreath_idx: String? = null,
+
+    @SerializedName("snoring_idx")
+    val snoring_idx: String? = null,
+
+    @SerializedName("cough_idx")
+    val coughIdx: String? = null,
+
+    @SerializedName("supine_idx")
+    val supineIdx: String? = null,
+
+    @SerializedName("left_idx")
+    val leftIdx: String? = null,
+
+    @SerializedName("right_idx")
+    val rightIdx: String? = null,
+
+    @SerializedName("prone_idx")
+    val proneIdx: String? = null,
+
+    @SerializedName("rem_idx")
+    val remIdx: String? = null,
+
+    @SerializedName("wake_idx")
+    val wakeIdx: String? = null,
+
+    @SerializedName("light_idx")
+    val lightIdx: String? = null,
+
+    @SerializedName("deep_idx")
+    val deepIdx: String? = null,
+
+    @SerializedName("movement_idx")
+    val movement: String? = null,
+
+    )
