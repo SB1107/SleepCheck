@@ -712,7 +712,18 @@ object Components {
             } else 0
             val tempData: MutableMap<String, Pair<Int, Color>> = data.toMap().toMutableMap()
             if (tempValue != 0) {
-                tempData["other"] = Pair(tempValue.toInt(), Color.White)
+                val koSupine = tempData.filter { it.key == "바른자세" }
+                val enSupine = if (koSupine.isEmpty()) tempData.filter { it.key == "Supine" }  else emptyMap()
+                if (koSupine.isNotEmpty()) {
+                    val value = koSupine.values.first().first + tempValue.toInt()
+                    val tempColor = koSupine.values.first().second
+                    tempData["바른자세"] = Pair(value,tempColor)
+                }else{
+                    val value = enSupine.values.first().first + tempValue.toInt()
+                    val tempColor = enSupine.values.first().second
+                    tempData["Supine"] = Pair(value,tempColor)
+                }
+//                tempData["other"] = Pair(tempValue.toInt(), Color.White)
             }
             val outerRadius = size.minDimension / 2
             val innerRadius = outerRadius / 2 // 안쪽 원의 반지름을 바깥쪽 원의 절반으로 설정
@@ -926,8 +937,8 @@ object Components {
                     ) {}
                 }
                 Text(
-                    text = "${percentValue.toInt()}%",
-                    color = if(percentValue.toInt() < 10) Color.White else Color.Black,
+                    text = "%.2f".format(percentValue).plus("%"),
+                    color =  Color.White ,
                     modifier = Modifier.padding(start = 18.dp)
                 )
             }

@@ -310,8 +310,10 @@ class SBSensorBlueToothUseCase(
                 bluetoothAdapter?.startDiscovery()
                 bluetoothDevice?.createBond()
                 bluetoothAdapter?.cancelDiscovery()
+                logHelper.insertLog("본딩 시작")
             }
         }
+
     }
     private fun disconnectDevice(context: Context, bluetoothAdapter: BluetoothAdapter?) {
         bluetoothNetworkRepository.disconnectedDevice(bluetoothNetworkRepository.sbSensorInfo.value.sbBluetoothDevice)

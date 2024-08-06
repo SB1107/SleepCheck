@@ -311,7 +311,6 @@ class HistoryDetailActivity : BaseActivity() {
         val min = (TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() * 60).toHourMinute(
             LocalConfiguration.current.locales[0]
         )
-
         Column(
             Modifier
                 .fillMaxWidth()
@@ -652,12 +651,13 @@ class HistoryDetailActivity : BaseActivity() {
                     .padding(top = 24.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
+                val sleepTotalTime =  (data.wakeSleepTime ?: 0) + (data.remSleepTime ?: 0) + (data.lightSleepTime ?: 0) + (data.deepSleepTime ?: 0)
                 data.wakeSleepTime?.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     SleepState(
                         label = stringResource(R.string.detail_weak_sleep),
                         sleepTime = it,
-                        data.sleepTime ?: 0
+                        sleepTotalTime
                     )
                 }
                 data.remSleepTime?.let {
@@ -665,7 +665,7 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_rem_sleep),
                         sleepTime = it,
-                        data.sleepTime ?: 0
+                        sleepTotalTime
                     )
                 }
                 data.lightSleepTime?.let {
@@ -673,7 +673,7 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_light_sleep),
                         sleepTime = it,
-                        data.sleepTime ?: 0
+                        sleepTotalTime
                     )
                 }
                 data.deepSleepTime?.let {
@@ -681,7 +681,7 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_deep_sleep),
                         sleepTime = it,
-                        data.sleepTime ?: 0
+                        sleepTotalTime
                     )
                 }
 

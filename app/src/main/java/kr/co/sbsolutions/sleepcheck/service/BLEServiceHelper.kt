@@ -172,7 +172,6 @@ class BLEServiceHelper(
         bluetoothAdapter: BluetoothAdapter?,
         isForceBleDeviceConnect: Boolean = false
     ) {
-        Log.e(TAG, "sbConnectDevice: call11")
         blueToothUseCase?.connectDevice(context, bluetoothAdapter, isForceBleDeviceConnect)
     }
 

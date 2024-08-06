@@ -171,7 +171,6 @@ class BLEService : LifecycleService() {
     }
 
     fun connectDevice(isForceBleDeviceConnect: Boolean = false) {
-        Log.e(TAG, "connectDevice: service", )
         bleServiceHelper.sbConnectDevice(baseContext, bluetoothAdapter, isForceBleDeviceConnect = isForceBleDeviceConnect)
     }
     //측정 중지시 센서 연결 안되어 있을시  다시 연결 선택 함 강제 연결시도

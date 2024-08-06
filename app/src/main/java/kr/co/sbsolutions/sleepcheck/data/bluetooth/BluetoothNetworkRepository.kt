@@ -989,30 +989,6 @@ class BluetoothNetworkRepository @Inject constructor(
                 }
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     logHelper.insertLog("onConnectionStateChange: CONNECTED ${gatt.device.name} - ${gatt.device.address}")
-//                BluetoothNetworkRepository.gatt = gatt
-                    // FIXME: 살려줘
-                    /*coroutine.launch {
-                        val deviceName = dataManager.getBluetoothDeviceName(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-                        val deviceAddress = dataManager.getBluetoothDeviceAddress(SBBluetoothDevice.SB_SOOM_SENSOR.type.name).first()
-                        Log.d(TAG, "onConnectionStateChange: ${deviceName}")
-                        Log.d(TAG, "onConnectionStateChange: ${deviceAddress}")
-                        if (deviceName.isNullOrEmpty() &&
-                            deviceAddress.isNullOrEmpty()) {
-                            Log.d(TAG, "onConnectionStateChange: 탄다탄다 33333333")
-                            //연결 끊기
-                            gatt.close()
-                            delay(1500)
-                            _sbSensorInfo.value.bluetoothState = BluetoothState.Unregistered
-
-                            // 복구
-                            *//*_sbSensorInfo.value.bluetoothGatt = gatt
-                        _sbSensorInfo.value.bluetoothName = gatt.device.name
-                        _sbSensorInfo.value.bluetoothAddress = gatt.device.address
-                        coroutine.launch {
-                            dataManager.saveBluetoothDevice(SBBluetoothDevice.SB_SOOM_SENSOR.type.name,gatt.device.name, gatt.device.address)
-                        }*//*
-                    }
-                }*/
                     reConnectCount = 0
                     gatt.discoverServices()
                     innerData.update { it.copy(bluetoothGatt = gatt) }
@@ -1263,7 +1239,8 @@ class BluetoothNetworkRepository @Inject constructor(
 //                            Log.e(TAG, "id2 = ${innerData.value.dataId}")
 //                            Log.e(TAG, "상태 state = ${innerData.value.bluetoothState}")
                                 val check =
-                                    (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime) &&
+                                    (innerData.value.bluetoothState == BluetoothState.Connected.ReceivingRealtime)
+                                            || (innerData.value.bluetoothState == BluetoothState.Connected.SendDownloadContinue) &&
                                             (innerData.value.realData.value == null ||
                                                     (innerData.value.realData.value?.dataId?.toInt()
                                                         ?: -1) == innerData.value.dataId)
