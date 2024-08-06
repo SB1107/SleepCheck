@@ -21,7 +21,7 @@ android {
         applicationId = "kr.co.sbsolutions.sleepcheck"
         minSdk = 26
         targetSdk = 34
-        versionCode = 16
+        versionCode = 17
         versionName = "1.1.2"
         buildConfigField ("String", "SERVER_URL", "\"https://svc1.soomirang.kr/\"")
         buildConfigField ("String", "KAKAO",getProperties("kakao"))

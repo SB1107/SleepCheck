@@ -651,13 +651,16 @@ class HistoryDetailActivity : BaseActivity() {
                     .padding(top = 24.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
+                val timeList = mutableListOf(data.wakeSleepTime ?: 0, data.remSleepTime ?: 0, data.lightSleepTime ?: 0 , data.deepSleepTime ?: 0)
                 val sleepTotalTime =  (data.wakeSleepTime ?: 0) + (data.remSleepTime ?: 0) + (data.lightSleepTime ?: 0) + (data.deepSleepTime ?: 0)
+
                 data.wakeSleepTime?.let {
                     Spacer(modifier = Modifier.height(16.dp))
                     SleepState(
                         label = stringResource(R.string.detail_weak_sleep),
                         sleepTime = it,
-                        sleepTotalTime
+                        sleepTotalTime,
+                        timeList,
                     )
                 }
                 data.remSleepTime?.let {
@@ -665,7 +668,8 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_rem_sleep),
                         sleepTime = it,
-                        sleepTotalTime
+                        sleepTotalTime,
+                        timeList,
                     )
                 }
                 data.lightSleepTime?.let {
@@ -673,7 +677,8 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_light_sleep),
                         sleepTime = it,
-                        sleepTotalTime
+                        sleepTotalTime,
+                        timeList,
                     )
                 }
                 data.deepSleepTime?.let {
@@ -681,7 +686,8 @@ class HistoryDetailActivity : BaseActivity() {
                     SleepState(
                         label = stringResource(R.string.detail_deep_sleep),
                         sleepTime = it,
-                        sleepTotalTime
+                        sleepTotalTime,
+                        timeList,
                     )
                 }
 

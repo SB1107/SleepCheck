@@ -893,15 +893,22 @@ object Components {
     fun SleepState(
         label: String,
         sleepTime: Int,
-        totalTime: Int
+        totalTime: Int,
+        timeList : List<Int>,
     ) {
         var width by remember { mutableStateOf(0.dp) }
         var textWidth by remember { mutableStateOf(0.dp) }
         var height by remember { mutableStateOf(0.dp) }
         val density = LocalDensity.current
+        val maxSleepTime =  (timeList.maxOrNull() ?: 0)
+        val timeSize = timeList.filter { it != 0 }.size
+        val weightValue = 100f - (maxSleepTime  / totalTime.toFloat()) * 100f
         val percentValue = (sleepTime / totalTime.toFloat()) * 100f
+        val tempValue = ((sleepTime / maxSleepTime.toFloat()) * 100f)  / 100f
+        val tempValue2 = (((sleepTime / totalTime.toFloat()) * 100f).plus(weightValue / timeSize -1) / 100f)
+        val tempValue3 = mutableListOf(tempValue , tempValue2).maxOrNull() ?: 0f
         val percent =
-            if (percentValue.isNaN()) 0.dp else (width - textWidth) * ((percentValue / 100f))
+            if (percentValue.isNaN()) 0.dp else (width - textWidth) * (( if (maxSleepTime == sleepTime) 98f / 100f else tempValue3))
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -937,7 +944,7 @@ object Components {
                     ) {}
                 }
                 Text(
-                    text = "%.2f".format(percentValue).plus("%"),
+                    text = "%.1f".format(percentValue).plus("%"),
                     color =  Color.White ,
                     modifier = Modifier.padding(start = 18.dp)
                 )
